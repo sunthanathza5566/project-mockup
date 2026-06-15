@@ -1561,51 +1561,12 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
     </nav>
   </div>
 
-  <div class="stu-sidebar-overlay" id="stu-sidebar-overlay" onclick="stuCloseSidebar()"></div>
-
-  <aside class="stu-sidebar" id="stu-sidebar">
-    <div class="stu-sidebar-header">
-      <div class="stu-sidebar-title">เมนู</div>
-      <button class="stu-sidebar-close" onclick="stuCloseSidebar()">✕</button>
-    </div>
-    <div class="stu-sidebar-profile" onclick="stuSetView('profile');stuCloseSidebar();">
-      <div class="stu-sidebar-avatar" id="stu-sidebar-avatar">ธน</div>
-      <div class="stu-sidebar-info">
-        <div class="stu-sidebar-name"  id="stu-sidebar-name">ธนาพร สุขใจ</div>
-        <div class="stu-sidebar-class" id="stu-sidebar-class">ม.1/1 · รหัส 10021</div>
-      </div>
-      <span class="stu-chevron">›</span>
-    </div>
-    <nav class="stu-sidebar-menu">
-      <button class="stu-menu-item active" data-view="dashboard" onclick="stuSetView('dashboard');stuCloseSidebar();">
-        <span class="stu-menu-icon">🏠</span><span>หน้าหลัก</span>
-      </button>
-      <button class="stu-menu-item" data-view="profile" onclick="stuSetView('profile');stuCloseSidebar();">
-        <span class="stu-menu-icon">👤</span><span>ข้อมูลส่วนตัว</span>
-      </button>
-      <button class="stu-menu-item" data-view="classroom" onclick="stuSetView('classroom');stuCloseSidebar();">
-        <span class="stu-menu-icon">🏫</span><span>ห้องเรียนของฉัน</span>
-      </button>
-      <button class="stu-menu-item" data-view="schedule" onclick="stuSetView('schedule');stuCloseSidebar();">
-        <span class="stu-menu-icon">📅</span><span>ตารางเรียน</span>
-      </button>
-      <button class="stu-menu-item" data-view="homework" onclick="stuSetView('homework');stuCloseSidebar();">
-        <span class="stu-menu-icon">📚</span><span>การบ้าน &amp; งานที่มอบหมาย</span>
-        <span class="stu-menu-badge" id="stu-hw-badge">2</span>
-      </button>
-      <button class="stu-menu-item" data-view="shop" onclick="stuSetView('shop');stuCloseSidebar();">
-        <span class="stu-menu-icon">🛍</span><span>ร้านค้า</span>
-      </button>
-      <button class="stu-menu-item" data-view="library" onclick="stuSetView('library');stuCloseSidebar();">
-        <span class="stu-menu-icon">📖</span><span>ห้องสมุด</span>
-      </button>
-      <div class="stu-menu-divider"></div>
-      <button class="stu-menu-item stu-menu-logout" onclick="logout()">
-        <span class="stu-menu-icon">🚪</span><span>ออกจากระบบ</span>
-      </button>
-    </nav>
-    <div class="stu-sidebar-footer">EduFlow v1.0 · ปีการศึกษา 2567</div>
-  </aside>
+  <!-- Sidebar ถูกลบออกแล้ว — nav ทั้งหมดอยู่ใน burger panel -->
+  <!-- Hidden stubs เพื่อไม่ให้ buildStudentPage() throw error -->
+  <span id="stu-sidebar-avatar" style="display:none"></span>
+  <span id="stu-sidebar-name"   style="display:none"></span>
+  <span id="stu-sidebar-class"  style="display:none"></span>
+  <span id="stu-hw-badge"       style="display:none"></span>
 
   <main class="stu-main" id="stu-main"></main>
 
