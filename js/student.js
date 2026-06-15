@@ -223,12 +223,17 @@ function buildStudentPage() {
     STUDENT_DATA.profile.room  = parts[1] || STUDENT_DATA.profile.room;
   }
 
-  // Set sidebar mini-card
+  // Set sidebar mini-card (เก็บไว้ compatibility)
   const initials = (STUDENT_DATA.profile.firstName.substring(0,1) + (STUDENT_DATA.profile.lastName||'').substring(0,1));
   document.getElementById('stu-sidebar-avatar').textContent = initials;
   document.getElementById('stu-sidebar-name').textContent   = STUDENT_DATA.profile.firstName + ' ' + STUDENT_DATA.profile.lastName;
   document.getElementById('stu-sidebar-class').textContent  = `${STUDENT_DATA.profile.grade}/${STUDENT_DATA.profile.room} · รหัส ${STUDENT_DATA.profile.studentId}`;
   document.getElementById('stu-balance-num').textContent    = STUDENT_DATA.stats.balance.toLocaleString('th-TH');
+
+  // Set burger panel mini-profile
+  document.getElementById('stu-bm-avatar').textContent  = initials;
+  document.getElementById('stu-bm-pname').textContent   = STUDENT_DATA.profile.firstName + ' ' + STUDENT_DATA.profile.lastName;
+  document.getElementById('stu-bm-pclass').textContent  = `${STUDENT_DATA.profile.grade}/${STUDENT_DATA.profile.room} · รหัส ${STUDENT_DATA.profile.studentId}`;
 
   // Set default day to today (Mon–Fri only)
   const dayMap = { 1:'mon', 2:'tue', 3:'wed', 4:'thu', 5:'fri' };
@@ -245,6 +250,10 @@ function stuSetView(view) {
   // Update sidebar active item
   document.querySelectorAll('.stu-menu-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
+  });
+  // Update burger panel active item
+  document.querySelectorAll('.stu-bm-item[data-bmview]').forEach(btn => {
+    btn.classList.toggle('bm-active', btn.dataset.bmview === view);
   });
 
   const main = document.getElementById('stu-main');
@@ -565,16 +574,27 @@ function stuBuildSchedule() {
     </button>`).join('');
 
   const sched = STUDENT_DATA.schedule[stuCurrentDay] || [];
-  const periodsHtml = sched.map(p => {
+  const lunchHtml = `<div class="stu-lunch-inline">
+    <span>🍱</span>
+    <span>พักเที่ยง</span>
+    <span class="stu-lunch-inline-time">12:00 – 13:00</span>
+  </div>`;
+
+  const periodsHtml = sched.reduce((html, p, idx) => {
     const c = stuColor(p.key);
-    return `<div class="stu-period-card" style="background:${c.bg};border:1px solid ${c.border};">
+    const card = `<div class="stu-period-card" style="background:${c.bg};border:1px solid ${c.border};">
       <div class="stu-period-num" style="color:${c.dot};">คาบ ${p.period}</div>
       <div class="stu-period-time">${p.time}</div>
       <div class="stu-period-subj" style="color:${c.text};">${p.subject}</div>
       <div class="stu-period-teacher">${p.teacher}</div>
       <div class="stu-period-room">📍 ${p.room}</div>
     </div>`;
-  }).join('') || '<div class="stu-empty">ไม่มีคาบเรียน 🎉</div>';
+    // แทรก lunch break หลังคาบที่จบตอน 12:xx (ก่อนคาบบ่าย)
+    const endTime = p.time.split('–')[1]?.trim() || p.time.split('-')[1]?.trim() || '';
+    const insertLunch = endTime.startsWith('12:') ||
+      (sched[idx+1] && (sched[idx+1].time.startsWith('13:') || sched[idx+1].time.includes('13:00')));
+    return html + card + (insertLunch && !html.includes('stu-lunch-inline') ? lunchHtml : '');
+  }, '') || '<div class="stu-empty">ไม่มีคาบเรียน 🎉</div>';
 
   return `
     <div class="stu-view-wrap">
@@ -584,7 +604,6 @@ function stuBuildSchedule() {
       </div>
       <div class="stu-day-tabs">${tabsHtml}</div>
       <div class="stu-periods-wrap">
-        <div class="stu-lunch-note">🍱 พักเที่ยง 12:00 – 13:00</div>
         <div class="stu-periods-grid" id="stu-periods-grid">${periodsHtml}</div>
       </div>
     </div>`;
@@ -654,7 +673,7 @@ function stuBuildHomework() {
         <summary>รายละเอียด</summary>
         <div class="stu-hw-desc">${a.details}</div>
         ${a.status === 'pending' || a.status === 'overdue'
-          ? `<button class="stu-hw-submit-btn" onclick="showToast('กำลังเปิดหน้าส่งงาน...')">📤 ส่งงาน</button>`
+          ? `<button class="stu-hw-submit-btn" onclick="stuOpenSubmit(${a.id})">📤 ส่งการบ้าน</button>`
           : ''}
       </details>
     </div>`;
@@ -972,4 +991,131 @@ function libPrevPage() {
   if (libCurPage <= 0) return;
   libCurPage--;
   libRenderPage('prev');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUBMIT MODAL — ส่งการบ้าน
+// ═══════════════════════════════════════════════════════════════
+let stuSubmitFileSelected = false;
+
+function stuOpenSubmit(id) {
+  const a = STUDENT_DATA.assignments.find(x => x.id === id);
+  if (!a) return;
+  stuSubmitFileSelected = false;
+
+  const c = stuColor(a.key);
+  const isOverdue = a.status === 'overdue';
+  const isGraded  = a.status === 'graded' || a.status === 'submitted';
+
+  // score panel
+  let scoreNum, scoreCls, statusTxt, statusCls;
+  if (isGraded && a.myScore !== null) {
+    scoreNum  = `${a.myScore}/${a.maxScore}`;
+    scoreCls  = 'score-graded'; statusTxt = 'ได้คะแนนแล้ว'; statusCls = 'score-status-graded';
+  } else if (isOverdue) {
+    scoreNum  = `0/${a.maxScore}`;
+    scoreCls  = 'score-zero'; statusTxt = 'เกินกำหนดส่ง'; statusCls = 'score-status-overdue';
+  } else {
+    scoreNum  = `-/${a.maxScore}`;
+    scoreCls  = 'score-ok'; statusTxt = 'ยังไม่ส่ง'; statusCls = 'score-status-ok';
+  }
+
+  const scorePanel = `
+    <div class="stu-submit-score">
+      <div class="stu-submit-score-num ${scoreCls}">${scoreNum}</div>
+      <div class="stu-submit-score-max">คะแนนเต็ม ${a.maxScore}</div>
+      <div class="stu-submit-score-status ${statusCls}">${statusTxt}</div>
+    </div>`;
+
+  // file upload area (ปิดถ้า overdue)
+  const fileArea = isOverdue
+    ? `<div class="stu-submit-overdue-note">⛔ หมดเวลาส่งงานแล้ว ไม่สามารถแนบไฟล์หรือส่งงานได้</div>`
+    : `<div class="stu-submit-file-area" onclick="document.getElementById('stu-file-inp-${id}').click()">
+        <div class="stu-submit-file-icon">📎</div>
+        <div class="stu-submit-file-txt">คลิกเพื่อเลือกไฟล์ หรือลาก & วาง</div>
+        <input type="file" id="stu-file-inp-${id}" class="stu-submit-file-inp" multiple
+          onchange="stuFileChosen(this,'stu-file-name-${id}')">
+        <button class="stu-submit-file-btn" type="button">เลือกไฟล์</button>
+        <div class="stu-submit-file-name" id="stu-file-name-${id}"></div>
+      </div>
+      <button class="stu-submit-send-btn" onclick="stuSubmitHomework(${id})">📤 ส่งการบ้าน</button>`;
+
+  const bodyHtml = `
+    <div class="stu-submit-main">
+      <div class="stu-submit-title">${a.title}</div>
+      <div class="stu-submit-meta-grid">
+        <div class="stu-submit-meta-row">
+          <span class="stu-submit-meta-lbl">วิชา</span>
+          <span class="stu-submit-meta-val">
+            <span style="background:${c.bg};color:${c.text};border:1px solid ${c.border};padding:0.1rem 0.5rem;border-radius:50px;font-size:0.78rem;">${a.subject}</span>
+          </span>
+        </div>
+        <div class="stu-submit-meta-row">
+          <span class="stu-submit-meta-lbl">ครูผู้รับผิดชอบ</span>
+          <span class="stu-submit-meta-val">👩‍🏫 ${a.teacher}</span>
+        </div>
+        <div class="stu-submit-meta-row">
+          <span class="stu-submit-meta-lbl">กำหนดส่ง</span>
+          <span class="stu-submit-meta-val" style="color:${isOverdue?'var(--absent)':'inherit'}">📅 ${a.due}</span>
+        </div>
+        <div class="stu-submit-meta-row">
+          <span class="stu-submit-meta-lbl">ไฟล์แนบ</span>
+          <span class="stu-submit-meta-val">📎 ${a.files} ไฟล์</span>
+        </div>
+      </div>
+      <div class="stu-submit-desc-lbl">รายละเอียดงาน</div>
+      <div class="stu-submit-desc">${a.details}</div>
+      ${fileArea}
+    </div>
+    ${scorePanel}`;
+
+  document.getElementById('stu-submit-htitle').textContent = `ส่งการบ้าน — ${a.subject}`;
+  document.getElementById('stu-submit-body').innerHTML = bodyHtml;
+  document.getElementById('stu-submit-overlay').classList.add('open');
+}
+
+function stuFileChosen(inp, labelId) {
+  const label = document.getElementById(labelId);
+  if (!label) return;
+  if (inp.files && inp.files.length > 0) {
+    stuSubmitFileSelected = true;
+    const names = Array.from(inp.files).map(f => f.name).join(', ');
+    label.textContent = `✓ ${names}`;
+  }
+}
+
+function stuCloseSubmit() {
+  document.getElementById('stu-submit-overlay').classList.remove('open');
+}
+
+function stuSubmitHomework(id) {
+  const a = STUDENT_DATA.assignments.find(x => x.id === id);
+  if (!a) return;
+  if (!stuSubmitFileSelected) {
+    const nameEl = document.querySelector('.stu-submit-file-name');
+    if (nameEl) nameEl.textContent = '⚠️ กรุณาเลือกไฟล์ก่อนส่งงาน';
+    return;
+  }
+  // อัปเดต status ใน mock data
+  a.status = 'submitted';
+  STUDENT_DATA.stats.homeworkPending = Math.max(0, STUDENT_DATA.stats.homeworkPending - 1);
+
+  stuCloseSubmit();
+
+  // แสดง success popup
+  document.getElementById('stu-success-sub').textContent =
+    `ส่งงาน "${a.title.substring(0,40)}${a.title.length>40?'...':''}" เรียบร้อยแล้ว\nรอครูตรวจสอบ`;
+  document.getElementById('stu-success-overlay').classList.add('open');
+
+  // อัปเดต badge
+  const pendingCount = STUDENT_DATA.assignments.filter(x => x.status === 'pending' || x.status === 'overdue').length;
+  const badge = document.getElementById('stu-hw-badge');
+  if (badge) badge.textContent = pendingCount;
+  const bmBadge = document.getElementById('stu-bm-hw-badge');
+  if (bmBadge) bmBadge.textContent = pendingCount;
+}
+
+function stuCloseSuccess() {
+  document.getElementById('stu-success-overlay').classList.remove('open');
+  if (stuCurrentView === 'homework') stuSetView('homework');
 }

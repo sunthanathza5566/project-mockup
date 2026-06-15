@@ -713,40 +713,150 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
 .stu-hw-submit-btn { margin-top:0.5rem; padding:0.5rem 1.25rem; background:var(--brown-dark); color:var(--cream); border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:background 0.2s; }
 .stu-hw-submit-btn:hover { background:var(--brown-deep); }
 
-/* ─── Burger drop-down panel ─── */
+/* ─── Burger drop-down panel (vertical nav) ─── */
 .stu-bm-overlay {
   display:none; position:fixed; inset:0; z-index:190;
 }
 .stu-bm-overlay.show { display:block; }
 .stu-bm-panel {
   position:fixed; top:66px; right:1rem; z-index:195;
-  width:min(92vw,480px); padding:0.85rem;
-  background:rgba(250,247,242,0.80);
-  backdrop-filter:blur(30px) saturate(1.8);
-  -webkit-backdrop-filter:blur(30px) saturate(1.8);
-  border:1px solid rgba(107,79,47,0.18);
-  border-radius:20px;
+  width:min(92vw, 290px);
+  background:rgba(250,247,242,0.88);
+  backdrop-filter:blur(32px) saturate(1.8);
+  -webkit-backdrop-filter:blur(32px) saturate(1.8);
+  border:1px solid rgba(107,79,47,0.16);
+  border-radius:18px;
   box-shadow:0 12px 40px rgba(42,26,14,0.18),0 2px 8px rgba(42,26,14,0.08);
   opacity:0; transform:translateY(-10px) scale(0.97);
   pointer-events:none;
   transition:opacity 0.22s ease,transform 0.22s ease;
+  overflow:hidden;
 }
 .stu-bm-panel.open { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
-.stu-bm-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.55rem; }
-.stu-bm-btn {
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:0.4rem; padding:1rem 0.35rem;
-  background:rgba(250,247,242,0.55);
-  border:1px solid rgba(107,79,47,0.12);
-  border-radius:14px; cursor:pointer;
-  transition:all 0.18s; min-height:78px;
+/* mini profile */
+.stu-bm-profile {
+  display:flex; align-items:center; gap:0.7rem;
+  padding:0.9rem 1rem; cursor:pointer;
+  border-bottom:1px solid rgba(107,79,47,0.1);
+  transition:background 0.18s;
 }
-.stu-bm-btn:hover { background:rgba(107,79,47,0.1); border-color:rgba(107,79,47,0.28); transform:scale(1.05); }
-.stu-bm-icon  { font-size:1.5rem; line-height:1; }
-.stu-bm-label { font-family:'DM Sans',sans-serif; font-size:0.7rem; color:var(--brown-dark); font-weight:500; text-align:center; line-height:1.2; }
-.stu-bm-logout .stu-bm-label { color:var(--absent); }
-.stu-bm-logout { border-color:rgba(160,80,80,0.15); }
-.stu-bm-logout:hover { background:rgba(160,80,80,0.08); border-color:rgba(160,80,80,0.3); transform:scale(1.05); }
+.stu-bm-profile:hover { background:rgba(107,79,47,0.06); }
+.stu-bm-avatar  { width:36px; height:36px; border-radius:50%; background:var(--brown-dark); color:var(--cream); display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:600; flex-shrink:0; }
+.stu-bm-pinfo   { flex:1; min-width:0; }
+.stu-bm-pname   { font-size:0.82rem; font-weight:600; color:var(--brown-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stu-bm-pclass  { font-size:0.65rem; color:var(--text-muted); margin-top:1px; }
+.stu-bm-pchevron{ color:var(--text-muted); font-size:1rem; flex-shrink:0; }
+/* nav list */
+.stu-bm-nav { padding:0.35rem; }
+.stu-bm-item {
+  display:flex; align-items:center; gap:0.7rem; width:100%;
+  padding:0.65rem 0.8rem; border-radius:10px;
+  background:none; border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:0.875rem;
+  color:var(--text-body); text-align:left; transition:all 0.18s;
+}
+.stu-bm-item:hover { background:rgba(107,79,47,0.08); color:var(--brown-dark); }
+.stu-bm-item.bm-active { background:var(--brown-dark); color:var(--cream); }
+.stu-bm-iicon  { font-size:1rem; width:22px; text-align:center; flex-shrink:0; }
+.stu-bm-ibadge { margin-left:auto; background:var(--absent); color:#fff; font-size:0.6rem; font-weight:700; padding:0.1rem 0.38rem; border-radius:50px; }
+.stu-bm-divider { height:1px; background:rgba(107,79,47,0.1); margin:0.25rem 0.5rem; }
+.stu-bm-item-logout { color:var(--absent); }
+.stu-bm-item-logout:hover { background:rgba(160,80,80,0.08); color:var(--absent); }
+
+/* ─── Homework Submit Modal ─── */
+.stu-submit-overlay {
+  display:none; position:fixed; inset:0; z-index:600;
+  background:rgba(18,10,4,0.82); backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;
+}
+.stu-submit-overlay.open { display:flex; }
+.stu-submit-box {
+  width:min(780px,96vw); max-height:88vh;
+  background:var(--warm-white); border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.4);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.stu-submit-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.85rem 1.25rem; border-bottom:1px solid var(--border);
+  background:var(--cream); flex-shrink:0;
+}
+.stu-submit-htitle { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:500; color:var(--brown-dark); }
+.stu-submit-hclose { background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted); padding:0.2rem 0.45rem; border-radius:6px; }
+.stu-submit-hclose:hover { background:var(--cream-dark); }
+.stu-submit-body { display:flex; gap:1.25rem; padding:1.5rem; overflow-y:auto; flex:1; }
+.stu-submit-main { flex:1; min-width:0; }
+.stu-submit-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:400; color:var(--brown-ink); margin-bottom:1rem; line-height:1.3; }
+.stu-submit-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 1.5rem; margin-bottom:1.1rem; }
+.stu-submit-meta-row { display:flex; flex-direction:column; gap:2px; }
+.stu-submit-meta-lbl { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); }
+.stu-submit-meta-val { font-size:0.875rem; color:var(--text-body); }
+.stu-submit-desc-lbl { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:0.4rem; }
+.stu-submit-desc { background:var(--cream); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; font-size:0.85rem; color:var(--text-body); line-height:1.65; margin-bottom:1.25rem; }
+.stu-submit-file-area { border:2px dashed var(--border); border-radius:12px; padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:1rem; }
+.stu-submit-file-area:hover { border-color:var(--brown-mid); background:rgba(107,79,47,0.03); }
+.stu-submit-file-icon { font-size:2rem; margin-bottom:0.5rem; }
+.stu-submit-file-txt  { font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem; }
+.stu-submit-file-inp  { display:none; }
+.stu-submit-file-btn  { padding:0.45rem 1rem; background:var(--cream-dark); border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.78rem; color:var(--brown-deep); cursor:pointer; }
+.stu-submit-file-name { font-size:0.78rem; color:var(--brown-mid); margin-top:0.5rem; font-weight:500; }
+.stu-submit-overdue-note { background:rgba(160,80,80,0.08); border:1px solid rgba(160,80,80,0.25); border-radius:10px; padding:0.85rem 1rem; font-size:0.82rem; color:var(--absent); margin-bottom:1rem; }
+.stu-submit-send-btn { width:100%; padding:0.75rem; background:var(--brown-dark); color:var(--cream); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+.stu-submit-send-btn:hover { background:var(--brown-deep); }
+/* score panel */
+.stu-submit-score { width:130px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.5rem; padding:1.25rem 0.75rem; background:var(--cream); border:1px solid var(--border); border-radius:14px; text-align:center; align-self:flex-start; }
+.stu-submit-score-num { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:600; line-height:1; }
+.stu-submit-score-num.score-ok { color:#2E8B5B; }
+.stu-submit-score-num.score-zero { color:var(--absent); }
+.stu-submit-score-num.score-graded { color:var(--brown-deep); }
+.stu-submit-score-max { font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; }
+.stu-submit-score-status { font-size:0.68rem; font-weight:600; padding:0.2rem 0.5rem; border-radius:50px; }
+.score-status-ok     { background:rgba(46,139,91,0.12); color:#2E8B5B; }
+.score-status-overdue{ background:rgba(160,80,80,0.12); color:var(--absent); }
+.score-status-graded { background:rgba(107,79,47,0.12); color:var(--brown-deep); }
+
+/* ─── Submit Success Popup ─── */
+.stu-success-overlay {
+  display:none; position:fixed; inset:0; z-index:700;
+  background:rgba(18,10,4,0.7); backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  align-items:center; justify-content:center;
+}
+.stu-success-overlay.open { display:flex; }
+.stu-success-box {
+  background:var(--warm-white); border-radius:20px;
+  padding:2.5rem 2rem; text-align:center; max-width:300px; width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  animation: successPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes successPop {
+  from { transform:scale(0.7); opacity:0; }
+  to   { transform:scale(1);   opacity:1; }
+}
+.stu-success-icon-wrap { margin-bottom:1rem; }
+.stu-success-circle {
+  width:72px; height:72px; border-radius:50%;
+  background:#2E8B5B; color:#fff;
+  font-size:2rem; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 24px rgba(46,139,91,0.35);
+}
+.stu-success-title { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:400; color:var(--brown-ink); margin-bottom:0.4rem; }
+.stu-success-sub   { font-size:0.82rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6; }
+.stu-success-btn   { padding:0.65rem 2rem; background:var(--brown-dark); color:var(--cream); border:none; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.875rem; cursor:pointer; transition:background 0.2s; }
+.stu-success-btn:hover { background:var(--brown-deep); }
+
+/* ─── Schedule inline lunch break ─── */
+.stu-lunch-inline {
+  grid-column:1 / -1;
+  display:flex; align-items:center; gap:0.75rem;
+  padding:0.6rem 1.1rem;
+  background:rgba(196,128,74,0.07); border:1px dashed rgba(196,128,74,0.35);
+  border-radius:10px; font-size:0.8rem; color:var(--brown-mid);
+}
+.stu-lunch-inline-time { font-weight:600; font-size:0.75rem; color:var(--brown-deep); white-space:nowrap; }
+.stu-lunch-note { display:none; } /* ซ่อน lunch note เดิมที่อยู่ด้านบน */
 
 /* ─── Shop ─── */
 .stu-shop-cats { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
@@ -1421,19 +1531,34 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
     </div>
   </nav>
 
-  <!-- ─── Burger drop-down panel ─── -->
+  <!-- ─── Burger drop-down panel (vertical nav) ─── -->
   <div class="stu-bm-overlay" id="stu-bm-overlay" onclick="stuCloseBurgerMenu()"></div>
   <div class="stu-bm-panel" id="stu-bm-panel">
-    <div class="stu-bm-grid">
-      <button class="stu-bm-btn" onclick="stuBurgerNav('dashboard')"><span class="stu-bm-icon">🏠</span><span class="stu-bm-label">หน้าหลัก</span></button>
-      <button class="stu-bm-btn" onclick="stuBurgerNav('library')"><span class="stu-bm-icon">📖</span><span class="stu-bm-label">ห้องสมุด</span></button>
-      <button class="stu-bm-btn" onclick="stuBurgerNav('shop')"><span class="stu-bm-icon">🛍</span><span class="stu-bm-label">ร้านค้า</span></button>
-      <button class="stu-bm-btn" onclick="stuBurgerNav('schedule')"><span class="stu-bm-icon">📅</span><span class="stu-bm-label">ตารางเรียน</span></button>
-      <button class="stu-bm-btn" onclick="stuBurgerNav('homework')"><span class="stu-bm-icon">📚</span><span class="stu-bm-label">การบ้าน</span></button>
-      <button class="stu-bm-btn" onclick="stuBurgerNav('profile')"><span class="stu-bm-icon">👤</span><span class="stu-bm-label">โปรไฟล์</span></button>
-      <button class="stu-bm-btn" onclick="showToast('กำลังเติมเงิน...');stuCloseBurgerMenu();"><span class="stu-bm-icon">💳</span><span class="stu-bm-label">เติมเงิน</span></button>
-      <button class="stu-bm-btn stu-bm-logout" onclick="logout()"><span class="stu-bm-icon">🚪</span><span class="stu-bm-label">ออกจากระบบ</span></button>
+    <!-- Mini profile -->
+    <div class="stu-bm-profile" id="stu-bm-profile" onclick="stuBurgerNav('profile')">
+      <div class="stu-bm-avatar" id="stu-bm-avatar">ธน</div>
+      <div class="stu-bm-pinfo">
+        <div class="stu-bm-pname"  id="stu-bm-pname">ธนาพร สุขใจ</div>
+        <div class="stu-bm-pclass" id="stu-bm-pclass">ม.1/1 · รหัส 10021</div>
+      </div>
+      <span class="stu-bm-pchevron">›</span>
     </div>
+    <!-- Nav items -->
+    <nav class="stu-bm-nav">
+      <button class="stu-bm-item" data-bmview="dashboard" onclick="stuBurgerNav('dashboard')"><span class="stu-bm-iicon">🏠</span><span>หน้าหลัก</span></button>
+      <button class="stu-bm-item" data-bmview="profile"   onclick="stuBurgerNav('profile')"><span class="stu-bm-iicon">👤</span><span>ข้อมูลส่วนตัว</span></button>
+      <button class="stu-bm-item" data-bmview="classroom" onclick="stuBurgerNav('classroom')"><span class="stu-bm-iicon">🏫</span><span>ห้องเรียนของฉัน</span></button>
+      <button class="stu-bm-item" data-bmview="schedule"  onclick="stuBurgerNav('schedule')"><span class="stu-bm-iicon">📅</span><span>ตารางเรียน</span></button>
+      <button class="stu-bm-item" data-bmview="homework"  onclick="stuBurgerNav('homework')">
+        <span class="stu-bm-iicon">📚</span><span>การบ้าน &amp; งานที่มอบหมาย</span>
+        <span class="stu-bm-ibadge" id="stu-bm-hw-badge">2</span>
+      </button>
+      <button class="stu-bm-item" data-bmview="shop"      onclick="stuBurgerNav('shop')"><span class="stu-bm-iicon">🛍</span><span>ร้านค้า</span></button>
+      <button class="stu-bm-item" data-bmview="library"   onclick="stuBurgerNav('library')"><span class="stu-bm-iicon">📖</span><span>ห้องสมุด</span></button>
+      <div class="stu-bm-divider"></div>
+      <button class="stu-bm-item" onclick="showToast('กำลังเติมเงิน...');stuCloseBurgerMenu();"><span class="stu-bm-iicon">💳</span><span>เติมเงิน</span></button>
+      <button class="stu-bm-item stu-bm-item-logout" onclick="logout()"><span class="stu-bm-iicon">🚪</span><span>ออกจากระบบ</span></button>
+    </nav>
   </div>
 
   <div class="stu-sidebar-overlay" id="stu-sidebar-overlay" onclick="stuCloseSidebar()"></div>
@@ -1483,6 +1608,29 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
   </aside>
 
   <main class="stu-main" id="stu-main"></main>
+
+  <!-- ─── Homework Submit Modal ─── -->
+  <div class="stu-submit-overlay" id="stu-submit-overlay">
+    <div class="stu-submit-box">
+      <div class="stu-submit-header">
+        <span class="stu-submit-htitle" id="stu-submit-htitle">ส่งการบ้าน</span>
+        <button class="stu-submit-hclose" onclick="stuCloseSubmit()">✕</button>
+      </div>
+      <div class="stu-submit-body" id="stu-submit-body"></div>
+    </div>
+  </div>
+
+  <!-- ─── Submit Success Popup ─── -->
+  <div class="stu-success-overlay" id="stu-success-overlay">
+    <div class="stu-success-box">
+      <div class="stu-success-icon-wrap">
+        <div class="stu-success-circle">✓</div>
+      </div>
+      <div class="stu-success-title">ส่งงานสำเร็จ!</div>
+      <div class="stu-success-sub" id="stu-success-sub"></div>
+      <button class="stu-success-btn" onclick="stuCloseSuccess()">ตกลง</button>
+    </div>
+  </div>
 </div>
 
 <!-- ─── QR MODAL ─── -->
