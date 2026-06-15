@@ -1,0 +1,8 @@
+{
+  "name": "eduflow",
+  "version": "1.0.0",
+  "description": "EduFlow — ระบบอำนวยความสะดวกโรงเรียน",
+  "scripts": {
+    "start": "npx serve . -p 3000"
+  }
+}

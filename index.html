@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduFlow — ระบบอำนวยความสะดวกโรงเรียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F5F0E8;
+  --cream-dark: #EDE5D4;
+  --brown-light: #C4A882;
+  --brown-mid: #9E7B56;
+  --brown-deep: #6B4F2F;
+  --brown-dark: #3D2B1A;
+  --brown-ink: #2A1A0E;
+  --warm-white: #FAF7F2;
+  --accent: #8B6040;
+  --accent-hover: #6B4520;
+  --sage: #8A9E7E;
+  --text-muted: #8C7B6A;
+  --text-body: #4A3728;
+  --border: rgba(107,79,47,0.15);
+  --success: #5C8A5C;
+  --late: #C4804A;
+  --absent: #A05050;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--warm-white);
+  color: var(--text-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 4rem;
+  background: rgba(250,247,242,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--brown-dark); letter-spacing: 0.04em; }
+.nav-logo span { color: var(--brown-mid); }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 400; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; }
+.nav-links a:hover { color: var(--brown-deep); }
+.nav-cta { background: var(--brown-dark); color: var(--cream) !important; padding: 0.55rem 1.4rem; border-radius: 50px; font-size: 0.82rem !important; font-weight: 500 !important; letter-spacing: 0.05em; transition: background 0.2s !important; }
+.nav-cta:hover { background: var(--brown-deep) !important; color: var(--cream) !important; }
+
+.nav-hamburger { display: none; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.7rem; font-size: 1.1rem; cursor: pointer; color: var(--brown-deep); transition: background 0.2s; }
+.nav-hamburger:hover { background: var(--cream-dark); }
+
+.hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 8rem 4rem 4rem; gap: 4rem; position: relative; }
+.hero-bg-circle { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(196,168,130,0.12) 0%, transparent 70%); border-radius: 50%; right: -100px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.hero-content { position: relative; z-index: 1; }
+.hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--cream-dark); border: 1px solid var(--brown-light); color: var(--brown-deep); padding: 0.35rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem; }
+.hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--brown-mid); animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 4.2rem; font-weight: 300; line-height: 1.1; color: var(--brown-ink); margin-bottom: 1.5rem; letter-spacing: -0.01em; }
+.hero h1 em { font-style: italic; color: var(--brown-mid); }
+.hero-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.75; max-width: 420px; margin-bottom: 2.5rem; }
+.hero-actions { display: flex; gap: 1rem; align-items: center; }
+
+.btn-primary { background: var(--brown-dark); color: var(--cream); padding: 0.85rem 2rem; border-radius: 50px; font-size: 0.9rem; font-weight: 500; text-decoration: none; letter-spacing: 0.03em; cursor: pointer; border: none; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+.btn-primary:hover { background: var(--brown-deep); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(61,43,26,0.25); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary { background: transparent; color: var(--brown-deep); padding: 0.85rem 2rem; border-radius: 50px; font-size: 0.9rem; font-weight: 400; text-decoration: none; letter-spacing: 0.03em; cursor: pointer; border: 1.5px solid var(--brown-light); transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+.btn-secondary:hover { background: var(--cream-dark); border-color: var(--brown-mid); }
+
+.hero-card-wrap { position: relative; z-index: 1; }
+.hero-card { background: var(--cream); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; position: relative; overflow: hidden; }
+.hero-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--brown-light), var(--brown-mid), var(--brown-deep)); border-radius: 24px 24px 0 0; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--brown-dark); }
+.live-badge { background: rgba(92,138,92,0.15); color: var(--success); padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.35rem; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 1.5s infinite; }
+
+section { padding: 6rem 4rem; position: relative; }
+.section-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-mid); margin-bottom: 0.75rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; line-height: 1.15; color: var(--brown-ink); margin-bottom: 1rem; }
+.section-title em { font-style: italic; color: var(--brown-mid); }
+.section-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.75; max-width: 480px; margin-bottom: 3rem; }
+
+.legend-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.5rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+.legend-row:hover { background: rgba(107,79,47,0.05); }
+.legend-row.dimmed { opacity: 0.35; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.leg-bar { height: 4px; background: var(--cream-dark); border-radius: 2px; overflow: hidden; }
+.leg-fill { height: 100%; border-radius: 2px; transition: width 1.2s cubic-bezier(0.34,1.1,0.64,1); }
+
+.cta-section { background: var(--brown-dark); overflow: hidden; position: relative; }
+.cta-section::before { content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: rgba(196,168,130,0.08); top: -200px; right: -100px; }
+.cta-section::after { content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%; background: rgba(196,168,130,0.06); bottom: -100px; left: 5%; }
+.cta-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; gap: 4rem; align-items: center; }
+.cta-section .section-label { color: var(--brown-light); opacity: 0.8; }
+.cta-section .section-title { color: var(--cream); margin-bottom: 1.5rem; }
+.cta-section .section-desc { color: rgba(245,240,232,0.65); max-width: none; margin-bottom: 0; }
+.cta-actions { display: flex; flex-direction: column; gap: 1rem; min-width: 220px; }
+.btn-cta-main { background: var(--cream); color: var(--brown-dark); padding: 1rem 2rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.25s ease; text-align: center; letter-spacing: 0.02em; }
+.btn-cta-main:hover { background: var(--cream-dark); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+.btn-cta-outline { background: transparent; color: var(--cream); padding: 1rem 2rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 400; cursor: pointer; border: 1px solid rgba(245,240,232,0.3); transition: all 0.25s ease; text-align: center; letter-spacing: 0.02em; }
+.btn-cta-outline:hover { background: rgba(245,240,232,0.08); border-color: rgba(245,240,232,0.6); }
+
+footer { padding: 3rem 4rem; background: var(--brown-ink); display: flex; justify-content: space-between; align-items: center; }
+footer .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--cream); letter-spacing: 0.04em; }
+footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.animate-up { opacity: 0; animation: fadeUp 0.7s ease forwards; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.25s; }
+.delay-3 { animation-delay: 0.4s; }
+.delay-4 { animation-delay: 0.55s; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(42,26,14,0.5); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: var(--warm-white); border-radius: 20px; padding: 2.5rem; width: 400px; position: relative; animation: fadeUp 0.35s ease; }
+.modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.modal-close:hover { background: var(--cream-dark); }
+.qr-frame { width: 160px; height: 160px; margin: 1.5rem auto; border: 2px dashed var(--brown-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--cream); }
+.btn-full { width: 100%; padding: 0.9rem; background: var(--brown-dark); color: var(--cream); border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.03em; }
+.btn-full:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(61,43,26,0.2); }
+
+.toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--brown-dark); color: var(--cream); padding: 1rem 1.5rem; border-radius: 12px; font-size: 0.85rem; z-index: 300; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 20px 48px rgba(42,26,14,0.35); }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-icon { width: 28px; height: 28px; background: rgba(92,138,92,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+
+#page-main { transition: opacity 0.35s ease, transform 0.35s ease; }
+#page-main.exit { opacity: 0; transform: translateX(-32px); pointer-events: none; }
+#page-schools { display: none; min-height: 100vh; background: var(--warm-white); opacity: 0; transform: translateX(32px); transition: opacity 0.38s ease, transform 0.38s ease; }
+#page-schools.enter { opacity: 1; transform: translateX(0); }
+
+.schools-nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 1rem 4rem; display: flex; align-items: center; gap: 1.5rem; }
+.back-btn { display: flex; align-items: center; gap: 0.5rem; background: none; border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--brown-deep); cursor: pointer; transition: all 0.2s; }
+.back-btn:hover { background: var(--cream); border-color: var(--brown-light); }
+.breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted); }
+.breadcrumb span { color: var(--brown-mid); font-weight: 500; }
+
+.schools-hero { padding: 3.5rem 4rem 2.5rem; border-bottom: 1px solid var(--border); background: var(--cream); display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; }
+.level-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.9rem; border-radius: 50px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.schools-hero h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 300; color: var(--brown-ink); line-height: 1.15; margin-bottom: 0.5rem; }
+.schools-hero h2 em { font-style: italic; color: var(--brown-mid); }
+.schools-hero p { font-size: 0.9rem; color: var(--text-muted); }
+.hero-kpi { display: flex; gap: 2rem; flex-shrink: 0; }
+.kpi-box { text-align: center; }
+.kpi-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--brown-deep); }
+.kpi-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+.schools-body { padding: 2.5rem 4rem; }
+.schools-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; }
+.search-box { display: flex; align-items: center; gap: 0.6rem; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 1rem; flex: 1; max-width: 340px; transition: border-color 0.2s; }
+.search-box:focus-within { border-color: var(--brown-mid); }
+.search-box input { border: none; background: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--text-body); width: 100%; }
+.search-box input::placeholder { color: var(--text-muted); }
+.search-icon { font-size: 0.9rem; color: var(--text-muted); }
+.sort-select { padding: 0.55rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--text-body); background: var(--cream); outline: none; cursor: pointer; }
+.schools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; }
+.school-card { background: var(--cream); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: box-shadow 0.25s, transform 0.25s; }
+.school-card:hover { box-shadow: 0 8px 32px rgba(107,79,47,0.1); transform: translateY(-2px); }
+.school-card-header { padding: 1.25rem 1.25rem 1rem; display: flex; align-items: flex-start; gap: 1rem; }
+.school-logo { width: 44px; height: 44px; border-radius: 10px; background: var(--warm-white); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.school-info { flex: 1; min-width: 0; }
+.school-name { font-weight: 500; font-size: 0.92rem; color: var(--brown-dark); margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.school-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; }
+.school-rating { display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; font-weight: 500; color: var(--brown-deep); background: var(--cream-dark); padding: 0.2rem 0.5rem; border-radius: 6px; flex-shrink: 0; }
+.school-tags { padding: 0 1.25rem 0.9rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.school-tag { padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.68rem; font-weight: 500; background: var(--cream-dark); color: var(--brown-deep); border: 1px solid var(--border); }
+
+.reviews-section { border-top: 1px solid var(--border); padding: 1rem 1.25rem 0; }
+.reviews-toggle { display: flex; align-items: center; justify-content: space-between; background: none; border: none; width: 100%; padding: 0 0 0.9rem; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--brown-deep); font-size: 0.8rem; font-weight: 500; text-align: left; }
+.toggle-arrow { transition: transform 0.25s; font-size: 0.7rem; }
+.toggle-arrow.open { transform: rotate(180deg); }
+.reviews-list { display: none; padding-bottom: 1rem; }
+.reviews-list.open { display: block; }
+.review-item { padding: 0.9rem; background: var(--warm-white); border-radius: 10px; margin-bottom: 0.6rem; border: 1px solid var(--border); }
+.review-item:last-child { margin-bottom: 0; }
+.review-header { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.5rem; }
+.reviewer-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: var(--brown-deep); flex-shrink: 0; }
+.reviewer-name { font-size: 0.78rem; font-weight: 500; color: var(--brown-dark); }
+.reviewer-role { font-size: 0.7rem; color: var(--text-muted); }
+.review-stars { display: flex; gap: 1px; }
+.star { font-size: 0.65rem; }
+.review-product { font-size: 0.68rem; padding: 0.15rem 0.5rem; background: var(--cream-dark); border-radius: 50px; color: var(--brown-mid); font-weight: 500; margin-left: auto; }
+.review-text { font-size: 0.8rem; line-height: 1.6; color: var(--text-body); }
+.review-date { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem; }
+.no-results { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 0.9rem; }
+
+.showcase-section { padding: 6rem 4rem; background: var(--warm-white); border-top: 1px solid var(--border); }
+.showcase-alt { background: var(--cream); }
+.showcase-layout { display: grid; grid-template-columns: 1fr 1.15fr; gap: 5rem; align-items: center; }
+.showcase-reverse { direction: rtl; }
+.showcase-reverse > * { direction: ltr; }
+.showcase-eyebrow { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-mid); margin-bottom: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(158,123,86,0.1); border-radius: 50px; display: inline-block; }
+.showcase-title { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 300; line-height: 1.15; color: var(--brown-ink); margin-bottom: 1rem; }
+.showcase-title em { font-style: italic; color: var(--brown-mid); }
+.showcase-desc { font-size: 0.92rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; }
+.showcase-points { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+.point-item { display: flex; align-items: flex-start; gap: 0.9rem; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(107,79,47,0.04); border: 1px solid var(--border); transition: background 0.2s; }
+.point-item:hover { background: rgba(107,79,47,0.08); }
+.point-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.point-title { font-size: 0.85rem; font-weight: 500; color: var(--brown-dark); margin-bottom: 2px; }
+.point-sub { font-size: 0.78rem; color: var(--text-muted); }
+.showcase-cta-row { display: flex; align-items: center; gap: 1.25rem; }
+.showcase-hint { font-size: 0.78rem; color: var(--text-muted); }
+
+.showcase-mockup-wrap { position: relative; }
+.mockup-label { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-bottom: 0.75rem; }
+.browser-frame { background: var(--warm-white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 64px rgba(61,43,26,0.1), 0 4px 16px rgba(61,43,26,0.06); }
+.browser-bar { background: var(--cream-dark); border-bottom: 1px solid var(--border); padding: 0.55rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+.browser-dots { display: flex; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #FF6058; }
+.dot-y { background: #FFBD2E; }
+.dot-g { background: #28C840; }
+.browser-url { flex: 1; background: var(--warm-white); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-align: center; letter-spacing: 0.02em; }
+.browser-body { padding: 1.25rem; position: relative; }
+
+.mock-signin { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.mock-form-header { margin-bottom: 1rem; }
+.mock-field { margin-bottom: 0.75rem; }
+.mock-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+.mock-input { background: var(--warm-white); border: 1px solid var(--border); border-radius: 7px; padding: 0.4rem 0.7rem; font-size: 0.75rem; color: var(--text-body); }
+.mock-select { color: var(--text-muted); }
+.mock-btn-primary { background: var(--brown-dark); color: var(--cream); border-radius: 7px; padding: 0.55rem; font-size: 0.72rem; font-weight: 500; text-align: center; margin-top: 0.5rem; letter-spacing: 0.02em; }
+.mock-divider-row { text-align: center; font-size: 0.62rem; color: var(--text-muted); padding: 0.6rem 0 0.4rem; }
+.mock-btn-outline { border: 1px solid var(--border); border-radius: 7px; padding: 0.4rem; font-size: 0.7rem; color: var(--brown-deep); text-align: center; }
+.mock-toast { margin-top: 0.75rem; background: var(--brown-dark); color: var(--cream); border-radius: 8px; padding: 0.55rem 0.9rem; font-size: 0.68rem; display: flex; align-items: center; gap: 0.5rem; animation: slideUp 0.4s ease 1.2s both; }
+.mock-toast-dot { width: 6px; height: 6px; border-radius: 50%; background: #5C8A5C; flex-shrink: 0; animation: pulse 1.5s infinite; }
+
+.mock-dashboard { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.mock-dash-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--border); background: var(--cream-dark); gap: 0.5rem; }
+.mock-tab { font-size: 0.58rem; padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--text-muted); cursor: default; }
+.mock-tab-active { background: var(--brown-dark); color: var(--cream); }
+.mock-table { padding: 0 0.25rem; }
+.mock-thead { display: grid; grid-template-columns: 1fr 60px 70px; padding: 0.4rem 0.65rem; font-size: 0.58rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: var(--cream-dark); margin: 0.5rem 0 0; border-radius: 6px 6px 0 0; }
+.mock-tr { display: grid; grid-template-columns: 1fr 60px 70px; align-items: center; padding: 0.45rem 0.65rem; border-top: 1px solid var(--border); font-size: 0.7rem; transition: background 0.15s; }
+.mock-tr:hover { background: rgba(196,168,130,0.08); }
+.mock-student { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--text-body); }
+.mock-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: 600; color: var(--brown-deep); flex-shrink: 0; }
+.mock-time { font-size: 0.7rem; color: var(--text-muted); }
+.mock-pill { font-size: 0.58rem; padding: 0.15rem 0.5rem; border-radius: 50px; font-weight: 500; display: inline-flex; align-items: center; gap: 3px; }
+.mock-pill::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.mock-pill-ok { background: rgba(92,138,92,0.12); color: var(--success); }
+.mock-pill-late { background: rgba(196,128,74,0.12); color: var(--late); }
+.mock-pill-absent { background: rgba(160,80,80,0.12); color: var(--absent); }
+.mock-progress-bar-wrap { padding: 0.75rem 0.9rem; background: var(--cream-dark); margin-top: 0.25rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.mock-prog-row { display: grid; grid-template-columns: 36px 1fr 28px; gap: 0.4rem; align-items: center; }
+.mock-prog-track { height: 4px; background: var(--cream); border-radius: 2px; overflow: hidden; }
+.mock-prog-fill { height: 100%; border-radius: 2px; }
+.mockup-blur-badge { text-align: center; font-size: 0.68rem; color: var(--text-muted); margin-top: 0.65rem; padding: 0.35rem 1rem; background: var(--cream-dark); border-radius: 50px; border: 1px solid var(--border); display: inline-block; width: 100%; }
+
+.about-section { padding: 6rem 4rem; background: var(--cream); border-top: 1px solid var(--border); }
+.about-inner { max-width: 1100px; margin: 0 auto; }
+.motto-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+.motto-item-wide { grid-column: span 4; }
+.motto-item { background: var(--warm-white); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 1.5rem; position: relative; transition: box-shadow 0.25s, transform 0.25s; }
+.motto-item:hover { box-shadow: 0 8px 32px rgba(107,79,47,0.1); transform: translateY(-3px); }
+.motto-item-wide { display: flex; align-items: center; gap: 2rem; }
+.motto-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+.motto-item-wide .motto-icon { margin-bottom: 0; flex-shrink: 0; }
+.motto-num { font-family: 'Cormorant Garamond', serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-light); margin-bottom: 0.5rem; }
+.motto-item-wide .motto-num { display: none; }
+.motto-text { font-size: 0.9rem; line-height: 1.75; color: var(--text-body); }
+.motto-text strong { color: var(--brown-deep); font-weight: 600; }
+
+.auth-wrap { min-height: calc(100vh - 57px); display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--warm-white); }
+.auth-card { background: var(--cream); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2.25rem; width: 100%; max-width: 420px; box-shadow: 0 24px 64px rgba(61,43,26,0.08); }
+.auth-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--brown-dark); letter-spacing: 0.04em; text-align: center; margin-bottom: 1.5rem; }
+.auth-logo span { color: var(--brown-mid); }
+.auth-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--brown-ink); text-align: center; margin-bottom: 0.4rem; }
+.auth-sub { font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; line-height: 1.5; }
+.auth-alert { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.82rem; line-height: 1.5; margin-bottom: 1rem; }
+.auth-alert-err  { background: rgba(160,80,80,0.1); color: #7A3030; border: 1px solid rgba(160,80,80,0.25); }
+.auth-alert-warn { background: rgba(196,128,74,0.12); color: #7A4A20; border: 1px solid rgba(196,128,74,0.3); }
+.auth-alert-ok   { background: rgba(92,138,92,0.1); color: #2E5C2E; border: 1px solid rgba(92,138,92,0.25); }
+.auth-hint { font-size: 0.75rem; color: var(--late); margin-top: -0.5rem; margin-bottom: 0.75rem; text-align: center; }
+.auth-demo-hint { font-size: 0.72rem; color: var(--text-muted); background: var(--warm-white); border: 1px dashed var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 1rem; line-height: 1.8; }
+.auth-demo-hint code { background: var(--cream-dark); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.7rem; color: var(--brown-deep); font-family: monospace; }
+.auth-field { margin-bottom: 1rem; }
+.auth-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--brown-dark); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.auth-input { width: 100%; padding: 0.65rem 0.9rem; background: var(--warm-white); border: 1px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--text-body); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.auth-input:focus { border-color: var(--brown-mid); box-shadow: 0 0 0 3px rgba(158,123,86,0.15); }
+.auth-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C7B6A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.5rem; }
+.pw-wrap { position: relative; }
+.pw-wrap .auth-input { padding-right: 2.75rem; }
+.pw-eye { position: absolute; right: 0.65rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 0.25rem; line-height: 1; color: var(--text-muted); transition: opacity 0.2s; }
+.pw-eye:hover { opacity: 0.7; }
+.auth-btn-main { width: 100%; padding: 0.85rem; background: var(--brown-dark); color: var(--cream); border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.03em; margin-bottom: 0.75rem; }
+.auth-btn-main:hover { background: var(--brown-deep); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(61,43,26,0.2); }
+.auth-btn-outline { width: 100%; padding: 0.85rem; background: transparent; color: var(--brown-deep); border: 1.5px solid var(--brown-light); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 400; cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.03em; }
+.auth-btn-outline:hover { background: var(--cream-dark); border-color: var(--brown-mid); }
+.auth-or { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin: 0.75rem 0; position: relative; }
+.auth-or::before, .auth-or::after { content: ''; position: absolute; top: 50%; width: calc(50% - 40px); height: 1px; background: var(--border); }
+.auth-or::before { left: 0; }
+.auth-or::after  { right: 0; }
+
+.dash-nav { position: sticky; top: 0; z-index: 100; background: rgba(250,247,242,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0.85rem 2.5rem; display: flex; align-items: center; gap: 1.5rem; }
+.dash-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--brown-dark); letter-spacing: 0.04em; margin-right: auto; }
+.dash-logo span { color: var(--brown-mid); }
+.dash-user-info { display: flex; align-items: center; gap: 0.75rem; }
+.dash-user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brown-dark); color: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; }
+.dash-user-name { font-size: 0.85rem; font-weight: 500; color: var(--brown-dark); }
+.dash-user-role { font-size: 0.72rem; color: var(--text-muted); }
+.dash-logout-btn { background: none; border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--brown-deep); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.dash-logout-btn:hover { background: var(--cream-dark); border-color: var(--absent); color: var(--absent); }
+.dash-content { max-width: 960px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+.dash-section { margin-bottom: 2.5rem; }
+.dash-h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--brown-ink); margin-bottom: 1.5rem; line-height: 1.2; }
+.dash-h2 em { font-style: italic; color: var(--brown-mid); }
+.dash-kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.dash-kpi { background: var(--cream); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1rem; text-align: center; }
+.dash-kpi-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: var(--brown-deep); line-height: 1; }
+.dash-kpi-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.35rem; }
+.dash-section-title { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brown-mid); margin-bottom: 1rem; }
+.dash-attendance-bars { display: flex; flex-direction: column; gap: 0.65rem; }
+.dash-bar-row { display: grid; grid-template-columns: 80px 1fr 40px; align-items: center; gap: 0.75rem; }
+.dash-bar-label { font-size: 0.8rem; color: var(--text-body); }
+.dash-bar-track { height: 8px; background: var(--cream-dark); border-radius: 4px; overflow: hidden; }
+.dash-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.dash-bar-val { font-size: 0.78rem; font-weight: 500; text-align: right; }
+.dash-actions-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.dash-action-btn { padding: 0.65rem 1.25rem; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--brown-deep); cursor: pointer; transition: all 0.2s; }
+.dash-action-btn:hover { background: var(--cream-dark); border-color: var(--brown-mid); transform: translateY(-1px); }
+.dash-schedule { display: flex; flex-direction: column; gap: 0.75rem; }
+.dash-schedule-row { display: grid; grid-template-columns: 1fr 1fr auto auto; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--cream); border: 1px solid var(--border); border-radius: 12px; transition: box-shadow 0.2s; }
+.dash-schedule-row:hover { box-shadow: 0 4px 16px rgba(107,79,47,0.08); }
+.dash-period-badge { font-size: 0.75rem; color: var(--text-muted); }
+.dash-subject { font-size: 0.875rem; font-weight: 500; color: var(--brown-dark); }
+.dash-room { font-size: 0.78rem; color: var(--text-muted); }
+.dash-check-btn { padding: 0.4rem 0.9rem; background: var(--brown-dark); color: var(--cream); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+.dash-check-btn:hover { background: var(--brown-deep); }
+.dash-week-row { display: flex; gap: 0.75rem; }
+.dash-day-box { flex: 1; text-align: center; padding: 1rem 0.5rem; background: var(--cream); border: 1px solid var(--border); border-radius: 12px; }
+.dash-day-label { font-size: 0.75rem; font-weight: 600; color: var(--brown-dark); margin-bottom: 0.5rem; }
+.dash-day-dot { width: 12px; height: 12px; border-radius: 50%; margin: 0 auto 0.4rem; }
+.dot-ok { background: var(--success); }
+.dot-late { background: var(--late); }
+.dot-absent { background: var(--absent); }
+.dash-day-status { font-size: 0.62rem; color: var(--text-muted); }
+.dash-notif-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.dash-notif { padding: 0.75rem 1rem; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; font-size: 0.85rem; color: var(--text-body); line-height: 1.5; }
+.dash-notif-ok   { border-left: 3px solid var(--success); }
+.dash-notif-late { border-left: 3px solid var(--late); }
+
+.dash-tabs-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.dash-tab-btn { padding: 0.5rem 1.25rem; background: var(--cream); border: 1px solid var(--border); border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.dash-tab-btn:hover { border-color: var(--brown-mid); color: var(--brown-deep); }
+.dash-tab-btn.active { background: var(--brown-dark); color: var(--cream); border-color: var(--brown-dark); }
+.dash-tab-pane { animation: fadeIn 0.25s ease; }
+
+.dash-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.admin-list-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+.admin-list-hint { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
+.admin-user-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; }
+.admin-role-pill { font-size: 0.65rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 50px; flex-shrink: 0; }
+.role-web_admin    { background: rgba(107,79,47,0.15); color: var(--brown-deep); border: 1px solid rgba(107,79,47,0.3); }
+.role-school_admin { background: rgba(92,138,92,0.12); color: #2E5C2E; border: 1px solid rgba(92,138,92,0.3); }
+.role-teacher      { background: rgba(196,128,74,0.12); color: #7A4A20; border: 1px solid rgba(196,128,74,0.3); }
+.role-student      { background: rgba(100,130,196,0.12); color: #2A4070; border: 1px solid rgba(100,130,196,0.3); }
+.role-parent       { background: rgba(158,123,86,0.12); color: var(--brown-mid); border: 1px solid rgba(158,123,86,0.25); }
+.admin-uname { font-size: 0.82rem; font-weight: 500; color: var(--brown-dark); font-family: monospace; }
+.admin-uname-full { font-size: 0.8rem; color: var(--text-muted); flex: 1; }
+.admin-del-btn { margin-left: auto; padding: 0.3rem 0.75rem; background: rgba(160,80,80,0.1); color: var(--absent); border: 1px solid rgba(160,80,80,0.25); border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; }
+.admin-del-btn:hover { background: rgba(160,80,80,0.2); }
+.admin-protected { margin-left: auto; font-size: 0.75rem; color: var(--text-muted); }
+
+.perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.perm-group { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.perm-group-title { font-size: 0.8rem; font-weight: 600; color: var(--brown-dark); margin-bottom: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.perm-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--text-body); cursor: pointer; padding: 0.35rem 0; }
+.perm-row input[type=checkbox] { accent-color: var(--brown-deep); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+.perm-row:hover { color: var(--brown-dark); }
+
+.log-wrap { display: flex; flex-direction: column; gap: 1.25rem; }
+.log-section { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.log-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brown-mid); margin-bottom: 0.75rem; }
+.log-row { font-size: 0.8rem; color: var(--text-body); padding: 0.45rem 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+.log-row:last-child { border-bottom: none; }
+.log-badge { font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 4px; background: rgba(107,79,47,0.12); color: var(--brown-deep); margin-right: 0.4rem; }
+.log-badge-login { background: rgba(92,138,92,0.12); color: #2E5C2E; }
+.log-empty { font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding: 0.5rem 0; }
+.log-note { font-size: 0.72rem; color: var(--text-muted); font-style: italic; padding: 0.5rem; border: 1px dashed var(--border); border-radius: 8px; line-height: 1.6; }
+
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-hamburger { display: flex; }
+  .nav-links { display: none; position: fixed; inset: 0; z-index: 500; background: var(--warm-white); flex-direction: column; align-items: center; justify-content: center; gap: 1.75rem; }
+  .nav-links.mobile-open { display: flex; }
+  .nav-links li { list-style: none; }
+  .nav-links a { font-size: 1.1rem; }
+  .nav-cta { padding: 0.65rem 2rem !important; font-size: 1rem !important; }
+  .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; gap: 2.5rem; }
+  .hero h1 { font-size: 2.8rem; }
+  .hero-card-wrap { order: -1; }
+  .hero-bg-circle { display: none; }
+  .about-section { padding: 4rem 1.5rem; }
+  .motto-grid { grid-template-columns: 1fr 1fr; }
+  .motto-item-wide { grid-column: span 2; }
+  .showcase-section { padding: 4rem 1.5rem; }
+  .showcase-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .showcase-reverse { direction: ltr; }
+  section { padding: 4rem 1.5rem; }
+  .cta-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .cta-actions { min-width: unset; }
+  .schools-nav { padding: 1rem 1.5rem; }
+  .schools-hero { padding: 2rem 1.5rem; flex-direction: column; align-items: flex-start; }
+  .hero-kpi { gap: 1rem; }
+  .schools-body { padding: 1.5rem; }
+  .schools-toolbar { flex-direction: column; align-items: stretch; }
+  .search-box { max-width: none; }
+  .schools-grid { grid-template-columns: 1fr; }
+  footer { padding: 2rem 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+  .dash-nav { padding: 0.85rem 1.25rem; gap: 0.75rem; }
+  .dash-user-name { font-size: 0.78rem; }
+  .dash-user-role { font-size: 0.65rem; }
+  .dash-logout-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+  .dash-content { padding: 1.5rem 1rem 3rem; }
+  .dash-schedule-row { grid-template-columns: 1fr 1fr; }
+  .dash-period-badge { grid-column: span 2; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero-actions { flex-direction: column; align-items: flex-start; }
+  .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  .showcase-title { font-size: 2rem; }
+  .section-title  { font-size: 2rem; }
+  .motto-grid { grid-template-columns: 1fr; }
+  .motto-item-wide { grid-column: span 1; flex-direction: column; }
+  .schools-hero h2 { font-size: 1.8rem; }
+  .hero-kpi { flex-wrap: wrap; gap: 0.75rem; }
+  .kpi-box { border-left: none !important; padding-left: 0 !important; }
+  .auth-card { padding: 2rem 1.25rem; }
+  .auth-title { font-size: 1.5rem; }
+  .dash-week-row { gap: 0.4rem; }
+  .dash-day-box { padding: 0.75rem 0.25rem; }
+  .dash-schedule-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .dash-period-badge { grid-column: span 1; }
+  .perm-grid { grid-template-columns: 1fr; }
+  .cta-inner { text-align: center; }
+  footer { flex-direction: column; }
+}
+
+/* ═══════════════════════════════════════
+   STUDENT DASHBOARD
+═══════════════════════════════════════ */
+
+/* ─── Nav ─── */
+.stu-nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center;
+  padding: 0 2rem; height: 58px;
+  background: rgba(250,247,242,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+}
+.stu-nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:600; color:var(--brown-dark); letter-spacing:0.04em; white-space:nowrap; }
+.stu-nav-logo span { color:var(--brown-mid); }
+.stu-nav-links { display:flex; list-style:none; gap:0.25rem; flex:1; justify-content:center; }
+.stu-nav-links a { text-decoration:none; font-size:0.8rem; color:var(--text-muted); padding:0.4rem 0.8rem; border-radius:8px; transition:all 0.2s; white-space:nowrap; }
+.stu-nav-links a:hover { background:var(--cream-dark); color:var(--brown-deep); }
+.stu-nav-right { display:flex; align-items:center; gap:0.5rem; margin-left:auto; }
+.stu-balance { font-size:0.82rem; font-weight:600; color:var(--brown-deep); background:var(--cream-dark); padding:0.35rem 0.8rem; border-radius:50px; border:1px solid var(--border); white-space:nowrap; }
+.stu-notif-btn, .stu-burger {
+  background:none; border:1px solid var(--border);
+  border-radius:8px; width:36px; height:36px;
+  cursor:pointer; font-size:1rem;
+  transition:background 0.2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.stu-notif-btn:hover, .stu-burger:hover { background:var(--cream-dark); }
+
+/* ─── Sidebar ─── */
+.stu-sidebar-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(42,26,14,0.45); backdrop-filter:blur(3px);
+}
+.stu-sidebar-overlay.show { display:block; }
+
+.stu-sidebar {
+  position:fixed; top:0; right:-320px; width:300px; height:100vh; z-index:201;
+  background:var(--warm-white); border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transition:right 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -8px 0 32px rgba(42,26,14,0.12);
+}
+.stu-sidebar.open { right:0; }
+
+.stu-sidebar-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 1.25rem; border-bottom:1px solid var(--border);
+}
+.stu-sidebar-title { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:500; color:var(--brown-dark); }
+.stu-sidebar-close { background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted); padding:0.25rem 0.5rem; border-radius:6px; transition:background 0.2s; }
+.stu-sidebar-close:hover { background:var(--cream-dark); }
+
+.stu-sidebar-profile {
+  display:flex; align-items:center; gap:0.85rem;
+  padding:1rem 1.25rem; cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background 0.2s;
+}
+.stu-sidebar-profile:hover { background:var(--cream); }
+.stu-sidebar-avatar { width:44px; height:44px; border-radius:50%; background:var(--brown-dark); color:var(--cream); display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:600; flex-shrink:0; }
+.stu-sidebar-info { flex:1; min-width:0; }
+.stu-sidebar-name  { font-size:0.875rem; font-weight:500; color:var(--brown-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stu-sidebar-class { font-size:0.72rem; color:var(--text-muted); margin-top:2px; }
+.stu-chevron { font-size:1.1rem; color:var(--text-muted); }
+
+.stu-sidebar-menu { flex:1; overflow-y:auto; padding:0.5rem; }
+.stu-menu-item {
+  display:flex; align-items:center; gap:0.75rem; width:100%;
+  padding:0.75rem 1rem; border-radius:10px;
+  background:none; border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:0.875rem;
+  color:var(--text-body); text-align:left;
+  transition:all 0.18s;
+}
+.stu-menu-item:hover { background:var(--cream); color:var(--brown-dark); }
+.stu-menu-item.active { background:var(--brown-dark); color:var(--cream); }
+.stu-menu-icon { font-size:1rem; width:22px; text-align:center; flex-shrink:0; }
+.stu-menu-badge { margin-left:auto; background:var(--absent); color:#fff; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:50px; }
+.stu-menu-divider { height:1px; background:var(--border); margin:0.5rem 0.75rem; }
+.stu-menu-logout { color:var(--absent); }
+.stu-menu-logout:hover { background:rgba(160,80,80,0.1); color:var(--absent); }
+.stu-sidebar-footer { padding:1rem 1.25rem; font-size:0.7rem; color:var(--text-muted); border-top:1px solid var(--border); }
+
+/* ─── Main area ─── */
+.stu-main { min-height:calc(100vh - 58px); overflow-y:auto; }
+.stu-view-wrap { max-width:960px; margin:0 auto; padding:2rem 2rem 4rem; }
+
+/* ─── Shared page headers ─── */
+.stu-page-header { margin-bottom:1.75rem; }
+.stu-page-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--brown-ink); margin-bottom:0.25rem; }
+.stu-page-title em { font-style:italic; color:var(--brown-mid); }
+.stu-page-sub { font-size:0.82rem; color:var(--text-muted); }
+.stu-section { margin-bottom:2rem; }
+.stu-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; }
+.stu-section-title { font-size:0.8rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--brown-mid); }
+.stu-link-btn { background:none; border:none; font-size:0.8rem; color:var(--brown-mid); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.stu-link-btn:hover { color:var(--brown-deep); }
+.stu-empty { text-align:center; padding:2rem 1rem; color:var(--text-muted); font-size:0.9rem; }
+.stu-btn-outline { padding:0.65rem 1.5rem; background:none; border:1.5px solid var(--brown-light); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--brown-deep); cursor:pointer; transition:all 0.2s; }
+.stu-btn-outline:hover { background:var(--cream-dark); }
+
+/* ─── Dashboard: greeting ─── */
+.stu-greeting-bar {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:1.75rem 2rem; background:var(--cream);
+  border:1px solid var(--border); border-radius:20px;
+  margin-bottom:1.5rem;
+}
+.stu-greeting-sub  { font-size:0.82rem; color:var(--text-muted); margin-bottom:0.25rem; }
+.stu-greeting-name { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--brown-ink); line-height:1.1; }
+.stu-greeting-name em { font-style:italic; color:var(--brown-mid); }
+.stu-greeting-date { font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; }
+.stu-greeting-id   { text-align:right; }
+.stu-id-num   { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:600; color:var(--brown-deep); }
+.stu-id-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; }
+
+/* ─── Dashboard: KPI cards ─── */
+.stu-kpi-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0.75rem; margin-bottom:1.75rem; }
+.stu-kpi-card {
+  background:var(--cream); border:1px solid var(--border);
+  border-radius:14px; padding:1.1rem 0.75rem; text-align:center;
+  cursor:pointer; transition:all 0.2s;
+}
+.stu-kpi-card:hover { box-shadow:0 4px 16px rgba(107,79,47,0.1); transform:translateY(-2px); }
+.stu-kpi-icon { font-size:1.2rem; margin-bottom:0.35rem; }
+.stu-kpi-val  { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; color:var(--brown-deep); line-height:1; }
+.stu-kpi-lbl  { font-size:0.62rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem; }
+.kpi-warn  { border-color:rgba(196,128,74,0.4); background:rgba(196,128,74,0.06); }
+.kpi-alert { border-color:rgba(160,80,80,0.4); background:rgba(160,80,80,0.06); }
+
+/* ─── Dashboard: schedule list ─── */
+.stu-sched-list { display:flex; flex-direction:column; gap:0.5rem; }
+.stu-sched-item { display:grid; grid-template-columns:60px 1fr auto; align-items:center; gap:0.75rem; padding:0.75rem 1rem; border-radius:10px; }
+.stu-sched-period { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); }
+.stu-sched-subj  { font-size:0.875rem; font-weight:500; }
+.stu-sched-meta  { font-size:0.72rem; color:var(--text-muted); text-align:right; white-space:nowrap; }
+
+/* ─── Dashboard: homework rows ─── */
+.stu-hw-list { display:flex; flex-direction:column; gap:0.5rem; }
+.stu-hw-row  { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:var(--cream); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:background 0.2s; }
+.stu-hw-row:hover { background:var(--cream-dark); }
+.stu-hw-dot  { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.stu-hw-info { flex:1; min-width:0; }
+.stu-hw-title{ font-size:0.82rem; font-weight:500; color:var(--brown-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stu-hw-meta { font-size:0.7rem; color:var(--text-muted); margin-top:2px; }
+.stu-hw-badge { font-size:0.65rem; font-weight:600; padding:0.2rem 0.55rem; border-radius:50px; white-space:nowrap; flex-shrink:0; }
+.badge-pending   { background:rgba(196,128,74,0.15); color:#7A4A20; }
+.badge-overdue   { background:rgba(160,80,80,0.15);  color:#7A3030; }
+.badge-submitted { background:rgba(100,130,196,0.15); color:#2A4070; }
+.badge-graded    { background:rgba(92,138,92,0.15);   color:#2E5C2E; }
+
+/* ─── Dashboard: attendance ─── */
+.stu-att-week    { display:flex; gap:0.75rem; margin-bottom:0.75rem; }
+.stu-att-day     { flex:1; text-align:center; padding:0.75rem 0.4rem; background:var(--cream); border:1px solid var(--border); border-radius:10px; }
+.stu-att-label   { font-size:0.72rem; font-weight:600; color:var(--brown-dark); margin-bottom:0.4rem; }
+.stu-att-status  { font-size:0.6rem; color:var(--text-muted); margin-top:0.3rem; }
+.stu-att-summary { font-size:0.78rem; color:var(--text-muted); }
+
+/* ─── Dashboard: quick actions ─── */
+.stu-quick-actions { display:flex; gap:0.65rem; flex-wrap:wrap; }
+.stu-quick-btn { padding:0.6rem 1rem; background:var(--cream); border:1px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--brown-deep); cursor:pointer; transition:all 0.2s; }
+.stu-quick-btn:hover { background:var(--cream-dark); border-color:var(--brown-mid); transform:translateY(-1px); }
+
+/* ─── Profile ─── */
+.stu-profile-header { display:flex; align-items:center; gap:1.75rem; padding:1.75rem 2rem; background:var(--cream); border:1px solid var(--border); border-radius:20px; margin-bottom:1.5rem; }
+.stu-profile-avatar-wrap { position:relative; flex-shrink:0; }
+.stu-profile-avatar { width:80px; height:80px; border-radius:50%; background:var(--brown-dark); color:var(--cream); font-size:1.6rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.stu-avatar-edit { position:absolute; bottom:0; right:-4px; background:var(--cream); border:1px solid var(--border); border-radius:50%; width:26px; height:26px; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+.stu-avatar-edit:hover { background:var(--cream-dark); }
+.stu-profile-name   { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:400; color:var(--brown-ink); }
+.stu-profile-name em { font-style:italic; color:var(--brown-mid); }
+.stu-profile-id     { font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem; }
+.stu-profile-school { font-size:0.78rem; color:var(--brown-mid); margin-top:0.15rem; font-weight:500; }
+
+.stu-info-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-bottom:1.5rem; }
+.stu-info-card { background:var(--cream); border:1px solid var(--border); border-radius:14px; padding:1.25rem; }
+.stu-info-card-title { font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--brown-mid); margin-bottom:0.85rem; }
+.stu-info-row  { display:flex; align-items:flex-start; gap:0.5rem; padding:0.4rem 0; border-bottom:1px solid var(--border); }
+.stu-info-row:last-child { border-bottom:none; }
+.stu-info-label { font-size:0.72rem; color:var(--text-muted); width:120px; flex-shrink:0; padding-top:1px; }
+.stu-info-val   { font-size:0.82rem; color:var(--text-body); font-weight:400; flex:1; word-break:break-all; }
+
+/* ─── Classroom ─── */
+.stu-cls-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; }
+.stu-cls-card { background:var(--cream); border:1px solid var(--border); border-radius:16px; padding:1.25rem; transition:box-shadow 0.2s,transform 0.2s; }
+.stu-cls-card:hover { box-shadow:0 6px 24px rgba(107,79,47,0.1); transform:translateY(-2px); }
+.stu-cls-icon    { font-size:1.6rem; margin-bottom:0.5rem; }
+.stu-cls-name    { font-size:1rem; font-weight:600; color:var(--brown-dark); margin-bottom:0.2rem; }
+.stu-cls-teacher { font-size:0.75rem; color:var(--text-muted); margin-bottom:0.85rem; }
+.stu-cls-stats   { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:0.85rem; }
+.stu-cls-stat-label { font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem; }
+.stu-cls-bar-wrap { height:5px; background:var(--cream-dark); border-radius:3px; overflow:hidden; margin:0.25rem 0; }
+.stu-cls-bar-fill { height:100%; border-radius:3px; transition:width 0.8s ease; }
+.stu-cls-stat-val { font-size:0.72rem; font-weight:600; }
+.stu-cls-stat-big { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:600; color:var(--brown-deep); }
+.stu-cls-hw-alert { font-size:0.72rem; color:var(--late); background:rgba(196,128,74,0.1); padding:0.35rem 0.65rem; border-radius:6px; margin-bottom:0.65rem; }
+.stu-cls-btn { width:100%; padding:0.5rem; background:none; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.78rem; color:var(--brown-deep); cursor:pointer; transition:all 0.2s; }
+.stu-cls-btn:hover { background:var(--cream-dark); border-color:var(--brown-mid); }
+
+/* ─── Schedule ─── */
+.stu-day-tabs { display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.stu-day-tab  { padding:0.55rem 1.25rem; background:var(--cream); border:1px solid var(--border); border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text-muted); cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:1px; }
+.stu-day-tab:hover { border-color:var(--brown-mid); color:var(--brown-deep); }
+.stu-day-tab.active { background:var(--brown-dark); color:var(--cream); border-color:var(--brown-dark); }
+.stu-day-short { font-weight:700; }
+.stu-day-full  { font-size:0.65rem; }
+.stu-lunch-note { text-align:center; font-size:0.75rem; color:var(--text-muted); background:var(--cream-dark); border:1px dashed var(--border); border-radius:8px; padding:0.4rem; margin-bottom:0.75rem; }
+.stu-periods-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:0.85rem; }
+.stu-period-card  { padding:1.1rem 1.25rem; border-radius:14px; transition:box-shadow 0.2s; }
+.stu-period-card:hover { box-shadow:0 4px 14px rgba(107,79,47,0.1); }
+.stu-period-num   { font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.25rem; }
+.stu-period-time  { font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem; }
+.stu-period-subj  { font-size:1rem; font-weight:600; margin-bottom:0.2rem; }
+.stu-period-teacher { font-size:0.75rem; color:var(--text-muted); }
+.stu-period-room  { font-size:0.72rem; color:var(--text-muted); margin-top:0.2rem; }
+
+/* ─── Homework ─── */
+.stu-hw-summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-bottom:1.25rem; }
+.stu-hw-sum { text-align:center; padding:0.85rem 0.5rem; border-radius:12px; font-size:0.78rem; }
+.stu-hw-sum strong { display:block; font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:600; line-height:1; margin-bottom:0.2rem; }
+.stu-hw-sum-pending   { background:rgba(196,128,74,0.12); color:#7A4A20; border:1px solid rgba(196,128,74,0.3); }
+.stu-hw-sum-overdue   { background:rgba(160,80,80,0.12);  color:#7A3030; border:1px solid rgba(160,80,80,0.3); }
+.stu-hw-sum-submitted { background:rgba(100,130,196,0.12);color:#2A4070; border:1px solid rgba(100,130,196,0.3); }
+.stu-hw-sum-graded    { background:rgba(92,138,92,0.12);  color:#2E5C2E; border:1px solid rgba(92,138,92,0.3); }
+.stu-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.stu-filter-chip { padding:0.4rem 0.9rem; background:var(--cream); border:1px solid var(--border); border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.78rem; color:var(--text-muted); cursor:pointer; transition:all 0.2s; }
+.stu-filter-chip:hover { border-color:var(--brown-mid); color:var(--brown-deep); }
+.stu-filter-chip.active { background:var(--brown-dark); color:var(--cream); border-color:var(--brown-dark); }
+.stu-hw-cards { display:flex; flex-direction:column; gap:0.85rem; }
+.stu-hw-card  { background:var(--cream); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.25rem; transition:box-shadow 0.2s; }
+.stu-hw-card:hover { box-shadow:0 4px 16px rgba(107,79,47,0.08); }
+.stu-hw-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem; gap:0.5rem; }
+.stu-hw-subject-tag { font-size:0.68rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:50px; }
+.stu-hw-status-badge { font-size:0.68rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:50px; }
+.stu-hw-card-title { font-size:0.9rem; font-weight:500; color:var(--brown-dark); margin-bottom:0.5rem; line-height:1.4; }
+.stu-hw-card-meta  { display:flex; gap:1rem; flex-wrap:wrap; font-size:0.72rem; color:var(--text-muted); margin-bottom:0.65rem; }
+.stu-hw-details { border:none; }
+.stu-hw-details summary { font-size:0.78rem; color:var(--brown-mid); cursor:pointer; user-select:none; }
+.stu-hw-desc { font-size:0.82rem; color:var(--text-body); line-height:1.6; margin:0.5rem 0; padding:0.75rem; background:var(--warm-white); border-radius:8px; }
+.stu-hw-submit-btn { margin-top:0.5rem; padding:0.5rem 1.25rem; background:var(--brown-dark); color:var(--cream); border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:background 0.2s; }
+.stu-hw-submit-btn:hover { background:var(--brown-deep); }
+
+/* ─── Burger drop-down panel ─── */
+.stu-bm-overlay {
+  display:none; position:fixed; inset:0; z-index:190;
+}
+.stu-bm-overlay.show { display:block; }
+.stu-bm-panel {
+  position:fixed; top:66px; right:1rem; z-index:195;
+  width:min(92vw,480px); padding:0.85rem;
+  background:rgba(250,247,242,0.80);
+  backdrop-filter:blur(30px) saturate(1.8);
+  -webkit-backdrop-filter:blur(30px) saturate(1.8);
+  border:1px solid rgba(107,79,47,0.18);
+  border-radius:20px;
+  box-shadow:0 12px 40px rgba(42,26,14,0.18),0 2px 8px rgba(42,26,14,0.08);
+  opacity:0; transform:translateY(-10px) scale(0.97);
+  pointer-events:none;
+  transition:opacity 0.22s ease,transform 0.22s ease;
+}
+.stu-bm-panel.open { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.stu-bm-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.55rem; }
+.stu-bm-btn {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:0.4rem; padding:1rem 0.35rem;
+  background:rgba(250,247,242,0.55);
+  border:1px solid rgba(107,79,47,0.12);
+  border-radius:14px; cursor:pointer;
+  transition:all 0.18s; min-height:78px;
+}
+.stu-bm-btn:hover { background:rgba(107,79,47,0.1); border-color:rgba(107,79,47,0.28); transform:scale(1.05); }
+.stu-bm-icon  { font-size:1.5rem; line-height:1; }
+.stu-bm-label { font-family:'DM Sans',sans-serif; font-size:0.7rem; color:var(--brown-dark); font-weight:500; text-align:center; line-height:1.2; }
+.stu-bm-logout .stu-bm-label { color:var(--absent); }
+.stu-bm-logout { border-color:rgba(160,80,80,0.15); }
+.stu-bm-logout:hover { background:rgba(160,80,80,0.08); border-color:rgba(160,80,80,0.3); transform:scale(1.05); }
+
+/* ─── Shop ─── */
+.stu-shop-cats { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.stu-shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:0.85rem; margin-bottom:7rem; }
+.stu-shop-item {
+  background:var(--cream); border:1px solid var(--border);
+  border-radius:16px; padding:1.1rem; cursor:pointer;
+  transition:all 0.2s; position:relative; text-align:center;
+}
+.stu-shop-item:hover:not(.sold-out) { box-shadow:0 6px 20px rgba(107,79,47,0.1); transform:translateY(-2px); }
+.stu-shop-item.sold-out { opacity:0.52; cursor:not-allowed; }
+.stu-shop-item.in-cart  { border-color:var(--brown-deep); background:rgba(107,79,47,0.05); }
+.stu-shop-emoji { font-size:2.2rem; margin-bottom:0.55rem; }
+.stu-shop-name  { font-size:0.85rem; font-weight:600; color:var(--brown-dark); margin-bottom:0.3rem; line-height:1.3; }
+.stu-shop-price { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:600; color:var(--brown-deep); }
+.stu-shop-tag   { position:absolute; top:0.55rem; right:0.55rem; border-radius:50px; font-size:0.58rem; font-weight:700; padding:0.13rem 0.42rem; }
+.stu-shop-tag-hot { background:rgba(160,80,80,0.12); color:var(--absent); }
+.stu-shop-tag-out { background:rgba(138,138,138,0.12); color:var(--text-muted); }
+.stu-shop-qty   { position:absolute; top:-7px; left:-7px; background:var(--brown-dark); color:var(--cream); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; }
+.stu-cart-bar {
+  position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+  background:var(--brown-dark); color:var(--cream);
+  border-radius:50px; padding:0.85rem 1.25rem;
+  display:flex; align-items:center; gap:1rem;
+  box-shadow:0 8px 28px rgba(42,26,14,0.3); z-index:80;
+  min-width:280px; justify-content:space-between;
+  transition:opacity 0.3s,transform 0.3s;
+}
+.stu-cart-bar.hidden { opacity:0; transform:translateX(-50%) translateY(20px); pointer-events:none; }
+.stu-cart-count { font-size:0.7rem; opacity:0.72; margin-bottom:1px; }
+.stu-cart-total { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; }
+.stu-cart-actions { display:flex; gap:0.5rem; align-items:center; }
+.stu-cart-checkout { background:var(--cream); color:var(--brown-dark); border:none; border-radius:50px; padding:0.5rem 1.1rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+.stu-cart-checkout:hover { background:rgba(250,247,242,0.88); }
+.stu-cart-clear { background:none; border:none; color:rgba(250,247,242,0.55); font-size:0.75rem; cursor:pointer; text-decoration:underline; white-space:nowrap; }
+
+/* ─── Library ─── */
+.stu-lib-note { background:rgba(92,138,92,0.1); border:1px solid rgba(92,138,92,0.22); border-radius:10px; padding:0.65rem 1rem; font-size:0.75rem; color:#2E5C2E; margin-bottom:1.25rem; line-height:1.6; }
+.stu-lib-filter-group { margin-bottom:1rem; }
+.stu-lib-filter-label { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--brown-mid); margin-bottom:0.4rem; display:block; }
+.stu-lib-chips { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.stu-lib-chip { padding:0.35rem 0.8rem; background:var(--cream); border:1px solid var(--border); border-radius:50px; font-size:0.75rem; color:var(--text-muted); cursor:pointer; transition:all 0.18s; font-family:'DM Sans',sans-serif; }
+.stu-lib-chip:hover { border-color:var(--brown-mid); color:var(--brown-deep); }
+.stu-lib-chip.active { background:var(--brown-dark); color:var(--cream); border-color:var(--brown-dark); }
+.stu-lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:1rem; margin-bottom:2rem; }
+.stu-lib-card {
+  background:var(--cream); border:1px solid var(--border);
+  border-radius:16px; padding:1.1rem 0.9rem;
+  cursor:pointer; transition:all 0.2s; text-align:center;
+}
+.stu-lib-card:hover { box-shadow:0 6px 22px rgba(107,79,47,0.1); transform:translateY(-3px); }
+.stu-lib-cover  { font-size:2.6rem; margin-bottom:0.6rem; }
+.stu-lib-badge  { display:inline-block; padding:0.12rem 0.48rem; border-radius:50px; font-size:0.6rem; font-weight:600; margin-bottom:0.5rem; }
+.lib-badge-การ์ตูน { background:rgba(100,130,196,0.15); color:#2A4070; }
+.lib-badge-ความรู้  { background:rgba(92,138,92,0.15);  color:#2E5C2E; }
+.lib-badge-นิทาน    { background:rgba(196,122,138,0.15); color:#7A3050; }
+.stu-lib-title  { font-size:0.85rem; font-weight:600; color:var(--brown-dark); margin-bottom:0.25rem; line-height:1.3; }
+.stu-lib-author { font-size:0.62rem; color:var(--text-muted); margin-bottom:0.35rem; }
+.stu-lib-pages  { font-size:0.62rem; color:var(--text-muted); }
+.stu-lib-done   { display:inline-block; margin-top:0.4rem; padding:0.1rem 0.4rem; background:rgba(92,138,92,0.15); color:#2E5C2E; border-radius:50px; font-size:0.58rem; font-weight:600; }
+
+/* ─── Book Reader Modal ─── */
+.stu-reader-overlay {
+  display:none; position:fixed; inset:0; z-index:600;
+  background:rgba(18,10,4,0.90); backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  align-items:center; justify-content:center;
+}
+.stu-reader-overlay.open { display:flex; }
+.stu-reader-box {
+  position:relative; width:min(460px,94vw); height:min(660px,86vh);
+  background:var(--warm-white); border-radius:6px;
+  box-shadow:0 28px 80px rgba(0,0,0,0.55);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.stu-reader-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.65rem 1rem; border-bottom:1px solid var(--border);
+  background:var(--cream); flex-shrink:0;
+}
+.stu-reader-htitle { font-size:0.82rem; font-weight:600; color:var(--brown-dark); }
+.stu-reader-hclose { background:none; border:none; font-size:1rem; cursor:pointer; color:var(--text-muted); padding:0.2rem 0.45rem; border-radius:6px; }
+.stu-reader-hclose:hover { background:var(--cream-dark); }
+.stu-reader-pages  { flex:1; overflow:hidden; position:relative; }
+.stu-reader-page {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:2rem 1.75rem; text-align:center;
+  transition:transform 0.28s ease, opacity 0.22s ease;
+}
+.stu-reader-page.exit-left  { transform:translateX(-110%); opacity:0; }
+.stu-reader-page.exit-right { transform:translateX(110%);  opacity:0; }
+.rp-art  { font-size:4rem; margin-bottom:1.1rem; line-height:1; }
+.rp-head { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:400; color:var(--brown-ink); margin-bottom:0.75rem; }
+.rp-body { font-size:0.92rem; color:var(--text-body); line-height:1.85; max-width:320px; }
+.rp-cover-art   { font-size:5rem; margin-bottom:1rem; line-height:1; }
+.rp-cover-title { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:300; color:var(--brown-ink); margin-bottom:0.25rem; }
+.rp-cover-auth  { font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem; }
+.rp-cover-desc  { font-size:0.82rem; color:var(--text-muted); max-width:280px; line-height:1.6; }
+.stu-reader-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.75rem 1rem; border-top:1px solid var(--border);
+  background:var(--cream); flex-shrink:0;
+}
+.stu-reader-nav-btn {
+  padding:0.5rem 1.1rem; background:var(--brown-dark); color:var(--cream);
+  border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.82rem;
+  cursor:pointer; transition:background 0.2s;
+}
+.stu-reader-nav-btn:disabled { background:var(--cream-dark); color:var(--text-muted); cursor:not-allowed; }
+.stu-reader-nav-btn:not(:disabled):hover { background:var(--brown-deep); }
+.stu-reader-page-num { font-size:0.75rem; color:var(--text-muted); }
+.stu-reader-zone {
+  position:absolute; top:0; width:40%; height:100%;
+  cursor:pointer; z-index:2;
+}
+.stu-reader-zone-l { left:0; }
+.stu-reader-zone-r { right:0; }
+
+/* ─── Student responsive ─── */
+@media (max-width: 900px) {
+  .stu-kpi-grid { grid-template-columns:repeat(3,1fr); }
+  .stu-info-grid { grid-template-columns:1fr; }
+}
+@media (max-width: 768px) {
+  .stu-nav-links { display:none; }
+  .stu-kpi-grid  { grid-template-columns:repeat(2,1fr); }
+  .stu-view-wrap { padding:1.25rem 1rem 3rem; }
+  .stu-greeting-bar { flex-direction:column; gap:1rem; padding:1.25rem; }
+  .stu-greeting-id  { text-align:left; }
+  .stu-hw-summary-row { grid-template-columns:repeat(2,1fr); }
+  .stu-periods-grid { grid-template-columns:1fr; }
+}
+@media (max-width: 480px) {
+  .stu-kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .stu-kpi-val  { font-size:1.2rem; }
+  .stu-att-week { gap:0.4rem; }
+  .stu-quick-actions { gap:0.4rem; }
+  .stu-quick-btn { font-size:0.75rem; padding:0.5rem 0.75rem; }
+  .stu-profile-header { flex-direction:column; align-items:flex-start; gap:1rem; }
+  .stu-cls-grid { grid-template-columns:1fr; }
+  .stu-hw-summary-row { grid-template-columns:repeat(2,1fr); }
+  .stu-day-tabs { gap:0.3rem; }
+  .stu-day-tab  { padding:0.45rem 0.75rem; }
+  .stu-day-full { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div id="page-main">
+
+  <!-- ─── NAVBAR ─── -->
+  <nav>
+    <div class="nav-logo">Edu<span>Flow</span></div>
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="เมนู">☰</button>
+    <ul class="nav-links">
+      <li><a href="#home" onclick="document.querySelector('.nav-links').classList.remove('mobile-open')">หน้าแรก</a></li>
+      <li><a href="#about" onclick="document.querySelector('.nav-links').classList.remove('mobile-open')">เกี่ยวกับเรา</a></li>
+      <li><a href="#clients" onclick="document.querySelector('.nav-links').classList.remove('mobile-open')">ลูกค้าของเรา</a></li>
+      <li><a href="#contact" onclick="document.querySelector('.nav-links').classList.remove('mobile-open')">ติดต่อเรา</a></li>
+      <li><a href="#" id="nav-login-btn" class="nav-cta" onclick="handleNavLogin();return false;">เข้าสู่ระบบ</a></li>
+    </ul>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero" id="home">
+    <div class="hero-bg-circle"></div>
+
+    <div class="hero-content">
+      <div class="hero-tag animate-up">ระบบอำนวยความสะดวกโรงเรียน · 2567</div>
+      <h1 class="animate-up delay-1">บริหาร<em>โรงเรียน</em><br>อย่างชาญฉลาด</h1>
+      <p class="hero-desc animate-up delay-2">ระบบครบวงจรสำหรับการจัดการการเข้าเรียน ลงชื่อเข้าเรียน และติดตามผลนักเรียนแบบเรียลไทม์ เพื่อโรงเรียนที่ดียิ่งขึ้น</p>
+      <div class="hero-actions animate-up delay-3">
+        <a href="#signin" class="btn-primary">เริ่มใช้งานเลย →</a>
+        <a href="#attendance" class="btn-secondary">ดูรายงาน</a>
+      </div>
+    </div>
+
+    <div class="hero-card-wrap animate-up delay-2">
+      <div class="hero-card">
+
+        <div class="card-header" style="margin-bottom:0.4rem;">
+          <div class="card-title">ภาพรวมการใช้งานแพลตฟอร์ม</div>
+          <div class="live-badge"><div class="live-dot"></div>อัปเดตแล้ว</div>
+        </div>
+
+        <!-- Donut Chart (centered) + Legend (left-aligned below) -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+
+          <!-- Chart centered -->
+          <div style="position:relative;">
+            <canvas id="donut-canvas" width="300" height="300"></canvas>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--brown-dark);line-height:1;" id="donut-center-num">847</div>
+              <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;">โรงเรียน</div>
+            </div>
+          </div>
+
+          <!-- Legend: bigger pills -->
+          <div style="width:100%;display:flex;flex-direction:column;gap:0.3rem;">
+            <div class="legend-row" data-seg="0" style="background:rgba(196,168,130,0.18);border:1px solid rgba(196,168,130,0.4);border-radius:9px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.65rem;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#C4A882;flex-shrink:0;"></div>
+              <span style="font-size:1rem;font-weight:600;color:#8B6040;flex:1;">อนุบาล</span>
+              <span style="font-size:0.95rem;font-weight:500;color:#8B6040;">15%</span>
+              <div style="display:none;"><div class="leg-fill" style="width:0%;" data-w="15"></div></div>
+            </div>
+            <div class="legend-row" data-seg="1" style="background:rgba(107,79,47,0.1);border:1px solid rgba(107,79,47,0.22);border-radius:9px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.65rem;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#6B4F2F;flex-shrink:0;"></div>
+              <span style="font-size:1rem;font-weight:600;color:#6B4F2F;flex:1;">ประถมศึกษา</span>
+              <span style="font-size:0.95rem;font-weight:500;color:#6B4F2F;">42%</span>
+              <div style="display:none;"><div class="leg-fill" style="width:0%;" data-w="42"></div></div>
+            </div>
+            <div class="legend-row" data-seg="2" style="background:rgba(158,123,86,0.1);border:1px solid rgba(158,123,86,0.22);border-radius:9px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.65rem;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#9E7B56;flex-shrink:0;"></div>
+              <span style="font-size:1rem;font-weight:600;color:#9E7B56;flex:1;">มัธยมศึกษา</span>
+              <span style="font-size:0.95rem;font-weight:500;color:#9E7B56;">35%</span>
+              <div style="display:none;"><div class="leg-fill" style="width:0%;" data-w="35"></div></div>
+            </div>
+            <div class="legend-row" data-seg="3" style="background:rgba(229,213,192,0.35);border:1px solid rgba(196,168,130,0.32);border-radius:9px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.65rem;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#C4A882;flex-shrink:0;"></div>
+              <span style="font-size:1rem;font-weight:600;color:#9E7B56;flex:1;">ปวช</span>
+              <span style="font-size:0.95rem;font-weight:500;color:#9E7B56;">8%</span>
+              <div style="display:none;"><div class="leg-fill" style="width:0%;" data-w="8"></div></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- KPI Row (compact) -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;padding-top:0.5rem;border-top:1px solid var(--border);">
+          <div style="text-align:center;padding:0.25rem 0;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--brown-deep);" class="count-up" data-target="847">0</div>
+            <div style="font-size:0.6rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-muted);margin-top:1px;">โรงเรียน</div>
+          </div>
+          <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0.25rem 0;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--brown-deep);" class="count-up" data-target="124500">0</div>
+            <div style="font-size:0.6rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-muted);margin-top:1px;">นักเรียน</div>
+          </div>
+          <div style="text-align:center;padding:0.25rem 0;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--brown-deep);" class="count-up" data-target="98">0</div>
+            <div style="font-size:0.6rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-muted);margin-top:1px;">% พึงพอใจ</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABOUT / MOTTO SECTION ─── -->
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <div class="section-label" style="text-align:center;margin-bottom:0.5rem;">ปรัชญาของเรา</div>
+      <h2 class="section-title" style="text-align:center;margin-bottom:0.5rem;">ทำไมโรงเรียนกว่า <em>847 แห่ง</em><br>เลือก EduFlow</h2>
+      <p style="text-align:center;font-size:0.9rem;color:var(--text-muted);margin-bottom:3rem;">เราไม่ได้แค่สร้างระบบ — เราเข้าใจโรงเรียน</p>
+      <div class="motto-grid">
+        <div class="motto-item animate-up">
+          <div class="motto-icon">☁️</div>
+          <div class="motto-num">01</div>
+          <p class="motto-text">เพราะเราเชื่อว่าการศึกษาที่ดี เริ่มจาก<strong>ใจ</strong>ที่<strong>สบาย</strong> — ครูไม่ต้องกังวลกับงานเอกสาร มีเวลาให้นักเรียนมากขึ้น</p>
+        </div>
+        <div class="motto-item animate-up delay-1">
+          <div class="motto-icon">⚡</div>
+          <div class="motto-num">02</div>
+          <p class="motto-text">ระบบตอบสนอง<strong>เร็ว</strong>ภายใน 1 วินาที เช็คชื่อ ดูรายงาน และรับแจ้งเตือน — ทันทีโดยไม่ต้องรอ</p>
+        </div>
+        <div class="motto-item animate-up delay-2">
+          <div class="motto-icon">🤝</div>
+          <div class="motto-num">03</div>
+          <p class="motto-text"><strong>สะดวก</strong>สำหรับทุกคน ทั้งครู นักเรียน ผู้ปกครอง และผู้บริหาร — ไม่ต้องอบรม เริ่มใช้ได้เลยวันแรก</p>
+        </div>
+        <div class="motto-item animate-up delay-3">
+          <div class="motto-icon">📱</div>
+          <div class="motto-num">04</div>
+          <p class="motto-text"><strong>เข้าถึง</strong>ได้ทุกที่ทุกเวลา บนมือถือ แท็บเล็ต หรือคอมพิวเตอร์ อินเทอร์เน็ตความเร็วต่ำก็ใช้ได้สบาย</p>
+        </div>
+        <div class="motto-item motto-item-wide animate-up delay-4">
+          <div class="motto-icon">💚</div>
+          <div class="motto-num">05</div>
+          <p class="motto-text">EduFlow สร้างด้วยความเข้า<strong>ใจ</strong> เพื่อให้ทุกโรงเรียนไทยก้าวไปข้างหน้าอย่างมั่น<strong>ใจ</strong> ปราศจากข้อกังวล</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRODUCT SHOWCASE: SIGN-IN ─── -->
+  <section class="showcase-section" id="signin">
+    <div class="showcase-layout">
+
+      <div class="showcase-copy">
+        <div class="showcase-eyebrow">ฟีเจอร์ที่ 01</div>
+        <h2 class="showcase-title">ลงชื่อเข้าเรียน<br><em>ใน 3 ขั้นตอน</em></h2>
+        <p class="showcase-desc">นักเรียนเช็คชื่อได้ทั้งแบบกรอกรหัส หรือสแกน QR Code ระบบบันทึกเวลาและแจ้งสถานะให้ผู้ปกครองทันที</p>
+
+        <div class="showcase-points">
+          <div class="point-item">
+            <div class="point-icon">⚡</div>
+            <div>
+              <div class="point-title">เร็ว ภายใน 5 วินาที</div>
+              <div class="point-sub">QR Code หรือรหัส 5 หลัก ไม่ต้องรอคิว</div>
+            </div>
+          </div>
+          <div class="point-item">
+            <div class="point-icon">🔔</div>
+            <div>
+              <div class="point-title">แจ้งเตือน Line / SMS</div>
+              <div class="point-sub">ผู้ปกครองรู้ทันทีเมื่อบุตรหลานมาถึง</div>
+            </div>
+          </div>
+          <div class="point-item">
+            <div class="point-icon">📍</div>
+            <div>
+              <div class="point-title">บันทึกพิกัด GPS</div>
+              <div class="point-sub">ยืนยันตำแหน่งการเช็คชื่อแบบ real-time</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-cta-row">
+          <button class="btn-primary" onclick="showToast('ติดต่อทีมงานเพื่อนัดสาธิต...')">ดูรายละเอียดเพิ่มเติม →</button>
+          <span class="showcase-hint">ทดลองใช้ฟรี 30 วัน</span>
+        </div>
+      </div>
+
+      <div class="showcase-mockup-wrap">
+        <div class="mockup-label">ตัวอย่างหน้าจอระบบ</div>
+        <div class="browser-frame">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+            </div>
+            <div class="browser-url">eduflow.th/checkin</div>
+          </div>
+          <div class="browser-body">
+            <div class="mock-signin">
+              <div class="mock-form-header">
+                <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--brown-dark);margin-bottom:2px;">ลงชื่อเข้าเรียน</div>
+                <div style="font-size:0.65rem;color:var(--text-muted);">กรอกข้อมูลเพื่อบันทึกการเข้าเรียน</div>
+              </div>
+              <div class="mock-field">
+                <div class="mock-label">รหัสนักเรียน</div>
+                <div class="mock-input">12345</div>
+              </div>
+              <div class="mock-field">
+                <div class="mock-label">ชั้นเรียน</div>
+                <div class="mock-input mock-select">ม.1/1 — คณิตศาสตร์ ▾</div>
+              </div>
+              <div class="mock-field">
+                <div class="mock-label">คาบเรียน</div>
+                <div class="mock-input mock-select">คาบที่ 3 (10:00 – 11:00) ▾</div>
+              </div>
+              <div class="mock-btn-primary">✓ ยืนยันการลงชื่อเข้าเรียน</div>
+              <div class="mock-divider-row"><span>หรือสแกน QR Code แทนการพิมพ์</span></div>
+              <div class="mock-btn-outline">□ สแกน QR Code</div>
+            </div>
+            <div class="mock-toast">
+              <div class="mock-toast-dot"></div>
+              <span>🟢 ลงชื่อสำเร็จ · ธนาพร สุขใจ · มาทัน 08:02 น.</span>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-blur-badge">🔒 ระบบจริงเข้าใช้ได้เฉพาะโรงเรียนที่ลงทะเบียน</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── PRODUCT SHOWCASE: ATTENDANCE ─── -->
+  <section class="showcase-section showcase-alt" id="attendance">
+    <div class="showcase-layout showcase-reverse">
+
+      <div class="showcase-mockup-wrap">
+        <div class="mockup-label">ตัวอย่างหน้าจอระบบ</div>
+        <div class="browser-frame">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+            </div>
+            <div class="browser-url">eduflow.th/dashboard/attendance</div>
+          </div>
+          <div class="browser-body">
+            <div class="mock-dashboard">
+              <div class="mock-dash-header">
+                <div style="font-size:0.7rem;font-weight:500;color:var(--brown-dark);">รายชื่อนักเรียน — ม.1/1 วันนี้</div>
+                <div style="display:flex;gap:4px;">
+                  <div class="mock-tab mock-tab-active">ทั้งหมด</div>
+                  <div class="mock-tab">มาทัน</div>
+                  <div class="mock-tab">มาสาย</div>
+                </div>
+              </div>
+              <div class="mock-table">
+                <div class="mock-thead">
+                  <span>นักเรียน</span><span>เวลา</span><span>สถานะ</span>
+                </div>
+                <div class="mock-tr">
+                  <div class="mock-student"><div class="mock-avatar">ธน</div><span>ธนาพร สุขใจ</span></div>
+                  <span class="mock-time">08:02</span>
+                  <span class="mock-pill mock-pill-ok">มาทัน</span>
+                </div>
+                <div class="mock-tr">
+                  <div class="mock-student"><div class="mock-avatar">ปิ</div><span>ปิยะดา มีสุข</span></div>
+                  <span class="mock-time">08:15</span>
+                  <span class="mock-pill mock-pill-late">มาสาย</span>
+                </div>
+                <div class="mock-tr">
+                  <div class="mock-student"><div class="mock-avatar">กว</div><span>กวินท์ รักเรียน</span></div>
+                  <span class="mock-time">08:00</span>
+                  <span class="mock-pill mock-pill-ok">มาทัน</span>
+                </div>
+                <div class="mock-tr">
+                  <div class="mock-student"><div class="mock-avatar">สุ</div><span>สุชาดา ใจดี</span></div>
+                  <span class="mock-time">—</span>
+                  <span class="mock-pill mock-pill-absent">ขาดเรียน</span>
+                </div>
+                <div class="mock-tr">
+                  <div class="mock-student"><div class="mock-avatar">ณั</div><span>ณัฐวุฒิ แสงทอง</span></div>
+                  <span class="mock-time">08:05</span>
+                  <span class="mock-pill mock-pill-ok">มาทัน</span>
+                </div>
+              </div>
+              <div class="mock-progress-bar-wrap">
+                <div class="mock-prog-row">
+                  <span style="color:var(--success);font-size:0.6rem;">มาทัน</span>
+                  <div class="mock-prog-track"><div class="mock-prog-fill" style="width:71%;background:var(--success);"></div></div>
+                  <span style="color:var(--text-muted);font-size:0.6rem;">71%</span>
+                </div>
+                <div class="mock-prog-row">
+                  <span style="color:var(--late);font-size:0.6rem;">มาสาย</span>
+                  <div class="mock-prog-track"><div class="mock-prog-fill" style="width:21%;background:var(--late);"></div></div>
+                  <span style="color:var(--text-muted);font-size:0.6rem;">21%</span>
+                </div>
+                <div class="mock-prog-row">
+                  <span style="color:var(--absent);font-size:0.6rem;">ขาด</span>
+                  <div class="mock-prog-track"><div class="mock-prog-fill" style="width:8%;background:var(--absent);"></div></div>
+                  <span style="color:var(--text-muted);font-size:0.6rem;">8%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-blur-badge">🔒 ระบบจริงเข้าใช้ได้เฉพาะโรงเรียนที่ลงทะเบียน</div>
+      </div>
+
+      <div class="showcase-copy">
+        <div class="showcase-eyebrow">ฟีเจอร์ที่ 02</div>
+        <h2 class="showcase-title">ติดตาม<em>มาทัน–มาสาย</em><br>แบบเรียลไทม์</h2>
+        <p class="showcase-desc">ครูและผู้บริหารเห็นสถานะนักเรียนทุกคนในหน้าจอเดียว กรองตามสถานะ ส่งรายงานถึงผู้ปกครองได้ทันที</p>
+
+        <div class="showcase-points">
+          <div class="point-item">
+            <div class="point-icon">📊</div>
+            <div>
+              <div class="point-title">Dashboard แบบ Real-time</div>
+              <div class="point-sub">อัปเดตทุก 30 วินาที ไม่ต้อง refresh หน้า</div>
+            </div>
+          </div>
+          <div class="point-item">
+            <div class="point-icon">📩</div>
+            <div>
+              <div class="point-title">ส่งรายงานอัตโนมัติ</div>
+              <div class="point-sub">Email / Line ผู้ปกครองเมื่อบุตรหลานขาดเรียน</div>
+            </div>
+          </div>
+          <div class="point-item">
+            <div class="point-icon">📅</div>
+            <div>
+              <div class="point-title">บันทึกรายเดือน / รายภาค</div>
+              <div class="point-sub">Export Excel / PDF สำหรับรายงานโรงเรียน</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-cta-row">
+          <button class="btn-primary" onclick="showToast('ติดต่อทีมงานเพื่อนัดสาธิต...')">ดูรายละเอียดเพิ่มเติม →</button>
+          <span class="showcase-hint">ทดลองใช้ฟรี 30 วัน</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- clients anchor: จุดเชื่อมจาก nav "ลูกค้าของเรา" -->
+  <div id="clients" style="position:relative;top:-80px;pointer-events:none;"></div>
+
+  <!-- ─── CTA SECTION ─── -->
+  <section class="cta-section" id="contact">
+    <div class="cta-inner">
+      <div>
+        <div class="section-label">พร้อมเริ่มต้นแล้ว?</div>
+        <h2 class="section-title">ยกระดับ<em>โรงเรียน</em>ของคุณ<br>ด้วยระบบดิจิทัล</h2>
+        <p class="section-desc" style="color:rgba(245,240,232,0.65);">ใช้งานฟรี 30 วัน ไม่ต้องใช้บัตรเครดิต รองรับโรงเรียนทุกขนาด ทีมผู้เชี่ยวชาญพร้อมดูแล 24/7</p>
+      </div>
+      <div class="cta-actions">
+        <button class="btn-cta-main" onclick="showToast('กำลังไปที่หน้าลงทะเบียน...')">ทดลองใช้ฟรี 30 วัน</button>
+        <button class="btn-cta-outline" onclick="showToast('กำลังนัดหมายสาธิต...')">นัดหมายสาธิตระบบ</button>
+        <div style="text-align:center;font-size:0.75rem;color:rgba(245,240,232,0.4);margin-top:0.25rem;">✓ ไม่ต้องใช้บัตรเครดิต · ✓ ยกเลิกได้ทุกเมื่อ</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="logo">EduFlow</div>
+    <p>© 2567 EduFlow · ระบบอำนวยความสะดวกโรงเรียน · สงวนลิขสิทธิ์</p>
+  </footer>
+
+</div><!-- /#page-main -->
+
+<!-- ─── SCHOOL DETAIL PAGE ─── -->
+<div id="page-schools">
+
+  <nav class="schools-nav">
+    <button class="back-btn" onclick="goHome()">← กลับหน้าหลัก</button>
+    <div class="breadcrumb">EduFlow / ลูกค้าของเรา / <span id="breadcrumb-level">—</span></div>
+  </nav>
+
+  <div class="schools-hero">
+    <div>
+      <div class="level-badge" id="level-badge">—</div>
+      <h2 id="schools-page-title">โรงเรียน<em>—</em></h2>
+      <p id="schools-page-desc">รายชื่อโรงเรียนที่ใช้งาน EduFlow</p>
+    </div>
+    <div class="hero-kpi">
+      <div class="kpi-box">
+        <div class="kpi-num" id="kpi-schools">—</div>
+        <div class="kpi-label">โรงเรียน</div>
+      </div>
+      <div class="kpi-box" style="border-left:1px solid var(--border);padding-left:2rem;">
+        <div class="kpi-num" id="kpi-students">—</div>
+        <div class="kpi-label">นักเรียน</div>
+      </div>
+      <div class="kpi-box" style="border-left:1px solid var(--border);padding-left:2rem;">
+        <div class="kpi-num" id="kpi-rating">—</div>
+        <div class="kpi-label">คะแนนเฉลี่ย</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="schools-body">
+    <div class="schools-toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="school-search" placeholder="ค้นหาชื่อโรงเรียน หรือจังหวัด..." oninput="filterSchools()">
+      </div>
+      <select class="sort-select" id="school-sort" onchange="filterSchools()">
+        <option value="rating">เรียงตามคะแนน</option>
+        <option value="name">เรียงตามชื่อ</option>
+        <option value="students">เรียงตามจำนวนนักเรียน</option>
+      </select>
+    </div>
+    <div class="schools-grid" id="schools-grid"></div>
+  </div>
+
+</div><!-- /#page-schools -->
+
+<!-- ─── LOGIN PAGE ─── -->
+<div id="page-login" style="display:none;min-height:100vh;background:var(--warm-white);">
+  <nav class="schools-nav">
+    <button class="back-btn" onclick="goHome()">← กลับหน้าหลัก</button>
+    <div class="breadcrumb">EduFlow / <span>เข้าสู่ระบบ</span></div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">Edu<span>Flow</span></div>
+      <h2 class="auth-title">เข้าสู่ระบบ</h2>
+      <p class="auth-sub">ตัวอักษรภาษาอังกฤษและเลขเท่านั้น · ไม่เกิน 8 ตัว</p>
+      <div id="login-lockout-msg" class="auth-alert auth-alert-warn" style="display:none;"></div>
+      <div id="login-error-msg"   class="auth-alert auth-alert-err"  style="display:none;"></div>
+      <div class="auth-field">
+        <label class="auth-label">Username</label>
+        <input class="auth-input" type="text" id="login-username" placeholder="สูงสุด 8 ตัว" maxlength="8" autocomplete="username" onkeydown="if(event.key==='Enter')handleLogin()">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">รหัสผ่าน</label>
+        <div class="pw-wrap">
+          <input class="auth-input" type="password" id="login-password" placeholder="สูงสุด 8 ตัว" maxlength="8" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+          <button class="pw-eye" type="button" onclick="togglePw('login-password',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div id="login-attempts-hint" class="auth-hint" style="display:none;"></div>
+      <div class="auth-demo-hint">
+        <span>ทดลอง:</span>
+        <code>webadmin</code>/<code>Admin123</code>
+        &nbsp;·&nbsp;
+        <code>teacher1</code>/<code>Teacher1</code>
+        &nbsp;·&nbsp;
+        <code>student1</code>/<code>Student1</code>
+      </div>
+      <button class="auth-btn-main" onclick="handleLogin()">เข้าสู่ระบบ</button>
+      <div class="auth-or"><span>ยังไม่มีบัญชี?</span></div>
+      <button class="auth-btn-outline" onclick="goToRegister()">สมัครสมาชิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REGISTER PAGE ─── -->
+<div id="page-register" style="display:none;min-height:100vh;background:var(--warm-white);">
+  <nav class="schools-nav">
+    <button class="back-btn" onclick="goToLogin()">← กลับหน้าเข้าสู่ระบบ</button>
+    <div class="breadcrumb">EduFlow / <span>สมัครสมาชิก</span></div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">Edu<span>Flow</span></div>
+      <h2 class="auth-title">สมัครสมาชิก</h2>
+      <p class="auth-sub">สร้างบัญชีสำหรับใช้งาน EduFlow</p>
+      <div id="reg-error-msg" class="auth-alert auth-alert-err" style="display:none;"></div>
+      <div class="auth-field">
+        <label class="auth-label">ประเภทบัญชี</label>
+        <select class="auth-input auth-select" id="reg-role">
+          <option value="">— เลือกประเภทบัญชี —</option>
+          <option value="teacher">ครู</option>
+          <option value="student">นักเรียน</option>
+          <option value="parent">ผู้ปกครอง</option>
+          <option value="school_admin">Admin โรงเรียน</option>
+        </select>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">ชื่อ-นามสกุล</label>
+        <input class="auth-input" type="text" id="reg-name" placeholder="ชื่อเต็มของคุณ">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Username</label>
+        <input class="auth-input" type="text" id="reg-username" placeholder="ภาษาอังกฤษและเลข ไม่เกิน 8 ตัว" maxlength="8">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">รหัสผ่าน</label>
+        <div class="pw-wrap">
+          <input class="auth-input" type="password" id="reg-password" placeholder="ไม่เกิน 8 ตัว" maxlength="8">
+          <button class="pw-eye" type="button" onclick="togglePw('reg-password',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">ยืนยันรหัสผ่าน</label>
+        <div class="pw-wrap">
+          <input class="auth-input" type="password" id="reg-confirm" placeholder="พิมพ์รหัสผ่านอีกครั้ง" maxlength="8" onkeydown="if(event.key==='Enter')handleRegister()">
+          <button class="pw-eye" type="button" onclick="togglePw('reg-confirm',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <button class="auth-btn-main" onclick="handleRegister()">สมัครสมาชิก</button>
+      <div class="auth-or"><span>มีบัญชีแล้ว?</span></div>
+      <button class="auth-btn-outline" onclick="goToLogin()">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DASHBOARD PAGE ─── -->
+<div id="page-dashboard" style="display:none;min-height:100vh;background:var(--warm-white);">
+  <nav class="dash-nav">
+    <div class="dash-logo">Edu<span>Flow</span></div>
+    <div class="dash-user-info">
+      <div class="dash-user-avatar" id="dash-user-avatar">U</div>
+      <div>
+        <div class="dash-user-name" id="dash-user-name">—</div>
+        <div class="dash-user-role" id="dash-user-role">—</div>
+      </div>
+    </div>
+    <button class="dash-logout-btn" onclick="logout()">ออกจากระบบ →</button>
+  </nav>
+  <div id="dash-content" class="dash-content"></div>
+</div>
+
+<!-- ─── STUDENT PAGE ─── -->
+<div id="page-student" style="display:none;min-height:100vh;background:var(--warm-white);">
+
+  <nav class="stu-nav">
+    <div class="stu-nav-logo">Edu<span>Flow</span></div>
+    <div class="stu-nav-right">
+      <div class="stu-balance">💰 ฿<span id="stu-balance-num">350</span></div>
+      <button class="stu-notif-btn" onclick="showToast('ไม่มีการแจ้งเตือนใหม่')" title="การแจ้งเตือน">🔔</button>
+      <button class="stu-burger" id="stu-burger-btn" onclick="stuToggleBurgerMenu()" aria-label="เมนู">☰</button>
+    </div>
+  </nav>
+
+  <!-- ─── Burger drop-down panel ─── -->
+  <div class="stu-bm-overlay" id="stu-bm-overlay" onclick="stuCloseBurgerMenu()"></div>
+  <div class="stu-bm-panel" id="stu-bm-panel">
+    <div class="stu-bm-grid">
+      <button class="stu-bm-btn" onclick="stuBurgerNav('dashboard')"><span class="stu-bm-icon">🏠</span><span class="stu-bm-label">หน้าหลัก</span></button>
+      <button class="stu-bm-btn" onclick="stuBurgerNav('library')"><span class="stu-bm-icon">📖</span><span class="stu-bm-label">ห้องสมุด</span></button>
+      <button class="stu-bm-btn" onclick="stuBurgerNav('shop')"><span class="stu-bm-icon">🛍</span><span class="stu-bm-label">ร้านค้า</span></button>
+      <button class="stu-bm-btn" onclick="stuBurgerNav('schedule')"><span class="stu-bm-icon">📅</span><span class="stu-bm-label">ตารางเรียน</span></button>
+      <button class="stu-bm-btn" onclick="stuBurgerNav('homework')"><span class="stu-bm-icon">📚</span><span class="stu-bm-label">การบ้าน</span></button>
+      <button class="stu-bm-btn" onclick="stuBurgerNav('profile')"><span class="stu-bm-icon">👤</span><span class="stu-bm-label">โปรไฟล์</span></button>
+      <button class="stu-bm-btn" onclick="showToast('กำลังเติมเงิน...');stuCloseBurgerMenu();"><span class="stu-bm-icon">💳</span><span class="stu-bm-label">เติมเงิน</span></button>
+      <button class="stu-bm-btn stu-bm-logout" onclick="logout()"><span class="stu-bm-icon">🚪</span><span class="stu-bm-label">ออกจากระบบ</span></button>
+    </div>
+  </div>
+
+  <div class="stu-sidebar-overlay" id="stu-sidebar-overlay" onclick="stuCloseSidebar()"></div>
+
+  <aside class="stu-sidebar" id="stu-sidebar">
+    <div class="stu-sidebar-header">
+      <div class="stu-sidebar-title">เมนู</div>
+      <button class="stu-sidebar-close" onclick="stuCloseSidebar()">✕</button>
+    </div>
+    <div class="stu-sidebar-profile" onclick="stuSetView('profile');stuCloseSidebar();">
+      <div class="stu-sidebar-avatar" id="stu-sidebar-avatar">ธน</div>
+      <div class="stu-sidebar-info">
+        <div class="stu-sidebar-name"  id="stu-sidebar-name">ธนาพร สุขใจ</div>
+        <div class="stu-sidebar-class" id="stu-sidebar-class">ม.1/1 · รหัส 10021</div>
+      </div>
+      <span class="stu-chevron">›</span>
+    </div>
+    <nav class="stu-sidebar-menu">
+      <button class="stu-menu-item active" data-view="dashboard" onclick="stuSetView('dashboard');stuCloseSidebar();">
+        <span class="stu-menu-icon">🏠</span><span>หน้าหลัก</span>
+      </button>
+      <button class="stu-menu-item" data-view="profile" onclick="stuSetView('profile');stuCloseSidebar();">
+        <span class="stu-menu-icon">👤</span><span>ข้อมูลส่วนตัว</span>
+      </button>
+      <button class="stu-menu-item" data-view="classroom" onclick="stuSetView('classroom');stuCloseSidebar();">
+        <span class="stu-menu-icon">🏫</span><span>ห้องเรียนของฉัน</span>
+      </button>
+      <button class="stu-menu-item" data-view="schedule" onclick="stuSetView('schedule');stuCloseSidebar();">
+        <span class="stu-menu-icon">📅</span><span>ตารางเรียน</span>
+      </button>
+      <button class="stu-menu-item" data-view="homework" onclick="stuSetView('homework');stuCloseSidebar();">
+        <span class="stu-menu-icon">📚</span><span>การบ้าน &amp; งานที่มอบหมาย</span>
+        <span class="stu-menu-badge" id="stu-hw-badge">2</span>
+      </button>
+      <button class="stu-menu-item" data-view="shop" onclick="stuSetView('shop');stuCloseSidebar();">
+        <span class="stu-menu-icon">🛍</span><span>ร้านค้า</span>
+      </button>
+      <button class="stu-menu-item" data-view="library" onclick="stuSetView('library');stuCloseSidebar();">
+        <span class="stu-menu-icon">📖</span><span>ห้องสมุด</span>
+      </button>
+      <div class="stu-menu-divider"></div>
+      <button class="stu-menu-item stu-menu-logout" onclick="logout()">
+        <span class="stu-menu-icon">🚪</span><span>ออกจากระบบ</span>
+      </button>
+    </nav>
+    <div class="stu-sidebar-footer">EduFlow v1.0 · ปีการศึกษา 2567</div>
+  </aside>
+
+  <main class="stu-main" id="stu-main"></main>
+</div>
+
+<!-- ─── QR MODAL ─── -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeQRModal()">✕</button>
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--brown-dark);margin-bottom:0.25rem;">สแกน QR Code</h3>
+    <p style="font-size:0.82rem;color:var(--text-muted);">ให้นักเรียนสแกนเพื่อลงชื่อเข้าเรียน</p>
+    <div class="qr-frame">
+      <canvas id="qr-canvas" width="112" height="112"></canvas>
+    </div>
+    <div style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:1.5rem;">QR Code หมดอายุใน <span id="qr-countdown" style="color:var(--brown-deep);font-weight:500;">2:00</span></div>
+    <button class="btn-full" onclick="closeQRModal()">ปิด</button>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <div id="toast-msg">ดำเนินการสำเร็จ</div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/donut.js"></script>
+<script src="js/schools.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/student.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
