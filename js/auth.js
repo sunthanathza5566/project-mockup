@@ -179,6 +179,9 @@ function handleLogin() {
   if (user.role === 'student') {
     showOnlyPage('page-student');
     if (typeof buildStudentPage === 'function') buildStudentPage();
+  } else if (user.role === 'teacher') {
+    showOnlyPage('page-teacher');
+    if (typeof buildTeacherPage === 'function') buildTeacherPage();
   } else {
     showOnlyPage('page-dashboard');
     buildDashboard();
@@ -358,6 +361,15 @@ function buildStudentHTML(user) {
     <div class="dash-section">
       <div class="section-label">นักเรียน · ${user.class || 'ม.1/1'} · รหัส ${user.code || '—'}</div>
       <h2 class="dash-h2">สวัสดี<em>${user.name}</em></h2>
+      <button onclick="showOnlyPage('page-student');if(typeof buildStudentPage==='function')buildStudentPage();"
+        style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--brown-dark);color:var(--cream);
+        border:none;border-radius:50px;padding:0.75rem 1.75rem;font-family:'DM Sans',sans-serif;
+        font-size:0.9rem;font-weight:500;cursor:pointer;letter-spacing:0.03em;
+        box-shadow:0 4px 16px rgba(61,43,26,0.2);transition:all 0.2s;"
+        onmouseover="this.style.background='var(--brown-deep)';this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='var(--brown-dark)';this.style.transform=''">
+        เข้าสู่หน้าหลักนักเรียน →
+      </button>
     </div>
     <div class="dash-section">
       <div class="dash-section-title">การมาเรียนสัปดาห์นี้</div>

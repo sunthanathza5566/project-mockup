@@ -25,7 +25,7 @@ function toggleMobileNav() {
 
 // ── Page router (SPA) ──
 // Canonical page IDs managed by this router
-const ALL_SPA_PAGES = ['page-main', 'page-schools', 'page-login', 'page-register', 'page-dashboard', 'page-student'];
+const ALL_SPA_PAGES = ['page-main', 'page-schools', 'page-login', 'page-register', 'page-dashboard', 'page-student', 'page-teacher'];
 
 function showOnlyPage(pageId) {
   ALL_SPA_PAGES.forEach(id => {
@@ -97,8 +97,22 @@ function goToDashboard() {
 // Navbar "เข้าสู่ระบบ" — go to dashboard if already logged in, else login page
 function handleNavLogin() {
   const session = getSession ? getSession() : null;
-  if (session) { goToDashboard(); }
-  else         { goToLogin(); }
+  if (!session) { goToLogin(); return; }
+  goToUserPage(session);
+}
+
+// Route to the correct page based on role
+function goToUserPage(session) {
+  if (!session) { goToLogin(); return; }
+  if (session.role === 'student') {
+    showOnlyPage('page-student');
+    if (typeof buildStudentPage === 'function') buildStudentPage();
+  } else if (session.role === 'teacher') {
+    showOnlyPage('page-teacher');
+    if (typeof buildTeacherPage === 'function') buildTeacherPage();
+  } else {
+    goToDashboard();
+  }
 }
 
 // ── School detail page navigation (preserved from original) ──
