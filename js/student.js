@@ -179,10 +179,139 @@ const LIB_PAGE_TPLS = {
   ],
 };
 
+// ── Notification System ──
+const NOTIF_TTL = 3 * 24 * 60 * 60 * 1000; // 3 วัน
+
+const NOTIF_TYPE_META = {
+  overdue: { icon:'⛔', label:'เกินกำหนด' },
+  grade:   { icon:'📝', label:'ผลคะแนน'  },
+  info:    { icon:'📢', label:'ประกาศ'    },
+  hw:      { icon:'📚', label:'การบ้าน'  },
+};
+
+let NOTIFICATIONS = [
+  {
+    id:1, type:'overdue', isNew:true,
+    title:'การบ้านวิทยาศาสตร์เกินกำหนดแล้ว',
+    body:'รายงานการทดลอง: แรงดึงดูดของโลก — หมดเวลาส่งแล้ว กรุณาติดต่อครูผู้สอน',
+    time: Date.now() - 45 * 60 * 1000,
+  },
+  {
+    id:2, type:'grade', isNew:true,
+    title:'คะแนนสังคมศึกษาออกแล้ว',
+    body:'แผนที่ทวีปเอเชีย: ระบุประเทศสำคัญ 20 ประเทศ — ได้ 9/10 คะแนน ✨',
+    time: Date.now() - 3 * 60 * 60 * 1000,
+  },
+  {
+    id:3, type:'hw', isNew:true,
+    title:'งานใหม่: ภาษาอังกฤษ',
+    body:'Reading Comprehension: Unit 4 — Nature ครบกำหนด 20/06/2567',
+    time: Date.now() - 6 * 60 * 60 * 1000,
+  },
+  {
+    id:4, type:'info', isNew:false,
+    title:'ประกาศจากโรงเรียน',
+    body:'วันศุกร์นี้มีกิจกรรมกีฬาสี นักเรียนทุกคนควรสวมเสื้อสีประจำบ้าน',
+    time: Date.now() - 22 * 60 * 60 * 1000,
+  },
+];
+
+function stuGetNotifs() {
+  const now = Date.now();
+  NOTIFICATIONS = NOTIFICATIONS.filter(n => now - n.time < NOTIF_TTL);
+  return [...NOTIFICATIONS].sort((a, b) => b.time - a.time);
+}
+
+function stuTimeAgo(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  const hrs  = Math.floor(mins / 60);
+  const days = Math.floor(hrs / 24);
+  if (days >= 1) return `${days} วันที่แล้ว`;
+  if (hrs  >= 1) return `${hrs} ชั่วโมงที่แล้ว`;
+  if (mins >= 1) return `${mins} นาทีที่แล้ว`;
+  return 'เมื่อกี้';
+}
+
+function stuUpdateNotifBadge() {
+  const count = stuGetNotifs().filter(n => n.isNew).length;
+  const badge = document.getElementById('stu-notif-badge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function stuRenderNotifPanel() {
+  const list = document.getElementById('stu-notif-list');
+  if (!list) return;
+  const notifs = stuGetNotifs();
+
+  if (notifs.length === 0) {
+    list.innerHTML = `<div class="stu-notif-empty">🔕<br>ไม่มีแจ้งเตือนใหม่<br><span style="font-size:0.68rem;opacity:0.7;">การแจ้งเตือนจะลบอัตโนมัติหลัง 3 วัน</span></div>`;
+    return;
+  }
+
+  list.innerHTML = notifs.map(n => {
+    const meta = NOTIF_TYPE_META[n.type] || NOTIF_TYPE_META.info;
+    return `<div class="stu-notif-item type-${n.type} ${n.isNew ? 'is-new' : ''}" onclick="stuMarkNotifRead(${n.id})">
+      <div class="stu-notif-item-row">
+        ${n.isNew ? '<div class="stu-notif-new-dot"></div>' : ''}
+        <div class="stu-notif-item-icon">${meta.icon}</div>
+        <div class="stu-notif-item-content">
+          <div class="stu-notif-item-title">${n.title}</div>
+          <div class="stu-notif-item-body">${n.body}</div>
+          <div class="stu-notif-item-time">${stuTimeAgo(n.time)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function stuMarkNotifRead(id) {
+  const n = NOTIFICATIONS.find(x => x.id === id);
+  if (n) n.isNew = false;
+  stuRenderNotifPanel();
+  stuUpdateNotifBadge();
+}
+
+function stuToggleNotif() {
+  stuCloseBurgerMenu();
+  const panel   = document.getElementById('stu-notif-panel');
+  const overlay = document.getElementById('stu-notif-overlay');
+  const isOpen  = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    overlay.classList.remove('show');
+  } else {
+    stuRenderNotifPanel();
+    panel.classList.add('open');
+    overlay.classList.add('show');
+    setTimeout(() => {
+      NOTIFICATIONS.forEach(n => { n.isNew = false; });
+      stuUpdateNotifBadge();
+      stuRenderNotifPanel();
+    }, 2000);
+  }
+}
+
+function stuCloseNotif() {
+  const panel   = document.getElementById('stu-notif-panel');
+  const overlay = document.getElementById('stu-notif-overlay');
+  if (panel)   panel.classList.remove('open');
+  if (overlay) overlay.classList.remove('show');
+}
+
 // ── State ──
 let stuCurrentView    = 'dashboard';
 let stuCurrentDay     = '';
 let stuHomeworkFilter = 'all';
+let stuScheduleCache    = [];   // cache ของ period cards สำหรับ subject modal
+let stuSubjectModalTab  = 'info'; // 'info' | 'materials' | 'homework' | 'announce'
+let stuSubjectModalIdx  = 0;    // index ของ period ที่เปิดอยู่
 
 // Shop state
 let shopCart      = {}; // { itemId: qty }
@@ -241,6 +370,7 @@ function buildStudentPage() {
   stuCurrentDay = dayMap[today] || 'mon';
 
   stuSetView('dashboard');
+  stuUpdateNotifBadge();
 }
 
 // ── Page switcher ─────────────────────────────────────────────
@@ -272,6 +402,7 @@ function stuSetView(view) {
 
 // ── Burger menu toggle ────────────────────────────────────────
 function stuToggleBurgerMenu() {
+  stuCloseNotif();
   const panel   = document.getElementById('stu-bm-panel');
   const overlay = document.getElementById('stu-bm-overlay');
   const isOpen  = panel.classList.contains('open');
@@ -580,14 +711,16 @@ function stuBuildSchedule() {
     <span class="stu-lunch-inline-time">12:00 – 13:00</span>
   </div>`;
 
+  stuScheduleCache = sched;
   const periodsHtml = sched.reduce((html, p, idx) => {
     const c = stuColor(p.key);
-    const card = `<div class="stu-period-card" style="background:${c.bg};border:1px solid ${c.border};">
+    const card = `<div class="stu-period-card stu-period-clickable" onclick="stuOpenSubjectModal(${idx})" style="background:${c.bg};border:1px solid ${c.border};">
       <div class="stu-period-num" style="color:${c.dot};">คาบ ${p.period}</div>
       <div class="stu-period-time">${p.time}</div>
       <div class="stu-period-subj" style="color:${c.text};">${p.subject}</div>
       <div class="stu-period-teacher">${p.teacher}</div>
       <div class="stu-period-room">📍 ${p.room}</div>
+      <div class="stu-period-tap-hint">กดเพื่อดูรายละเอียด →</div>
     </div>`;
     // แทรก lunch break หลังคาบที่จบตอน 12:xx (ก่อนคาบบ่าย)
     const endTime = p.time.split('–')[1]?.trim() || p.time.split('-')[1]?.trim() || '';
@@ -1118,4 +1251,167 @@ function stuSubmitHomework(id) {
 function stuCloseSuccess() {
   document.getElementById('stu-success-overlay').classList.remove('open');
   if (stuCurrentView === 'homework') stuSetView('homework');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUBJECT DETAIL MODAL — กดวิชาในตารางเรียน
+// ═══════════════════════════════════════════════════════════════
+function stuOpenSubjectModal(idx) {
+  const period = stuScheduleCache[idx];
+  if (!period) return;
+  stuSubjectModalIdx = idx;
+  stuSubjectModalTab = 'info';
+  const overlay = document.getElementById('stu-subj-overlay');
+  if (!overlay) return;
+  document.getElementById('stu-subj-htitle').textContent = period.subject;
+  stuRenderSubjectModal(period);
+  overlay.classList.add('open');
+}
+
+function stuCloseSubjectModal() {
+  const overlay = document.getElementById('stu-subj-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function stuSubjModalTabSwitch(tab) {
+  stuSubjectModalTab = tab;
+  const period = stuScheduleCache[stuSubjectModalIdx];
+  if (period) stuRenderSubjectModal(period);
+}
+
+function stuRenderSubjectModal(period) {
+  const body = document.getElementById('stu-subj-body');
+  if (!body) return;
+  const c = stuColor(period.key);
+
+  // หา classId ที่ตรงกับนักเรียนคนนี้ (ม.1/1 = c1)
+  const grade = STUDENT_DATA.profile.grade;
+  const room  = STUDENT_DATA.profile.room;
+  let matKey  = null;
+  if (typeof TEACHER_DATA !== 'undefined') {
+    const cls = TEACHER_DATA.classes.find(x => x.grade === grade && x.room === room && x.key === period.key);
+    if (cls) matKey = `${cls.id}_${period.key}`;
+  }
+
+  const mats = (typeof SUBJECT_MATERIALS !== 'undefined' && matKey && SUBJECT_MATERIALS[matKey]) || [];
+  const plan = (typeof LESSON_PLANS !== 'undefined' && matKey && LESSON_PLANS[matKey]) || [];
+  const anns = (() => {
+    if (typeof TEACHER_DATA === 'undefined' || typeof CLASS_ANNOUNCEMENTS === 'undefined') return [];
+    const cls = TEACHER_DATA.classes.find(x => x.grade === grade && x.room === room && x.key === period.key);
+    return cls ? (CLASS_ANNOUNCEMENTS[cls.id] || []) : [];
+  })();
+
+  // หางานค้างส่งของวิชานี้
+  const myHW = STUDENT_DATA.assignments.filter(a => a.key === period.key);
+  const pending = myHW.filter(a => a.status === 'pending' || a.status === 'overdue');
+
+  const tabs = [
+    { id:'info',      label:'📖 รายละเอียด' },
+    { id:'materials', label:`🎬 สื่อ (${mats.length})` },
+    { id:'homework',  label:`📚 งาน (${myHW.length})` },
+  ];
+  if (anns.length > 0) tabs.push({ id:'announce', label:`📢 ประกาศ (${anns.length})` });
+
+  const tabsHtml = tabs.map(t =>
+    `<button class="stu-subj-tab-btn ${stuSubjectModalTab===t.id?'active':''}" onclick="stuSubjModalTabSwitch('${t.id}')">${t.label}</button>`
+  ).join('');
+
+  let content = '';
+  if (stuSubjectModalTab === 'info') {
+    const subjectData = STUDENT_DATA.subjects.find(s => s.key === period.key);
+    const planRows = plan.map((p,i) =>
+      `<div class="stu-subj-plan-row">
+        <div class="stu-subj-plan-week">สัปดาห์ ${p.week}</div>
+        <div class="stu-subj-plan-detail"><strong>${p.topic}</strong><div>${p.detail}</div></div>
+      </div>`
+    ).join('') || '<div style="font-size:0.8rem;color:var(--text-muted);">ยังไม่มีแผนการสอนที่กำหนด</div>';
+
+    content = `
+      <div class="stu-subj-info-card" style="border-left:4px solid ${c.dot};">
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">👩‍🏫 ครูผู้สอน</span><span class="stu-subj-info-val">${period.teacher}</span></div>
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">🕐 เวลาเรียน</span><span class="stu-subj-info-val">${period.time}</span></div>
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">📍 ห้องเรียน</span><span class="stu-subj-info-val">${period.room}</span></div>
+        ${subjectData ? `
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">📊 คะแนนกลางภาค</span><span class="stu-subj-info-val">${subjectData.midterm ?? '—'}</span></div>
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">✅ การเข้าเรียน</span><span class="stu-subj-info-val">${subjectData.attend}%</span></div>
+        <div class="stu-subj-info-row"><span class="stu-subj-info-lbl">📋 งาน</span><span class="stu-subj-info-val">${subjectData.done}/${subjectData.assign} งาน</span></div>` : ''}
+      </div>
+      ${pending.length ? `<div class="stu-subj-hw-alert">⚠️ มีการบ้านค้างส่ง ${pending.length} ชิ้น
+        <button onclick="stuCloseSubjectModal();stuFilterHomework('${period.key}')" style="margin-left:0.5rem;padding:0.25rem 0.75rem;background:var(--absent);color:#fff;border:none;border-radius:6px;font-size:0.72rem;cursor:pointer;">ดูการบ้าน →</button>
+      </div>` : ''}
+      <div class="stu-subj-sect-lbl">📝 แผนการสอนภาคเรียน</div>
+      <div class="stu-subj-plan-list">${planRows}</div>`;
+
+  } else if (stuSubjectModalTab === 'materials') {
+    if (!mats.length) {
+      content = `<div class="stu-subj-mat-empty">🎬 ยังไม่มีสื่อการเรียนรู้สำหรับวิชานี้<br><span>ครูจะอัปโหลดวิดีโอและไฟล์บทเรียนเร็วๆ นี้</span></div>`;
+    } else {
+      content = `<div class="stu-subj-mat-note">📌 สื่อเหล่านี้จัดทำโดยครูผู้สอน เหมาะสำหรับทบทวนที่บ้าน ดูร่วมกับผู้ปกครองได้เลย</div>
+        <div class="stu-mat-list">${mats.map(m => stuBuildMatItem(m)).join('')}</div>`;
+    }
+
+  } else if (stuSubjectModalTab === 'homework') {
+    if (!myHW.length) {
+      content = '<div class="stu-subj-mat-empty">📚 ยังไม่มีงานในวิชานี้</div>';
+    } else {
+      const statusMap = { pending:'badge-pending', overdue:'badge-overdue', submitted:'badge-submitted', graded:'badge-graded' };
+      const statusLbl = { pending:'ยังไม่ส่ง', overdue:'เกินกำหนด', submitted:'รอตรวจ', graded:'ได้คะแนนแล้ว' };
+      content = myHW.map(a => `<div class="stu-hw-card" style="margin-bottom:0.75rem;">
+        <div class="stu-hw-card-top">
+          <span class="stu-hw-subject-tag" style="background:${c.bg};color:${c.text};border:1px solid ${c.border};">${a.subject}</span>
+          <span class="stu-hw-status-badge ${statusMap[a.status]}">${statusLbl[a.status]}</span>
+        </div>
+        <div class="stu-hw-card-title">${a.title}</div>
+        <div class="stu-hw-card-meta"><span>📅 ส่ง ${a.due}</span><span>📊 ${a.myScore!==null?a.myScore+'/'+a.maxScore:'—/'+a.maxScore}</span></div>
+        ${(a.status==='pending'||a.status==='overdue')
+          ? `<button class="stu-hw-submit-btn" style="margin-top:0.5rem;" onclick="stuCloseSubjectModal();stuOpenSubmit(${a.id})">📤 ส่งการบ้าน</button>` : ''}
+      </div>`).join('');
+    }
+
+  } else if (stuSubjectModalTab === 'announce') {
+    content = anns.map(a => `<div class="tch-ann-item ${a.pinned?'pinned':''}" style="margin-bottom:0.75rem;">
+      ${a.pinned?'<div class="tch-ann-pin">📌 ปักหมุด</div>':''}
+      <div class="tch-ann-title">${a.title}</div>
+      ${a.body?`<div class="tch-ann-body">${a.body}</div>`:''}
+    </div>`).join('') || '<div class="stu-subj-mat-empty">ยังไม่มีประกาศ</div>';
+  }
+
+  body.innerHTML = `<div class="stu-subj-tabs-row">${tabsHtml}</div><div class="stu-subj-tab-content">${content}</div>`;
+}
+
+
+function stuBuildMatItem(m) {
+  const badgeCls = {video:'tch-mat-badge-video', file:'tch-mat-badge-file', link:'tch-mat-badge-link'};
+  const badgeTxt = {video:'🎬 วิดีโอ', file:'📄 ไฟล์', link:'🔗 ลิ้งค์'};
+  let mediaHtml = '';
+  if (m.type === 'video') {
+    const src = m.url && m.url.includes('/embed/') ? m.url : null;
+    const ytMatch = m.url && m.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})|youtu\.be\/([a-zA-Z0-9_-]{11})/);
+    const embedSrc = src || (ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]||ytMatch[2]}` : null);
+    mediaHtml = embedSrc
+      ? `<div class="stu-mat-video-wrap"><iframe class="stu-mat-iframe" src="${embedSrc}" frameborder="0" allowfullscreen></iframe></div>`
+      : `<div style="padding:0.5rem 0.9rem 0.6rem;"><a href="${m.url}" target="_blank" style="font-size:0.8rem;color:var(--brown-deep);">🔗 เปิดวิดีโอในหน้าใหม่ →</a></div>`;
+  } else if (m.type === 'file') {
+    const icons = {pdf:'📄',pptx:'📊',ppt:'📊',docx:'📝',doc:'📝',xlsx:'📋'};
+    const icon  = icons[m.fileType] || '📎';
+    mediaHtml = `<div class="stu-mat-file-box" onclick="showToast('จำลองการดาวน์โหลด: ${m.filename||m.title}')">
+      <span style="font-size:1.4rem;">${icon}</span>
+      <div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:600;color:var(--brown-dark);">${m.filename||m.title}</div><div style="font-size:0.65rem;color:var(--text-muted);">${m.fileSize||''}</div></div>
+      <span style="font-size:0.75rem;color:var(--brown-deep);font-weight:600;">⬇️ โหลด</span>
+    </div>`;
+  } else if (m.type === 'link') {
+    mediaHtml = `<a class="stu-mat-link-box" href="${m.url}" target="_blank">
+      <span style="font-size:0.75rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.url}</span>
+      <span style="color:var(--brown-deep);font-weight:600;">↗</span>
+    </a>`;
+  }
+  return `<div class="stu-mat-item">
+    <div class="stu-mat-item-head">
+      <span class="tch-mat-badge ${badgeCls[m.type]||''}">${badgeTxt[m.type]||'📎'}</span>
+      <div style="flex:1;font-size:0.82rem;font-weight:600;color:var(--brown-dark);line-height:1.35;">${m.title}</div>
+    </div>
+    ${mediaHtml}
+    ${m.description?`<div class="stu-mat-item-desc">${m.description}</div>`:''}
+    <div class="stu-mat-item-meta">📅 ${m.uploadedAt||''} · ${m.postedBy||''}</div>
+  </div>`;
 }
