@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { generateAttendanceQR, generateAttendanceReport, submitAttendanceReport } from '@/lib/api/teacher.api';
+import { exportAttendanceReportToExcel } from '@/lib/utils/excel-export';
 import type { AttendanceSession, AttendanceReport } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
@@ -345,7 +346,22 @@ export default function AttendanceView({ teacherId, selectedClass }: AttendanceV
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <button
+              onClick={() => exportAttendanceReportToExcel(report)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#4caf50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '600',
+              }}
+            >
+              📥 ดึง Excel
+            </button>
             <button
               onClick={handleSubmitReport}
               disabled={loading}
