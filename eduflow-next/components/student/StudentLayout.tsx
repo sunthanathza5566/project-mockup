@@ -14,6 +14,7 @@ import ScheduleView  from './views/ScheduleView';
 import HomeworkView  from './views/HomeworkView';
 import ShopView      from './views/ShopView';
 import LibraryView   from './views/LibraryView';
+import AttendanceScanView from './AttendanceScanView';
 
 export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'shop' | 'library';
 
@@ -40,6 +41,7 @@ export default function StudentLayout() {
   // ─── Burger / Notif panels ───────────────────────────
   const [burgerOpen, setBurgerOpen] = useState(false);
   const [notifOpen,  setNotifOpen]  = useState(false);
+  const [showAttendanceScan, setShowAttendanceScan] = useState(false);
 
   // ─── Data state ───────────────────────────────────────
   // TODO(PostgreSQL): replace useState + useEffect fetch with useSWR or React Query
@@ -170,6 +172,9 @@ export default function StudentLayout() {
             </button>
           ))}
           <div className="stu-bm-divider" />
+          <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowAttendanceScan(true); }}>
+            <span className="stu-bm-iicon">📱</span>เช็คชื่อ QR
+          </button>
           <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
             <span className="stu-bm-iicon">🚪</span>ออกจากระบบ
           </button>
@@ -216,6 +221,40 @@ export default function StudentLayout() {
         {currentView === 'shop'      && <ShopView      {...viewProps} stats={stats!} />}
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
       </main>
+
+      {/* ── Attendance Scan Modal ── */}
+      {showAttendanceScan && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999,
+            }}
+            onClick={() => setShowAttendanceScan(false)}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'white',
+              borderRadius: '12px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              zIndex: 1000,
+              width: 'min(90vw, 500px)',
+            }}
+          >
+            <AttendanceScanView onClose={() => setShowAttendanceScan(false)} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

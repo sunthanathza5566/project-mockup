@@ -187,6 +187,45 @@ export interface TeacherAssignment {
   submissions: Submission[];
 }
 
+// ─── Attendance (QR Code) ──────────────────────────────────
+export interface AttendanceSession {
+  id: string;
+  teacherId: string;
+  classId: string;
+  subject: string;
+  period: number;
+  qrCode: string;
+  createdAt: number;
+  expiresAt: number;
+  status: 'active' | 'expired' | 'submitted';
+}
+
+export interface AttendanceRecord {
+  id: string;
+  sessionId: string;
+  studentId: string;
+  studentName: string;
+  checkedAt: number;
+  status: 'on-time' | 'late';
+}
+
+export interface AttendanceReport {
+  id: string;
+  sessionId: string;
+  teacherId: string;
+  classId: string;
+  subject: string;
+  period: number;
+  date: string;
+  time: string;
+  totalStudents: number;
+  presentCount: number;
+  lateCount: number;
+  absentCount: number;
+  records: AttendanceRecord[];
+  submittedAt: number;
+}
+
 // ─── School ────────────────────────────────────────────
 export interface SchoolReview {
   reviewer: string;

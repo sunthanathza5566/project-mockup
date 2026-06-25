@@ -14,6 +14,7 @@ export default function LoginForm() {
   const [error,    setError]    = useState('');
   const [lockMsg,  setLockMsg]  = useState('');
   const [hint,     setHint]     = useState('');
+  const [showDemo, setShowDemo] = useState(false);
 
   const { refresh } = useAuth();
   const { showToast } = useToast();
@@ -63,11 +64,38 @@ export default function LoginForm() {
         <h1 className="auth-title">เข้าสู่ระบบ</h1>
         <p className="auth-sub">ใส่ข้อมูลผู้ใช้เพื่อเข้าสู่ระบบ EduFlow</p>
 
-        <div className="auth-demo-hint">
-          <strong>บัญชีทดสอบ:</strong><br />
-          ครู: <code>teacher1 / Teacher1</code><br />
-          นักเรียน: <code>student1 / Student1</code><br />
-          Admin: <code>webadmin / Admin123</code>
+        {/* Demo Accounts Accordion */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <button
+            type="button"
+            onClick={() => setShowDemo(!showDemo)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              background: 'var(--cream)',
+              border: '1px solid var(--border-light)',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              color: 'var(--brown-dark)',
+            }}
+          >
+            <span>📋 บัญชีทดสอบ</span>
+            <span style={{ fontSize: '1.2rem' }}>{showDemo ? '▼' : '▶'}</span>
+          </button>
+
+          {showDemo && (
+            <div className="auth-demo-hint" style={{ marginTop: '0.75rem' }}>
+              <strong>บัญชีทดสอบ:</strong><br />
+              ครู: <code>teacher1 / Teacher1</code><br />
+              นักเรียน: <code>student1 / Student1</code><br />
+              Admin: <code>webadmin / Admin123</code>
+            </div>
+          )}
         </div>
 
         {error   && <div className="auth-alert auth-alert-err">⚠️ {error}</div>}
