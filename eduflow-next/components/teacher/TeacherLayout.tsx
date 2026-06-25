@@ -51,53 +51,34 @@ export default function TeacherLayout() {
       <nav className="dash-nav">
         <div className="dash-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
 
-        {/* Notification bell */}
-        <button
-          onClick={() => setNotifOpen(o => !o)}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            position: 'relative',
-            padding: '0.5rem 1rem',
-            marginRight: 'auto',
-          }}
-        >
-          🔔
-          {notifications.filter(n => n.isNew).length > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: '0',
-              right: '0.3rem',
-              background: '#f44336',
-              color: 'white',
-              borderRadius: '50%',
-              width: '20px',
-              height: '20px',
-              fontSize: '0.7rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-            }}>
-              {notifications.filter(n => n.isNew).length}
-            </span>
-          )}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 0 }}>
+          {/* Notification bell */}
+          <button
+            onClick={() => setNotifOpen(o => !o)}
+            className="stu-notif-btn"
+            style={{ position: 'relative' }}
+          >
+            🔔
+            {notifications.filter(n => n.isNew).length > 0 && (
+              <span className="stu-notif-badge">
+                {notifications.filter(n => n.isNew).length}
+              </span>
+            )}
+          </button>
 
-        {/* Profile menu */}
-        <button
-          onClick={() => setProfileMenuOpen(o => !o)}
-          className="dash-user-info"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-        >
-          <div className="dash-user-avatar">{initials}</div>
-          <div>
-            <div className="dash-user-name">{profile.name}</div>
-            <div className="dash-user-role">ครู · {profile.school}</div>
-          </div>
-        </button>
+          {/* Profile menu */}
+          <button
+            onClick={() => setProfileMenuOpen(o => !o)}
+            className="dash-user-info"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 1rem' }}
+          >
+            <div className="dash-user-avatar">{initials}</div>
+            <div>
+              <div className="dash-user-name">{profile.name}</div>
+              <div className="dash-user-role">ครู · {profile.school}</div>
+            </div>
+          </button>
+        </div>
 
         <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
       </nav>
