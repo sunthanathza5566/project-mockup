@@ -20,6 +20,8 @@ export default function TeacherLayout() {
   const [currentView, setCurrentView] = useState<'overview' | 'attendance'>('overview');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
 
   useEffect(() => {
     if (!session) { router.push('/login'); return; }
@@ -48,13 +50,8 @@ export default function TeacherLayout() {
     <div>
       <nav className="dash-nav">
         <div className="dash-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
-        <div className="dash-user-info">
-          <div className="dash-user-avatar">{initials}</div>
-          <div>
-            <div className="dash-user-name">{profile.name}</div>
-            <div className="dash-user-role">ครู · {profile.school}</div>
-          </div>
-        </div>
+
+        {/* Notification bell */}
         <button
           onClick={() => setNotifOpen(o => !o)}
           style={{
@@ -64,6 +61,7 @@ export default function TeacherLayout() {
             cursor: 'pointer',
             position: 'relative',
             padding: '0.5rem 1rem',
+            marginRight: 'auto',
           }}
         >
           🔔
@@ -71,13 +69,13 @@ export default function TeacherLayout() {
             <span style={{
               position: 'absolute',
               top: '0',
-              right: '0',
+              right: '0.3rem',
               background: '#f44336',
               color: 'white',
               borderRadius: '50%',
               width: '20px',
               height: '20px',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -87,6 +85,20 @@ export default function TeacherLayout() {
             </span>
           )}
         </button>
+
+        {/* Profile menu */}
+        <button
+          onClick={() => setProfileMenuOpen(o => !o)}
+          className="dash-user-info"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          <div className="dash-user-avatar">{initials}</div>
+          <div>
+            <div className="dash-user-name">{profile.name}</div>
+            <div className="dash-user-role">ครู · {profile.school}</div>
+          </div>
+        </button>
+
         <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
       </nav>
 
@@ -234,6 +246,203 @@ export default function TeacherLayout() {
           )}
         </div>
       </div>
+
+      {/* Profile Menu */}
+      {profileMenuOpen && (
+        <>
+          <div
+            onClick={() => setProfileMenuOpen(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '70px',
+              right: '1.5rem',
+              background: 'white',
+              border: '1px solid var(--border-light)',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              zIndex: 100,
+              minWidth: '200px',
+            }}
+          >
+            <button
+              onClick={() => {
+                setEditingProfile(true);
+                setProfileMenuOpen(false);
+              }}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontSize: '0.9rem',
+                color: 'var(--brown-dark)',
+                borderBottom: '1px solid var(--border-light)',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--cream-dark)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+            >
+              ✏️ แก้ไขโปรไฟล์
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontSize: '0.9rem',
+                color: '#f44336',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(244,67,54,0.05)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+            >
+              🚪 ออกจากระบบ
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Edit Profile Modal */}
+      {editingProfile && (
+        <>
+          <div
+            onClick={() => setEditingProfile(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.4)',
+              zIndex: 200,
+            }}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '90%',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+              zIndex: 201,
+            }}
+          >
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--brown-dark)' }}>แก้ไขโปรไฟล์ครู</h2>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
+                ชื่อ-นามสกุล
+              </label>
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
+                โรงเรียน
+              </label>
+              <input
+                type="text"
+                value={profile.school}
+                onChange={(e) => setProfile({ ...profile, school: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
+                วิชาที่สอน
+              </label>
+              <input
+                type="text"
+                value={profile.subject}
+                onChange={(e) => setProfile({ ...profile, subject: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <button
+                onClick={() => {
+                  showToast('✅ บันทึกโปรไฟล์สำเร็จ');
+                  setEditingProfile(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'var(--brown-dark)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                }}
+              >
+                💾 บันทึก
+              </button>
+              <button
+                onClick={() => setEditingProfile(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'transparent',
+                  color: 'var(--brown-dark)',
+                  border: '2px solid var(--brown-dark)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                }}
+              >
+                ❌ ยกเลิก
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
