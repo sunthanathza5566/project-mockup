@@ -48,7 +48,7 @@ export default function LoginPage() {
       </nav>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
         <LoginForm />
       </div>
     </div>
