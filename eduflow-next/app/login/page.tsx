@@ -2,8 +2,27 @@
 
 import LoginForm from '@/components/auth/LoginForm';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  function handleNavLink(e: React.MouseEvent, hash: string) {
+    e.preventDefault();
+    router.push(`/?hash=${hash}`);
+  }
+
+  const linkStyle = {
+    textDecoration: 'none',
+    fontSize: '0.85rem',
+    fontWeight: '400',
+    color: 'var(--text-muted)',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    transition: 'color 0.2s',
+    cursor: 'pointer',
+  };
+
   return (
     <>
       {/* Navbar */}
@@ -40,16 +59,9 @@ export default function LoginPage() {
         }}>
           <li>
             <a
-              href="#about"
-              style={{
-                textDecoration: 'none',
-                fontSize: '0.85rem',
-                fontWeight: '400',
-                color: 'var(--text-muted)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                transition: 'color 0.2s',
-              }}
+              href="/"
+              onClick={(e) => handleNavLink(e, '#about')}
+              style={linkStyle}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brown-deep)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
@@ -58,16 +70,9 @@ export default function LoginPage() {
           </li>
           <li>
             <a
-              href="#clients"
-              style={{
-                textDecoration: 'none',
-                fontSize: '0.85rem',
-                fontWeight: '400',
-                color: 'var(--text-muted)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                transition: 'color 0.2s',
-              }}
+              href="/"
+              onClick={(e) => handleNavLink(e, '#clients')}
+              style={linkStyle}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brown-deep)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
@@ -76,16 +81,9 @@ export default function LoginPage() {
           </li>
           <li>
             <a
-              href="#contact"
-              style={{
-                textDecoration: 'none',
-                fontSize: '0.85rem',
-                fontWeight: '400',
-                color: 'var(--text-muted)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                transition: 'color 0.2s',
-              }}
+              href="/"
+              onClick={(e) => handleNavLink(e, '#contact')}
+              style={linkStyle}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brown-deep)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
