@@ -180,109 +180,60 @@ export default function TeacherLayout() {
         )}
       </div>
 
-      {/* Notification Panel */}
-      {notifOpen && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              top: '3.5rem',
-              right: 0,
-              width: '350px',
-              maxWidth: '90vw',
-              maxHeight: 'calc(100vh - 4rem)',
-              background: 'white',
-              borderLeft: '1px solid var(--border-light)',
-              boxShadow: '-4px 0 12px rgba(0,0,0,0.1)',
-              overflowY: 'auto',
-              zIndex: 999,
-            }}
-          >
-            <div style={{
-              padding: '1rem',
-              borderBottom: '1px solid var(--border-light)',
-              fontWeight: '600',
-              color: 'var(--brown-dark)',
-            }}>
-              🔔 แจ้งเตือน ({notifications.length})
-            </div>
-            <div>
-              {notifications.length === 0 ? (
-                <div style={{
-                  padding: '2rem 1rem',
-                  textAlign: 'center',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.9rem',
-                }}>
-                  ไม่มีแจ้งเตือน
-                </div>
-              ) : (
-                notifications.map(n => {
-                  const iconMap: Record<string, string> = {
-                    attendance_report: '📊',
-                    assignment_submitted: '📝',
-                    info: '📢',
-                    overdue: '⛔',
-                    grade: '📊',
-                    hw: '📚',
-                  };
-                  return (
-                    <div
-                      key={n.id}
-                      onClick={() => {
-                        markTeacherNotificationRead(n.id);
-                        setNotifications(prev => prev.map(notif =>
-                          notif.id === n.id ? { ...notif, isNew: false } : notif
-                        ));
-                      }}
-                      style={{
-                        padding: '1rem',
-                        borderBottom: '1px solid var(--border-light)',
-                        cursor: 'pointer',
-                        background: n.isNew ? 'rgba(61,43,26,0.03)' : 'white',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(61,43,26,0.05)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = n.isNew ? 'rgba(61,43,26,0.03)' : 'white')}
-                    >
-                      {n.isNew && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          background: '#f44336',
-                          marginBottom: '0.5rem',
-                        }} />
-                      )}
-                      <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--brown-dark)', marginBottom: '0.25rem' }}>
-                        {iconMap[n.type] || '📢'} {n.title}
-                      </div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                        {n.body}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {new Date(n.time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
+      {/* Notification overlay */}
+      <div className={`stu-notif-overlay${notifOpen ? ' show' : ''}`} onClick={() => setNotifOpen(false)} />
+      <div className={`stu-notif-panel${notifOpen ? ' open' : ''}`}>
+        <div className="stu-notif-ph">
+          <span className="stu-notif-ph-title">การแจ้งเตือน</span>
+          <button className="stu-notif-ph-close" onClick={() => setNotifOpen(false)}>✕</button>
+        </div>
+        <div className="stu-notif-list-inner">
+          {notifications.length === 0 ? (
+            <div className="stu-notif-empty">🔕<br />ไม่มีแจ้งเตือนใหม่</div>
+          ) : (
+            notifications.map(n => {
+              const typeMap: Record<string, string> = {
+                attendance_report: 'type-grade',
+                assignment_submitted: 'type-grade',
+                info: 'type-info',
+                overdue: 'type-overdue',
+                grade: 'type-grade',
+                hw: 'type-info',
+              };
+              const iconMap: Record<string, string> = {
+                attendance_report: '📊',
+                assignment_submitted: '📝',
+                info: '📢',
+                overdue: '⛔',
+                grade: '📊',
+                hw: '📚',
+              };
+              return (
+                <div
+                  key={n.id}
+                  className={`stu-notif-item ${typeMap[n.type] || 'type-info'}${n.isNew ? ' is-new' : ''}`}
+                  onClick={() => {
+                    markTeacherNotificationRead(n.id);
+                    setNotifications(prev => prev.map(notif =>
+                      notif.id === n.id ? { ...notif, isNew: false } : notif
+                    ));
+                  }}
+                >
+                  <div className="stu-notif-item-row">
+                    {n.isNew && <div className="stu-notif-new-dot" />}
+                    <div className="stu-notif-item-icon">{iconMap[n.type] || '📢'}</div>
+                    <div className="stu-notif-item-content">
+                      <div className="stu-notif-item-title">{n.title}</div>
+                      <div className="stu-notif-item-body">{n.body}</div>
+                      <div className="stu-notif-item-time">{new Date(n.time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-          <div
-            onClick={() => setNotifOpen(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0)',
-              zIndex: 998,
-            }}
-          />
-        </>
-      )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   );
 }
