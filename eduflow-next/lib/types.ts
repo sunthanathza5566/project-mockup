@@ -128,11 +128,12 @@ export interface LibraryBook {
 
 export interface Notification {
   id: number;
-  type: 'overdue' | 'grade' | 'info' | 'hw';
+  type: 'overdue' | 'grade' | 'info' | 'hw' | 'attendance_report' | 'assignment_submitted';
   isNew: boolean;
   title: string;
   body: string;
   time: number;
+  data?: any;
 }
 
 // ─── Teacher ───────────────────────────────────────────

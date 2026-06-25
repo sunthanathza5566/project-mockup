@@ -6,7 +6,7 @@
  */
 
 import { TEACHER_DATA_MOCK } from '../mock-data';
-import type { ClassInfo, TeacherStudent, TeacherAssignment, AttendanceSession, AttendanceRecord, AttendanceReport } from '../types';
+import type { ClassInfo, TeacherStudent, TeacherAssignment, AttendanceSession, AttendanceRecord, AttendanceReport, Notification } from '../types';
 
 // TODO(PostgreSQL): SELECT * FROM teachers WHERE user_id = $1
 export async function getTeacherProfile(teacherId: string) {
@@ -221,4 +221,47 @@ export async function submitAttendanceReport(report: AttendanceReport): Promise<
 export async function getAttendanceHistory(classId: string, date?: string) {
   // TODO: ดึงจากฐานข้อมูล
   return [];
+}
+
+// ─── Teacher Notifications ────────────────────────────────────
+
+// TODO(PostgreSQL):
+//   SELECT n.* FROM notifications n
+//   WHERE n.teacher_id = $1 AND n.is_deleted = false
+//   ORDER BY n.created_at DESC LIMIT 20
+export async function getTeacherNotifications(teacherId: string): Promise<Notification[]> {
+  return [
+    {
+      id: 1,
+      type: 'attendance_report',
+      isNew: true,
+      title: '📊 รายงานเช็คชื่อส่งแล้ว',
+      body: 'คาบวิชา "ฟิสิกส์" ของชั้น ม.5/1 ทำการเช็คชื่อเสร็จสิ้น (23 คนมา, 2 คนสาย)',
+      time: Date.now() - 5 * 60 * 1000,
+      data: { reportId: 'rpt-001', className: 'ม.5/1', presentCount: 23, lateCount: 2 },
+    },
+    {
+      id: 2,
+      type: 'assignment_submitted',
+      isNew: true,
+      title: '📝 นักเรียนส่งการบ้าน',
+      body: '18 นักเรียนจากชั้น ม.5/1 ส่งการบ้าน "บทที่ 5 พลศาสตร์" แล้ว',
+      time: Date.now() - 30 * 60 * 1000,
+      data: { assignmentId: 'asgn-001', submissionCount: 18 },
+    },
+    {
+      id: 3,
+      type: 'info',
+      isNew: false,
+      title: '📢 ข้อความจากผู้บริหาร',
+      body: 'ระบบจะปิดปรับปรุงในวันอังคารนี้ เวลา 22:00 - 06:00',
+      time: Date.now() - 2 * 60 * 60 * 1000,
+    },
+  ];
+}
+
+// TODO(PostgreSQL):
+//   UPDATE notifications SET is_read = true WHERE id = $1
+export async function markTeacherNotificationRead(notificationId: number): Promise<void> {
+  console.log('TODO: markTeacherNotificationRead', notificationId);
 }
