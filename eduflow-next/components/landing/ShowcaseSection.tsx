@@ -8,7 +8,7 @@ export default function ShowcaseSection() {
   return (
     <>
       {/* Showcase 1 — ลงชื่อเข้าเรียน */}
-      <section className="showcase-section" id="signin">
+      <section className="showcase-section" id="clients">
         <div className="showcase-layout">
           <div className="showcase-copy">
             <div className="showcase-eyebrow">ฟีเจอร์ที่ 01</div>
