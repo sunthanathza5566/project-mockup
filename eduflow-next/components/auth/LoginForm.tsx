@@ -10,6 +10,7 @@ import { useToast } from '@/context/ToastContext';
 export default function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showUser, setShowUser] = useState(false);
   const [showPw,   setShowPw]   = useState(false);
   const [error,    setError]    = useState('');
   const [lockMsg,  setLockMsg]  = useState('');
@@ -104,15 +105,20 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit}>
           <div className="auth-field">
             <label className="auth-label" htmlFor="login-username">Username</label>
-            <input
-              id="login-username"
-              className="auth-input"
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              autoComplete="username"
-              required
-            />
+            <div className="pw-wrap">
+              <input
+                id="login-username"
+                className="auth-input"
+                type={showUser ? 'text' : 'password'}
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                autoComplete="username"
+                required
+              />
+              <button type="button" className="pw-eye" onClick={() => setShowUser(s => !s)}>
+                {showUser ? '🙈' : '👁'}
+              </button>
+            </div>
           </div>
           {hint && <p className="auth-hint">{hint}</p>}
 
