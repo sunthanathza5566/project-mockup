@@ -160,52 +160,52 @@ export default function TeacherProfileView({ profile, onClose }: ProfileViewProp
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ padding: '3rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header Card */}
       <div
         style={{
           background: 'var(--cream)',
           border: '1px solid var(--border-light)',
           borderRadius: '12px',
-          padding: '1.5rem',
+          padding: '2rem',
           marginBottom: '2rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1.5rem',
+          gap: '2rem',
         }}
       >
         <div
           style={{
-            width: '80px',
-            height: '80px',
+            width: '100px',
+            height: '100px',
             borderRadius: '50%',
             background: 'var(--brown-dark)',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '1.8rem',
+            fontSize: '2.2rem',
             fontWeight: 'bold',
             flexShrink: 0,
           }}
         >
           {profile.name.substring(0, 2)}
         </div>
-        <div>
-          <h1 style={{ margin: 0, color: 'var(--brown-dark)', fontSize: '1.5rem', fontWeight: '600' }}>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ margin: 0, color: 'var(--brown-dark)', fontSize: '2rem', fontWeight: '600', marginBottom: '0.5rem' }}>
             {profile.name}
           </h1>
-          <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
             รหัสครู: {profile.teacherId}
           </p>
-          <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
             โรงเรียน: {profile.school}
           </p>
         </div>
       </div>
 
-      {/* Info Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      {/* Info Cards Grid - 2 columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
         {/* Basic Info */}
         <div
           style={{
@@ -215,7 +215,7 @@ export default function TeacherProfileView({ profile, onClose }: ProfileViewProp
             padding: '1.5rem',
           }}
         >
-          <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)', fontSize: '1rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             👤 ข้อมูลส่วนตัว
           </h3>
           <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -233,7 +233,7 @@ export default function TeacherProfileView({ profile, onClose }: ProfileViewProp
             padding: '1.5rem',
           }}
         >
-          <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)', fontSize: '1rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             🎓 ข้อมูลการศึกษา
           </h3>
           <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -245,23 +245,23 @@ export default function TeacherProfileView({ profile, onClose }: ProfileViewProp
       </div>
 
       {/* Edit Button */}
-      <button
-        onClick={() => setIsEditing(true)}
-        style={{
-          padding: '0.75rem 1.5rem',
-          background: 'transparent',
-          color: 'var(--brown-dark)',
-          border: '2px solid var(--brown-dark)',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '600',
-          fontSize: '1rem',
-          display: 'block',
-          margin: '0 auto',
-        }}
-      >
-        ✏️ แก้ไขข้อมูล
-      </button>
+      <div style={{ textAlign: 'center' }}>
+        <button
+          onClick={() => setIsEditing(true)}
+          style={{
+            padding: '0.75rem 2rem',
+            background: 'transparent',
+            color: 'var(--brown-dark)',
+            border: '2px solid var(--brown-dark)',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '0.95rem',
+          }}
+        >
+          ✏️ แก้ไขข้อมูล
+        </button>
+      </div>
     </div>
   );
 }
