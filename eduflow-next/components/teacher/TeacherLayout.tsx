@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { getTeacherProfile, getTeacherClasses, getClassStudents, getTodayAttendance, getTeacherNotifications, markTeacherNotificationRead } from '@/lib/api/teacher.api';
 import AttendanceView from './AttendanceView';
+import ProfileView from './ProfileView';
 import type { TeacherProfile, ClassInfo, TeacherStudent, Notification } from '@/lib/types';
 
 export default function TeacherLayout() {
@@ -21,7 +22,7 @@ export default function TeacherLayout() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [editingProfile, setEditingProfile] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     if (!session) { router.push('/login'); return; }
@@ -257,7 +258,7 @@ export default function TeacherLayout() {
           >
             <button
               onClick={() => {
-                setEditingProfile(true);
+                setShowProfile(true);
                 setProfileMenuOpen(false);
               }}
               style={{
@@ -275,7 +276,7 @@ export default function TeacherLayout() {
               onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--cream-dark)')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
             >
-              ✏️ แก้ไขโปรไฟล์
+              👤 ดูโปรไฟล์
             </button>
             <button
               onClick={handleLogout}
@@ -299,130 +300,40 @@ export default function TeacherLayout() {
         </>
       )}
 
-      {/* Edit Profile Modal */}
-      {editingProfile && (
-        <>
-          <div
-            onClick={() => setEditingProfile(false)}
+      {/* Profile View */}
+      {showProfile && profile && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'white',
+            overflowY: 'auto',
+            zIndex: 200,
+          }}
+        >
+          <button
+            onClick={() => setShowProfile(false)}
             style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.4)',
-              zIndex: 200,
-            }}
-          />
-          <div
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              background: 'white',
-              borderRadius: '12px',
-              padding: '2rem',
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+              position: 'sticky',
+              top: '1.5rem',
+              left: '1.5rem',
+              padding: '0.5rem 1rem',
+              background: 'var(--brown-dark)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '600',
               zIndex: 201,
             }}
           >
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--brown-dark)' }}>แก้ไขโปรไฟล์ครู</h2>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
-                ชื่อ-นามสกุล
-              </label>
-              <input
-                type="text"
-                value={profile.name}
-                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '6px',
-                  fontSize: '0.9rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
-                โรงเรียน
-              </label>
-              <input
-                type="text"
-                value={profile.school}
-                onChange={(e) => setProfile({ ...profile, school: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '6px',
-                  fontSize: '0.9rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '2rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--brown-dark)' }}>
-                วิชาที่สอน
-              </label>
-              <input
-                type="text"
-                value={profile.subject}
-                onChange={(e) => setProfile({ ...profile, subject: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '6px',
-                  fontSize: '0.9rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <button
-                onClick={() => {
-                  showToast('✅ บันทึกโปรไฟล์สำเร็จ');
-                  setEditingProfile(false);
-                }}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'var(--brown-dark)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                }}
-              >
-                💾 บันทึก
-              </button>
-              <button
-                onClick={() => setEditingProfile(false)}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'transparent',
-                  color: 'var(--brown-dark)',
-                  border: '2px solid var(--brown-dark)',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                }}
-              >
-                ❌ ยกเลิก
-              </button>
-            </div>
-          </div>
-        </>
+            ← ย้อนกลับ
+          </button>
+          <ProfileView profile={profile} onClose={() => setShowProfile(false)} />
+        </div>
       )}
     </div>
   );
