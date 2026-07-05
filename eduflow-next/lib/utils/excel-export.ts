@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
 import type { AttendanceReport } from '../types';
-import { calcTotal, calcGrade, type Course, type ScoreEntry } from '../api/academic.store';
+import { calcTotal, calcGrade, calcGPA, type Course, type ScoreEntry, type StudentGradeRow } from '../api/academic.store';
 
 export async function exportAttendanceReportToExcel(report: AttendanceReport) {
   const workbook = new ExcelJS.Workbook();
@@ -170,5 +170,62 @@ export async function exportScoreSheetToExcel(
     graded.length ? `เฉลี่ยรวม ${(graded.reduce((s, t) => s + t, 0) / graded.length).toFixed(1)} คะแนน` : '']);
 
   const fileName = `ปพ5_${course.code}_${classroomLabel.replace('/', '-')}_${academicYear}.xlsx`;
+  await downloadWorkbook(workbook, fileName);
+}
+
+/**
+ * ส่งออกใบรายงานผลการเรียนรายบุคคล (แนว ปพ.6) เป็น Excel
+ * TODO(PostgreSQL): เติมหน่วยกิต, ผลการประเมินคุณลักษณะฯ ตามแบบฟอร์มทางการเมื่อมีข้อมูลจริง
+ */
+export async function exportStudentGradeReport(
+  studentName: string,
+  studentCode: string,
+  rows: StudentGradeRow[],
+) {
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet('ผลการเรียน');
+
+  ws.columns = [
+    { key: 'order',   width: 8 },
+    { key: 'code',    width: 12 },
+    { key: 'name',    width: 30 },
+    { key: 'teacher', width: 22 },
+    { key: 'total',   width: 12 },
+    { key: 'grade',   width: 10 },
+  ];
+
+  // ── หัวเอกสาร ──
+  const year = rows[0]?.academicYear || '—';
+  const classroom = rows[0]?.classroomLabel || '—';
+  ws.addRow(['ใบรายงานผลการเรียน (แนว ปพ.6)']);
+  ws.addRow([`ชื่อ-นามสกุล: ${studentName} · รหัสนักเรียน ${studentCode}`]);
+  ws.addRow([`ห้องเรียน: ${classroom} · ปีการศึกษา ${year}`]);
+  ws.addRow([]);
+  ws.getRow(1).font = { bold: true, size: 14 };
+
+  // ── หัวตาราง ──
+  const headerRow = ws.addRow(['ลำดับ', 'รหัสวิชา', 'รายวิชา', 'ครูผู้สอน', 'คะแนนรวม', 'เกรด']);
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B4F2F' } };
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  rows.forEach((r, idx) => {
+    const row = ws.addRow([idx + 1, r.courseCode, r.courseName, r.teacherName, r.total ?? '—', r.grade]);
+    row.alignment = { horizontal: 'center', vertical: 'middle' };
+    row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
+    row.getCell(4).alignment = { horizontal: 'left', vertical: 'middle' };
+    row.border = {
+      top: { style: 'thin' }, left: { style: 'thin' },
+      bottom: { style: 'thin' }, right: { style: 'thin' },
+    };
+  });
+
+  // ── GPA ──
+  const gpa = calcGPA(rows);
+  ws.addRow([]);
+  const gpaRow = ws.addRow(['', '', '', 'เกรดเฉลี่ย (GPA)', '', gpa !== null ? gpa.toFixed(2) : '—']);
+  gpaRow.font = { bold: true };
+
+  const fileName = `ผลการเรียน_${studentCode}_${year}.xlsx`;
   await downloadWorkbook(workbook, fileName);
 }

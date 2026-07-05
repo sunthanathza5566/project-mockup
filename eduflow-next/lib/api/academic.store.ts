@@ -66,7 +66,8 @@ interface AcademicData {
   gradeLevels: GradeLevel[];
   classrooms: Classroom[];
   courses: Course[];
-  scores: Record<string, ScoreEntry[]>; // keyed by courseId
+  scores: Record<string, ScoreEntry[]>;           // keyed by courseId
+  rosters?: Record<string, TeacherStudent[]>;     // นักเรียนที่แอดมินเพิ่มเข้าห้อง keyed by classroomId
 }
 
 // ─── Internal ─────────────────────────────────────────────────────────────
@@ -174,12 +175,41 @@ export function getClassroomStudents(classroomId: string): TeacherStudent[] {
   const data = load();
   const room = data.classrooms.find(c => c.id === classroomId);
   if (!room) return [];
+
+  // 1) นักเรียนจาก mock (ห้อง seed ที่ตรงกับห้องสอนของครู)
   const grade = data.gradeLevels.find(g => g.id === room.gradeLevelId);
-  if (!grade) return [];
-  // จับคู่กับห้องสอนใน mock (grade + room ตรงกัน) — ห้องที่แอดมินสร้างใหม่จะยังไม่มีนักเรียน
-  const mockClass = TEACHER_DATA_MOCK.classes.find(c => c.grade === grade.name && c.room === room.room);
-  if (!mockClass) return [];
-  return TEACHER_DATA_MOCK.students.filter(s => s.classId === mockClass.id);
+  const mockClass = grade
+    ? TEACHER_DATA_MOCK.classes.find(c => c.grade === grade.name && c.room === room.room)
+    : undefined;
+  const mockStudents = mockClass
+    ? TEACHER_DATA_MOCK.students.filter(s => s.classId === mockClass.id)
+    : [];
+
+  // 2) นักเรียนที่แอดมินเพิ่มเข้าห้องเอง (roster) — dedupe ด้วยรหัสนักเรียน
+  const roster = data.rosters?.[classroomId] || [];
+  const merged = [...mockStudents];
+  roster.forEach(r => { if (!merged.some(s => s.code === r.code)) merged.push(r); });
+  return merged;
+}
+
+// TODO(PostgreSQL): INSERT INTO enrollments (classroom_id, student_code) VALUES ($1, $2)
+//   RLS: อนุญาตเฉพาะแอดมิน
+export function addStudentToClassroom(classroomId: string, code: string, name: string): boolean {
+  const data = load();
+  if (getClassroomStudents(classroomId).some(s => s.code === code)) return false; // รหัสซ้ำ
+  if (!data.rosters) data.rosters = {};
+  if (!data.rosters[classroomId]) data.rosters[classroomId] = [];
+  data.rosters[classroomId].push({ id: `S${Date.now()}`, code, name, classId: classroomId });
+  save(data);
+  return true;
+}
+
+// TODO(PostgreSQL): DELETE FROM enrollments WHERE classroom_id = $1 AND student_code = $2
+export function removeStudentFromClassroom(classroomId: string, code: string): void {
+  const data = load();
+  if (!data.rosters?.[classroomId]) return;
+  data.rosters[classroomId] = data.rosters[classroomId].filter(s => s.code !== code);
+  save(data);
 }
 
 // ─── คะแนน (ปพ.5) ─────────────────────────────────────────────────────────
@@ -206,6 +236,55 @@ export function saveScores(courseId: string, entries: ScoreEntry[]): void {
   const data = load();
   data.scores[courseId] = entries;
   save(data);
+}
+
+// ─── ผลการเรียนรายนักเรียน (สำหรับหน้าเกรด + ใบออกเกรด/ปพ.6) ────────────
+export interface StudentGradeRow {
+  courseId: string;
+  courseCode: string;
+  courseName: string;
+  teacherName: string;
+  classroomLabel: string;  // เช่น 'ม.1/1'
+  academicYear: string;
+  collected: number | null;
+  midterm: number | null;
+  final: number | null;
+  total: number | null;
+  grade: string;
+}
+
+// TODO(PostgreSQL):
+//   SELECT c.*, sr.collected, sr.midterm, sr.final
+//   FROM score_records sr JOIN courses c ON c.id = sr.course_id
+//   JOIN classrooms r ON r.id = c.classroom_id
+//   WHERE sr.student_code = $1 ORDER BY c.created_at
+export function getStudentGrades(studentCode: string): StudentGradeRow[] {
+  const data = load();
+  const rows: StudentGradeRow[] = [];
+  for (const course of data.courses) {
+    const entry = (data.scores[course.id] || []).find(e => e.studentCode === studentCode);
+    if (!entry) continue; // ยังไม่มีการบันทึกคะแนนของนักเรียนคนนี้ในวิชานี้
+    const room = data.classrooms.find(c => c.id === course.classroomId);
+    const grade = room ? data.gradeLevels.find(g => g.id === room.gradeLevelId) : undefined;
+    const year = room ? data.years.find(y => y.id === room.yearId) : undefined;
+    const total = calcTotal(entry);
+    rows.push({
+      courseId: course.id, courseCode: course.code, courseName: course.name,
+      teacherName: course.teacherName,
+      classroomLabel: grade && room ? `${grade.name}/${room.room}` : '—',
+      academicYear: year?.year || '—',
+      collected: entry.collected, midterm: entry.midterm, final: entry.final,
+      total, grade: calcGrade(total),
+    });
+  }
+  return rows;
+}
+
+/** GPA เฉลี่ยจากทุกวิชาที่มีเกรดแล้ว (น้ำหนักเท่ากันทุกวิชา — TODO: ถ่วงด้วยหน่วยกิตเมื่อมีข้อมูลจริง) */
+export function calcGPA(rows: StudentGradeRow[]): number | null {
+  const graded = rows.filter(r => r.grade !== '—').map(r => parseFloat(r.grade));
+  if (graded.length === 0) return null;
+  return graded.reduce((s, g) => s + g, 0) / graded.length;
 }
 
 // ─── คำนวณเกรด (เกณฑ์มาตรฐาน สพฐ.) ──────────────────────────────────────

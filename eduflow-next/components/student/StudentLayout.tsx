@@ -12,11 +12,13 @@ import ProfileView   from './views/ProfileView';
 import ClassroomView from './views/ClassroomView';
 import ScheduleView  from './views/ScheduleView';
 import HomeworkView  from './views/HomeworkView';
+import GradesView    from './views/GradesView';
 import ShopView      from './views/ShopView';
 import LibraryView   from './views/LibraryView';
 import AttendanceScanView from './AttendanceScanView';
+import TeacherRatingModal from './TeacherRatingModal';
 
-export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'shop' | 'library';
+export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library';
 
 const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
@@ -24,6 +26,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'classroom', icon: '🏫', label: 'ห้องเรียน' },
   { view: 'schedule',  icon: '📅', label: 'ตารางเรียน' },
   { view: 'homework',  icon: '📚', label: 'การบ้าน' },
+  { view: 'grades',    icon: '🎓', label: 'ผลการเรียน' },
   { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
   { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
 ];
@@ -42,6 +45,7 @@ export default function StudentLayout() {
   const [burgerOpen, setBurgerOpen] = useState(false);
   const [notifOpen,  setNotifOpen]  = useState(false);
   const [showAttendanceScan, setShowAttendanceScan] = useState(false);
+  const [showRating, setShowRating] = useState(false);
 
   // ─── Data state ───────────────────────────────────────
   // TODO(PostgreSQL): replace useState + useEffect fetch with useSWR or React Query
@@ -185,6 +189,9 @@ export default function StudentLayout() {
           <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowAttendanceScan(true); }}>
             <span className="stu-bm-iicon">📱</span>เช็คชื่อ QR
           </button>
+          <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowRating(true); }}>
+            <span className="stu-bm-iicon">⭐</span>ให้คะแนนการสอน
+          </button>
           <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
             <span className="stu-bm-iicon">🚪</span>ออกจากระบบ
           </button>
@@ -228,9 +235,19 @@ export default function StudentLayout() {
         {currentView === 'classroom' && <ClassroomView {...viewProps} />}
         {currentView === 'schedule'  && <ScheduleView  {...viewProps} />}
         {currentView === 'homework'  && <HomeworkView  {...viewProps} />}
+        {currentView === 'grades'    && <GradesView    profile={profile} showToast={showToast} />}
         {currentView === 'shop'      && <ShopView      {...viewProps} stats={stats!} />}
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
       </main>
+
+      {/* ── Teacher Rating Modal (นิรนาม) ── */}
+      {showRating && (
+        <TeacherRatingModal
+          todaySchedule={schedule[currentDay] || []}
+          onClose={() => setShowRating(false)}
+          showToast={showToast}
+        />
+      )}
 
       {/* ── Attendance Scan Modal ── */}
       {showAttendanceScan && (

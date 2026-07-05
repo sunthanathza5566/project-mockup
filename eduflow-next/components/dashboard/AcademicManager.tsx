@@ -5,8 +5,10 @@ import {
   getAcademicYears, createAcademicYear,
   getGradeLevels, createGradeLevel,
   getClassrooms, createClassroom,
+  getClassroomStudents, addStudentToClassroom, removeStudentFromClassroom,
   type AcademicYear, type GradeLevel, type Classroom,
 } from '@/lib/api/academic.store';
+import type { TeacherStudent } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
 interface Props {
@@ -27,10 +29,16 @@ export default function AcademicManager({ adminUsername }: Props) {
 
   const [selYear,  setSelYear]  = useState<string>('');
   const [selGrade, setSelGrade] = useState<string>('');
+  const [selRoom,  setSelRoom]  = useState<string>('');
 
   const [newYear,  setNewYear]  = useState('');
   const [newGrade, setNewGrade] = useState('');
   const [newRoom,  setNewRoom]  = useState('');
+
+  // ── นักเรียนในห้อง ──
+  const [roomStudents, setRoomStudents] = useState<TeacherStudent[]>([]);
+  const [newStudentCode, setNewStudentCode] = useState('');
+  const [newStudentName, setNewStudentName] = useState('');
 
   const refresh = useCallback(() => {
     const ys = getAcademicYears();
@@ -48,8 +56,14 @@ export default function AcademicManager({ adminUsername }: Props) {
   }, [selYear, years]);
 
   useEffect(() => {
-    setClassrooms(selGrade ? getClassrooms(selGrade) : []);
+    const rooms = selGrade ? getClassrooms(selGrade) : [];
+    setClassrooms(rooms);
+    setSelRoom(prev => (rooms.some(r => r.id === prev) ? prev : ''));
   }, [selGrade, gradeLevels]);
+
+  useEffect(() => {
+    setRoomStudents(selRoom ? getClassroomStudents(selRoom) : []);
+  }, [selRoom, classrooms]);
 
   function handleCreateYear() {
     const y = newYear.trim();
@@ -84,6 +98,24 @@ export default function AcademicManager({ adminUsername }: Props) {
     showToast(`✅ สร้างห้อง ${gradeName}/${r} แล้ว — ครูสามารถสร้างรายวิชาในห้องนี้ได้`);
     setNewRoom('');
     setClassrooms(getClassrooms(selGrade));
+  }
+
+  function handleAddStudent() {
+    const code = newStudentCode.trim();
+    const name = newStudentName.trim();
+    if (!code || !name) { showToast('⚠️ กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
+    if (!selRoom) { showToast('⚠️ เลือกห้องเรียนก่อน'); return; }
+    if (!addStudentToClassroom(selRoom, code, name)) { showToast('⚠️ รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
+    showToast(`✅ เพิ่ม ${name} เข้าห้องแล้ว`);
+    setNewStudentCode(''); setNewStudentName('');
+    setRoomStudents(getClassroomStudents(selRoom));
+  }
+
+  function handleRemoveStudent(code: string, name: string) {
+    if (!selRoom) return;
+    removeStudentFromClassroom(selRoom, code);
+    showToast(`ลบ ${name} ออกจากห้องแล้ว`);
+    setRoomStudents(getClassroomStudents(selRoom));
   }
 
   const inputStyle: React.CSSProperties = {
@@ -154,14 +186,56 @@ export default function AcademicManager({ adminUsername }: Props) {
             {classrooms.length === 0
               ? <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ยังไม่มีห้องในระดับชั้นนี้</div>
               : classrooms.map(c => (
-                  <span key={c.id} style={{ fontSize: '0.8rem', background: 'var(--warm-white)', border: '1px solid var(--border)', color: 'var(--brown-dark)', padding: '0.3rem 0.8rem', borderRadius: 50 }}>
+                  <button
+                    key={c.id}
+                    onClick={() => setSelRoom(c.id)}
+                    style={{
+                      fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                      background: selRoom === c.id ? 'var(--brown-dark)' : 'var(--warm-white)',
+                      border: '1px solid var(--border)',
+                      color: selRoom === c.id ? 'var(--cream)' : 'var(--brown-dark)',
+                      padding: '0.3rem 0.8rem', borderRadius: 50,
+                    }}
+                  >
                     {gradeLevels.find(g => g.id === c.gradeLevelId)?.name}/{c.room}
-                  </span>
+                  </button>
                 ))}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input style={inputStyle} placeholder="เลขห้อง เช่น 3" value={newRoom} onChange={e => setNewRoom(e.target.value)} />
             <button className="dash-action-btn" style={{ whiteSpace: 'nowrap' }} onClick={handleCreateRoom}>➕ สร้าง</button>
+          </div>
+        </div>
+
+        {/* ── นักเรียนในห้อง ── */}
+        <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.1rem' }}>
+          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>
+            👥 นักเรียนในห้อง {selRoom ? `(${roomStudents.length} คน)` : ''}
+          </div>
+          {!selRoom ? (
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>เลือกห้องเรียนก่อนเพื่อจัดการนักเรียน</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.85rem', maxHeight: 180, overflowY: 'auto' }}>
+              {roomStudents.length === 0
+                ? <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ยังไม่มีนักเรียน — เพิ่มด้านล่าง</div>
+                : roomStudents.map(s => (
+                    <div key={s.code} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.35rem 0.6rem' }}>
+                      <span style={{ fontFamily: 'monospace', color: 'var(--text-muted)' }}>{s.code}</span>
+                      <span style={{ flex: 1, color: 'var(--brown-dark)' }}>{s.name}</span>
+                      {/* นักเรียนจาก mock (seed) ลบไม่ได้ — ลบได้เฉพาะที่แอดมินเพิ่มเอง */}
+                      {s.classId === selRoom && (
+                        <button onClick={() => handleRemoveStudent(s.code, s.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--absent)', fontSize: '0.75rem' }}>ลบ</button>
+                      )}
+                    </div>
+                  ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <input style={inputStyle} placeholder="รหัสนักเรียน เช่น 10026" value={newStudentCode} onChange={e => setNewStudentCode(e.target.value)} />
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input style={inputStyle} placeholder="ชื่อ-นามสกุล" value={newStudentName} onChange={e => setNewStudentName(e.target.value)} />
+              <button className="dash-action-btn" style={{ whiteSpace: 'nowrap' }} onClick={handleAddStudent}>➕ เพิ่ม</button>
+            </div>
           </div>
         </div>
       </div>
