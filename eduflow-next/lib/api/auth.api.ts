@@ -64,7 +64,8 @@ export function setSession(user: User): void {
   const session: Session = {
     username: user.username, role: user.role, name: user.name,
     school: user.school || '', code: user.code || '',
-    childName: user.childName || '', class: user.class || '',
+    childCode: user.childCode || '', childName: user.childName || '',
+    class: user.class || '',
     loginAt: Date.now(),
   };
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));

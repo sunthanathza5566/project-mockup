@@ -23,6 +23,7 @@ export interface Session {
   name: string;
   school: string;
   code: string;
+  childCode: string;   // สำหรับ parent — รหัสนักเรียนของลูก
   childName: string;
   class: string;
   loginAt: number;

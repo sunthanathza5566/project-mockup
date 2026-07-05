@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { ROLE_LABELS, PERMISSION_LABELS } from '@/lib/mock-data';
+import { ROLE_LABELS, PERMISSION_LABELS, SEEDED_USERS } from '@/lib/mock-data';
 import { getAllUsers, deleteUserById, getAllPermissions, updatePermission, getAdminLog, getSystemStats } from '@/lib/api/admin.api';
 import AcademicManager from './AcademicManager';
+import ParentDashboard from './ParentDashboard';
 import type { User, Permissions } from '@/lib/types';
 
 type DashTab = 'users' | 'perms' | 'academic' | 'log';
@@ -180,7 +181,14 @@ export default function DashboardLayout() {
             <AcademicManager adminUsername={session.username} />
           </>
         )}
-        {session.role === 'parent' && <ParentContent name={session.name} childName={session.childName} showToast={showToast} />}
+        {session.role === 'parent' && (
+          <ParentDashboard
+            // fallback หา childCode จาก SEEDED_USERS เผื่อ session เก่าที่ยังไม่มี field นี้
+            childCode={session.childCode || SEEDED_USERS.find(u => u.username === session.username)?.childCode || ''}
+            childName={session.childName}
+            showToast={showToast}
+          />
+        )}
       </div>
     </div>
   );
@@ -221,33 +229,4 @@ function SchoolAdminContent({ name, school, showToast }: { name: string; school:
   );
 }
 
-function ParentContent({ name, childName, showToast }: { name: string; childName: string; showToast: (m:string)=>void }) {
-  return (
-    <>
-      <div className="dash-section">
-        <div className="section-label">ผู้ปกครอง</div>
-        <h2 className="dash-h2">สถานะบุตรหลาน<em>{childName || 'ของคุณ'}</em></h2>
-        <div className="dash-kpi-row">
-          {[{ num: 'มาทัน', label: 'สถานะวันนี้ (08:02)', color: '#5C8A5C' }, { num: '80%', label: 'มาทันเดือนนี้' }, { num: '2', label: 'ขาดเรียนเดือนนี้' }].map((k, i) => (
-            <div key={i} className="dash-kpi">
-              <div className="dash-kpi-num" style={k.color ? { color: k.color } : {}}>{k.num}</div>
-              <div className="dash-kpi-label">{k.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="dash-section">
-        <div className="dash-section-title">แจ้งเตือนล่าสุด</div>
-        <div className="dash-notif-list">
-          <div className="dash-notif dash-notif-ok">🟢 วันนี้ {childName || 'บุตรหลาน'} มาโรงเรียนทัน เวลา 08:02 น.</div>
-          <div className="dash-notif dash-notif-late">🟡 เมื่อวาน มาสาย 12 นาที — คาบ 1 วิทย์ฯ</div>
-          <div className="dash-notif">📩 รายงานประจำเดือน พ.ค. 2567 พร้อมให้ดาวน์โหลด</div>
-        </div>
-        <div className="dash-actions-row">
-          <button className="dash-action-btn" onClick={() => showToast('กำลังโหลดรายงาน...')}>📋 ดูรายงานทั้งหมด</button>
-          <button className="dash-action-btn" onClick={() => showToast('กำลังติดต่อครู...')}>💬 ติดต่อครู</button>
-        </div>
-      </div>
-    </>
-  );
-}
+// ParentContent เดิม (mock ล้วน) ถูกแทนที่ด้วย ParentDashboard ที่ใช้ข้อมูลจริงจาก shared stores

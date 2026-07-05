@@ -163,6 +163,30 @@ export function getStudentAttendanceRecords(studentCode: string): AttendanceReco
     .sort((a, b) => b.checkedAt - a.checkedAt);
 }
 
+export interface StudentAttendanceDetail extends AttendanceRecord {
+  subject: string;
+  classLabel: string;
+  period: number;
+}
+
+/** ประวัติเช็คชื่อพร้อมรายละเอียดคาบ — ใช้ในหน้าผู้ปกครอง/นักเรียน */
+// TODO(PostgreSQL):
+//   SELECT r.*, s.subject, s.class_label, s.period FROM attendance_records r
+//   JOIN attendance_sessions s ON s.id = r.session_id
+//   WHERE r.student_code = $1 ORDER BY r.checked_at DESC
+export function getStudentAttendanceDetail(studentCode: string): StudentAttendanceDetail[] {
+  const data = load();
+  return getStudentAttendanceRecords(studentCode).map(r => {
+    const session = data.sessions.find(s => s.id === r.sessionId);
+    return {
+      ...r,
+      subject: session?.subject || '—',
+      classLabel: session?.classLabel || '—',
+      period: session?.period || 0,
+    };
+  });
+}
+
 export type CheckInResult =
   | { ok: true; record: AttendanceRecord }
   | { ok: false; reason: 'expired' | 'duplicate' | 'not-found' };
@@ -189,5 +213,13 @@ export function checkIn(sessionId: string, studentCode: string, studentName: str
   };
   records.push(record);
   save(data);
+
+  // แจ้งเตือนผู้ปกครองของนักเรียนคนนี้ (audience: parent:<รหัสลูก>)
+  pushSharedNotification(
+    `parent:${studentCode}`,
+    status === 'on-time' ? 'info' : 'overdue',
+    status === 'on-time' ? `🟢 ${studentName} เข้าเรียนตรงเวลา` : `🟡 ${studentName} เข้าเรียนสาย`,
+    `วิชา${session.subject} คาบ ${session.period} · ${new Date(now).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.`,
+  );
   return { ok: true, record };
 }
