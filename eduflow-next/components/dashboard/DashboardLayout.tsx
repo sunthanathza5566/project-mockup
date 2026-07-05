@@ -6,9 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { ROLE_LABELS, PERMISSION_LABELS } from '@/lib/mock-data';
 import { getAllUsers, deleteUserById, getAllPermissions, updatePermission, getAdminLog, getSystemStats } from '@/lib/api/admin.api';
+import AcademicManager from './AcademicManager';
 import type { User, Permissions } from '@/lib/types';
 
-type DashTab = 'users' | 'perms' | 'log';
+type DashTab = 'users' | 'perms' | 'academic' | 'log';
 
 export default function DashboardLayout() {
   const { session, logout } = useAuth();
@@ -93,7 +94,7 @@ export default function DashboardLayout() {
 
             <div className="dash-section">
               <div className="dash-tabs-bar">
-                {([['users','จัดการผู้ใช้'], ['perms','สิทธิ์การเข้าถึง'], ['log','Web Admin Log']] as [DashTab, string][]).map(([id, label]) => (
+                {([['users','จัดการผู้ใช้'], ['perms','สิทธิ์การเข้าถึง'], ['academic','โครงสร้างวิชาการ'], ['log','Web Admin Log']] as [DashTab, string][]).map(([id, label]) => (
                   <button key={id} className={`dash-tab-btn${tab === id ? ' active' : ''}`} onClick={() => setTab(id)}>{label}</button>
                 ))}
               </div>
@@ -142,6 +143,8 @@ export default function DashboardLayout() {
                 </div>
               )}
 
+              {tab === 'academic' && <AcademicManager adminUsername={session.username} />}
+
               {tab === 'log' && log && (
                 <div className="log-wrap">
                   <div className="log-section">
@@ -171,7 +174,12 @@ export default function DashboardLayout() {
           </>
         )}
 
-        {session.role === 'school_admin' && <SchoolAdminContent name={session.name} school={session.school} showToast={showToast} />}
+        {session.role === 'school_admin' && (
+          <>
+            <SchoolAdminContent name={session.name} school={session.school} showToast={showToast} />
+            <AcademicManager adminUsername={session.username} />
+          </>
+        )}
         {session.role === 'parent' && <ParentContent name={session.name} childName={session.childName} showToast={showToast} />}
       </div>
     </div>

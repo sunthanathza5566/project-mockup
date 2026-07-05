@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import type { AttendanceReport } from '../types';
+import { calcTotal, calcGrade, type Course, type ScoreEntry } from '../api/academic.store';
 
 export async function exportAttendanceReportToExcel(report: AttendanceReport) {
   const workbook = new ExcelJS.Workbook();
@@ -84,9 +85,12 @@ export async function exportAttendanceReportToExcel(report: AttendanceReport) {
 
   // Generate file
   const fileName = `แบบรายงานเช็คชื่อ_${report.date}_${report.subject}.xlsx`;
-  const buffer = await workbook.xlsx.writeBuffer();
+  await downloadWorkbook(workbook, fileName);
+}
 
-  // Download
+/** ดาวน์โหลด workbook เป็นไฟล์ .xlsx */
+async function downloadWorkbook(workbook: ExcelJS.Workbook, fileName: string) {
+  const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
@@ -96,4 +100,75 @@ export async function exportAttendanceReportToExcel(report: AttendanceReport) {
   link.download = fileName;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * ส่งออกแบบบันทึกผลการเรียน (แนว ปพ.5) เป็น Excel
+ * TODO(PostgreSQL): เมื่อมีข้อมูลโรงเรียน/ภาคเรียนจริง ให้เติมหัวเอกสารตามแบบฟอร์ม ปพ.5 ทางการ
+ */
+export async function exportScoreSheetToExcel(
+  course: Course,
+  classroomLabel: string,  // เช่น 'ม.1/1'
+  academicYear: string,    // เช่น '2567'
+  entries: ScoreEntry[],
+) {
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet('บันทึกผลการเรียน');
+
+  ws.columns = [
+    { key: 'order',     width: 8 },
+    { key: 'code',      width: 14 },
+    { key: 'name',      width: 28 },
+    { key: 'collected', width: 16 },
+    { key: 'midterm',   width: 14 },
+    { key: 'final',     width: 14 },
+    { key: 'total',     width: 12 },
+    { key: 'grade',     width: 10 },
+  ];
+
+  // ── หัวเอกสาร ──
+  ws.addRow([`แบบบันทึกผลการเรียน (ปพ.5)`]);
+  ws.addRow([`รายวิชา: ${course.name} (${course.code})`]);
+  ws.addRow([`ห้องเรียน: ${classroomLabel} · ปีการศึกษา ${academicYear}`]);
+  ws.addRow([`ครูผู้สอน: ${course.teacherName}`]);
+  ws.addRow([]);
+  ws.getRow(1).font = { bold: true, size: 14 };
+
+  // ── หัวตาราง ──
+  const headerRow = ws.addRow([
+    'ลำดับ', 'รหัสนักเรียน', 'ชื่อ-นามสกุล',
+    `คะแนนเก็บ (${course.maxCollected})`,
+    `กลางภาค (${course.maxMidterm})`,
+    `ปลายภาค (${course.maxFinal})`,
+    'รวม (100)', 'เกรด',
+  ]);
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B4F2F' } }; // brown-dark
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // ── ข้อมูลนักเรียน ──
+  entries.forEach((e, idx) => {
+    const total = calcTotal(e);
+    const row = ws.addRow([
+      idx + 1, e.studentCode, e.studentName,
+      e.collected ?? '—', e.midterm ?? '—', e.final ?? '—',
+      total ?? '—', calcGrade(total),
+    ]);
+    row.alignment = { horizontal: 'center', vertical: 'middle' };
+    row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
+    row.border = {
+      top: { style: 'thin' }, left: { style: 'thin' },
+      bottom: { style: 'thin' }, right: { style: 'thin' },
+    };
+  });
+
+  // ── สรุปท้ายตาราง ──
+  const graded = entries.map(calcTotal).filter((t): t is number => t !== null);
+  ws.addRow([]);
+  ws.addRow([`สรุป: บันทึกแล้ว ${graded.length}/${entries.length} คน`,
+    '', '',
+    graded.length ? `เฉลี่ยรวม ${(graded.reduce((s, t) => s + t, 0) / graded.length).toFixed(1)} คะแนน` : '']);
+
+  const fileName = `ปพ5_${course.code}_${classroomLabel.replace('/', '-')}_${academicYear}.xlsx`;
+  await downloadWorkbook(workbook, fileName);
 }
