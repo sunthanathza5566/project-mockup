@@ -33,7 +33,7 @@ export async function exportAttendanceReportToExcel(report: AttendanceReport) {
 
   const titleRow = worksheet.getRow(1);
   titleRow.font = { bold: true, size: 14 };
-  titleRow.alignment = { horizontal: 'center', vertical: 'center' };
+  titleRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
   // Header info
   worksheet.insertRows(2, [
@@ -67,12 +67,12 @@ export async function exportAttendanceReportToExcel(report: AttendanceReport) {
     pattern: 'solid',
     fgColor: { argb: 'FF6B4F2F' }, // brown-dark
   };
-  headerRow.alignment = { horizontal: 'center', vertical: 'center' };
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
   // Format data rows
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber > dataStartRow) {
-      row.alignment = { horizontal: 'center', vertical: 'center' };
+      row.alignment = { horizontal: 'center', vertical: 'middle' };
       row.border = {
         top: { style: 'thin' },
         left: { style: 'thin' },

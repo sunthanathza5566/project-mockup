@@ -7,6 +7,13 @@
 
 import { TEACHER_DATA_MOCK } from '../mock-data';
 import type { ClassInfo, TeacherStudent, TeacherAssignment, AttendanceSession, AttendanceRecord, AttendanceReport, Notification } from '../types';
+import {
+  getClassAssignmentsStore, createAssignmentStore, gradeSubmissionStore,
+  getSharedNotifications, markSharedNotificationRead,
+  type StoredAssignment,
+} from './assignments.store';
+
+export type { StoredAssignment };
 
 // TODO(PostgreSQL): SELECT * FROM teachers WHERE user_id = $1
 export async function getTeacherProfile(teacherId: string) {
@@ -29,30 +36,33 @@ export async function getClassStudents(classId: string): Promise<TeacherStudent[
   return TEACHER_DATA_MOCK.students.filter(s => s.classId === classId);
 }
 
+// อ่าน/เขียนผ่าน shared store (localStorage) เพื่อให้เชื่อมกับฝั่งนักเรียนจริง
 // TODO(PostgreSQL):
 //   SELECT a.*, COUNT(s.id) as submission_count
 //   FROM assignments a
 //   LEFT JOIN submissions s ON a.id = s.assignment_id
 //   WHERE a.class_id = $1
-export async function getClassAssignments(classId: string): Promise<TeacherAssignment[]> {
-  return [];
+export async function getClassAssignments(classId: string): Promise<StoredAssignment[]> {
+  return getClassAssignmentsStore(classId);
 }
 
 // TODO(PostgreSQL):
 //   INSERT INTO assignments (class_id, title, description, max_score, due_date, file_required, created_by)
 //   VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
-export async function createAssignment(data: Omit<TeacherAssignment, 'id' | 'submissions'>): Promise<number> {
-  console.log('TODO: createAssignment', data);
-  return Math.floor(Math.random() * 1000);
+export async function createAssignment(data: {
+  classId: string; key: string; subject: string; title: string;
+  details: string; due: string; maxScore: number; teacher: string;
+}): Promise<StoredAssignment> {
+  return createAssignmentStore(data);
 }
 
 // TODO(PostgreSQL):
 //   UPDATE submissions SET score = $1, teacher_note = $2, status = 'graded'
 //   WHERE assignment_id = $3 AND student_id = $4
 export async function gradeSubmission(
-  assignmentId: number, studentId: string, score: number, note: string
+  assignmentId: number, studentCode: string, score: number, note: string
 ): Promise<void> {
-  console.log('TODO: gradeSubmission', { assignmentId, studentId, score, note });
+  gradeSubmissionStore(assignmentId, studentCode, score, note);
 }
 
 // TODO(PostgreSQL):
@@ -230,7 +240,9 @@ export async function getAttendanceHistory(classId: string, date?: string) {
 //   WHERE n.teacher_id = $1 AND n.is_deleted = false
 //   ORDER BY n.created_at DESC LIMIT 20
 export async function getTeacherNotifications(teacherId: string): Promise<Notification[]> {
-  return [
+  // ผสานแจ้งเตือนจริงจาก shared store (เช่น นักเรียนส่งการบ้าน) กับ mock เดิม
+  const shared = getSharedNotifications(`teacher:${TEACHER_DATA_MOCK.profile.teacherId}`);
+  const mock: Notification[] = [
     {
       id: 1,
       type: 'attendance_report',
@@ -258,10 +270,11 @@ export async function getTeacherNotifications(teacherId: string): Promise<Notifi
       time: Date.now() - 2 * 60 * 60 * 1000,
     },
   ];
+  return [...shared, ...mock].sort((a, b) => b.time - a.time);
 }
 
 // TODO(PostgreSQL):
 //   UPDATE notifications SET is_read = true WHERE id = $1
 export async function markTeacherNotificationRead(notificationId: number): Promise<void> {
-  console.log('TODO: markTeacherNotificationRead', notificationId);
+  markSharedNotificationRead(notificationId);
 }

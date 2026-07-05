@@ -12,6 +12,10 @@ import {
   STUDENT_SUBJECTS_MOCK, STUDENT_ASSIGNMENTS_MOCK, STUDENT_ATTENDANCE_MOCK,
   SHOP_ITEMS_MOCK, SHOP_CATS, LIBRARY_BOOKS_MOCK, NOTIFICATIONS_MOCK,
 } from '../mock-data';
+import {
+  getStudentAssignmentsStore, submitAssignmentStore,
+  getSharedNotifications, markSharedNotificationRead,
+} from './assignments.store';
 
 // ─── Profile ──────────────────────────────────────────────────────────────
 // TODO(PostgreSQL): SELECT * FROM students WHERE student_code = $1
@@ -50,13 +54,14 @@ export async function getStudentSubjects(studentCode: string) {
 }
 
 // ─── Assignments ──────────────────────────────────────────────────────────
+// อ่านจาก shared store (localStorage) เพื่อให้เชื่อมกับฝั่งครูจริง
 // TODO(PostgreSQL):
 //   SELECT a.*, s.status, s.score, s.submitted_at
 //   FROM assignments a
 //   LEFT JOIN submissions s ON a.id = s.assignment_id AND s.student_id = $1
 //   WHERE a.class_id IN (SELECT class_id FROM enrollments WHERE student_id = $1)
 export async function getStudentAssignments(studentCode: string): Promise<Assignment[]> {
-  return [...STUDENT_ASSIGNMENTS_MOCK];
+  return getStudentAssignmentsStore(studentCode);
 }
 
 // TODO(PostgreSQL):
@@ -65,7 +70,9 @@ export async function getStudentAssignments(studentCode: string): Promise<Assign
 export async function submitAssignment(
   assignmentId: number, studentCode: string, note: string, files: File[]
 ): Promise<void> {
-  console.log('TODO: submitAssignment', { assignmentId, studentCode, note, files: files.length });
+  // TODO(PostgreSQL): แนบไฟล์จริง → upload ไป storage แล้วเก็บ URL
+  const studentName = `${STUDENT_PROFILE_MOCK.firstName} ${STUDENT_PROFILE_MOCK.lastName}`;
+  submitAssignmentStore(assignmentId, studentCode, studentName, note);
 }
 
 // ─── Attendance ───────────────────────────────────────────────────────────
@@ -124,12 +131,16 @@ export function getReadBooksLocal(): Record<number, boolean> {
 //   ORDER BY created_at DESC
 export async function getNotifications(studentCode: string): Promise<Notification[]> {
   const TTL = 3 * 24 * 60 * 60 * 1000;
-  return NOTIFICATIONS_MOCK.filter(n => Date.now() - n.time < TTL)
+  // ผสานแจ้งเตือนจาก shared store (เช่น คะแนนออก, งานใหม่จากครู) กับ mock เดิม
+  const shared = getSharedNotifications(`student:${studentCode}`);
+  return [...shared, ...NOTIFICATIONS_MOCK]
+    .filter(n => Date.now() - n.time < TTL)
     .sort((a, b) => b.time - a.time);
 }
 
 // TODO(PostgreSQL): UPDATE notifications SET is_read = true WHERE id = $1
 export async function markNotificationRead(notifId: number): Promise<void> {
+  markSharedNotificationRead(notifId);
   const n = NOTIFICATIONS_MOCK.find(x => x.id === notifId);
   if (n) n.isNew = false;
 }

@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { getTeacherProfile, getTeacherClasses, getClassStudents, getTodayAttendance, getTeacherNotifications, markTeacherNotificationRead } from '@/lib/api/teacher.api';
 import AttendanceView from './AttendanceView';
+import AssignmentsView from './AssignmentsView';
 import ProfileView from './ProfileView';
 import type { TeacherProfile, ClassInfo, TeacherStudent, Notification } from '@/lib/types';
 
@@ -18,7 +19,7 @@ export default function TeacherLayout() {
   const [classes,     setClasses]     = useState<ClassInfo[]>([]);
   const [selClass,    setSelClass]    = useState<string>('c1');
   const [students,    setStudents]    = useState<TeacherStudent[]>([]);
-  const [currentView, setCurrentView] = useState<'overview' | 'attendance'>('overview');
+  const [currentView, setCurrentView] = useState<'overview' | 'attendance' | 'assignments'>('overview');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -135,8 +136,8 @@ export default function TeacherLayout() {
 
               <div className="dash-actions-row">
                 <button className="dash-action-btn" onClick={() => setCurrentView('attendance')}>🔲 สร้าง QR Code เช็คชื่อ</button>
+                <button className="dash-action-btn" onClick={() => setCurrentView('assignments')}>📚 การบ้าน & ตรวจงาน</button>
                 <button className="dash-action-btn" onClick={() => showToast('📊 กำลังดูรายงาน...')}>📊 ดูรายงาน</button>
-                <button className="dash-action-btn" onClick={() => showToast('📚 กำลังมอบหมายการบ้าน...')}>📚 มอบหมายการบ้าน</button>
                 <button className="dash-action-btn" onClick={() => showToast('📁 กำลังอัปโหลดสื่อการสอน...')}>📁 อัปโหลดสื่อการสอน</button>
               </div>
             </div>
@@ -144,7 +145,7 @@ export default function TeacherLayout() {
             <div style={{ background: 'var(--cream)', border: '1px dashed var(--border)', borderRadius: 12, padding: '1.25rem', fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
               <strong>TODO (Teacher Dashboard):</strong> หน้านี้จะมีฟีเจอร์เพิ่มเติมเมื่อเชื่อมกับ PostgreSQL:<br />
               · ✅ เช็คชื่อนักเรียนแต่ละคาบแบบ QR Code (เสร็จแล้ว)<br />
-              · ดู/ให้คะแนนการบ้านที่ส่งมา<br />
+              · ✅ สั่งการบ้าน + ตรวจให้คะแนน (เสร็จแล้ว — เชื่อมกับฝั่งนักเรียนผ่าน shared store)<br />
               · อัปโหลดสื่อการสอน (ไฟล์, วิดีโอ, ลิงก์)<br />
               · โพสต์ประกาศให้นักเรียน<br />
               · ดูสถิติการเข้าเรียนรายบุคคล
@@ -167,8 +168,11 @@ export default function TeacherLayout() {
             >
               ← ย้อนกลับ
             </button>
-            {currentClass && (
+            {currentClass && currentView === 'attendance' && (
               <AttendanceView teacherId={session.username} selectedClass={currentClass} />
+            )}
+            {currentClass && currentView === 'assignments' && (
+              <AssignmentsView teacherName={profile.name} selectedClass={currentClass} />
             )}
           </>
         )}

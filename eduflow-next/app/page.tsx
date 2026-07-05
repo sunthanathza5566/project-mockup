@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LandingNav from '@/components/landing/LandingNav';
 import HeroSection from '@/components/landing/HeroSection';
@@ -9,29 +9,35 @@ import ShowcaseSection from '@/components/landing/ShowcaseSection';
 import CtaSection from '@/components/landing/CtaSection';
 import Footer from '@/components/landing/Footer';
 
-export default function HomePage() {
+/* scroll ไป section ตาม ?hash=... (มาจาก navbar หน้า login) — แยก component เพราะ useSearchParams ต้องอยู่ใน Suspense */
+function HashScroller() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const hash = searchParams.get('hash');
     if (hash) {
       setTimeout(() => {
-        const element = document.querySelector(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
+        document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
   }, [searchParams]);
 
+  return null;
+}
+
+export default function HomePage() {
   return (
     <>
+      <Suspense fallback={null}>
+        <HashScroller />
+      </Suspense>
       <LandingNav />
       <main id="page-main">
+        {/* แต่ละ section มี id ของตัวเองอยู่แล้ว (#about, #clients, #contact) สำหรับ hash scroll */}
         <HeroSection />
-        <AboutSection id="about" />
-        <ShowcaseSection id="clients" />
-        <CtaSection id="contact" />
+        <AboutSection />
+        <ShowcaseSection />
+        <CtaSection />
       </main>
       <Footer />
     </>

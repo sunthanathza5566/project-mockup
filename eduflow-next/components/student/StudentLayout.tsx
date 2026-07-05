@@ -103,6 +103,15 @@ export default function StudentLayout() {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isNew: false } : n));
   }, []);
 
+  // refresh การบ้าน + แจ้งเตือน หลังนักเรียนส่งงาน (ครูให้คะแนนแล้วจะเห็นสถานะใหม่ด้วย)
+  const refreshAssignments = useCallback(async () => {
+    if (!session) return;
+    const code = session.code || '';
+    const [asgn, notif] = await Promise.all([getStudentAssignments(code), getNotifications(code)]);
+    setAssignments(asgn);
+    setNotifications(notif);
+  }, [session]);
+
   const newNotifCount = notifications.filter(n => n.isNew).length;
   const initials      = profile ? (profile.firstName[0] || '') + (profile.lastName?.[0] || '') : '??';
 
@@ -115,6 +124,7 @@ export default function StudentLayout() {
     homeworkFilter, setHomeworkFilter,
     setView: navigate,
     showToast,
+    refreshAssignments,
   };
 
   return (

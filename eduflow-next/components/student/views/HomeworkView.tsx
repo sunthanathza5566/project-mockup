@@ -11,6 +11,7 @@ interface Props {
   homeworkFilter: string;
   setHomeworkFilter: (f: string) => void;
   showToast: (m: string) => void;
+  refreshAssignments?: () => Promise<void>;
 }
 
 const STATUS_FILTERS = ['all','pending','overdue','submitted','graded'];
@@ -29,7 +30,7 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   graded:    { label:'ได้คะแนนแล้ว', cls:'badge-graded' },
 };
 
-export default function HomeworkView({ profile, assignments, homeworkFilter, setHomeworkFilter, showToast }: Props) {
+export default function HomeworkView({ profile, assignments, homeworkFilter, setHomeworkFilter, showToast, refreshAssignments }: Props) {
   const [submitId,   setSubmitId]   = useState<number | null>(null);
   const [submitNote, setSubmitNote] = useState('');
 
@@ -49,9 +50,10 @@ export default function HomeworkView({ profile, assignments, homeworkFilter, set
 
   async function handleSubmit(id: number) {
     await submitAssignment(id, profile.studentId, submitNote, []);
-    showToast('✅ ส่งการบ้านสำเร็จ!');
+    showToast('✅ ส่งการบ้านสำเร็จ! — แจ้งเตือนถึงครูแล้ว');
     setSubmitId(null);
     setSubmitNote('');
+    await refreshAssignments?.();
   }
 
   return (
