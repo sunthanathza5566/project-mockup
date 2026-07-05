@@ -80,7 +80,34 @@ export async function submitAssignment(
 //   SELECT day_of_week, status FROM attendance_records
 //   WHERE student_id = $1 AND week_number = current_week()
 export async function getStudentAttendance(studentCode: string) {
-  return { ...STUDENT_ATTENDANCE_MOCK };
+  const result = {
+    week: [...STUDENT_ATTENDANCE_MOCK.week],
+    month: { ...STUDENT_ATTENDANCE_MOCK.month },
+  };
+
+  // overlay การเช็คชื่อจริงผ่าน QR ของสัปดาห์นี้ทับ mock
+  const { getStudentAttendanceRecords } = await import('./attendance.store');
+  const records = getStudentAttendanceRecords(studentCode);
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // จันทร์ของสัปดาห์นี้
+  monday.setHours(0, 0, 0, 0);
+
+  records.forEach(r => {
+    const d = new Date(r.checkedAt);
+    if (d >= monday) {
+      const dayIdx = (d.getDay() + 6) % 7; // 0 = จันทร์
+      if (dayIdx < 5) result.week[dayIdx] = r.status;
+    }
+    // นับเพิ่มในสรุปเดือนถ้าอยู่เดือนเดียวกัน
+    if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+      if (r.status === 'on-time') result.month.onTime += 1;
+      else result.month.late += 1;
+      result.month.total += 1;
+    }
+  });
+
+  return result;
 }
 
 // ─── Shop ─────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 import {
   createAttendanceSession, getClassSessions, getSessionRecords,
   submitSessionReport, getAttendanceReports,
@@ -21,6 +22,7 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [liveRecords, setLiveRecords] = useState<AttendanceRecord[]>([]);
   const [reports, setReports] = useState<AttendanceReport[]>([]);
+  const [qrImage, setQrImage] = useState<string>('');
   const { showToast } = useToast();
 
   const classLabel = `${selectedClass.grade}/${selectedClass.room}`;
@@ -40,6 +42,15 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
     update();
     const timer = setInterval(update, 5000);
     return () => clearInterval(timer);
+  }, [activeSession?.id]);
+
+  // สร้างภาพ QR จริงจากโค้ด session
+  useEffect(() => {
+    if (!activeSession) { setQrImage(''); return; }
+    QRCode.toDataURL(activeSession.qrCode, {
+      width: 220, margin: 1,
+      color: { dark: '#3D2B1A', light: '#FAF7F2' }, // โทนสีธีมเว็บ
+    }).then(setQrImage).catch(() => setQrImage(''));
   }, [activeSession?.id]);
 
   function handleGenerateQR() {
@@ -100,8 +111,12 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
               </div>
 
               <div style={{ background: 'var(--warm-white)', border: '1px dashed var(--border)', borderRadius: 10, padding: '1.25rem', textAlign: 'center', marginBottom: '1rem' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>ให้นักเรียนกรอกโค้ดนี้ (แทนการสแกน — TODO: แสดงเป็นภาพ QR จริง)</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '1.6rem', letterSpacing: '2px', color: 'var(--brown-dark)', wordBreak: 'break-all' }}>
+                {qrImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qrImage} alt="QR Code เช็คชื่อ" style={{ width: 200, height: 200, borderRadius: 8, marginBottom: '0.6rem' }} />
+                )}
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>สแกน QR หรือกรอกโค้ดด้านล่างในเมนู "เช็คชื่อ QR"</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '1.3rem', letterSpacing: '2px', color: 'var(--brown-dark)', wordBreak: 'break-all' }}>
                   {activeSession.qrCode}
                 </div>
               </div>

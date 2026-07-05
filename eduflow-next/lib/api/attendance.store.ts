@@ -154,6 +154,15 @@ export function validateQR(qrCode: string): AttendanceSession | null {
   return session || null;
 }
 
+// TODO(PostgreSQL): SELECT * FROM attendance_records WHERE student_code = $1 ORDER BY checked_at DESC
+export function getStudentAttendanceRecords(studentCode: string): AttendanceRecord[] {
+  const data = load();
+  return Object.values(data.records)
+    .flat()
+    .filter(r => r.studentId === studentCode)
+    .sort((a, b) => b.checkedAt - a.checkedAt);
+}
+
 export type CheckInResult =
   | { ok: true; record: AttendanceRecord }
   | { ok: false; reason: 'expired' | 'duplicate' | 'not-found' };

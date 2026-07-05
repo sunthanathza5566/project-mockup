@@ -9,6 +9,7 @@ import { getTeacherRatingSummary } from '@/lib/api/ratings.store';
 import AttendanceView from './AttendanceView';
 import AssignmentsView from './AssignmentsView';
 import GradebookView from './GradebookView';
+import MaterialsView from './MaterialsView';
 import ProfileView from './ProfileView';
 import type { TeacherProfile, ClassInfo, TeacherStudent, Notification } from '@/lib/types';
 
@@ -21,7 +22,7 @@ export default function TeacherLayout() {
   const [classes,     setClasses]     = useState<ClassInfo[]>([]);
   const [selClass,    setSelClass]    = useState<string>('c1');
   const [students,    setStudents]    = useState<TeacherStudent[]>([]);
-  const [currentView, setCurrentView] = useState<'overview' | 'attendance' | 'assignments' | 'gradebook'>('overview');
+  const [currentView, setCurrentView] = useState<'overview' | 'attendance' | 'assignments' | 'gradebook' | 'materials'>('overview');
   const [attendanceTab, setAttendanceTab] = useState<'manager' | 'report'>('manager');
   const [ratingSummary, setRatingSummary] = useState<{ avg: number | null; count: number }>({ avg: null, count: 0 });
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -150,7 +151,7 @@ export default function TeacherLayout() {
                 <button className="dash-action-btn" onClick={() => setCurrentView('assignments')}>📚 การบ้าน & ตรวจงาน</button>
                 <button className="dash-action-btn" onClick={() => setCurrentView('gradebook')}>📝 บันทึกคะแนน (ปพ.5)</button>
                 <button className="dash-action-btn" onClick={() => { setAttendanceTab('report'); setCurrentView('attendance'); }}>📊 รายงานเช็คชื่อย้อนหลัง</button>
-                <button className="dash-action-btn" onClick={() => showToast('📁 กำลังอัปโหลดสื่อการสอน...')}>📁 อัปโหลดสื่อการสอน</button>
+                <button className="dash-action-btn" onClick={() => setCurrentView('materials')}>📁 สื่อการสอน & ประกาศ</button>
               </div>
             </div>
 
@@ -194,6 +195,9 @@ export default function TeacherLayout() {
             )}
             {currentView === 'gradebook' && (
               <GradebookView teacherId={profile.teacherId} teacherName={profile.name} />
+            )}
+            {currentClass && currentView === 'materials' && (
+              <MaterialsView teacherName={profile.name} selectedClass={currentClass} />
             )}
           </>
         )}
