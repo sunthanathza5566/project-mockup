@@ -1,260 +1,143 @@
 'use client';
 
-import { useState } from 'react';
-import { generateAttendanceQR, generateAttendanceReport, submitAttendanceReport } from '@/lib/api/teacher.api';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  createAttendanceSession, getClassSessions, getSessionRecords,
+  submitSessionReport, getAttendanceReports,
+} from '@/lib/api/attendance.store';
 import { exportAttendanceReportToExcel } from '@/lib/utils/excel-export';
-import type { AttendanceSession, AttendanceReport } from '@/lib/types';
+import type { AttendanceSession, AttendanceRecord, AttendanceReport } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
 interface AttendanceViewProps {
   teacherId: string;
+  teacherName: string;
   selectedClass: { id: string; grade: string; room: string; subject: string; key: string };
+  initialTab?: 'manager' | 'report';
 }
 
-export default function AttendanceView({ teacherId, selectedClass }: AttendanceViewProps) {
-  const [view, setView] = useState<'manager' | 'report'>('manager');
-  const [activeSession, setActiveSession] = useState<AttendanceSession | null>(null);
-  const [report, setReport] = useState<AttendanceReport | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function AttendanceView({ teacherId, teacherName, selectedClass, initialTab = 'manager' }: AttendanceViewProps) {
+  const [view, setView] = useState<'manager' | 'report'>(initialTab);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [liveRecords, setLiveRecords] = useState<AttendanceRecord[]>([]);
+  const [reports, setReports] = useState<AttendanceReport[]>([]);
   const { showToast } = useToast();
 
-  async function handleGenerateQR() {
-    setLoading(true);
-    try {
-      const session = await generateAttendanceQR(teacherId, selectedClass.id, selectedClass.subject, 1);
-      setActiveSession(session);
-      setSessions([session, ...sessions]);
-      showToast('✅ สร้าง QR code แล้ว (อายุ 15 นาที)');
-    } catch (err) {
-      showToast('❌ ผิดพลาด', 'error');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const classLabel = `${selectedClass.grade}/${selectedClass.room}`;
+  const activeSession = sessions.find(s => s.status === 'active') || null;
+
+  const refresh = useCallback(() => {
+    setSessions(getClassSessions(selectedClass.id));
+    setReports(getAttendanceReports(selectedClass.id));
+  }, [selectedClass.id]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  // live update จำนวนเช็คชื่อทุก 5 วินาที ระหว่างมี session active
+  useEffect(() => {
+    if (!activeSession) { setLiveRecords([]); return; }
+    const update = () => setLiveRecords(getSessionRecords(activeSession.id));
+    update();
+    const timer = setInterval(update, 5000);
+    return () => clearInterval(timer);
+  }, [activeSession?.id]);
+
+  function handleGenerateQR() {
+    if (activeSession) { showToast('⚠️ มี QR ที่ยังไม่หมดอายุอยู่แล้ว — ใช้อันเดิมหรือส่งรายงานก่อน'); return; }
+    createAttendanceSession({
+      teacherId, teacherName,
+      classId: selectedClass.id, classLabel,
+      subject: selectedClass.subject, period: 1,
+    });
+    refresh();
+    showToast('✅ สร้าง QR แล้ว (อายุ 15 นาที · 10 นาทีแรก = ตรงเวลา)');
   }
 
-  async function handleGenerateReport() {
-    if (!activeSession) return;
-    setLoading(true);
-    try {
-      const newReport = await generateAttendanceReport(
-        activeSession.id,
-        teacherId,
-        selectedClass.id,
-        selectedClass.subject,
-        1
-      );
-      setReport(newReport);
-      setView('report');
-      showToast('📊 สร้างรายงานแล้ว');
-    } catch (err) {
-      showToast('❌ ผิดพลาด', 'error');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  function handleSubmitReport(sessionId: string) {
+    const report = submitSessionReport(sessionId);
+    if (!report) { showToast('❌ ไม่พบ session'); return; }
+    refresh();
+    setView('report');
+    showToast('✅ ส่งรายงานแล้ว — ดูย้อนหลังได้ที่แท็บรายงาน');
   }
 
-  async function handleSubmitReport() {
-    if (!report) return;
-    setLoading(true);
-    try {
-      await submitAttendanceReport(report);
-      setSessions(sessions.map(s => s.id === report.sessionId ? { ...s, status: 'submitted' as const } : s));
-      setActiveSession(null);
-      setReport(null);
-      setView('manager');
-      showToast('✅ ส่งรายงานแล้ว (แจ้งเตือนไปยังคุณครู)');
-    } catch (err) {
-      showToast('❌ ผิดพลาด', 'error');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  async function handleExport(report: AttendanceReport) {
+    await exportAttendanceReportToExcel(report);
+    showToast('📥 ดาวน์โหลดรายงานเช็คชื่อแล้ว');
   }
+
+  const timeLeft = activeSession ? Math.max(0, Math.ceil((activeSession.expiresAt - Date.now()) / 60000)) : 0;
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '2rem', color: 'var(--brown-dark)' }}>📋 เช็คชื่อสำหรับคลาส {selectedClass.room}</h2>
+    <div className="dash-section">
+      <div className="dash-section-title">📋 เช็คชื่อ — {classLabel} {selectedClass.subject}</div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '2px solid var(--border-light)' }}>
-        <button
-          onClick={() => setView('manager')}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: view === 'manager' ? 'var(--brown-dark)' : 'transparent',
-            color: view === 'manager' ? 'white' : 'var(--text-muted)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: view === 'manager' ? '600' : '400',
-            borderBottom: view === 'manager' ? '3px solid var(--brown-dark)' : 'none',
-            marginBottom: '-2px',
-          }}
-        >
-          QR Generator
-        </button>
-        <button
-          onClick={() => setView('report')}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: view === 'report' ? 'var(--brown-dark)' : 'transparent',
-            color: view === 'report' ? 'white' : 'var(--text-muted)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: view === 'report' ? '600' : '400',
-            borderBottom: view === 'report' ? '3px solid var(--brown-dark)' : 'none',
-            marginBottom: '-2px',
-          }}
-        >
-          Attendance Report
-        </button>
+      <div className="dash-tabs-bar" style={{ marginBottom: '1.25rem' }}>
+        <button className={`dash-tab-btn${view === 'manager' ? ' active' : ''}`} onClick={() => setView('manager')}>🔳 สร้าง QR</button>
+        <button className={`dash-tab-btn${view === 'report' ? ' active' : ''}`} onClick={() => setView('report')}>📊 รายงานย้อนหลัง ({reports.length})</button>
       </div>
 
       {view === 'manager' && (
-        <div style={{ display: 'grid', gap: '2rem' }}>
-          {/* QR Generator */}
-          <div
-            style={{
-              padding: '2rem',
-              background: 'var(--warm-white)',
-              borderRadius: '12px',
-              border: '2px solid var(--border-light)',
-              textAlign: 'center',
-            }}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)' }}>สร้าง QR Code เช็คชื่อ</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
-              กดปุ่มเพื่อสร้าง QR code สำหรับเช็คชื่อเด็กๆ (อายุ 15 นาที)
-            </p>
-            <button
-              onClick={handleGenerateQR}
-              disabled={loading}
-              style={{
-                padding: '0.75rem 2rem',
-                background: 'var(--brown-dark)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-                opacity: loading ? 0.7 : 1,
-              }}
-            >
-              {loading ? 'กำลังสร้าง...' : '🔳 สร้าง QR Code'}
-            </button>
-          </div>
-
-          {/* Active Session */}
-          {activeSession && (
-            <div
-              style={{
-                padding: '2rem',
-                background: '#f0f8ff',
-                borderRadius: '12px',
-                border: '2px solid #87ceeb',
-              }}
-            >
-              <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)' }}>🔳 Active QR Session</h3>
-              <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', marginBottom: '1rem', textAlign: 'center' }}>
-                <div
-                  style={{
-                    fontSize: '3rem',
-                    padding: '1rem',
-                    letterSpacing: '2px',
-                    fontFamily: 'monospace',
-                    wordBreak: 'break-all',
-                    color: 'var(--brown-dark)',
-                  }}
-                >
-                  {activeSession.qrCode}
-                </div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  ⏱️ หมดอายุใน 15 นาที
-                </p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <button
-                  onClick={handleGenerateReport}
-                  disabled={loading}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'var(--brown-dark)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                  }}
-                >
-                  {loading ? '...' : '📊 สร้างรายงาน'}
-                </button>
-                <button
-                  onClick={() => setActiveSession(null)}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'transparent',
-                    color: 'var(--brown-dark)',
-                    border: '2px solid var(--brown-dark)',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                  }}
-                >
-                  ❌ ยกเลิก
-                </button>
-              </div>
+        <div style={{ display: 'grid', gap: '1.25rem' }}>
+          {/* สร้าง QR */}
+          {!activeSession && (
+            <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.75rem', textAlign: 'center' }}>
+              <div style={{ fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.4rem' }}>สร้าง QR Code เช็คชื่อ</div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.1rem' }}>
+                QR มีอายุ 15 นาที · เช็คชื่อภายใน 10 นาทีแรกนับเป็น "มาตรงเวลา" หลังจากนั้นเป็น "มาสาย"
+              </p>
+              <button className="dash-action-btn" onClick={handleGenerateQR}>🔳 สร้าง QR Code</button>
             </div>
           )}
 
-          {/* Session History */}
-          {sessions.length > 0 && (
-            <div
-              style={{
-                padding: '2rem',
-                background: 'var(--warm-white)',
-                borderRadius: '12px',
-                border: '2px solid var(--border-light)',
-              }}
-            >
-              <h3 style={{ marginBottom: '1rem', color: 'var(--brown-dark)' }}>📜 ประวัติ QR Sessions</h3>
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
-                {sessions.map(session => (
-                  <div
-                    key={session.id}
-                    style={{
-                      padding: '1rem',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-light)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <p style={{ fontWeight: '600', color: 'var(--brown-dark)' }}>{session.qrCode}</p>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                        {new Date(session.createdAt).toLocaleTimeString('th-TH')}
-                      </p>
+          {/* Active session + live count */}
+          {activeSession && (
+            <div style={{ background: 'var(--cream)', border: '1px solid var(--brown-light)', borderRadius: 12, padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                <span style={{ fontWeight: 600, color: 'var(--brown-dark)' }}>🔵 QR กำลังใช้งาน — เหลือ ~{timeLeft} นาที</span>
+                <span className="stu-hw-status-badge badge-submitted">เช็คชื่อแล้ว {liveRecords.length} คน</span>
+              </div>
+
+              <div style={{ background: 'var(--warm-white)', border: '1px dashed var(--border)', borderRadius: 10, padding: '1.25rem', textAlign: 'center', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>ให้นักเรียนกรอกโค้ดนี้ (แทนการสแกน — TODO: แสดงเป็นภาพ QR จริง)</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '1.6rem', letterSpacing: '2px', color: 'var(--brown-dark)', wordBreak: 'break-all' }}>
+                  {activeSession.qrCode}
+                </div>
+              </div>
+
+              {/* รายชื่อสดๆ */}
+              {liveRecords.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem', maxHeight: 220, overflowY: 'auto' }}>
+                  {liveRecords.map(r => (
+                    <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.82rem', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.4rem 0.7rem' }}>
+                      <span style={{ flex: 1, color: 'var(--brown-dark)', fontWeight: 500 }}>{r.studentName}</span>
+                      <span style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--text-muted)' }}>{r.studentId}</span>
+                      <span className={`stu-hw-status-badge ${r.status === 'on-time' ? 'badge-graded' : 'badge-overdue'}`}>
+                        {r.status === 'on-time' ? 'ตรงเวลา' : 'สาย'} · {new Date(r.checkedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                    <span
-                      style={{
-                        padding: '0.4rem 0.8rem',
-                        background: session.status === 'submitted' ? '#90ee90' : '#ffd700',
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        color: 'white',
-                      }}
-                    >
-                      {session.status === 'submitted' ? '✅ Submitted' : session.status === 'active' ? '🔵 Active' : '⚪ Expired'}
+                  ))}
+                </div>
+              )}
+
+              <button className="dash-action-btn" onClick={() => handleSubmitReport(activeSession.id)}>
+                ✅ ปิดคาบ & ส่งรายงาน
+              </button>
+            </div>
+          )}
+
+          {/* ประวัติ session วันนี้ */}
+          {sessions.length > 0 && (
+            <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.25rem' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>📜 ประวัติ QR Sessions</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {sessions.map(s => (
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.5rem 0.7rem' }}>
+                    <span style={{ fontFamily: 'monospace', color: 'var(--text-muted)', flex: 1 }}>{s.qrCode}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{new Date(s.createdAt).toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className={`stu-hw-status-badge ${s.status === 'submitted' ? 'badge-graded' : s.status === 'active' ? 'badge-submitted' : 'badge-pending'}`}>
+                      {s.status === 'submitted' ? '✅ ส่งแล้ว' : s.status === 'active' ? '🔵 ใช้งานอยู่' : '⚪ หมดอายุ'}
                     </span>
                   </div>
                 ))}
@@ -264,136 +147,55 @@ export default function AttendanceView({ teacherId, selectedClass }: AttendanceV
         </div>
       )}
 
-      {view === 'report' && report && (
-        <div
-          style={{
-            padding: '2rem',
-            background: 'var(--warm-white)',
-            borderRadius: '12px',
-            border: '2px solid var(--border-light)',
-          }}
-        >
-          <h3 style={{ marginBottom: '2rem', color: 'var(--brown-dark)' }}>📊 Attendance Report</h3>
-
-          {/* Summary Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-            <div style={{ padding: '1rem', background: 'white', borderRadius: '8px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>คนทั้งหมด</p>
-              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--brown-dark)' }}>{report.totalStudents}</p>
-            </div>
-            <div style={{ padding: '1rem', background: '#e8f5e9', borderRadius: '8px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>มาตรงเวลา</p>
-              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4caf50' }}>{report.presentCount}</p>
-            </div>
-            <div style={{ padding: '1rem', background: '#fff3cd', borderRadius: '8px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>มาสาย</p>
-              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ff9800' }}>{report.lateCount}</p>
-            </div>
-            <div style={{ padding: '1rem', background: '#ffebee', borderRadius: '8px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>ขาดเรียน</p>
-              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f44336' }}>{report.absentCount}</p>
-            </div>
-          </div>
-
-          {/* Details */}
-          <div
-            style={{
-              padding: '1rem',
-              background: 'white',
-              borderRadius: '8px',
-              marginBottom: '2rem',
-              border: '1px solid var(--border-light)',
-            }}
-          >
-            <p style={{ marginBottom: '0.5rem' }}>
-              <strong>วิชา:</strong> {report.subject}
-            </p>
-            <p style={{ marginBottom: '0.5rem' }}>
-              <strong>วันที่:</strong> {report.date}
-            </p>
-            <p style={{ marginBottom: '0.5rem' }}>
-              <strong>เวลา:</strong> {report.time}
-            </p>
-            <p>
-              <strong>คาบ:</strong> คาบที่ {report.period}
-            </p>
-          </div>
-
-          {/* Records */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h4 style={{ marginBottom: '1rem', color: 'var(--brown-dark)' }}>👥 รายชื่อผู้เช็คชื่อ</h4>
-            <div style={{ display: 'grid', gap: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
-              {report.records.map(record => (
-                <div
-                  key={record.id}
-                  style={{
-                    padding: '0.75rem',
-                    background: record.status === 'on-time' ? '#e8f5e9' : '#fff3cd',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '0.9rem',
-                  }}
-                >
-                  <span>{record.studentName}</span>
-                  <span style={{ fontWeight: '600', color: record.status === 'on-time' ? '#4caf50' : '#ff9800' }}>
-                    {record.status === 'on-time' ? '✅ On Time' : '⚠️ Late'}
-                  </span>
+      {view === 'report' && (
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          {reports.length === 0 ? (
+            <div className="stu-empty">ยังไม่มีรายงานเช็คชื่อ — สร้าง QR แล้วกด "ปิดคาบ & ส่งรายงาน" ก่อน</div>
+          ) : (
+            reports.map(rpt => (
+              <div key={rpt.id} style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.9rem' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: 'var(--brown-dark)', fontSize: '0.92rem' }}>
+                      {rpt.subject} · {rpt.classLabel || rpt.classId} · คาบ {rpt.period}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>📅 {rpt.date} · ⏰ {rpt.time}</div>
+                  </div>
+                  <button className="dash-action-btn" onClick={() => handleExport(rpt)}>📥 Excel</button>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <button
-              onClick={() => exportAttendanceReportToExcel(report)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: '#4caf50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-              }}
-            >
-              📥 ดึง Excel
-            </button>
-            <button
-              onClick={handleSubmitReport}
-              disabled={loading}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: 'var(--brown-dark)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-              }}
-            >
-              {loading ? 'กำลังส่ง...' : '✅ ส่งรายงาน'}
-            </button>
-            <button
-              onClick={() => setView('manager')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: 'transparent',
-                color: 'var(--brown-dark)',
-                border: '2px solid var(--brown-dark)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-              }}
-            >
-              ← ย้อนกลับ
-            </button>
-          </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.6rem' }}>
+                  {[
+                    { label: 'ทั้งหมด', num: rpt.totalStudents, color: 'var(--brown-dark)' },
+                    { label: 'ตรงเวลา', num: rpt.presentCount, color: 'var(--success)' },
+                    { label: 'มาสาย',   num: rpt.lateCount,    color: 'var(--late)' },
+                    { label: 'ขาด',     num: rpt.absentCount,  color: 'var(--absent)' },
+                  ].map((k, i) => (
+                    <div key={i} style={{ background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.6rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.3rem', fontWeight: 700, color: k.color }}>{k.num}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{k.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {rpt.records.length > 0 && (
+                  <details className="stu-hw-details" style={{ marginTop: '0.75rem' }}>
+                    <summary>รายชื่อผู้เช็คชื่อ ({rpt.records.length})</summary>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginTop: '0.5rem' }}>
+                      {rpt.records.map(r => (
+                        <div key={r.id} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.8rem', padding: '0.3rem 0.5rem' }}>
+                          <span style={{ flex: 1, color: 'var(--brown-dark)' }}>{r.studentName}</span>
+                          <span style={{ color: r.status === 'on-time' ? 'var(--success)' : 'var(--late)', fontWeight: 600 }}>
+                            {r.status === 'on-time' ? '✓ ตรงเวลา' : '⚠ สาย'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

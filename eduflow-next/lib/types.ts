@@ -192,7 +192,9 @@ export interface TeacherAssignment {
 export interface AttendanceSession {
   id: string;
   teacherId: string;
+  teacherName?: string;
   classId: string;
+  classLabel?: string;   // เช่น 'ม.1/1'
   subject: string;
   period: number;
   qrCode: string;
@@ -215,6 +217,7 @@ export interface AttendanceReport {
   sessionId: string;
   teacherId: string;
   classId: string;
+  classLabel?: string;   // เช่น 'ม.1/1'
   subject: string;
   period: number;
   date: string;

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { getTeacherProfile, getTeacherClasses, getClassStudents, getTodayAttendance, getTeacherNotifications, markTeacherNotificationRead } from '@/lib/api/teacher.api';
+import { getTeacherRatingSummary } from '@/lib/api/ratings.store';
 import AttendanceView from './AttendanceView';
 import AssignmentsView from './AssignmentsView';
 import GradebookView from './GradebookView';
@@ -21,6 +22,8 @@ export default function TeacherLayout() {
   const [selClass,    setSelClass]    = useState<string>('c1');
   const [students,    setStudents]    = useState<TeacherStudent[]>([]);
   const [currentView, setCurrentView] = useState<'overview' | 'attendance' | 'assignments' | 'gradebook'>('overview');
+  const [attendanceTab, setAttendanceTab] = useState<'manager' | 'report'>('manager');
+  const [ratingSummary, setRatingSummary] = useState<{ avg: number | null; count: number }>({ avg: null, count: 0 });
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -32,6 +35,7 @@ export default function TeacherLayout() {
     const tid = session.username;
     Promise.all([getTeacherProfile(tid), getTeacherClasses(tid), getTeacherNotifications(tid)]).then(([p, cls, notifs]) => {
       setProfile(p); setClasses(cls); setNotifications(notifs);
+      setRatingSummary(getTeacherRatingSummary(p.name));
       if (cls.length > 0) loadClass(cls[0].id);
     });
   }, [session]);
@@ -94,7 +98,13 @@ export default function TeacherLayout() {
               <h2 className="dash-h2">สวัสดี คุณครู<em>{profile.name.replace('ครู','').trim()}</em></h2>
 
               <div className="dash-kpi-row">
-                {[{ num: classes.length, label: 'ห้องที่สอน' }, { num: students.length, label: 'นักเรียนในห้องนี้' }, { num: 3, label: 'คาบวันนี้' }].map((k, i) => (
+                {[
+                  { num: classes.length, label: 'ห้องที่สอน' },
+                  { num: students.length, label: 'นักเรียนในห้องนี้' },
+                  { num: 3, label: 'คาบวันนี้' },
+                  // ผลประเมินการสอนจากนักเรียน (นิรนาม — เห็นเฉพาะค่าเฉลี่ยรวม)
+                  { num: ratingSummary.avg !== null ? `⭐ ${ratingSummary.avg.toFixed(1)}` : '⭐ —', label: `ผลประเมินการสอน (${ratingSummary.count} ครั้ง)` },
+                ].map((k, i) => (
                   <div key={i} className="dash-kpi">
                     <div className="dash-kpi-num">{k.num}</div>
                     <div className="dash-kpi-label">{k.label}</div>
@@ -136,10 +146,10 @@ export default function TeacherLayout() {
               )}
 
               <div className="dash-actions-row">
-                <button className="dash-action-btn" onClick={() => setCurrentView('attendance')}>🔲 สร้าง QR Code เช็คชื่อ</button>
+                <button className="dash-action-btn" onClick={() => { setAttendanceTab('manager'); setCurrentView('attendance'); }}>🔲 สร้าง QR Code เช็คชื่อ</button>
                 <button className="dash-action-btn" onClick={() => setCurrentView('assignments')}>📚 การบ้าน & ตรวจงาน</button>
                 <button className="dash-action-btn" onClick={() => setCurrentView('gradebook')}>📝 บันทึกคะแนน (ปพ.5)</button>
-                <button className="dash-action-btn" onClick={() => showToast('📊 กำลังดูรายงาน...')}>📊 ดูรายงาน</button>
+                <button className="dash-action-btn" onClick={() => { setAttendanceTab('report'); setCurrentView('attendance'); }}>📊 รายงานเช็คชื่อย้อนหลัง</button>
                 <button className="dash-action-btn" onClick={() => showToast('📁 กำลังอัปโหลดสื่อการสอน...')}>📁 อัปโหลดสื่อการสอน</button>
               </div>
             </div>
@@ -171,7 +181,13 @@ export default function TeacherLayout() {
               ← ย้อนกลับ
             </button>
             {currentClass && currentView === 'attendance' && (
-              <AttendanceView teacherId={session.username} selectedClass={currentClass} />
+              <AttendanceView
+                key={attendanceTab}
+                teacherId={profile.teacherId}
+                teacherName={profile.name}
+                selectedClass={currentClass}
+                initialTab={attendanceTab}
+              />
             )}
             {currentClass && currentView === 'assignments' && (
               <AssignmentsView teacherName={profile.name} selectedClass={currentClass} />

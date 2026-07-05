@@ -104,12 +104,15 @@ function loadNotifs(): SharedNotification[] {
   return JSON.parse(localStorage.getItem(NOTIFS_KEY) || '[]');
 }
 
-function pushNotif(audience: string, type: Notification['type'], title: string, body: string) {
+/** ส่งแจ้งเตือนเข้า shared store — ใช้ได้จากทุก store (การบ้าน, เช็คชื่อ ฯลฯ) */
+export function pushSharedNotification(audience: string, type: Notification['type'], title: string, body: string) {
   if (!isBrowser()) return;
   const list = loadNotifs();
   list.unshift({ id: Date.now(), audience, type, isNew: true, title, body, time: Date.now() });
   localStorage.setItem(NOTIFS_KEY, JSON.stringify(list.slice(0, 50)));
 }
+
+const pushNotif = pushSharedNotification;
 
 /** ดึงแจ้งเตือนของ audience นั้นๆ — ใช้ผสานกับ mock notifications เดิม */
 // TODO(PostgreSQL): SELECT * FROM notifications WHERE audience = $1 ORDER BY created_at DESC
