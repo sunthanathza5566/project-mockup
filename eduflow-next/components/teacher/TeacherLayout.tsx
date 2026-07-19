@@ -122,6 +122,12 @@ export default function TeacherLayout() {
             {/* Class selector */}
             <div className="dash-section">
               <div className="dash-section-title">เลือกห้องเรียน</div>
+              {classes.length === 0 && (
+                <div className="ez-help-box" style={{ marginBottom: '0.75rem' }}>
+                  🕐 บัญชีของท่านยังไม่ได้รับมอบหมายห้องสอน — ข้อมูลจะแสดงเมื่อแอดมินจัดสรรตารางสอนให้
+                  (บัญชีใหม่เริ่มจาก 0 ตามจริง ไม่มีข้อมูลจำลอง)
+                </div>
+              )}
               <div className="dash-tabs-bar">
                 {classes.map(cls => (
                   <button

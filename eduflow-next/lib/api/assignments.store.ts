@@ -11,7 +11,7 @@
  *   ทุกฟังก์ชันด้านล่างมี SQL ที่จะใช้กำกับไว้แล้ว
  */
 
-import type { Assignment, Notification } from '../types';
+import type { Assignment, Notification, SubmitFileType } from '../types';
 import { STUDENT_ASSIGNMENTS_MOCK, TEACHER_DATA_MOCK } from '../mock-data';
 
 const ASSIGNMENTS_KEY = 'eduflow_assignments';
@@ -26,6 +26,8 @@ export interface StoredSubmission {
   score: number | null;
   teacherNote: string;
   status: 'submitted' | 'graded';
+  fileName?: string;   // ชื่อไฟล์ที่นักเรียนแนบ (ตัวไฟล์จริงรอ storage ตอนต่อ PostgreSQL)
+  fileSize?: number;   // bytes
 }
 
 export interface StoredAssignment {
@@ -40,6 +42,7 @@ export interface StoredAssignment {
   teacher: string;
   files: number;
   createdAt: number;
+  submitType?: SubmitFileType; // ประเภทไฟล์ที่ครูกำหนดให้ส่ง (default 'pdf')
   submissions: Record<string, StoredSubmission>; // keyed by studentCode
 }
 
@@ -146,6 +149,7 @@ export function getClassAssignmentsStore(classId: string): StoredAssignment[] {
 export function createAssignmentStore(data: {
   classId: string; key: string; subject: string; title: string;
   details: string; due: string; maxScore: number; teacher: string;
+  submitType?: SubmitFileType;
 }): StoredAssignment {
   const list = loadAssignments();
   const assignment: StoredAssignment = {
@@ -193,10 +197,35 @@ export function gradeSubmissionStore(
 //   SELECT a.*, s.status, s.score FROM assignments a
 //   LEFT JOIN submissions s ON s.assignment_id = a.id AND s.student_code = $1
 //   WHERE a.class_id = (SELECT class_id FROM students WHERE code = $1)
-export function getStudentAssignmentsStore(studentCode: string, classId = 'c1'): Assignment[] {
+/**
+ * หาห้องเรียน (mock classId) ของนักเรียนจากรหัส — เช็คทั้งทะเบียน mock และ roster ที่แอดมินเพิ่ม
+ * ไม่พบ = นักเรียนยังไม่ถูกจัดเข้าห้อง (บัญชีใหม่) → คืน null เพื่อให้ทุกอย่างว่างเปล่า
+ */
+export function findStudentClassId(studentCode: string): string | null {
+  if (!studentCode) return null;
+  const mock = TEACHER_DATA_MOCK.students.find(s => s.code === studentCode);
+  if (mock) return mock.classId;
+  // นักเรียนที่แอดมินเพิ่มเข้าห้องผ่านโครงสร้างวิชาการ — map ห้อง (grade/room) ไปยัง classId ของครู
+  if (!isBrowser()) return null;
+  try {
+    const acad = JSON.parse(localStorage.getItem('eduflow_academic') || '{}');
+    for (const [roomId, roster] of Object.entries(acad.rosters || {}) as [string, { code: string }[]][]) {
+      if (!roster.some(s => s.code === studentCode)) continue;
+      const room = (acad.classrooms || []).find((c: { id: string }) => c.id === roomId);
+      const grade = room ? (acad.gradeLevels || []).find((g: { id: string }) => g.id === room.gradeLevelId) : null;
+      const cls = grade ? TEACHER_DATA_MOCK.classes.find(c => c.grade === grade.name && c.room === room.room) : null;
+      if (cls) return cls.id;
+    }
+  } catch { /* ข้อมูลเสียหาย → ถือว่าไม่มีห้อง */ }
+  return null;
+}
+
+export function getStudentAssignmentsStore(studentCode: string, classId?: string | null): Assignment[] {
   const now = new Date();
+  const cid = classId === undefined ? findStudentClassId(studentCode) : classId;
+  if (!cid) return []; // ยังไม่ถูกจัดเข้าห้อง = ไม่มีการบ้าน (บัญชีใหม่เริ่มจาก 0)
   return loadAssignments()
-    .filter(a => a.classId === classId)
+    .filter(a => a.classId === cid)
     .map(a => {
       const sub = a.submissions[studentCode];
       let status: Assignment['status'] = 'pending';
@@ -214,6 +243,7 @@ export function getStudentAssignmentsStore(studentCode: string, classId = 'c1'):
         due: a.due, urgency, status, maxScore: a.maxScore,
         myScore: sub?.score ?? null, teacher: a.teacher,
         details: a.details, files: a.files,
+        submitType: a.submitType || 'pdf',
       };
     });
 }
@@ -223,6 +253,7 @@ export function getStudentAssignmentsStore(studentCode: string, classId = 'c1'):
 //   VALUES ($1,$2,$3,NOW(),'submitted')
 export function submitAssignmentStore(
   assignmentId: number, studentCode: string, studentName: string, note: string,
+  fileMeta?: { name: string; size: number },
 ): void {
   const list = loadAssignments();
   const a = list.find(x => x.id === assignmentId);
@@ -230,6 +261,7 @@ export function submitAssignmentStore(
   a.submissions[studentCode] = {
     studentCode, studentName, note,
     submittedAt: Date.now(), score: null, teacherNote: '', status: 'submitted',
+    fileName: fileMeta?.name, fileSize: fileMeta?.size,
   };
   saveAssignments(list);
 

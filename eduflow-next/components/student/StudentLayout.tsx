@@ -7,6 +7,9 @@ import { useToast } from '@/context/ToastContext';
 import { getStudentProfile, getStudentStats, getStudentSchedule, getStudentSubjects, getStudentAssignments, getStudentAttendance, getNotifications, markNotificationRead } from '@/lib/api/student.api';
 import type { StudentProfile, StudentStats, Subject, Assignment, Notification, SchedulePeriod } from '@/lib/types';
 import LangToggle from '@/components/ui/LangToggle';
+import BookingView from './views/BookingView';
+import TopupView from './views/TopupView';
+import { getWalletBalance } from '@/lib/api/wallet.store';
 
 import DashboardView from './views/DashboardView';
 import ProfileView   from './views/ProfileView';
@@ -19,7 +22,7 @@ import LibraryView   from './views/LibraryView';
 import AttendanceScanView from './AttendanceScanView';
 import TeacherRatingModal from './TeacherRatingModal';
 
-export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library';
+export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'topup';
 
 const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
@@ -30,6 +33,8 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'grades',    icon: '🎓', label: 'ผลการเรียน' },
   { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
   { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
+  { view: 'booking',   icon: '📚', label: 'จองหนังสือ' },
+  { view: 'topup',     icon: '💰', label: 'กระเป๋าเงิน' },
 ];
 
 export default function StudentLayout() {
@@ -104,10 +109,26 @@ export default function StudentLayout() {
     setNotifOpen(false);
   }, []);
 
-  const handleMarkNotif = useCallback(async (id: number) => {
-    await markNotificationRead(id);
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isNew: false } : n));
-  }, []);
+  // กดแจ้งเตือน → mark อ่านแล้ว + พาไปหน้าที่เกี่ยวข้องกับ action นั้น
+  const handleMarkNotif = useCallback(async (n: Notification) => {
+    await markNotificationRead(n.id);
+    setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isNew: false } : x));
+    if (n.type === 'overdue')     { setHomeworkFilter('overdue'); navigate('homework'); }
+    else if (n.type === 'hw')     { setHomeworkFilter('pending'); navigate('homework'); }
+    else if (n.type === 'grade')  { navigate('grades'); }
+    else if (n.type === 'info') {
+      // แยกปลายทางจากเนื้อหา: เงินเข้า → กระเป๋าเงิน · หนังสือ/คิว → จองหนังสือ
+      if (n.title.includes('เงิน') || n.title.includes('💰')) navigate('topup');
+      else if (n.title.includes('📚') || n.title.includes('คิว') || n.title.includes('หนังสือ')) navigate('booking');
+    }
+  }, [navigate]);
+
+  // ยอดเงินจากกระเป๋ากลาง — ร้านค้า/เติมเงิน เปลี่ยนยอดแล้วเรียก refreshWallet ให้ตัวเลขบน nav ตรงเสมอ
+  const [walletBalance, setWalletBalance] = useState(0);
+  const refreshWallet = useCallback(() => {
+    if (session) setWalletBalance(getWalletBalance(session.code || ''));
+  }, [session]);
+  useEffect(() => { refreshWallet(); }, [refreshWallet]);
 
   // refresh การบ้าน + แจ้งเตือน หลังนักเรียนส่งงาน (ครูให้คะแนนแล้วจะเห็นสถานะใหม่ด้วย)
   const refreshAssignments = useCallback(async () => {
@@ -131,6 +152,7 @@ export default function StudentLayout() {
     setView: navigate,
     showToast,
     refreshAssignments,
+    refreshWallet,
   };
 
   return (
@@ -140,18 +162,22 @@ export default function StudentLayout() {
         <div className="stu-nav-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
 
         <ul className="stu-nav-links">
-          {['หน้าหลัก','จองหนังสือ','ร้านค้า','สั่งข้าว','เติมเงิน'].map((lnk, i) => (
+          {([
+            ['หน้าหลัก',   () => navigate('dashboard')],
+            ['จองหนังสือ', () => navigate('booking')],
+            ['ร้านค้า',    () => navigate('shop')],
+            ['สั่งข้าว',   () => showToast('🍚 ระบบสั่งข้าวกำลังพัฒนา — เร็ว ๆ นี้')],
+            ['เติมเงิน',   () => navigate('topup')],
+          ] as [string, () => void][]).map(([lnk, go], i) => (
             <li key={i}>
-              <a href="#" onClick={e => { e.preventDefault(); if (i === 0) navigate('dashboard'); else if (i === 2) navigate('shop'); else showToast(`กำลังเปิด${lnk}...`); }}>
-                {lnk}
-              </a>
+              <a href="#" onClick={e => { e.preventDefault(); go(); }}>{lnk}</a>
             </li>
           ))}
         </ul>
 
         <div className="stu-nav-right">
           <LangToggle />
-          <div className="stu-balance">฿{stats?.balance.toLocaleString('th-TH') ?? '—'}</div>
+          <div className="stu-balance" style={{ cursor: 'pointer' }} onClick={() => navigate('topup')}>฿{walletBalance.toLocaleString('th-TH')}</div>
 
           <button className="stu-notif-btn" onClick={() => { setBurgerOpen(false); setNotifOpen(o => !o); }}>
             🔔
@@ -214,7 +240,7 @@ export default function StudentLayout() {
             : notifications.map(n => {
                 const meta: Record<string, { icon: string }> = { overdue: { icon: '⛔' }, grade: { icon: '📝' }, info: { icon: '📢' }, hw: { icon: '📚' } };
                 return (
-                  <div key={n.id} className={`stu-notif-item type-${n.type}${n.isNew ? ' is-new' : ''}`} onClick={() => handleMarkNotif(n.id)}>
+                  <div key={n.id} className={`stu-notif-item type-${n.type}${n.isNew ? ' is-new' : ''}`} style={{ cursor: 'pointer' }} onClick={() => handleMarkNotif(n)}>
                     <div className="stu-notif-item-row">
                       {n.isNew && <div className="stu-notif-new-dot" />}
                       <div className="stu-notif-item-icon">{meta[n.type]?.icon ?? '📢'}</div>
@@ -241,6 +267,8 @@ export default function StudentLayout() {
         {currentView === 'grades'    && <GradesView    profile={profile} showToast={showToast} />}
         {currentView === 'shop'      && <ShopView      {...viewProps} stats={stats!} />}
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
+        {currentView === 'booking'   && <BookingView   profile={profile} showToast={showToast} />}
+        {currentView === 'topup'     && <TopupView     profile={profile} showToast={showToast} />}
       </main>
 
       {/* ── Teacher Rating Modal (นิรนาม) ── */}

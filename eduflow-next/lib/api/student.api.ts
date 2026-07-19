@@ -1,26 +1,48 @@
 /**
  * Student API — ตอนนี้ใช้ mock data, พร้อมเปลี่ยนเป็น PostgreSQL
  *
- * PostgreSQL schema (อนาคต):
- *   students, attendance_records, assignments, submissions,
- *   shop_items, cart_items, library_books, reading_progress
+ * กติกาบัญชี:
+ *   - บัญชีตัวอย่าง (student1 / รหัส 10021) เท่านั้นที่มีข้อมูล mock ครบ ไว้เดโม่ระบบ
+ *   - บัญชีที่สมัครใหม่/แอดมินเพิ่ม = เริ่มจาก 0 ทั้งหมด (ไม่มีห้อง/การบ้าน/ตาราง)
+ *     จะเริ่มมีข้อมูลเมื่อแอดมินจัดเข้าห้องเรียน แล้วครูสั่งงาน/เช็คชื่อจริง
+ *
+ * PostgreSQL schema (อนาคต): students, attendance_records, assignments, submissions,
+ *   shop_items, orders, wallets, book_catalog, book_reservations
  */
 
 import type { StudentProfile, StudentStats, Assignment, Notification } from '../types';
 import {
   STUDENT_PROFILE_MOCK, STUDENT_STATS_MOCK, STUDENT_SCHEDULE_MOCK,
-  STUDENT_SUBJECTS_MOCK, STUDENT_ASSIGNMENTS_MOCK, STUDENT_ATTENDANCE_MOCK,
+  STUDENT_SUBJECTS_MOCK, STUDENT_ATTENDANCE_MOCK,
   SHOP_ITEMS_MOCK, SHOP_CATS, LIBRARY_BOOKS_MOCK, NOTIFICATIONS_MOCK,
 } from '../mock-data';
 import {
-  getStudentAssignmentsStore, submitAssignmentStore,
+  getStudentAssignmentsStore, submitAssignmentStore, findStudentClassId,
   getSharedNotifications, markSharedNotificationRead,
 } from './assignments.store';
+import { getWalletBalance, deductWalletFunds } from './wallet.store';
+
+/** บัญชีตัวอย่างที่ให้ข้อมูล mock ครบ — บัญชีอื่นเริ่มจาก 0 */
+const DEMO_STUDENT_CODE = '10021';
+const isDemo = (code: string) => code === DEMO_STUDENT_CODE;
+
+/** โปรไฟล์ว่างสำหรับบัญชีใหม่ (ชื่อจริงถูกทับด้วย session ใน StudentLayout) */
+function emptyProfile(code: string): StudentProfile {
+  return {
+    firstName: '', lastName: '', nickname: '—', gender: '—', dob: '—', bloodType: '—',
+    studentId: code || '—', grade: '', room: '', academicYear: '2567',
+    school: 'โรงเรียนทดสอบ EduFlow', address: '—', phone: '—', email: '—', lineId: '—',
+    religion: '—', nationality: '—',
+    father: { name: '—', phone: '—', occupation: '—' },
+    mother: { name: '—', phone: '—', occupation: '—' },
+    emergencyContact: '—',
+  };
+}
 
 // ─── Profile ──────────────────────────────────────────────────────────────
 // TODO(PostgreSQL): SELECT * FROM students WHERE student_code = $1
 export async function getStudentProfile(studentCode: string): Promise<StudentProfile> {
-  return { ...STUDENT_PROFILE_MOCK };
+  return isDemo(studentCode) ? { ...STUDENT_PROFILE_MOCK } : emptyProfile(studentCode);
 }
 
 // TODO(PostgreSQL): UPDATE students SET ... WHERE student_code = $1
@@ -29,63 +51,46 @@ export async function updateStudentProfile(studentCode: string, data: Partial<St
 }
 
 // ─── Stats ────────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): ดึง aggregate จาก attendance_records และ assignments
+// TODO(PostgreSQL): ดึง aggregate จาก attendance_records / assignments / wallets
 export async function getStudentStats(studentCode: string): Promise<StudentStats> {
-  return { ...STUDENT_STATS_MOCK };
+  const balance = getWalletBalance(studentCode);
+  if (isDemo(studentCode)) return { ...STUDENT_STATS_MOCK, balance };
+  return { attendancePct: 0, homeworkPending: 0, balance, gpa: 0 };
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   SELECT s.*, sub.name, sub.teacher_name, c.room_number
-//   FROM schedule s
-//   JOIN subjects sub ON s.subject_id = sub.id
-//   WHERE s.class_id = $1 AND s.day_of_week = $2
-export async function getStudentSchedule(classId: string) {
-  return { ...STUDENT_SCHEDULE_MOCK };
+// TODO(PostgreSQL): SELECT ... FROM schedule WHERE class_id = (ห้องของนักเรียน)
+export async function getStudentSchedule(studentCode: string) {
+  return isDemo(studentCode) ? { ...STUDENT_SCHEDULE_MOCK } : {};
 }
 
 // ─── Subjects ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   SELECT sub.*, COUNT(a.id) as assign_count, ...
-//   FROM enrollments e JOIN subjects sub ON e.subject_id = sub.id
-//   WHERE e.student_id = $1
+// TODO(PostgreSQL): SELECT ... FROM enrollments WHERE student_id = $1
 export async function getStudentSubjects(studentCode: string) {
-  return [...STUDENT_SUBJECTS_MOCK];
+  return isDemo(studentCode) ? [...STUDENT_SUBJECTS_MOCK] : [];
 }
 
 // ─── Assignments ──────────────────────────────────────────────────────────
-// อ่านจาก shared store (localStorage) เพื่อให้เชื่อมกับฝั่งครูจริง
-// TODO(PostgreSQL):
-//   SELECT a.*, s.status, s.score, s.submitted_at
-//   FROM assignments a
-//   LEFT JOIN submissions s ON a.id = s.assignment_id AND s.student_id = $1
-//   WHERE a.class_id IN (SELECT class_id FROM enrollments WHERE student_id = $1)
+// อ่านจาก shared store — บัญชีที่ยังไม่ถูกจัดเข้าห้อง จะไม่มีการบ้านเลย (เริ่มจาก 0)
 export async function getStudentAssignments(studentCode: string): Promise<Assignment[]> {
   return getStudentAssignmentsStore(studentCode);
 }
 
-// TODO(PostgreSQL):
-//   INSERT INTO submissions (assignment_id, student_id, note, file_urls, submitted_at)
-//   VALUES ($1, $2, $3, $4, NOW())
+// TODO(PostgreSQL): INSERT INTO submissions + upload ไฟล์จริงไป storage แล้วเก็บ URL
 export async function submitAssignment(
-  assignmentId: number, studentCode: string, note: string, files: File[]
+  assignmentId: number, studentCode: string, studentName: string, note: string,
+  fileMeta?: { name: string; size: number },
 ): Promise<void> {
-  // TODO(PostgreSQL): แนบไฟล์จริง → upload ไป storage แล้วเก็บ URL
-  const studentName = `${STUDENT_PROFILE_MOCK.firstName} ${STUDENT_PROFILE_MOCK.lastName}`;
-  submitAssignmentStore(assignmentId, studentCode, studentName, note);
+  submitAssignmentStore(assignmentId, studentCode, studentName, note, fileMeta);
 }
 
 // ─── Attendance ───────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   SELECT day_of_week, status FROM attendance_records
-//   WHERE student_id = $1 AND week_number = current_week()
 export async function getStudentAttendance(studentCode: string) {
-  const result = {
-    week: [...STUDENT_ATTENDANCE_MOCK.week],
-    month: { ...STUDENT_ATTENDANCE_MOCK.month },
-  };
+  const result = isDemo(studentCode)
+    ? { week: [...STUDENT_ATTENDANCE_MOCK.week], month: { ...STUDENT_ATTENDANCE_MOCK.month } }
+    : { week: [] as ('on-time' | 'late' | 'absent')[], month: { onTime: 0, late: 0, absent: 0, total: 0 } };
 
-  // overlay การเช็คชื่อจริงผ่าน QR ของสัปดาห์นี้ทับ mock
+  // overlay การเช็คชื่อจริงผ่าน QR ของสัปดาห์นี้ทับ
   const { getStudentAttendanceRecords } = await import('./attendance.store');
   const records = getStudentAttendanceRecords(studentCode);
   const now = new Date();
@@ -97,9 +102,8 @@ export async function getStudentAttendance(studentCode: string) {
     const d = new Date(r.checkedAt);
     if (d >= monday) {
       const dayIdx = (d.getDay() + 6) % 7; // 0 = จันทร์
-      if (dayIdx < 5) result.week[dayIdx] = r.status;
+      if (dayIdx < 5 && result.week.length >= 5) result.week[dayIdx] = r.status;
     }
-    // นับเพิ่มในสรุปเดือนถ้าอยู่เดือนเดียวกัน
     if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
       if (r.status === 'on-time') result.month.onTime += 1;
       else result.month.late += 1;
@@ -116,18 +120,13 @@ export async function getShopItems() {
   return { cats: SHOP_CATS, items: [...SHOP_ITEMS_MOCK] };
 }
 
-// TODO(PostgreSQL):
-//   BEGIN;
-//   UPDATE students SET balance = balance - $1 WHERE id = $2 AND balance >= $1;
-//   INSERT INTO orders (student_id, items_json, total, status) VALUES ($2, $3, $1, 'pending');
-//   COMMIT;
+// ชำระเงินผ่านกระเป๋ากลาง — ยอดไม่พอ = ไม่หัก
+// TODO(PostgreSQL): transaction: หักเงิน + INSERT orders
 export async function placeOrder(
-  studentCode: string, cart: Record<number, number>, total: number
+  studentCode: string, itemSummary: string, total: number
 ): Promise<{ success: boolean; newBalance: number }> {
-  const currentBalance = STUDENT_STATS_MOCK.balance;
-  if (currentBalance < total) return { success: false, newBalance: currentBalance };
-  STUDENT_STATS_MOCK.balance -= total;
-  return { success: true, newBalance: STUDENT_STATS_MOCK.balance };
+  const r = deductWalletFunds(studentCode, total, `ซื้อสินค้าร้านค้า: ${itemSummary}`);
+  return { success: r.ok, newBalance: r.balance };
 }
 
 // ─── Library ──────────────────────────────────────────────────────────────
@@ -136,9 +135,7 @@ export async function getLibraryBooks() {
   return [...LIBRARY_BOOKS_MOCK];
 }
 
-// TODO(PostgreSQL):
-//   INSERT INTO reading_progress (student_id, book_id, completed_at)
-//   VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING
+// TODO(PostgreSQL): INSERT INTO reading_progress ...
 export async function markBookRead(studentCode: string, bookId: number): Promise<void> {
   const key = 'eduflow_lib_done';
   const done = JSON.parse(localStorage.getItem(key) || '{}');
@@ -152,17 +149,12 @@ export function getReadBooksLocal(): Record<number, boolean> {
 }
 
 // ─── Notifications ────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   SELECT * FROM notifications WHERE student_id = $1
-//   AND created_at > NOW() - INTERVAL '3 days'
-//   ORDER BY created_at DESC
+// TODO(PostgreSQL): SELECT * FROM notifications WHERE student_id = $1 AND created_at > NOW() - '3 days'
 export async function getNotifications(studentCode: string): Promise<Notification[]> {
   const TTL = 3 * 24 * 60 * 60 * 1000;
-  // ผสานแจ้งเตือนจาก shared store (เช่น คะแนนออก, งานใหม่จากครู) กับ mock เดิม
   const shared = getSharedNotifications(`student:${studentCode}`);
-  return [...shared, ...NOTIFICATIONS_MOCK]
-    .filter(n => Date.now() - n.time < TTL)
-    .sort((a, b) => b.time - a.time);
+  const base = isDemo(studentCode) ? [...shared, ...NOTIFICATIONS_MOCK] : shared;
+  return base.filter(n => Date.now() - n.time < TTL).sort((a, b) => b.time - a.time);
 }
 
 // TODO(PostgreSQL): UPDATE notifications SET is_read = true WHERE id = $1
@@ -172,15 +164,4 @@ export async function markNotificationRead(notifId: number): Promise<void> {
   if (n) n.isNew = false;
 }
 
-// ─── Balance ──────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): SELECT balance FROM students WHERE student_code = $1
-export async function getStudentBalance(studentCode: string): Promise<number> {
-  return STUDENT_STATS_MOCK.balance;
-}
-
-// TODO(PostgreSQL):
-//   UPDATE students SET balance = balance + $1 WHERE student_code = $2
-export async function topUpBalance(studentCode: string, amount: number): Promise<number> {
-  STUDENT_STATS_MOCK.balance += amount;
-  return STUDENT_STATS_MOCK.balance;
-}
+export { findStudentClassId };

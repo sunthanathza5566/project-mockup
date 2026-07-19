@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { ROLE_LABELS, PEOPLE_DIRECTORY } from '@/lib/mock-data';
+import { ROLE_LABELS, PEOPLE_DIRECTORY, STUDENT_CITIZEN_REGISTRY } from '@/lib/mock-data';
 import { getAllUsers, addUserAccount, deleteUserById } from '@/lib/api/admin.api';
+import { adminDirectTopup, getWalletBalance } from '@/lib/api/wallet.store';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import type { User, Role } from '@/lib/types';
 
@@ -23,12 +25,30 @@ const DEFAULT_PASSWORD = 'Eduflow1';
  */
 export default function UserManager() {
   const { showToast } = useToast();
+  const { session } = useAuth();
 
   const [users,   setUsers]   = useState<User[]>([]);
   const [selRole, setSelRole] = useState<ManagedRole | null>(null);
   const [search,  setSearch]  = useState('');
   const [selCode, setSelCode] = useState('');
   const [pending, setPending] = useState<{ code: string; name: string } | null>(null);
+
+  // ── เติมเงินตรง (กรณีระบบขัดข้อง) — verify ด้วยข้อมูลที่บันทึกไว้ในระบบ ──
+  const [tuCode,    setTuCode]    = useState('');
+  const [tuCitizen, setTuCitizen] = useState('');
+  const [tuName,    setTuName]    = useState('');
+  const [tuAmount,  setTuAmount]  = useState(100);
+
+  function handleAdminTopup() {
+    const r = adminDirectTopup(
+      { studentCode: tuCode.trim(), citizenId: tuCitizen.trim(), fullName: tuName.trim(), amount: tuAmount },
+      STUDENT_CITIZEN_REGISTRY,
+      session?.name || 'web admin',
+    );
+    if (!r.ok) { showToast(`⚠️ ${r.error}`); return; }
+    showToast(`✅ เติมเงิน ฿${tuAmount.toLocaleString('th-TH')} ให้ ${tuName.trim()} แล้ว — ยอดใหม่ ฿${r.balance!.toLocaleString('th-TH')}`);
+    setTuCode(''); setTuCitizen(''); setTuName(''); setTuAmount(100);
+  }
 
   const refresh = useCallback(() => { getAllUsers().then(setUsers); }, []);
   useEffect(() => { refresh(); }, [refresh]);
@@ -137,6 +157,26 @@ export default function UserManager() {
           </div>
         )}
       </div>
+
+      {/* ── เติมเงินตรงให้นักเรียน (เฉพาะ role นักเรียน · กรณีระบบ PromptPay ขัดข้อง) ── */}
+      {selRole === 'student' && (
+        <div style={{ background: 'rgba(196,128,74,0.07)', border: '2px solid rgba(196,128,74,0.35)', borderRadius: 14, padding: '1.2rem', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#7A4A20', marginBottom: '0.35rem' }}>💰 เติมเงินให้นักเรียนโดยตรง (กรณีระบบขัดข้อง)</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
+            ต้อง verify ให้ตรงกับข้อมูลที่บันทึกไว้ในระบบทั้ง 3 อย่าง: รหัสนักเรียน + เลขบัตรประชาชน + ชื่อ-นามสกุล · ทุกรายการถูกบันทึกลง Log
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.6rem', marginBottom: '0.75rem' }}>
+            <input className="ez-input" style={{ minHeight: 44 }} placeholder="รหัสนักเรียน เช่น 10021" value={tuCode} onChange={e => setTuCode(e.target.value)} />
+            <input className="ez-input" style={{ minHeight: 44 }} placeholder="เลขบัตรประชาชน 13 หลัก" value={tuCitizen} onChange={e => setTuCitizen(e.target.value)} />
+            <input className="ez-input" style={{ minHeight: 44 }} placeholder="ชื่อ-นามสกุล (ตามระบบ)" value={tuName} onChange={e => setTuName(e.target.value)} />
+            <input className="ez-input" style={{ minHeight: 44 }} type="number" min={1} placeholder="จำนวนเงิน" value={tuAmount} onChange={e => setTuAmount(parseInt(e.target.value) || 0)} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button className="ez-btn ez-btn-primary" style={{ minHeight: 44 }} onClick={handleAdminTopup}>💾 ตรวจสอบและเติมเงิน</button>
+            {tuCode.trim() && <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>ยอดปัจจุบันของ {tuCode.trim()}: ฿{getWalletBalance(tuCode.trim()).toLocaleString('th-TH')}</span>}
+          </div>
+        </div>
+      )}
 
       {/* ── รายชื่อปัจจุบัน ── */}
       <div className="admin-list-header">

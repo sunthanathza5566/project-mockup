@@ -25,6 +25,7 @@ export default function AssignmentsView({ teacherName, selectedClass }: Props) {
   const [details,  setDetails]  = useState('');
   const [due,      setDue]      = useState('');
   const [maxScore, setMaxScore] = useState(10);
+  const [submitType, setSubmitType] = useState<'pdf' | 'video' | 'slides'>('pdf');
 
   // ── Grading state ──
   const [gradeScores, setGradeScores] = useState<Record<string, string>>({});
@@ -46,11 +47,11 @@ export default function AssignmentsView({ teacherName, selectedClass }: Props) {
     await createAssignment({
       classId: selectedClass.id, key: selectedClass.key, subject: selectedClass.subject,
       title: title.trim(), details: details.trim(), due: due.trim(),
-      maxScore, teacher: teacherName,
+      maxScore, teacher: teacherName, submitType,
     });
     logActivity('teacher', 'สั่งการบ้าน', `${title.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
     showToast('✅ มอบหมายการบ้านแล้ว — แจ้งเตือนถึงนักเรียนทุกคนในห้อง');
-    setTitle(''); setDetails(''); setDue(''); setMaxScore(10); setShowForm(false);
+    setTitle(''); setDetails(''); setDue(''); setMaxScore(10); setSubmitType('pdf'); setShowForm(false);
     refresh();
   }
 
@@ -98,6 +99,14 @@ export default function AssignmentsView({ teacherName, selectedClass }: Props) {
             <div>
               <label className="ez-label">คะแนนเต็ม</label>
               <input className="ez-input" type="number" min={1} value={maxScore} onChange={e => setMaxScore(parseInt(e.target.value) || 10)} />
+            </div>
+            <div>
+              <label className="ez-label">ประเภทไฟล์ที่ให้นักเรียนส่ง</label>
+              <select className="ez-input" value={submitType} onChange={e => setSubmitType(e.target.value as 'pdf' | 'video' | 'slides')} style={{ cursor: 'pointer' }}>
+                <option value="pdf">📄 ใบงาน/เอกสาร — PDF เท่านั้น</option>
+                <option value="video">🎬 คลิปวิดีโอ</option>
+                <option value="slides">📑 สไลด์นำเสนอ (.ppt/.pptx/PDF)</option>
+              </select>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -168,6 +177,11 @@ export default function AssignmentsView({ teacherName, selectedClass }: Props) {
                                     ? <span className="ez-badge ez-badge-done">✅ ได้ {sub.score} / {a.maxScore} คะแนน</span>
                                     : <span className="ez-badge ez-badge-wait">⏳ รอตรวจ</span>}
                                 </div>
+                                {sub.fileName && (
+                                  <div style={{ fontSize: '0.95rem', color: 'var(--brown-dark)', marginBottom: '0.4rem', background: 'var(--cream)', borderRadius: 8, padding: '0.4rem 0.7rem', display: 'inline-block' }}>
+                                    📎 ไฟล์แนบ: <b>{sub.fileName}</b>{sub.fileSize ? ` (${sub.fileSize > 1048576 ? (sub.fileSize / 1048576).toFixed(1) + ' MB' : Math.ceil(sub.fileSize / 1024) + ' KB'})` : ''}
+                                  </div>
+                                )}
                                 {sub.note && <div style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>📝 นักเรียนฝากบอก: {sub.note}</div>}
 
                                 {sub.status === 'submitted' ? (

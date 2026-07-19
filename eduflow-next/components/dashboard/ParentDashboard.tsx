@@ -5,6 +5,7 @@ import { getStudentAssignments, getStudentAttendance } from '@/lib/api/student.a
 import { getStudentAttendanceDetail, type StudentAttendanceDetail } from '@/lib/api/attendance.store';
 import { getStudentGrades, calcGPA, type StudentGradeRow } from '@/lib/api/academic.store';
 import { getSharedNotifications, markSharedNotificationRead } from '@/lib/api/assignments.store';
+import { getWalletBalance, getWalletTxns, addWalletFunds, type WalletTxn } from '@/lib/api/wallet.store';
 import { exportStudentGradeReport } from '@/lib/utils/excel-export';
 import type { Assignment, Notification } from '@/lib/types';
 
@@ -25,6 +26,17 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
   const [grades,     setGrades]     = useState<StudentGradeRow[]>([]);
   const [notifs,     setNotifs]     = useState<Notification[]>([]);
 
+  // ── กระเป๋าเงินลูก — ผู้ปกครองเท่านั้นที่เติมได้ ──
+  const [balance,    setBalance]    = useState(0);
+  const [txns,       setTxns]       = useState<WalletTxn[]>([]);
+  const [topupAmt,   setTopupAmt]   = useState(100);
+  const [ppStep,     setPpStep]     = useState<'idle' | 'qr' | 'verifying' | 'done'>('idle');
+
+  function refreshWallet() {
+    setBalance(getWalletBalance(childCode));
+    setTxns(getWalletTxns(childCode));
+  }
+
   useEffect(() => {
     if (!childCode) return;
     Promise.all([
@@ -37,7 +49,24 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
     setCheckIns(getStudentAttendanceDetail(childCode));
     setGrades(getStudentGrades(childCode));
     setNotifs(getSharedNotifications(`parent:${childCode}`));
+    setBalance(getWalletBalance(childCode));
+    setTxns(getWalletTxns(childCode));
   }, [childCode]);
+
+  /** เติมผ่าน PromptPay (จำลอง): แสดง QR → ระบบตรวจสอบยอดอัตโนมัติ → ยืนยันเข้ากระเป๋า */
+  function startPromptPay() {
+    if (topupAmt <= 0) { showToast('⚠️ ใส่จำนวนเงินก่อน'); return; }
+    setPpStep('qr');
+  }
+  function simulatePaid() {
+    setPpStep('verifying');
+    // TODO(Production): จุดนี้คือ webhook จาก payment gateway ยืนยันยอดจริง — ตอนนี้จำลองการตรวจสอบ
+    setTimeout(() => {
+      addWalletFunds(childCode, topupAmt, 'topup-promptpay', `ผู้ปกครองของ ${childName}`);
+      refreshWallet();
+      setPpStep('done');
+    }, 1800);
+  }
 
   const gpa = calcGPA(grades);
   const pendingHw = assignments.filter(a => a.status === 'pending' || a.status === 'overdue');
@@ -86,6 +115,82 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
           ))}
         </div>
       </div>
+
+      {/* ── กระเป๋าเงินลูก — เติมเงินได้เฉพาะผู้ปกครอง (ควบคุมขอบเขตการใช้จ่าย) ── */}
+      <div className="dash-section">
+        <div className="dash-section-title">💰 กระเป๋าเงินของ {childName || 'ลูก'}</div>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'stretch' }}>
+          <div style={{ flex: 1, minWidth: 220, background: 'var(--brown-dark)', color: 'var(--cream)', borderRadius: 14, padding: '1.1rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>ยอดเงินคงเหลือ</div>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: "'Cormorant Garamond', serif" }}>฿{balance.toLocaleString('th-TH')}</div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.75, marginTop: '0.25rem' }}>นักเรียนใช้ซื้อของที่ร้านค้าโรงเรียนเท่านั้น</div>
+          </div>
+          <div style={{ flex: 1.4, minWidth: 260, background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 14, padding: '1.1rem' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.6rem' }}>เติมเงินผ่าน PromptPay</div>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+              {[50, 100, 200, 300].map(a => (
+                <button key={a} className={`dash-tab-btn${topupAmt === a ? ' active' : ''}`} onClick={() => setTopupAmt(a)}>฿{a}</button>
+              ))}
+              <input
+                type="number" min={1} value={topupAmt}
+                onChange={e => setTopupAmt(parseInt(e.target.value) || 0)}
+                style={{ width: 90, padding: '0.4rem 0.6rem', border: '1px solid var(--border)', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', outline: 'none', background: 'var(--warm-white)' }}
+              />
+            </div>
+            <button className="dash-action-btn" style={{ background: 'var(--brown-dark)', color: 'var(--cream)' }} onClick={startPromptPay}>📲 เติม ฿{topupAmt.toLocaleString('th-TH')} ผ่าน PromptPay</button>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+              🔒 เติมเงินได้เฉพาะผู้ปกครอง — นักเรียนเติมเองไม่ได้ · ระบบตรวจสอบและยืนยันยอดอัตโนมัติ
+            </div>
+          </div>
+        </div>
+        {txns.length > 0 && (
+          <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            {txns.slice(0, 5).map((t, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.78rem', color: 'var(--text-body)', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.4rem 0.7rem' }}>
+                <span style={{ flex: 1 }}>{t.detail}</span>
+                <span style={{ color: 'var(--text-muted)' }}>{new Date(t.at).toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                <span style={{ fontWeight: 700, color: t.amount > 0 ? 'var(--success)' : 'var(--absent)' }}>{t.amount > 0 ? '+' : ''}฿{Math.abs(t.amount).toLocaleString('th-TH')}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Popup PromptPay (จำลอง) ── */}
+      {ppStep !== 'idle' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: 'rgba(18,10,4,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: 'min(340px, 92vw)', background: 'var(--warm-white)', borderRadius: 16, padding: '1.5rem', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+            {ppStep === 'qr' && (
+              <>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>📲 สแกนจ่ายด้วย PromptPay</div>
+                <div style={{ width: 170, height: 170, margin: '0 auto 0.75rem', background: 'var(--cream)', border: '2px dashed var(--border)', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
+                  ▦<div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>QR จำลอง (ระบบทดสอบ)</div>
+                </div>
+                <div style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>ยอดเติม <b>฿{topupAmt.toLocaleString('th-TH')}</b> เข้ากระเป๋า {childName}</div>
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <button className="stu-hw-submit-btn" style={{ flex: 1, background: '#2E8B5B' }} onClick={simulatePaid}>สแกนจ่ายแล้ว</button>
+                  <button className="stu-hw-submit-btn" style={{ flex: 1, background: 'var(--text-muted)' }} onClick={() => setPpStep('idle')}>ยกเลิก</button>
+                </div>
+              </>
+            )}
+            {ppStep === 'verifying' && (
+              <>
+                <div style={{ fontSize: '2.4rem', marginBottom: '0.5rem' }}>⏳</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--brown-dark)' }}>ระบบกำลังตรวจสอบยอดเงิน...</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>ยืนยันอัตโนมัติเมื่อตรวจสอบว่าเงินเข้าจริง</div>
+              </>
+            )}
+            {ppStep === 'done' && (
+              <>
+                <div style={{ fontSize: '2.4rem', marginBottom: '0.5rem' }}>✅</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.4rem' }}>เติมเงินสำเร็จ!</div>
+                <div style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>ยอดใหม่ของ {childName}: <b>฿{balance.toLocaleString('th-TH')}</b><br /><span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>แจ้งเตือนถึงนักเรียนแล้ว</span></div>
+                <button className="stu-hw-submit-btn" style={{ width: '100%' }} onClick={() => setPpStep('idle')}>ปิด</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── แจ้งเตือน (เช็คชื่อจริงของลูก) ── */}
       <div className="dash-section">

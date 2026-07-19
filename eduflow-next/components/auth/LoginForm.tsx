@@ -92,11 +92,17 @@ export default function LoginForm() {
           </button>
 
           {showDemo && (
-            <div className="auth-demo-hint" style={{ marginTop: '0.75rem' }}>
-              <strong>บัญชีทดสอบ:</strong><br />
-              ครู: <code>teacher1 / Teacher1</code><br />
-              นักเรียน: <code>student1 / Student1</code><br />
-              Admin: <code>webadmin / Admin123</code>
+            <div className="auth-demo-hint" style={{ marginTop: '0.75rem', textAlign: 'left', lineHeight: 1.9 }}>
+              <strong>บัญชีทดสอบทั้งหมด:</strong><br />
+              🧑‍🏫 ครู (มีตารางสอน): <code>teacher1 / Teacher1</code><br />
+              🎓 นักเรียน (มีข้อมูลครบ): <code>student1 / Student1</code><br />
+              👨‍👧 ผู้ปกครองของ ธนาพร (10021): <code>parent1 / Parent01</code><br />
+              👩‍👦 ผู้ปกครองของ สมศักดิ์ (10022): <code>parent2 / Parent02</code><br />
+              🏫 Admin โรงเรียน: <code>schadmin / Admin001</code><br />
+              🛠 Web Admin: <code>webadmin / Admin123</code><br />
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                * บัญชีที่แอดมินเพิ่มเอง ใช้รหัสผ่านเริ่มต้น Eduflow1 · บัญชีสมัครใหม่ = เริ่มจาก 0 ไม่มีข้อมูลจำลอง
+              </span>
             </div>
           )}
         </div>

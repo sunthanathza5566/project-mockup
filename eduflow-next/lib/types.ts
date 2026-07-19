@@ -60,6 +60,7 @@ export interface StudentProfile {
   lineId: string;
   religion: string;
   nationality: string;
+  citizenId?: string;   // เลขบัตรประชาชน 13 หลัก — ใช้ยืนยันตัวตนตอน web admin เติมเงินตรง
   father: { name: string; phone: string; occupation: string };
   mother: { name: string; phone: string; occupation: string };
   emergencyContact: string;
@@ -92,6 +93,9 @@ export interface Subject {
   done: number;
 }
 
+/** ประเภทไฟล์ที่ครูกำหนดให้ส่ง: pdf = ใบงาน/เอกสาร, video = คลิปวิดีโอ, slides = สไลด์นำเสนอ */
+export type SubmitFileType = 'pdf' | 'video' | 'slides';
+
 export interface Assignment {
   id: number;
   key: string;
@@ -105,6 +109,7 @@ export interface Assignment {
   teacher: string;
   details: string;
   files: number;
+  submitType?: SubmitFileType; // default 'pdf'
 }
 
 export interface ShopItem {

@@ -11,6 +11,7 @@ export const SEEDED_USERS: User[] = [
   { username: 'teacher1', password: 'Teacher1', role: 'teacher',      name: 'ครูสมชาย ใจดี',         school: 'โรงเรียนทดสอบ EduFlow' },
   { username: 'student1', password: 'Student1', role: 'student',      name: 'ธนาพร สุขใจ',           code: '10021', class: 'ม.1/1' },
   { username: 'parent1',  password: 'Parent01', role: 'parent',       name: 'คุณพ่อสมชาย สุขใจ',    childCode: '10021', childName: 'ธนาพร สุขใจ' },
+  { username: 'parent2',  password: 'Parent02', role: 'parent',       name: 'คุณแม่วรรณา มีสุข',     childCode: '10022', childName: 'สมศักดิ์ มีสุข' },
   { username: 'schadmin', password: 'Admin001', role: 'school_admin', name: 'ผู้ดูแลโรงเรียนทดสอบ', school: 'โรงเรียนทดสอบ EduFlow' },
 ];
 
@@ -114,9 +115,21 @@ export const STUDENT_PROFILE_MOCK: StudentProfile = {
   address: '123/45 ถ.สุขุมวิท แขวงบางนา เขตบางนา กรุงเทพมหานคร 10260',
   phone: '089-123-4567', email: 'thanapon@student.eduflow.th', lineId: 'thanapon_s',
   religion: 'พุทธ', nationality: 'ไทย',
+  citizenId: '1103700123456',
   father: { name: 'สมชาย สุขใจ',  phone: '081-234-5678', occupation: 'วิศวกร' },
   mother: { name: 'สมหญิง สุขใจ', phone: '082-345-6789', occupation: 'ครูประจำโรงเรียน' },
   emergencyContact: '081-234-5678',
+};
+
+/**
+ * ทะเบียนยืนยันตัวตนนักเรียน (เลขบัตรประชาชน + ชื่อ) — web admin ใช้ verify ก่อนเติมเงินตรง
+ * TODO(PostgreSQL): SELECT citizen_id, full_name FROM students WHERE student_code = $1
+ *   (นักเรียนที่สมัคร/ถูกเพิ่มใหม่ ต้องกรอกเลขบัตรตอนลงทะเบียนจึงจะใช้ช่องทางนี้ได้)
+ */
+export const STUDENT_CITIZEN_REGISTRY: Record<string, { citizenId: string; name: string }> = {
+  '10021': { citizenId: '1103700123456', name: 'ธนาพร สุขใจ' },
+  '10022': { citizenId: '1103700234567', name: 'สมศักดิ์ มีสุข' },
+  '10023': { citizenId: '1103700345678', name: 'มาลี วาดเก่ง' },
 };
 
 export const STUDENT_STATS_MOCK: StudentStats = {

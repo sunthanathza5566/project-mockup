@@ -15,19 +15,26 @@ import {
 
 export type { StoredAssignment };
 
+/**
+ * บัญชีครูตัวอย่าง (teacher1) เท่านั้นที่มีตารางสอน mock ไว้เดโม่
+ * ครูที่สมัครใหม่/แอดมินเพิ่ม = เริ่มจาก 0 ไม่มีห้องสอน จนกว่าแอดมินจะจัดสรร
+ */
+const DEMO_TEACHER_USERNAMES = ['teacher1', 'T001'];
+const isDemoTeacher = (id: string) => DEMO_TEACHER_USERNAMES.includes(id);
+
 // TODO(PostgreSQL): SELECT * FROM teachers WHERE user_id = $1
 export async function getTeacherProfile(teacherId: string) {
-  return { ...TEACHER_DATA_MOCK.profile };
+  if (isDemoTeacher(teacherId)) return { ...TEACHER_DATA_MOCK.profile };
+  // ครูใหม่: โปรไฟล์ว่าง (ชื่อจริงถูกทับด้วย session ใน TeacherLayout)
+  return { name: '', teacherId: teacherId.toUpperCase(), school: 'โรงเรียนทดสอบ EduFlow', subject: '—', academicYear: '2567' };
 }
 
 // TODO(PostgreSQL):
 //   SELECT c.*, sub.name as subject_name, sub.key
-//   FROM teacher_classes tc
-//   JOIN classes c ON tc.class_id = c.id
-//   JOIN subjects sub ON c.subject_id = sub.id
+//   FROM teacher_classes tc JOIN classes c ON tc.class_id = c.id
 //   WHERE tc.teacher_id = $1
 export async function getTeacherClasses(teacherId: string): Promise<ClassInfo[]> {
-  return [...TEACHER_DATA_MOCK.classes];
+  return isDemoTeacher(teacherId) ? [...TEACHER_DATA_MOCK.classes] : [];
 }
 
 // TODO(PostgreSQL):
@@ -52,6 +59,7 @@ export async function getClassAssignments(classId: string): Promise<StoredAssign
 export async function createAssignment(data: {
   classId: string; key: string; subject: string; title: string;
   details: string; due: string; maxScore: number; teacher: string;
+  submitType?: import('../types').SubmitFileType;
 }): Promise<StoredAssignment> {
   return createAssignmentStore(data);
 }
@@ -135,6 +143,8 @@ export {
 //   WHERE n.teacher_id = $1 AND n.is_deleted = false
 //   ORDER BY n.created_at DESC LIMIT 20
 export async function getTeacherNotifications(teacherId: string): Promise<Notification[]> {
+  // ครูใหม่ = ไม่มีแจ้งเตือน mock — มีเฉพาะแจ้งเตือนจริงจาก shared store
+  if (!isDemoTeacher(teacherId)) return getSharedNotifications(`teacher:${teacherId.toUpperCase()}`);
   // ผสานแจ้งเตือนจริงจาก shared store (เช่น นักเรียนส่งการบ้าน) กับ mock เดิม
   const shared = getSharedNotifications(`teacher:${TEACHER_DATA_MOCK.profile.teacherId}`);
   const mock: Notification[] = [

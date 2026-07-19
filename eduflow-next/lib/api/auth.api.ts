@@ -153,11 +153,13 @@ export function initAuth(): void {
   if (!localStorage.getItem(AUTH_KEY)) {
     localStorage.setItem(AUTH_KEY, JSON.stringify(SEEDED_USERS));
   } else {
+    // เติมบัญชี seed ที่ยังไม่มีใน storage เดิม (เช่น บัญชีทดสอบที่เพิ่มใหม่ภายหลัง)
     const users = getUsers();
-    if (!users.some(u => u.role === 'web_admin' && u.seeded)) {
-      users.unshift(SEEDED_USERS[0]);
-      saveUsers(users);
-    }
+    let changed = false;
+    SEEDED_USERS.forEach(su => {
+      if (!users.some(u => u.username === su.username)) { users.push({ ...su }); changed = true; }
+    });
+    if (changed) saveUsers(users);
   }
   if (!localStorage.getItem(PERMISSIONS_KEY))
     localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(DEFAULT_PERMISSIONS));
