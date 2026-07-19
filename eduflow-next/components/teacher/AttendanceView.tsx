@@ -7,6 +7,7 @@ import {
   submitSessionReport, getAttendanceReports,
 } from '@/lib/api/attendance.store';
 import { exportAttendanceReportToExcel } from '@/lib/utils/excel-export';
+import { logActivity } from '@/lib/api/activity.log';
 import type { AttendanceSession, AttendanceRecord, AttendanceReport } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
@@ -61,6 +62,7 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
       subject: selectedClass.subject, period: 1,
     });
     refresh();
+    logActivity('teacher', 'สร้าง QR เช็คชื่อ', `${classLabel} ${selectedClass.subject}`);
     showToast('✅ สร้าง QR แล้ว (อายุ 15 นาที · 10 นาทีแรก = ตรงเวลา)');
   }
 
@@ -69,6 +71,7 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
     if (!report) { showToast('❌ ไม่พบ session'); return; }
     refresh();
     setView('report');
+    logActivity('teacher', 'ส่งรายงานเช็คชื่อ', `${classLabel} ${selectedClass.subject}`);
     showToast('✅ ส่งรายงานแล้ว — ดูย้อนหลังได้ที่แท็บรายงาน');
   }
 

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "EduFlow — ระบบอำนวยความสะดวกโรงเรียน",
   "scripts": {
-    "start": "npx serve . -p 3000"
+    "dev": "npm --prefix eduflow-next run dev",
+    "build": "npm --prefix eduflow-next run build",
+    "start": "npm --prefix eduflow-next run start",
+    "start:old": "npx serve . -p 3001"
   }
 }

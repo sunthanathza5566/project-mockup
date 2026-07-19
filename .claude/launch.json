@@ -2,10 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "eduflow",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "3000", "."],
+      "name": "eduflow-next",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "eduflow-next", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "eduflow-old",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "3001", "."],
+      "port": 3001
     }
   ]
 }

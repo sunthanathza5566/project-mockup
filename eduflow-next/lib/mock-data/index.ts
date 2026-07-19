@@ -14,18 +14,89 @@ export const SEEDED_USERS: User[] = [
   { username: 'schadmin', password: 'Admin001', role: 'school_admin', name: 'ผู้ดูแลโรงเรียนทดสอบ', school: 'โรงเรียนทดสอบ EduFlow' },
 ];
 
+// สิทธิ์ครอบคลุมทุกฟังก์ชันจริงของแต่ละ role — web admin เป็นผู้กำหนดทั้งหมด
 export const DEFAULT_PERMISSIONS: Permissions = {
-  teacher:      { viewAttendance: true, editAttendance: true, viewReports: true, exportData: true, manageStudents: false },
-  student:      { viewOwnHistory: true, viewSchedule: true, viewGrades: false },
-  parent:       { viewChildStatus: true, viewHistory: true, contactTeacher: true },
-  school_admin: { manageTeachers: true, manageStudents: true, viewAllReports: true, exportData: true, manageParents: false },
+  teacher: {
+    attendanceQR: true, editAttendance: true, viewReports: true,
+    assignments: true, gradebook: true, gradeExport: true,
+    materials: true, announcements: true, exportData: true,
+  },
+  student: {
+    checkin: true, viewSchedule: true, submitHomework: true,
+    viewGrades: true, downloadReports: true, shop: true,
+    library: true, rateTeacher: true, viewOwnHistory: true,
+  },
+  parent: {
+    viewChildStatus: true, viewChildGrades: true, viewHistory: true,
+    notifications: true, contactTeacher: true, realtimeTracking: false,
+  },
+  school_admin: {
+    manageTeachers: true, manageStudents: true, manageParents: false,
+    manageAcademic: true, viewAllReports: true, exportData: true,
+    broadcast: true, viewLogs: false,
+  },
 };
 
 export const PERMISSION_LABELS: Record<string, Record<string, string>> = {
-  teacher:      { viewAttendance: 'ดูการเช็คชื่อ', editAttendance: 'แก้ไขการเช็คชื่อ', viewReports: 'ดูรายงาน', exportData: 'Export ข้อมูล', manageStudents: 'จัดการนักเรียน' },
-  student:      { viewOwnHistory: 'ดูประวัติตัวเอง', viewSchedule: 'ดูตารางเรียน', viewGrades: 'ดูเกรด' },
-  parent:       { viewChildStatus: 'ดูสถานะบุตรหลาน', viewHistory: 'ดูประวัติการมาเรียน', contactTeacher: 'ติดต่อครู' },
-  school_admin: { manageTeachers: 'จัดการครู', manageStudents: 'จัดการนักเรียน', viewAllReports: 'ดูรายงานทั้งหมด', exportData: 'Export ข้อมูล', manageParents: 'จัดการผู้ปกครอง' },
+  teacher: {
+    attendanceQR: 'สร้าง QR Code เช็คชื่อ', editAttendance: 'บันทึก/แก้ไขการเช็คชื่อ',
+    viewReports: 'ดูรายงานเช็คชื่อย้อนหลัง', assignments: 'สั่งการบ้าน & ตรวจงานให้คะแนน',
+    gradebook: 'บันทึกคะแนน (ปพ.5)', gradeExport: 'ดาวน์โหลดเอกสาร ปพ.',
+    materials: 'อัปโหลดสื่อการสอน', announcements: 'ส่งประกาศถึงนักเรียน', exportData: 'Export ข้อมูล Excel',
+  },
+  student: {
+    checkin: 'เช็คชื่อเข้าเรียน (รหัส/QR)', viewSchedule: 'ดูตารางเรียน',
+    submitHomework: 'ส่งการบ้าน', viewGrades: 'ดูผลการเรียน/เกรด',
+    downloadReports: 'ดาวน์โหลด ปพ.1 / ปพ.6', shop: 'ใช้งานร้านค้า/แต้มสะสม',
+    library: 'ใช้งานห้องสมุด', rateTeacher: 'ประเมินครู (ไม่ระบุตัวตน)', viewOwnHistory: 'ดูประวัติการมาเรียนตัวเอง',
+  },
+  parent: {
+    viewChildStatus: 'ดูสถานะบุตรหลาน', viewChildGrades: 'ดูผลการเรียนบุตรหลาน',
+    viewHistory: 'ดูประวัติการมาเรียน', notifications: 'รับแจ้งเตือนเข้า-ออกโรงเรียน',
+    contactTeacher: 'ติดต่อครู', realtimeTracking: 'ติดตามบุตรหลานแบบ Realtime (ระบบอนาคต)',
+  },
+  school_admin: {
+    manageTeachers: 'จัดการครูในโรงเรียน', manageStudents: 'จัดการนักเรียนในโรงเรียน',
+    manageParents: 'จัดการผู้ปกครอง', manageAcademic: 'จัดการโครงสร้างวิชาการ (ปี/ชั้น/ห้อง)',
+    viewAllReports: 'ดูรายงานทั้งหมดของโรงเรียน', exportData: 'Export ข้อมูลโรงเรียน',
+    broadcast: 'ส่งประกาศ/แจ้งเตือนผู้ปกครอง', viewLogs: 'ดู Log ของโรงเรียน',
+  },
+};
+
+/**
+ * ทำเนียบรายชื่อบุคลากร/นักเรียนที่มีอยู่ในระบบโรงเรียน (จากตารางสอน + ทะเบียนห้อง)
+ * ใช้ในหน้า "จัดการผู้ใช้" — แอดมินเลือกจาก dropdown/ค้นหา แล้วเพิ่มเข้า role ได้เลย
+ * TODO(PostgreSQL): SELECT name, code FROM school_directory WHERE role = $1
+ */
+export const PEOPLE_DIRECTORY: Record<'teacher' | 'student' | 'parent' | 'school_admin', { code: string; name: string }[]> = {
+  teacher: [
+    { code: 'T001', name: 'ครูสมชาย ใจดี' },
+    { code: 'T002', name: 'ครูสมหญิง มีสุข' },
+    { code: 'T003', name: 'ครูณัฐพล แสงทอง' },
+    { code: 'T004', name: 'Mr. James Smith' },
+    { code: 'T005', name: 'ครูวิชัย รักชาติ' },
+    { code: 'T006', name: 'ครูประเสริฐ แข็งแรง' },
+    { code: 'T007', name: 'ครูมาลี วาดเก่ง' },
+    { code: 'T008', name: 'ครูวันชัย เสียงดี' },
+    { code: 'T009', name: 'ครูมาลี คอมเก่ง' },
+  ],
+  student: [
+    { code: '10021', name: 'ธนาพร สุขใจ' },     { code: '10022', name: 'สมศักดิ์ มีสุข' },
+    { code: '10023', name: 'มาลี วาดเก่ง' },     { code: '10024', name: 'อนุชา ดีมาก' },
+    { code: '10025', name: 'สุภา ใจดี' },        { code: '20021', name: 'วิชัย รักเรียน' },
+    { code: '20022', name: 'นาตยา สวยงาม' },     { code: '20023', name: 'ประเสริฐ เก่งมาก' },
+    { code: '30021', name: 'ทวีศักดิ์ มั่นคง' }, { code: '30022', name: 'ปริญญา ดีงาม' },
+    { code: '30023', name: 'วรรณา ขยันดี' },
+  ],
+  parent: [
+    { code: 'P10021', name: 'ผู้ปกครองของ ธนาพร สุขใจ' },     { code: 'P10022', name: 'ผู้ปกครองของ สมศักดิ์ มีสุข' },
+    { code: 'P10023', name: 'ผู้ปกครองของ มาลี วาดเก่ง' },     { code: 'P20021', name: 'ผู้ปกครองของ วิชัย รักเรียน' },
+    { code: 'P30021', name: 'ผู้ปกครองของ ทวีศักดิ์ มั่นคง' },
+  ],
+  school_admin: [
+    { code: 'A001', name: 'รองผู้อำนวยการฝ่ายวิชาการ' },
+    { code: 'A002', name: 'หัวหน้างานทะเบียนวัดผล' },
+  ],
 };
 
 export const ROLE_LABELS: Record<string, string> = {

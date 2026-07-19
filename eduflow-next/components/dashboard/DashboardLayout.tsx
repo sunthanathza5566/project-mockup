@@ -1,68 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { ROLE_LABELS, PERMISSION_LABELS, SEEDED_USERS } from '@/lib/mock-data';
-import { getAllUsers, deleteUserById, getAllPermissions, updatePermission, getAdminLog, getSystemStats } from '@/lib/api/admin.api';
+import { ROLE_LABELS, SEEDED_USERS } from '@/lib/mock-data';
 import AcademicManager from './AcademicManager';
 import ParentDashboard from './ParentDashboard';
-import type { User, Permissions } from '@/lib/types';
 
-type DashTab = 'users' | 'perms' | 'academic' | 'log';
-
+/**
+ * Dashboard สำหรับ school_admin และ parent
+ * web_admin ถูกส่งไปหน้า /admin (ทุกเมนูเป็นหน้าแยกของตัวเอง)
+ */
 export default function DashboardLayout() {
   const { session, logout } = useAuth();
   const { showToast }       = useToast();
   const router              = useRouter();
 
-  const [users,  setUsers]  = useState<User[]>([]);
-  const [perms,  setPerms]  = useState<Permissions | null>(null);
-  const [log,    setLog]    = useState<{ admins: { username:string; name:string; addedAt:string; addedBy:string }[]; loginHistory: { username:string; timestamp:string; action:string }[] } | null>(null);
-  const [stats,  setStats]  = useState<{ totalUsers: number; totalSchools: number; adminLoginCount: number; adminCount: number } | null>(null);
-  const [tab,    setTab]    = useState<DashTab>('users');
-
   useEffect(() => {
     if (!session) { router.push('/login'); return; }
-    if (session.role === 'student') { router.push('/student'); return; }
-    if (session.role === 'teacher') { router.push('/teacher'); return; }
-    loadData();
-  }, [session]);
+    if (session.role === 'student')   { router.push('/student'); return; }
+    if (session.role === 'teacher')   { router.push('/teacher'); return; }
+    if (session.role === 'web_admin') { router.push('/admin');   return; }
+  }, [session, router]);
 
-  async function loadData() {
-    const [u, p, l, s] = await Promise.all([
-      getAllUsers(), getAllPermissions(), getAdminLog(), getSystemStats(),
-    ]);
-    setUsers(u); setPerms(p); setLog(l); setStats(s);
-  }
+  if (!session || !['school_admin', 'parent'].includes(session.role)) return null;
 
   function handleLogout() { logout(); showToast('ออกจากระบบแล้ว'); router.push('/'); }
 
-  async function handleDelete(username: string) {
-    if (!confirm(`ยืนยันการลบบัญชี "${username}"?`)) return;
-    await deleteUserById(username);
-    showToast(`ลบบัญชี ${username} แล้ว`);
-    loadData();
-  }
-
-  async function handlePermToggle(role: string, perm: string, val: boolean) {
-    await updatePermission(role, perm, val);
-    showToast(`อัปเดตสิทธิ์ ${PERMISSION_LABELS[role]?.[perm] || perm} → ${val ? 'เปิด' : 'ปิด'}`);
-    loadData();
-  }
-
-  if (!session) return null;
-
-  const initials = session.name.replace(/\s+/g, '').substring(0, 2);
-
   return (
     <div>
-      {/* Nav */}
       <nav className="dash-nav">
         <div className="dash-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
         <div className="dash-user-info">
-          <div className="dash-user-avatar">{initials}</div>
+          <div className="dash-user-avatar">{session.name.replace(/\s+/g, '').substring(0, 2)}</div>
           <div>
             <div className="dash-user-name">{session.name}</div>
             <div className="dash-user-role">{ROLE_LABELS[session.role] || session.role}</div>
@@ -71,113 +42,10 @@ export default function DashboardLayout() {
         <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
       </nav>
 
-      {/* Content */}
       <div className="dash-content">
-        {session.role === 'web_admin' && stats && (
-          <>
-            <div className="dash-section">
-              <div className="section-label">Web Admin · ระดับสูงสุด</div>
-              <h2 className="dash-h2">ภาพรวม<em>ระบบทั้งหมด</em></h2>
-              <div className="dash-kpi-row">
-                {[
-                  { num: stats.totalUsers,       label: 'บัญชีผู้ใช้' },
-                  { num: stats.totalSchools,     label: 'โรงเรียน' },
-                  { num: stats.adminLoginCount,  label: 'เข้าระบบ (Admin)' },
-                  { num: stats.adminCount,       label: 'Web Admins' },
-                ].map((k, i) => (
-                  <div key={i} className="dash-kpi">
-                    <div className="dash-kpi-num">{k.num}</div>
-                    <div className="dash-kpi-label">{k.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="dash-section">
-              <div className="dash-tabs-bar">
-                {([['users','จัดการผู้ใช้'], ['perms','สิทธิ์การเข้าถึง'], ['academic','โครงสร้างวิชาการ'], ['log','Web Admin Log']] as [DashTab, string][]).map(([id, label]) => (
-                  <button key={id} className={`dash-tab-btn${tab === id ? ' active' : ''}`} onClick={() => setTab(id)}>{label}</button>
-                ))}
-              </div>
-
-              {tab === 'users' && (
-                <div className="dash-list">
-                  <div className="admin-list-header">
-                    <span>บัญชีผู้ใช้ทั้งหมด ({users.length})</span>
-                    <span className="admin-list-hint">* web_admin ไม่สามารถลบได้</span>
-                  </div>
-                  {users.map(u => (
-                    <div key={u.username} className="admin-user-row">
-                      <span className={`admin-role-pill role-${u.role}`}>{ROLE_LABELS[u.role] || u.role}</span>
-                      <span className="admin-uname">{u.username}</span>
-                      <span className="admin-uname-full">{u.name}</span>
-                      {u.role !== 'web_admin'
-                        ? <button className="admin-del-btn" onClick={() => handleDelete(u.username)}>ลบ</button>
-                        : <span className="admin-protected">🔒</span>}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {tab === 'perms' && perms && (
-                <div className="perm-grid">
-                  {(['teacher','student','parent','school_admin'] as const).map(role => {
-                    const rp = perms[role] || {};
-                    const rl = PERMISSION_LABELS[role] || {};
-                    const names: Record<string, string> = { teacher: 'ครู', student: 'นักเรียน', parent: 'ผู้ปกครอง', school_admin: 'Admin โรงเรียน' };
-                    return (
-                      <div key={role} className="perm-group">
-                        <div className="perm-group-title">{names[role]}</div>
-                        {Object.keys(rp).map(perm => (
-                          <label key={perm} className="perm-row">
-                            <input
-                              type="checkbox"
-                              checked={(rp as Record<string,boolean>)[perm]}
-                              onChange={e => handlePermToggle(role, perm, e.target.checked)}
-                            />
-                            <span>{rl[perm] || perm}</span>
-                          </label>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {tab === 'academic' && <AcademicManager adminUsername={session.username} />}
-
-              {tab === 'log' && log && (
-                <div className="log-wrap">
-                  <div className="log-section">
-                    <div className="log-section-title">Web Admins ที่มีในระบบ</div>
-                    {log.admins.map((a, i) => (
-                      <div key={i} className="log-row">
-                        <span className="log-badge">Admin</span>
-                        <strong>{a.username}</strong> ({a.name}) — เพิ่มโดย {a.addedBy} เมื่อ {a.addedAt}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="log-section">
-                    <div className="log-section-title">ประวัติการเข้าสู่ระบบ (20 รายการล่าสุด)</div>
-                    {log.loginHistory.length === 0
-                      ? <div className="log-empty">ยังไม่มีประวัติการเข้าสู่ระบบ</div>
-                      : [...log.loginHistory].reverse().slice(0, 20).map((h, i) => (
-                          <div key={i} className="log-row">
-                            <span className="log-badge log-badge-login">LOGIN</span>
-                            {h.username} — {h.timestamp}
-                          </div>
-                        ))}
-                  </div>
-                  <div className="log-note">* เพิ่ม Web Admin ใหม่ต้องแก้ไขที่ SEEDED_USERS ใน mock-data/index.ts</div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
         {session.role === 'school_admin' && (
           <>
-            <SchoolAdminContent name={session.name} school={session.school} showToast={showToast} />
+            <SchoolAdminContent school={session.school} showToast={showToast} />
             <AcademicManager adminUsername={session.username} />
           </>
         )}
@@ -194,7 +62,7 @@ export default function DashboardLayout() {
   );
 }
 
-function SchoolAdminContent({ name, school, showToast }: { name: string; school: string; showToast: (m:string)=>void }) {
+function SchoolAdminContent({ school, showToast }: { school: string; showToast: (m: string) => void }) {
   return (
     <>
       <div className="dash-section">
@@ -212,7 +80,7 @@ function SchoolAdminContent({ name, school, showToast }: { name: string; school:
       <div className="dash-section">
         <div className="dash-section-title">สรุปการเข้าเรียนวันนี้</div>
         <div className="dash-attendance-bars">
-          {[['มาทัน','#5C8A5C',71], ['มาสาย','#C4804A',21], ['ขาดเรียน','#A05050',8]].map(([l,c,v], i) => (
+          {[['มาทัน', '#5C8A5C', 71], ['มาสาย', '#C4804A', 21], ['ขาดเรียน', '#A05050', 8]].map(([l, c, v], i) => (
             <div key={i} className="dash-bar-row">
               <span className="dash-bar-label">{l}</span>
               <div className="dash-bar-track"><div className="dash-bar-fill" style={{ width: `${v}%`, background: c as string }} /></div>
@@ -228,5 +96,3 @@ function SchoolAdminContent({ name, school, showToast }: { name: string; school:
     </>
   );
 }
-
-// ParentContent เดิม (mock ล้วน) ถูกแทนที่ด้วย ParentDashboard ที่ใช้ข้อมูลจริงจาก shared stores

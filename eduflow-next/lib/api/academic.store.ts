@@ -5,16 +5,20 @@
  *
  * สิทธิ์:
  *   - แอดมิน (web_admin / school_admin): สร้าง ปีการศึกษา, ระดับชั้น, ห้องเรียน
- *   - ครู: สร้างรายวิชาในห้องที่แอดมินสร้างไว้แล้ว + บันทึกคะแนน
+ *   - บันทึกคะแนน: เฉพาะ "ครูประจำวิชา" (เจ้าของรายวิชา) และ super admin (web_admin) เท่านั้น
+ *   - รายวิชาไม่ต้องสร้างเอง — ระบบดึงจากตารางสอนของครูโดยอัตโนมัติ (syncTeacherCourses)
  *
- * คะแนนที่บันทึกจะใช้คำนวณเกรด → นำไปออกเอกสาร ปพ. (ปพ.5 / ปพ.6 / ใบออกเกรด)
+ * สัดส่วนคะแนน (ScoreComponent) ยืดหยุ่น: ครูเพิ่ม/แก้หัวข้อได้ เช่น สมรรถนะ, อ่านคิดวิเคราะห์
+ * เกรดคำนวณจากเปอร์เซ็นต์ของคะแนนเต็มรวม ตามเกณฑ์ สพฐ. — โปร่งใส ตรวจสอบได้
  *
  * TODO(PostgreSQL): แทนที่ทั้งไฟล์นี้ด้วย API routes (app/api/academic/*)
- *   tables: academic_years, grade_levels, classrooms, courses, score_records
+ *   tables: academic_years, grade_levels, classrooms, courses, score_components, score_records
+ *   สิทธิ์ต้องบังคับซ้ำที่ server (RLS) — ตอนนี้บังคับที่ app layer ผ่าน getSession()
  */
 
 import { TEACHER_DATA_MOCK } from '../mock-data';
-import type { TeacherStudent } from '../types';
+import { getSession } from './auth.api';
+import type { TeacherStudent, ClassInfo } from '../types';
 
 const STORE_KEY = 'eduflow_academic';
 
@@ -22,7 +26,7 @@ const STORE_KEY = 'eduflow_academic';
 export interface AcademicYear {
   id: string;
   year: string;        // เช่น '2567'
-  createdBy: string;   // username แอดมินที่สร้าง
+  createdBy: string;
   createdAt: number;
 }
 
@@ -39,26 +43,31 @@ export interface Classroom {
   room: string;        // เช่น '1'
 }
 
+/** หัวข้อสัดส่วนคะแนน 1 ช่อง เช่น คะแนนเก็บ (เต็ม 60) */
+export interface ScoreComponent {
+  id: string;
+  name: string;
+  max: number;
+}
+
 export interface Course {
   id: string;
   classroomId: string;
-  code: string;        // รหัสวิชา เช่น ค21101
-  name: string;        // ชื่อวิชา เช่น คณิตศาสตร์พื้นฐาน
-  key: string;         // subject key สำหรับสี theme เช่น 'math'
+  code: string;
+  name: string;
+  key: string;                    // subject key สำหรับสี theme เช่น 'math'
   teacherId: string;
   teacherName: string;
-  maxCollected: number; // คะแนนเก็บเต็ม (default 60)
-  maxMidterm: number;   // กลางภาคเต็ม (default 20)
-  maxFinal: number;     // ปลายภาคเต็ม (default 20)
+  ownerUsername?: string;         // username ครูประจำวิชา — ใช้ตรวจสิทธิ์
+  components: ScoreComponent[];   // สัดส่วนคะแนน ตั้งค่าได้
   createdAt: number;
 }
 
+/** คะแนนนักเรียน 1 คนใน 1 วิชา — keyed ตาม ScoreComponent.id */
 export interface ScoreEntry {
   studentCode: string;
   studentName: string;
-  collected: number | null;
-  midterm: number | null;
-  final: number | null;
+  scores: Record<string, number | null>;
 }
 
 interface AcademicData {
@@ -70,13 +79,25 @@ interface AcademicData {
   rosters?: Record<string, TeacherStudent[]>;     // นักเรียนที่แอดมินเพิ่มเข้าห้อง keyed by classroomId
 }
 
+export const DEFAULT_COMPONENTS: ScoreComponent[] = [
+  { id: 'collected', name: 'คะแนนเก็บ',   max: 60 },
+  { id: 'midterm',   name: 'สอบกลางภาค', max: 20 },
+  { id: 'final',     name: 'สอบปลายภาค', max: 20 },
+];
+
+/** หัวข้อสำเร็จรูปที่ครูกดเพิ่มได้ทันที */
+export const PRESET_COMPONENTS: Omit<ScoreComponent, 'id'>[] = [
+  { name: 'คะแนนสมรรถนะ',          max: 10 },
+  { name: 'คะแนนอ่านคิดวิเคราะห์', max: 10 },
+];
+
 // ─── Internal ─────────────────────────────────────────────────────────────
 function isBrowser() { return typeof window !== 'undefined'; }
 
 function load(): AcademicData {
   if (!isBrowser()) return { years: [], gradeLevels: [], classrooms: [], courses: [], scores: {} };
   const raw = localStorage.getItem(STORE_KEY);
-  if (raw) return JSON.parse(raw);
+  if (raw) return migrate(JSON.parse(raw));
   const seeded = seed();
   localStorage.setItem(STORE_KEY, JSON.stringify(seeded));
   return seeded;
@@ -84,6 +105,31 @@ function load(): AcademicData {
 
 function save(data: AcademicData) {
   if (isBrowser()) localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+/** แปลงข้อมูลรูปแบบเก่า (maxCollected/collected คงที่ 3 ช่อง) → components/scores แบบยืดหยุ่น */
+function migrate(data: AcademicData): AcademicData {
+  let changed = false;
+  data.courses.forEach((c: Course & { maxCollected?: number; maxMidterm?: number; maxFinal?: number }) => {
+    if (!c.components) {
+      c.components = [
+        { id: 'collected', name: 'คะแนนเก็บ',   max: c.maxCollected ?? 60 },
+        { id: 'midterm',   name: 'สอบกลางภาค', max: c.maxMidterm ?? 20 },
+        { id: 'final',     name: 'สอบปลายภาค', max: c.maxFinal ?? 20 },
+      ];
+      changed = true;
+    }
+  });
+  Object.values(data.scores).forEach(entries => {
+    entries.forEach((e: ScoreEntry & { collected?: number | null; midterm?: number | null; final?: number | null }) => {
+      if (!e.scores) {
+        e.scores = { collected: e.collected ?? null, midterm: e.midterm ?? null, final: e.final ?? null };
+        changed = true;
+      }
+    });
+  });
+  if (changed) save(data);
+  return data;
 }
 
 /** ข้อมูลตั้งต้น: ปี 2567 + ระดับชั้น/ห้องที่ตรงกับห้องสอนใน mock เพื่อให้ครูใช้ได้ทันที */
@@ -103,6 +149,17 @@ function seed(): AcademicData {
   return { years: [year], gradeLevels, classrooms, courses: [], scores: {} };
 }
 
+// ─── สิทธิ์การใช้งานคะแนน ─────────────────────────────────────────────────
+// TODO(PostgreSQL): บังคับซ้ำด้วย RLS: teacher เขียนได้เฉพาะ course ที่ owner_username = auth.uid()
+export function canManageScores(course: Course): boolean {
+  const session = getSession();
+  if (!session) return false;
+  if (session.role === 'web_admin') return true;           // super admin
+  if (session.role !== 'teacher') return false;
+  // legacy course ที่ยังไม่มี ownerUsername: เทียบด้วยชื่อครูแทน
+  return course.ownerUsername ? course.ownerUsername === session.username : course.teacherName === session.name;
+}
+
 // ─── Academic Year (แอดมินเท่านั้น) ──────────────────────────────────────
 // TODO(PostgreSQL): SELECT * FROM academic_years ORDER BY year DESC
 export function getAcademicYears(): AcademicYear[] {
@@ -110,7 +167,6 @@ export function getAcademicYears(): AcademicYear[] {
 }
 
 // TODO(PostgreSQL): INSERT INTO academic_years (year, created_by) VALUES ($1, $2)
-//   RLS: อนุญาตเฉพาะ role = web_admin / school_admin
 export function createAcademicYear(year: string, createdBy: string): AcademicYear | null {
   const data = load();
   if (data.years.some(y => y.year === year)) return null; // ห้ามซ้ำ
@@ -121,12 +177,10 @@ export function createAcademicYear(year: string, createdBy: string): AcademicYea
 }
 
 // ─── Grade Level (แอดมินเท่านั้น) ────────────────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM grade_levels WHERE year_id = $1
 export function getGradeLevels(yearId: string): GradeLevel[] {
   return load().gradeLevels.filter(g => g.yearId === yearId);
 }
 
-// TODO(PostgreSQL): INSERT INTO grade_levels (year_id, name) VALUES ($1, $2)
 export function createGradeLevel(yearId: string, name: string): GradeLevel | null {
   const data = load();
   if (data.gradeLevels.some(g => g.yearId === yearId && g.name === name)) return null;
@@ -137,12 +191,10 @@ export function createGradeLevel(yearId: string, name: string): GradeLevel | nul
 }
 
 // ─── Classroom (แอดมินเท่านั้น) ──────────────────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM classrooms WHERE grade_level_id = $1
 export function getClassrooms(gradeLevelId: string): Classroom[] {
   return load().classrooms.filter(c => c.gradeLevelId === gradeLevelId);
 }
 
-// TODO(PostgreSQL): INSERT INTO classrooms (year_id, grade_level_id, room) VALUES ($1, $2, $3)
 export function createClassroom(yearId: string, gradeLevelId: string, room: string): Classroom | null {
   const data = load();
   if (data.classrooms.some(c => c.gradeLevelId === gradeLevelId && c.room === room)) return null;
@@ -152,31 +204,83 @@ export function createClassroom(yearId: string, gradeLevelId: string, room: stri
   return item;
 }
 
-// ─── Course / รายวิชา (ครูสร้างได้) ──────────────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM courses WHERE classroom_id = $1 ORDER BY created_at
+// ─── Course / รายวิชา — ดึงอัตโนมัติจากตารางสอนของครู ────────────────────
 export function getCourses(classroomId: string): Course[] {
   return load().courses.filter(c => c.classroomId === classroomId);
 }
 
-// TODO(PostgreSQL):
-//   INSERT INTO courses (classroom_id, code, name, subject_key, teacher_id, max_collected, max_midterm, max_final)
-//   VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id
-export function createCourse(data: Omit<Course, 'id' | 'createdAt'>): Course {
-  const store = load();
-  const item: Course = { ...data, id: `crs${Date.now()}`, createdAt: Date.now() };
-  store.courses.push(item);
-  save(store);
-  return item;
+/** สร้างรหัสวิชาอัตโนมัติจาก subject key + ระดับชั้น เช่น math + ม.1 → ค21101 */
+const SUBJECT_CODE_PREFIX: Record<string, string> = {
+  math: 'ค', thai: 'ท', sci: 'ว', eng: 'อ', social: 'ส',
+  pe: 'พ', art: 'ศ', music: 'ศ', com: 'ว', stat: 'ค',
+};
+function genCourseCode(key: string, gradeName: string): string {
+  const n = gradeName.replace(/[^0-9]/g, '') || '0';
+  return `${SUBJECT_CODE_PREFIX[key] || 'ร'}2${n}101`;
+}
+
+/**
+ * ดึงรายวิชาที่ครูคนนี้สอนในห้องนี้ จากตารางสอน (ClassInfo) — ไม่ต้องสร้างเอง
+ * ถ้ายังไม่มี record จะสร้างให้พร้อมสัดส่วนคะแนนมาตรฐาน (เก็บ 60 / กลางภาค 20 / ปลายภาค 20)
+ * super admin (web_admin) เห็นทุกวิชาในห้อง
+ * TODO(PostgreSQL): SELECT * FROM courses WHERE classroom_id=$1 AND owner_username=$2
+ */
+export function syncTeacherCourses(classroomId: string, teacherClasses: ClassInfo[], teacher: { id: string; name: string }): Course[] {
+  const session = getSession();
+  if (!session) return [];
+
+  const data = load();
+  const room = data.classrooms.find(c => c.id === classroomId);
+  const grade = room ? data.gradeLevels.find(g => g.id === room.gradeLevelId) : undefined;
+  if (!room || !grade) return [];
+
+  if (session.role === 'teacher') {
+    // วิชาในตารางสอนของครูที่ตรงกับห้องนี้
+    const taught = teacherClasses.filter(c => c.grade === grade.name && c.room === room.room);
+    let changed = false;
+    for (const cls of taught) {
+      const exists = data.courses.some(c => c.classroomId === classroomId && c.key === cls.key && (c.ownerUsername === session.username || c.teacherName === session.name));
+      if (!exists) {
+        data.courses.push({
+          id: `crs${Date.now()}_${cls.key}`,
+          classroomId, code: genCourseCode(cls.key, grade.name), name: cls.subject, key: cls.key,
+          teacherId: teacher.id, teacherName: teacher.name, ownerUsername: session.username,
+          components: DEFAULT_COMPONENTS.map(c => ({ ...c })),
+          createdAt: Date.now(),
+        });
+        changed = true;
+      }
+    }
+    if (changed) save(data);
+    return data.courses.filter(c => c.classroomId === classroomId && canManageScores(c));
+  }
+
+  // super admin เห็นทุกวิชาในห้อง
+  if (session.role === 'web_admin') return data.courses.filter(c => c.classroomId === classroomId);
+  return [];
+}
+
+/** แก้ไขสัดส่วนคะแนนของวิชา — เฉพาะครูประจำวิชา/super admin */
+export function updateCourseComponents(courseId: string, components: ScoreComponent[]): boolean {
+  const data = load();
+  const course = data.courses.find(c => c.id === courseId);
+  if (!course || !canManageScores(course)) return false;
+  course.components = components;
+  // ลบคะแนนของหัวข้อที่ถูกเอาออก เพื่อไม่ให้ค้างในผลรวม
+  const validIds = new Set(components.map(c => c.id));
+  (data.scores[courseId] || []).forEach(e => {
+    Object.keys(e.scores).forEach(k => { if (!validIds.has(k)) delete e.scores[k]; });
+  });
+  save(data);
+  return true;
 }
 
 // ─── นักเรียนในห้อง ───────────────────────────────────────────────────────
-// TODO(PostgreSQL): SELECT s.* FROM students s JOIN enrollments e ON e.student_id = s.id WHERE e.classroom_id = $1
 export function getClassroomStudents(classroomId: string): TeacherStudent[] {
   const data = load();
   const room = data.classrooms.find(c => c.id === classroomId);
   if (!room) return [];
 
-  // 1) นักเรียนจาก mock (ห้อง seed ที่ตรงกับห้องสอนของครู)
   const grade = data.gradeLevels.find(g => g.id === room.gradeLevelId);
   const mockClass = grade
     ? TEACHER_DATA_MOCK.classes.find(c => c.grade === grade.name && c.room === room.room)
@@ -185,18 +289,15 @@ export function getClassroomStudents(classroomId: string): TeacherStudent[] {
     ? TEACHER_DATA_MOCK.students.filter(s => s.classId === mockClass.id)
     : [];
 
-  // 2) นักเรียนที่แอดมินเพิ่มเข้าห้องเอง (roster) — dedupe ด้วยรหัสนักเรียน
   const roster = data.rosters?.[classroomId] || [];
   const merged = [...mockStudents];
   roster.forEach(r => { if (!merged.some(s => s.code === r.code)) merged.push(r); });
   return merged;
 }
 
-// TODO(PostgreSQL): INSERT INTO enrollments (classroom_id, student_code) VALUES ($1, $2)
-//   RLS: อนุญาตเฉพาะแอดมิน
 export function addStudentToClassroom(classroomId: string, code: string, name: string): boolean {
   const data = load();
-  if (getClassroomStudents(classroomId).some(s => s.code === code)) return false; // รหัสซ้ำ
+  if (getClassroomStudents(classroomId).some(s => s.code === code)) return false;
   if (!data.rosters) data.rosters = {};
   if (!data.rosters[classroomId]) data.rosters[classroomId] = [];
   data.rosters[classroomId].push({ id: `S${Date.now()}`, code, name, classId: classroomId });
@@ -204,7 +305,6 @@ export function addStudentToClassroom(classroomId: string, code: string, name: s
   return true;
 }
 
-// TODO(PostgreSQL): DELETE FROM enrollments WHERE classroom_id = $1 AND student_code = $2
 export function removeStudentFromClassroom(classroomId: string, code: string): void {
   const data = load();
   if (!data.rosters?.[classroomId]) return;
@@ -213,9 +313,6 @@ export function removeStudentFromClassroom(classroomId: string, code: string): v
 }
 
 // ─── คะแนน (ปพ.5) ─────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   SELECT sr.* FROM score_records sr WHERE sr.course_id = $1
-//   UNION นักเรียนในห้องที่ยังไม่มีคะแนน (LEFT JOIN enrollments)
 export function getScores(courseId: string): ScoreEntry[] {
   const data = load();
   const course = data.courses.find(c => c.id === courseId);
@@ -225,20 +322,59 @@ export function getScores(courseId: string): ScoreEntry[] {
   // ผสาน: นักเรียนทุกคนในห้องต้องมีแถว แม้ยังไม่บันทึกคะแนน
   return students.map(s => {
     const existing = saved.find(e => e.studentCode === s.code);
-    return existing || { studentCode: s.code, studentName: s.name, collected: null, midterm: null, final: null };
+    return existing || { studentCode: s.code, studentName: s.name, scores: {} };
   });
 }
 
-// TODO(PostgreSQL):
-//   INSERT INTO score_records (course_id, student_code, collected, midterm, final)
-//   VALUES ... ON CONFLICT (course_id, student_code) DO UPDATE SET ...
-export function saveScores(courseId: string, entries: ScoreEntry[]): void {
+/**
+ * บันทึกคะแนน (เรียกอัตโนมัติทุกครั้งที่แก้ตัวเลข — real-time)
+ * คืน false ถ้าไม่มีสิทธิ์ (ไม่ใช่ครูประจำวิชา/super admin)
+ * TODO(PostgreSQL): UPSERT score_records + ตรวจสิทธิ์ด้วย RLS
+ */
+export function saveScores(courseId: string, entries: ScoreEntry[]): boolean {
   const data = load();
+  const course = data.courses.find(c => c.id === courseId);
+  if (!course || !canManageScores(course)) return false;
   data.scores[courseId] = entries;
   save(data);
+  return true;
 }
 
-// ─── ผลการเรียนรายนักเรียน (สำหรับหน้าเกรด + ใบออกเกรด/ปพ.6) ────────────
+// ─── คำนวณคะแนน/เกรด (โปร่งใส ตรวจสอบได้) ───────────────────────────────
+/** คะแนนรวมของนักเรียน = ผลบวกทุกหัวข้อที่กรอกแล้ว (ยังไม่กรอกเลย = null) */
+export function calcTotal(e: ScoreEntry): number | null {
+  const vals = Object.values(e.scores).filter((v): v is number => v !== null && v !== undefined);
+  if (vals.length === 0) return null;
+  return vals.reduce((s, v) => s + v, 0);
+}
+
+/** คะแนนเต็มรวมของวิชา = ผลบวก max ทุกหัวข้อ */
+export function maxTotal(course: Course): number {
+  return course.components.reduce((s, c) => s + c.max, 0);
+}
+
+/** เปอร์เซ็นต์ = รวม ÷ เต็มรวม × 100 — ใช้คิดเกรด ไม่ว่าสัดส่วนจะรวมเป็นเท่าไร */
+export function calcPercent(e: ScoreEntry, course: Course): number | null {
+  const total = calcTotal(e);
+  const max = maxTotal(course);
+  if (total === null || max === 0) return null;
+  return (total / max) * 100;
+}
+
+/** เกรดตามเกณฑ์ สพฐ. จากเปอร์เซ็นต์: 80+ = 4, 75 = 3.5, 70 = 3, 65 = 2.5, 60 = 2, 55 = 1.5, 50 = 1 */
+export function calcGrade(percent: number | null): string {
+  if (percent === null) return '—';
+  if (percent >= 80) return '4';
+  if (percent >= 75) return '3.5';
+  if (percent >= 70) return '3';
+  if (percent >= 65) return '2.5';
+  if (percent >= 60) return '2';
+  if (percent >= 55) return '1.5';
+  if (percent >= 50) return '1';
+  return '0';
+}
+
+// ─── ผลการเรียนรายนักเรียน (หน้าเกรดนักเรียน/ผู้ปกครอง + ปพ.1/ปพ.6) ─────
 export interface StudentGradeRow {
   courseId: string;
   courseCode: string;
@@ -246,35 +382,29 @@ export interface StudentGradeRow {
   teacherName: string;
   classroomLabel: string;  // เช่น 'ม.1/1'
   academicYear: string;
-  collected: number | null;
-  midterm: number | null;
-  final: number | null;
+  breakdown: { name: string; max: number; score: number | null }[];
   total: number | null;
+  maxTotal: number;
   grade: string;
 }
 
-// TODO(PostgreSQL):
-//   SELECT c.*, sr.collected, sr.midterm, sr.final
-//   FROM score_records sr JOIN courses c ON c.id = sr.course_id
-//   JOIN classrooms r ON r.id = c.classroom_id
-//   WHERE sr.student_code = $1 ORDER BY c.created_at
 export function getStudentGrades(studentCode: string): StudentGradeRow[] {
   const data = load();
   const rows: StudentGradeRow[] = [];
   for (const course of data.courses) {
     const entry = (data.scores[course.id] || []).find(e => e.studentCode === studentCode);
-    if (!entry) continue; // ยังไม่มีการบันทึกคะแนนของนักเรียนคนนี้ในวิชานี้
+    if (!entry) continue;
     const room = data.classrooms.find(c => c.id === course.classroomId);
     const grade = room ? data.gradeLevels.find(g => g.id === room.gradeLevelId) : undefined;
     const year = room ? data.years.find(y => y.id === room.yearId) : undefined;
-    const total = calcTotal(entry);
     rows.push({
       courseId: course.id, courseCode: course.code, courseName: course.name,
       teacherName: course.teacherName,
       classroomLabel: grade && room ? `${grade.name}/${room.room}` : '—',
       academicYear: year?.year || '—',
-      collected: entry.collected, midterm: entry.midterm, final: entry.final,
-      total, grade: calcGrade(total),
+      breakdown: course.components.map(c => ({ name: c.name, max: c.max, score: entry.scores[c.id] ?? null })),
+      total: calcTotal(entry), maxTotal: maxTotal(course),
+      grade: calcGrade(calcPercent(entry, course)),
     });
   }
   return rows;
@@ -285,22 +415,4 @@ export function calcGPA(rows: StudentGradeRow[]): number | null {
   const graded = rows.filter(r => r.grade !== '—').map(r => parseFloat(r.grade));
   if (graded.length === 0) return null;
   return graded.reduce((s, g) => s + g, 0) / graded.length;
-}
-
-// ─── คำนวณเกรด (เกณฑ์มาตรฐาน สพฐ.) ──────────────────────────────────────
-export function calcTotal(e: ScoreEntry): number | null {
-  if (e.collected === null && e.midterm === null && e.final === null) return null;
-  return (e.collected ?? 0) + (e.midterm ?? 0) + (e.final ?? 0);
-}
-
-export function calcGrade(total: number | null): string {
-  if (total === null) return '—';
-  if (total >= 80) return '4';
-  if (total >= 75) return '3.5';
-  if (total >= 70) return '3';
-  if (total >= 65) return '2.5';
-  if (total >= 60) return '2';
-  if (total >= 55) return '1.5';
-  if (total >= 50) return '1';
-  return '0';
 }

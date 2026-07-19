@@ -6,6 +6,7 @@ import {
   getAnnouncements, createAnnouncement, deleteAnnouncement,
   type Material, type Announcement, type MaterialType,
 } from '@/lib/api/materials.store';
+import { logActivity } from '@/lib/api/activity.log';
 import { useToast } from '@/context/ToastContext';
 
 interface Props {
@@ -55,6 +56,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
       url: matUrl.trim() || `${matTitle.trim()}.pdf`, // mock ชื่อไฟล์เมื่อยังไม่มี storage จริง
       teacherName,
     });
+    logActivity('teacher', 'เพิ่มสื่อการสอน', `${matTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
     showToast('✅ เพิ่มสื่อการสอนแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     setMatTitle(''); setMatDesc(''); setMatUrl(''); setShowMatForm(false);
     refresh();
@@ -67,6 +69,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
       title: annTitle.trim(), body: annBody.trim(), pinned: annPinned,
       teacherName,
     });
+    logActivity('teacher', 'โพสต์ประกาศ', `${annTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
     showToast('✅ โพสต์ประกาศแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     setAnnTitle(''); setAnnBody(''); setAnnPinned(false); setShowAnnForm(false);
     refresh();

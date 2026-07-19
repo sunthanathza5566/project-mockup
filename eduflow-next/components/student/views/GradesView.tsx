@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { StudentProfile } from '@/lib/types';
 import { getStudentGrades, calcGPA, type StudentGradeRow } from '@/lib/api/academic.store';
-import { exportStudentGradeReport } from '@/lib/utils/excel-export';
+import { exportStudentGradeReport, exportTranscriptPP1 } from '@/lib/utils/excel-export';
 
 interface Props {
   profile: StudentProfile;
@@ -26,7 +26,13 @@ export default function GradesView({ profile, showToast }: Props) {
   async function handleExport() {
     if (rows.length === 0) { showToast('⚠️ ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
     await exportStudentGradeReport(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
-    showToast('📥 ดาวน์โหลดใบรายงานผลการเรียนแล้ว');
+    showToast('📥 ดาวน์โหลดรายงานผลการเรียน (ปพ.6) แล้ว');
+  }
+
+  async function handleExportPP1() {
+    if (rows.length === 0) { showToast('⚠️ ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
+    await exportTranscriptPP1(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
+    showToast('📥 ดาวน์โหลดระเบียนแสดงผลการเรียน (ปพ.1) แล้ว');
   }
 
   return (
@@ -53,8 +59,8 @@ export default function GradesView({ profile, showToast }: Props) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ background: 'var(--brown-dark)', color: 'var(--cream)' }}>
-                  {['รหัสวิชา', 'รายวิชา', 'ครูผู้สอน', 'เก็บ', 'กลางภาค', 'ปลายภาค', 'รวม', 'เกรด'].map((h, i) => (
-                    <th key={i} style={{ padding: '0.55rem 0.7rem', textAlign: i === 1 || i === 2 ? 'left' : 'center', fontWeight: 500, whiteSpace: 'nowrap' }}>{h}</th>
+                  {['รหัสวิชา', 'รายวิชา', 'ครูผู้สอน', 'รายละเอียดคะแนน', 'รวม', 'เกรด'].map((h, i) => (
+                    <th key={i} style={{ padding: '0.55rem 0.7rem', textAlign: i >= 1 && i <= 3 ? 'left' : 'center', fontWeight: 500, whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -64,10 +70,10 @@ export default function GradesView({ profile, showToast }: Props) {
                     <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{r.courseCode}</td>
                     <td style={{ padding: '0.5rem 0.7rem', color: 'var(--brown-dark)', fontWeight: 500 }}>{r.courseName}</td>
                     <td style={{ padding: '0.5rem 0.7rem', color: 'var(--text-muted)' }}>{r.teacherName}</td>
-                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center' }}>{r.collected ?? '—'}</td>
-                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center' }}>{r.midterm ?? '—'}</td>
-                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center' }}>{r.final ?? '—'}</td>
-                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center', fontWeight: 600, color: 'var(--brown-dark)' }}>{r.total ?? '—'}</td>
+                    <td style={{ padding: '0.5rem 0.7rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      {r.breakdown.map(b => `${b.name} ${b.score ?? '—'}/${b.max}`).join(' · ')}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{r.total !== null ? `${r.total}/${r.maxTotal}` : '—'}</td>
                     <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center' }}>
                       <span className={`stu-hw-status-badge ${r.grade !== '—' && parseFloat(r.grade) >= 2 ? 'badge-graded' : r.grade === '—' ? 'badge-pending' : 'badge-overdue'}`}>{r.grade}</span>
                     </td>
@@ -77,9 +83,12 @@ export default function GradesView({ profile, showToast }: Props) {
             </table>
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+          <div style={{ textAlign: 'center', marginTop: '1.25rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="stu-hw-submit-btn" onClick={handleExport}>
-              📥 ดาวน์โหลดใบรายงานผลการเรียน (Excel)
+              📥 รายงานผลการเรียน ปพ.6 (Excel)
+            </button>
+            <button className="stu-hw-submit-btn" onClick={handleExportPP1}>
+              📥 ระเบียนผลการเรียน ปพ.1 (Excel)
             </button>
           </div>
         </>

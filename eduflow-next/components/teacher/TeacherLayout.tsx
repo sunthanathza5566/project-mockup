@@ -194,7 +194,7 @@ export default function TeacherLayout() {
               <AssignmentsView teacherName={profile.name} selectedClass={currentClass} />
             )}
             {currentView === 'gradebook' && (
-              <GradebookView teacherId={profile.teacherId} teacherName={profile.name} />
+              <GradebookView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
             )}
             {currentClass && currentView === 'materials' && (
               <MaterialsView teacherName={profile.name} selectedClass={currentClass} />
