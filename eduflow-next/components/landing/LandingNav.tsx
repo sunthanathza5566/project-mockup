@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import LangToggle from '@/components/ui/LangToggle';
 
 export default function LandingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,6 +41,7 @@ export default function LandingNav() {
             {session ? 'Dashboard →' : 'เข้าสู่ระบบ'}
           </a>
         </li>
+        <li><LangToggle /></li>
       </ul>
     </nav>
   );

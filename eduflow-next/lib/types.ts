@@ -7,6 +7,8 @@ export interface User {
   password: string;
   role: Role;
   name: string;
+  email?: string;
+  emailVerified?: boolean;  // false = สมัครแล้วยังไม่กดลิงก์ยืนยัน · undefined = บัญชีเก่า/seed ถือว่าผ่านแล้ว
   school?: string;
   code?: string;
   class?: string;

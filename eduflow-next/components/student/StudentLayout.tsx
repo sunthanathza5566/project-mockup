@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { getStudentProfile, getStudentStats, getStudentSchedule, getStudentSubjects, getStudentAssignments, getStudentAttendance, getNotifications, markNotificationRead } from '@/lib/api/student.api';
 import type { StudentProfile, StudentStats, Subject, Assignment, Notification, SchedulePeriod } from '@/lib/types';
+import LangToggle from '@/components/ui/LangToggle';
 
 import DashboardView from './views/DashboardView';
 import ProfileView   from './views/ProfileView';
@@ -32,7 +33,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
 ];
 
 export default function StudentLayout() {
-  const { session, logout } = useAuth();
+  const { session, isLoading, logout } = useAuth();
   const { showToast }       = useToast();
   const router              = useRouter();
 
@@ -58,6 +59,7 @@ export default function StudentLayout() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
+    if (isLoading) return; // รอ AuthContext อ่าน session จาก storage ก่อน — ไม่งั้น refresh หน้าแล้วโดนดีดออก
     if (!session) { router.push('/login'); return; }
     if (session.role !== 'student') { router.push('/dashboard'); return; }
 
@@ -90,7 +92,7 @@ export default function StudentLayout() {
       setAttendance(att);
       setNotifications(notif);
     });
-  }, [session]);
+  }, [session, isLoading]);
 
   const handleLogout = useCallback(() => {
     logout(); showToast('ออกจากระบบแล้ว'); router.push('/');
@@ -148,6 +150,7 @@ export default function StudentLayout() {
         </ul>
 
         <div className="stu-nav-right">
+          <LangToggle />
           <div className="stu-balance">฿{stats?.balance.toLocaleString('th-TH') ?? '—'}</div>
 
           <button className="stu-notif-btn" onClick={() => { setBurgerOpen(false); setNotifOpen(o => !o); }}>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { loginUser, getLockUntil } from '@/lib/api/auth.api';
+import { loginUser, getLockUntil, verifyEmail } from '@/lib/api/auth.api';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 
@@ -16,6 +16,7 @@ export default function LoginForm() {
   const [lockMsg,  setLockMsg]  = useState('');
   const [hint,     setHint]     = useState('');
   const [showDemo, setShowDemo] = useState(false);
+  const [needVerify, setNeedVerify] = useState(false); // บัญชียังไม่ยืนยันอีเมล
 
   const { refresh } = useAuth();
   const { showToast } = useToast();
@@ -37,11 +38,11 @@ export default function LoginForm() {
     return () => clearInterval(timer);
   }, [lockMsg, username]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(''); setLockMsg(''); setHint('');
+    setError(''); setLockMsg(''); setHint(''); setNeedVerify(false);
 
-    const result = loginUser(username.trim(), password);
+    const result = await loginUser(username.trim(), password);
 
     if (result.success && result.user) {
       refresh();
@@ -53,6 +54,7 @@ export default function LoginForm() {
       return;
     }
 
+    if (result.error === 'unverified') { setNeedVerify(true); return; }
     if (result.error === 'format')  { setError('รูปแบบ Username หรือ รหัสผ่านผิด โปรดตรวจสอบแล้วทำการเข้าสู่ระบบอีกครั้ง'); return; }
     if (result.error === 'locked')  { const until = result.lockUntil!; const s = Math.ceil((until - Date.now()) / 1000); setLockMsg(`บัญชีถูกล็อค — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`); return; }
     if (result.error === 'invalid') { setError('รูปแบบ Username หรือ รหัสผ่านผิด โปรดตรวจสอบแล้วทำการเข้าสู่ระบบอีกครั้ง'); setHint(`เหลืออีก ${result.remaining} ครั้งก่อนถูกล็อค 5 นาที`); }
@@ -101,6 +103,21 @@ export default function LoginForm() {
 
         {error   && <div className="auth-alert auth-alert-err">⚠️ {error}</div>}
         {lockMsg && <div className="auth-alert auth-alert-warn">🔒 {lockMsg}</div>}
+        {needVerify && (
+          <div className="auth-alert auth-alert-warn">
+            📧 บัญชีนี้ยังไม่ได้ยืนยันอีเมล
+            <button
+              type="button"
+              className="auth-btn-main"
+              style={{ width: '100%', marginTop: '0.6rem' }}
+              onClick={() => {
+                if (verifyEmail(username.trim())) { setNeedVerify(false); showToast('✅ ยืนยันอีเมลแล้ว — เข้าสู่ระบบได้เลย'); }
+              }}
+            >
+              ✅ กดลิงก์ยืนยันในอีเมล (จำลอง)
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="auth-field">
@@ -123,7 +140,7 @@ export default function LoginForm() {
           {hint && <p className="auth-hint">{hint}</p>}
 
           <div className="auth-field">
-            <label className="auth-label" htmlFor="login-password">รหัสผ่าน</label>
+            <label className="auth-label" htmlFor="login-password">Password</label>
             <div className="pw-wrap">
               <input
                 id="login-password"

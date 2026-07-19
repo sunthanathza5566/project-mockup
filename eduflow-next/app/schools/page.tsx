@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SCHOOL_LEVEL_SEGMENTS } from '@/lib/mock-data';
 import { Suspense } from 'react';
+import LangToggle from '@/components/ui/LangToggle';
 
 function SchoolsContent() {
   const router       = useRouter();
@@ -24,6 +25,7 @@ function SchoolsContent() {
         <div className="breadcrumb">
           หน้าหลัก / <span>{seg.label}</span>
         </div>
+        <div style={{ marginLeft: 'auto' }}><LangToggle /></div>
       </nav>
 
       <div className="schools-hero">

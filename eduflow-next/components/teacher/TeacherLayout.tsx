@@ -12,9 +12,10 @@ import GradebookView from './GradebookView';
 import MaterialsView from './MaterialsView';
 import ProfileView from './ProfileView';
 import type { TeacherProfile, ClassInfo, TeacherStudent, Notification } from '@/lib/types';
+import LangToggle from '@/components/ui/LangToggle';
 
 export default function TeacherLayout() {
-  const { session, logout } = useAuth();
+  const { session, isLoading, logout } = useAuth();
   const { showToast }       = useToast();
   const router              = useRouter();
 
@@ -31,15 +32,18 @@ export default function TeacherLayout() {
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
+    if (isLoading) return; // รอ AuthContext อ่าน session ก่อน — กัน refresh แล้วโดนดีดออก
     if (!session) { router.push('/login'); return; }
     if (session.role !== 'teacher') { router.push('/dashboard'); return; }
     const tid = session.username;
     Promise.all([getTeacherProfile(tid), getTeacherClasses(tid), getTeacherNotifications(tid)]).then(([p, cls, notifs]) => {
-      setProfile(p); setClasses(cls); setNotifications(notifs);
-      setRatingSummary(getTeacherRatingSummary(p.name));
+      // ทับข้อมูล mock ด้วยตัวตนจริงจาก session — ไม่งั้นครูทุกคนจะกลายเป็นชื่อครูใน mock
+      const merged = { ...p, name: session.name, teacherId: session.code || session.username.toUpperCase(), school: session.school || p.school };
+      setProfile(merged); setClasses(cls); setNotifications(notifs);
+      setRatingSummary(getTeacherRatingSummary(merged.name));
       if (cls.length > 0) loadClass(cls[0].id);
     });
-  }, [session]);
+  }, [session, isLoading]);
 
   async function loadClass(id: string) {
     setSelClass(id);
@@ -59,7 +63,8 @@ export default function TeacherLayout() {
       <nav className="dash-nav">
         <div className="dash-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
 
-        <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: '0.5rem' }}>
+          <LangToggle />
           {/* Notification bell */}
           <button
             onClick={() => setNotifOpen(o => !o)}

@@ -7,22 +7,24 @@ import { useToast } from '@/context/ToastContext';
 import { ROLE_LABELS, SEEDED_USERS } from '@/lib/mock-data';
 import AcademicManager from './AcademicManager';
 import ParentDashboard from './ParentDashboard';
+import LangToggle from '@/components/ui/LangToggle';
 
 /**
  * Dashboard สำหรับ school_admin และ parent
  * web_admin ถูกส่งไปหน้า /admin (ทุกเมนูเป็นหน้าแยกของตัวเอง)
  */
 export default function DashboardLayout() {
-  const { session, logout } = useAuth();
+  const { session, isLoading, logout } = useAuth();
   const { showToast }       = useToast();
   const router              = useRouter();
 
   useEffect(() => {
+    if (isLoading) return; // รอ AuthContext อ่าน session ก่อน — กัน refresh แล้วโดนดีดออก
     if (!session) { router.push('/login'); return; }
     if (session.role === 'student')   { router.push('/student'); return; }
     if (session.role === 'teacher')   { router.push('/teacher'); return; }
     if (session.role === 'web_admin') { router.push('/admin');   return; }
-  }, [session, router]);
+  }, [session, isLoading, router]);
 
   if (!session || !['school_admin', 'parent'].includes(session.role)) return null;
 
@@ -39,7 +41,10 @@ export default function DashboardLayout() {
             <div className="dash-user-role">{ROLE_LABELS[session.role] || session.role}</div>
           </div>
         </div>
-        <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+          <LangToggle />
+          <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
+        </div>
       </nav>
 
       <div className="dash-content">

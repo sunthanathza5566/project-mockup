@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { ROLE_LABELS } from '@/lib/mock-data';
+import LangToggle from '@/components/ui/LangToggle';
 
 export const ADMIN_MENUS = [
   { path: '/admin/users',       icon: '👥', label: 'จัดการผู้ใช้',      desc: 'เพิ่ม/ลบผู้ใช้ แยกตามประเภท ครู นักเรียน ผู้ปกครอง แอดมินโรงเรียน' },
@@ -15,15 +16,16 @@ export const ADMIN_MENUS = [
 
 /** โครงหน้า Web Admin — nav + guard สิทธิ์ + เมนูลิงก์ไปแต่ละหน้าแยก */
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const { session, logout } = useAuth();
+  const { session, isLoading, logout } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    if (isLoading) return; // รอ AuthContext อ่าน session ก่อน — กัน refresh แล้วโดนดีดออก
     if (!session) { router.push('/login'); return; }
     if (session.role !== 'web_admin') { router.push('/dashboard'); }
-  }, [session, router]);
+  }, [session, isLoading, router]);
 
   if (!session || session.role !== 'web_admin') return null;
 
@@ -40,7 +42,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <div className="dash-user-role">{ROLE_LABELS[session.role]}</div>
           </div>
         </div>
-        <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+          <LangToggle />
+          <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
+        </div>
       </nav>
 
       <div className="dash-content">

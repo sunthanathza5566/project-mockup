@@ -701,3 +701,8 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
 
 /* ── Log badge เพิ่มเติม ── */
 .log-badge-teacher { background: rgba(196,128,74,0.18); color: #7A4A20; }
+
+/* ── ปุ่มเปลี่ยนภาษา (placeholder) — อยู่บน navbar ทุกหน้า ── */
+.lang-toggle { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--cream); border: 1px solid var(--border); border-radius: 50px; padding: 0.35rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.04em; color: var(--text-body); cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+.lang-toggle:hover { border-color: var(--brown-mid); color: var(--brown-deep); background: var(--cream-dark); }
+.lang-toggle-alt { color: var(--text-muted); font-size: 0.72rem; }

@@ -80,6 +80,23 @@ export function isValidFormat(str: string): boolean {
   return /^[a-zA-Z0-9]{1,8}$/.test(str);
 }
 
+// ─── Password Hashing ─────────────────────────────────────────────────────
+// รหัสผ่านเก็บเป็น SHA-256 hash — ไม่เก็บ plaintext
+// TODO(PostgreSQL): เปลี่ยนเป็น bcrypt ฝั่ง server (bcrypt.hash / bcrypt.compare)
+const HASH_PREFIX = 'sha256:';
+
+export async function hashPassword(pw: string): Promise<string> {
+  const data = new TextEncoder().encode(`eduflow::${pw}`);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return HASH_PREFIX + Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** รองรับทั้ง hash ใหม่ และบัญชีเก่าที่ยังเป็น plaintext (จะถูก upgrade อัตโนมัติเมื่อ login สำเร็จ) */
+async function verifyPassword(pw: string, stored: string): Promise<boolean> {
+  if (stored.startsWith(HASH_PREFIX)) return (await hashPassword(pw)) === stored;
+  return pw === stored;
+}
+
 // ─── Lockout ──────────────────────────────────────────────────────────────
 // TODO(PostgreSQL): บันทึก attempts ใน table: login_attempts
 function getAttempts(username: string): { count: number; lockUntil: number } {
@@ -160,24 +177,35 @@ export function initAuth(): void {
 export interface LoginResult {
   success: boolean;
   user?: User;
-  error?: 'format' | 'locked' | 'invalid';
+  error?: 'format' | 'locked' | 'invalid' | 'unverified';
   lockUntil?: number;
   remaining?: number;
 }
 
-export function loginUser(username: string, password: string): LoginResult {
+export async function loginUser(username: string, password: string): Promise<LoginResult> {
   if (!isValidFormat(username) || !isValidFormat(password))
     return { success: false, error: 'format' };
 
   const lockUntil = getLockUntil(username);
   if (lockUntil) return { success: false, error: 'locked', lockUntil };
 
-  const user = getUsers().find(u => u.username === username && u.password === password);
-  if (!user) {
+  const user = getUsers().find(u => u.username === username);
+  const valid = user ? await verifyPassword(password, user.password) : false;
+  if (!user || !valid) {
     recordFail(username);
     const nowLocked = getLockUntil(username);
     if (nowLocked) return { success: false, error: 'locked', lockUntil: nowLocked };
     return { success: false, error: 'invalid', remaining: remainingAttempts(username) };
+  }
+
+  // บัญชีที่สมัครใหม่ต้องกดลิงก์ยืนยันอีเมลก่อน (บัญชีเก่า/seed ไม่มี field นี้ = ผ่าน)
+  if (user.emailVerified === false) return { success: false, error: 'unverified' };
+
+  // upgrade บัญชีเก่า plaintext → hash โดยอัตโนมัติเมื่อ login สำเร็จ
+  if (!user.password.startsWith('sha256:')) {
+    const users = getUsers();
+    const target = users.find(u => u.username === username);
+    if (target) { target.password = await hashPassword(password); saveUsers(users); }
   }
 
   clearAttempts(username);
@@ -198,20 +226,46 @@ export interface RegisterResult {
   error?: string;
 }
 
-export function registerUser(
-  role: string, name: string, username: string, password: string, confirm: string
-): RegisterResult {
-  if (!role)    return { success: false, error: 'กรุณาเลือกประเภทบัญชี' };
-  if (!name)    return { success: false, error: 'กรุณากรอกชื่อ-นามสกุล' };
-  if (!isValidFormat(username)) return { success: false, error: 'Username ต้องเป็นภาษาอังกฤษหรือตัวเลขเท่านั้น ไม่เกิน 8 ตัว' };
-  if (!isValidFormat(password)) return { success: false, error: 'รหัสผ่านต้องเป็นภาษาอังกฤษหรือตัวเลขเท่านั้น ไม่เกิน 8 ตัว' };
+export async function registerUser(
+  role: string, firstName: string, lastName: string, email: string,
+  username: string, password: string, confirm: string
+): Promise<RegisterResult> {
+  if (!role)      return { success: false, error: 'กรุณาเลือกประเภทบัญชี' };
+  if (!firstName) return { success: false, error: 'กรุณากรอกชื่อ' };
+  if (!lastName)  return { success: false, error: 'กรุณากรอกนามสกุล' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, error: 'รูปแบบอีเมลไม่ถูกต้อง เช่น name@example.com' };
+  if (!isValidFormat(username)) return { success: false, error: `Username ต้องเป็นภาษาอังกฤษ/ตัวเลข 1–8 ตัว (ตอนนี้ ${username.length} ตัว)` };
+  if (!isValidFormat(password)) return { success: false, error: `รหัสผ่านต้องเป็นภาษาอังกฤษ/ตัวเลข 1–8 ตัว (ตอนนี้ ${password.length} ตัว)` };
   if (password !== confirm) return { success: false, error: 'รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง' };
   if (getUsers().some(u => u.username === username)) return { success: false, error: 'Username นี้ถูกใช้งานแล้ว กรุณาเลือก Username ใหม่' };
+  if (getUsers().some(u => u.email === email)) return { success: false, error: 'อีเมลนี้ถูกใช้สมัครไปแล้ว' };
 
   const users = getUsers();
-  users.push({ username, password, role: role as User['role'], name, createdAt: new Date().toLocaleString('th-TH') });
+  users.push({
+    username,
+    password: await hashPassword(password), // เก็บเป็น hash ไม่เก็บ plaintext
+    role: role as User['role'],
+    name: `${firstName} ${lastName}`,
+    email,
+    emailVerified: false, // ต้องกดลิงก์ยืนยันก่อนถึงจะ login ได้
+    createdAt: new Date().toLocaleString('th-TH'),
+  });
   saveUsers(users);
   return { success: true };
+}
+
+/**
+ * ยืนยันอีเมล — ตอนนี้จำลองการกดลิงก์ในกล่องจดหมาย (ไม่มีค่าใช้จ่าย)
+ * TODO(Production): ส่งอีเมลจริงด้วยบริการฟรี เช่น Resend free tier / Nodemailer + Gmail SMTP
+ *   โดยแนบ token ใน URL: /verify?token=xxx แล้วตรวจ token ฝั่ง server
+ */
+export function verifyEmail(username: string): boolean {
+  const users = getUsers();
+  const user = users.find(u => u.username === username);
+  if (!user) return false;
+  user.emailVerified = true;
+  saveUsers(users);
+  return true;
 }
 
 // ─── Delete User ──────────────────────────────────────────────────────────

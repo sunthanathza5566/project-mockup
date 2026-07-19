@@ -3,7 +3,7 @@
  * ทุก action สำคัญบันทึกลง activity log เพื่อตรวจสอบย้อนหลัง
  */
 
-import { getUsers, saveUsers, getPermissions, savePermissions, getWebAdminLog } from './auth.api';
+import { getUsers, saveUsers, getPermissions, savePermissions, getWebAdminLog, hashPassword } from './auth.api';
 import { logActivity } from './activity.log';
 import { DEFAULT_PERMISSIONS, PERMISSION_LABELS, ROLE_LABELS } from '../mock-data';
 import type { User, Permissions, Role } from '../types';
@@ -18,7 +18,7 @@ export async function addUserAccount(u: { username: string; password: string; ro
   const users = getUsers();
   if (users.some(x => x.username === u.username)) return { ok: false, error: 'username นี้มีอยู่แล้ว' };
   if (users.some(x => u.code && x.code === u.code && x.role === u.role)) return { ok: false, error: 'รหัสนี้มีบัญชีอยู่แล้ว' };
-  users.push({ ...u, createdAt: new Date().toISOString().slice(0, 10) });
+  users.push({ ...u, password: await hashPassword(u.password), createdAt: new Date().toISOString().slice(0, 10) });
   saveUsers(users);
   logActivity('admin', 'เพิ่มผู้ใช้', `${ROLE_LABELS[u.role] || u.role}: ${u.name} (${u.username})`);
   return { ok: true };
