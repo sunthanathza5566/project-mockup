@@ -10,7 +10,11 @@
  *   shop_items, orders, wallets, book_catalog, book_reservations
  */
 
-import type { StudentProfile, StudentStats, Assignment, Notification } from '../types';
+import type { StudentProfile, StudentStats, Assignment, Notification, SchedulePeriod, Subject } from '../types';
+import { getClassroomSchedule, getScheduleCourses, periodTime, SUBJECT_KEYS } from './schedule.store';
+import { getStudentRoomId } from './class-resolver';
+import { getStudentGrades, calcGPA } from './academic.store';
+import { getAttendanceReports } from './attendance.store';
 import {
   STUDENT_PROFILE_MOCK, STUDENT_STATS_MOCK, STUDENT_SCHEDULE_MOCK,
   STUDENT_SUBJECTS_MOCK, STUDENT_ATTENDANCE_MOCK,
@@ -54,20 +58,96 @@ export async function updateStudentProfile(studentCode: string, data: Partial<St
 // TODO(PostgreSQL): ดึง aggregate จาก attendance_records / assignments / wallets
 export async function getStudentStats(studentCode: string): Promise<StudentStats> {
   const balance = getWalletBalance(studentCode);
-  if (isDemo(studentCode)) return { ...STUDENT_STATS_MOCK, balance };
-  return { attendancePct: 0, homeworkPending: 0, balance, gpa: 0 };
+
+  // ข้อมูลจริงเท่าที่มี: การบ้านค้างส่ง + GPA จากสมุดคะแนนของครู
+  const assignments = await getStudentAssignments(studentCode);
+  const homeworkPending = assignments.filter(a => a.status === 'pending' || a.status === 'overdue').length;
+  const gpaReal = calcGPA(getStudentGrades(studentCode));
+
+  if (isDemo(studentCode)) {
+    return {
+      ...STUDENT_STATS_MOCK,
+      balance,
+      homeworkPending: homeworkPending || STUDENT_STATS_MOCK.homeworkPending,
+      gpa: gpaReal !== null ? Number(gpaReal.toFixed(2)) : STUDENT_STATS_MOCK.gpa,
+    };
+  }
+  return {
+    attendancePct: 0,
+    homeworkPending,
+    balance,
+    gpa: gpaReal !== null ? Number(gpaReal.toFixed(2)) : 0,
+  };
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): SELECT ... FROM schedule WHERE class_id = (ห้องของนักเรียน)
-export async function getStudentSchedule(studentCode: string) {
+/**
+ * ตารางเรียนของนักเรียน = ตารางสอนของ "ห้องตัวเอง" ที่ครูจัดไว้ (แหล่งเดียวกันทั้งระบบ)
+ * ถ้าห้องยังไม่มีตาราง: บัญชีเดโม่ใช้ข้อมูลตัวอย่าง · บัญชีอื่นว่างตามจริง
+ * TODO(PostgreSQL): SELECT ... FROM schedule_slots WHERE classroom_id = (ห้องของนักเรียน)
+ */
+export async function getStudentSchedule(studentCode: string): Promise<Record<string, SchedulePeriod[]>> {
+  const roomId = getStudentRoomId(studentCode);
+  if (roomId) {
+    const slots = getClassroomSchedule(roomId);
+    if (slots.length > 0) {
+      const byDay: Record<string, SchedulePeriod[]> = {};
+      slots.forEach(s => {
+        (byDay[s.day] ||= []).push({
+          period: s.period,
+          time: periodTime(s.period),
+          subject: s.subjectName,
+          teacher: s.teacherName,
+          room: s.room || '—',
+          key: s.subjectKey,
+        });
+      });
+      Object.values(byDay).forEach(list => list.sort((a, b) => a.period - b.period));
+      return byDay;
+    }
+  }
   return isDemo(studentCode) ? { ...STUDENT_SCHEDULE_MOCK } : {};
 }
 
 // ─── Subjects ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): SELECT ... FROM enrollments WHERE student_id = $1
-export async function getStudentSubjects(studentCode: string) {
-  return isDemo(studentCode) ? [...STUDENT_SUBJECTS_MOCK] : [];
+/**
+ * วิชาที่นักเรียนต้องเรียน = รายวิชาในตารางเรียนของห้องตัวเอง
+ * สถิติแต่ละวิชาคำนวณจากข้อมูลจริง: การบ้านที่ส่ง/ได้รับมอบหมาย + คะแนนสอบกลางภาค + การเช็คชื่อ
+ * TODO(PostgreSQL): SELECT ... FROM enrollments JOIN courses WHERE student_id = $1
+ */
+export async function getStudentSubjects(studentCode: string): Promise<Subject[]> {
+  const roomId = getStudentRoomId(studentCode);
+  const courses = roomId ? getScheduleCourses(roomId) : [];
+  if (courses.length === 0) return isDemo(studentCode) ? [...STUDENT_SUBJECTS_MOCK] : [];
+
+  const assignments = await getStudentAssignments(studentCode);
+  const grades = getStudentGrades(studentCode);
+  const reports = getAttendanceReports();
+
+  return courses.map(c => {
+    const mine = assignments.filter(a => a.key === c.subjectKey);
+    const done = mine.filter(a => a.status === 'submitted' || a.status === 'graded').length;
+
+    // คะแนนสอบกลางภาคจากสมุดคะแนน (ถ้าครูกรอกแล้ว)
+    const gradeRow = grades.find(g => g.courseName === c.subjectName);
+    const midterm = gradeRow?.breakdown.find(b => b.name.includes('กลางภาค'))?.score ?? null;
+
+    // การเข้าเรียนรายวิชา จากรายงานเช็คชื่อที่ครูส่ง
+    const subjReports = reports.filter(r => r.subject === c.subjectName);
+    const attended = subjReports.filter(r => r.records.some(rec => rec.studentId === studentCode)).length;
+    const attend = subjReports.length > 0 ? Math.round((attended / subjReports.length) * 100) : 100;
+
+    return {
+      key: c.subjectKey,
+      name: c.subjectName,
+      teacher: c.teacherName,
+      icon: SUBJECT_KEYS.find(s => s.key === c.subjectKey)?.icon || '📘',
+      attend,
+      midterm,
+      assign: mine.length,
+      done,
+    };
+  });
 }
 
 // ─── Assignments ──────────────────────────────────────────────────────────

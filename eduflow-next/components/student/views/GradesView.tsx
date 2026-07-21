@@ -45,8 +45,9 @@ export default function GradesView({ profile, showToast }: Props) {
       {/* GPA summary */}
       <div className="stu-hw-summary-row">
         <div className="stu-hw-sum stu-hw-sum-graded"><strong>{gpa !== null ? gpa.toFixed(2) : '—'}</strong> เกรดเฉลี่ย (GPA)</div>
-        <div className="stu-hw-sum stu-hw-sum-submitted"><strong>{rows.length}</strong> วิชาที่มีคะแนน</div>
-        <div className="stu-hw-sum stu-hw-sum-pending"><strong>{rows.filter(r => r.grade === '—').length}</strong> รอคะแนนครบ</div>
+        <div className="stu-hw-sum stu-hw-sum-submitted"><strong>{rows.filter(r => r.gradingMode === 'numeric').length}</strong> วิชาที่คิดเกรด</div>
+        <div className="stu-hw-sum stu-hw-sum-overdue"><strong>{rows.filter(r => r.gradingMode === 'symbol' || r.isSpecial).length}</strong> วิชากิจกรรม/ผลพิเศษ</div>
+        <div className="stu-hw-sum stu-hw-sum-pending"><strong>{rows.filter(r => r.grade === '—').length}</strong> รอผลการเรียน</div>
       </div>
 
       {rows.length === 0 ? (
@@ -71,11 +72,19 @@ export default function GradesView({ profile, showToast }: Props) {
                     <td style={{ padding: '0.5rem 0.7rem', color: 'var(--brown-dark)', fontWeight: 500 }}>{r.courseName}</td>
                     <td style={{ padding: '0.5rem 0.7rem', color: 'var(--text-muted)' }}>{r.teacherName}</td>
                     <td style={{ padding: '0.5rem 0.7rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                      {r.breakdown.map(b => `${b.name} ${b.score ?? '—'}/${b.max}`).join(' · ')}
+                      {r.gradingMode === 'symbol'
+                        ? 'วิชากิจกรรม — ประเมินผ่าน/ไม่ผ่าน (ไม่คิดเกรด)'
+                        : r.breakdown.map(b => `${b.name} ${b.score ?? '—'}/${b.max}`).join(' · ')}
                     </td>
-                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{r.total !== null ? `${r.total}/${r.maxTotal}` : '—'}</td>
+                    <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>
+                      {r.gradingMode === 'symbol' || r.total === null ? '—' : `${r.total}/${r.maxTotal}`}
+                    </td>
                     <td style={{ padding: '0.5rem 0.7rem', textAlign: 'center' }}>
-                      <span className={`stu-hw-status-badge ${r.grade !== '—' && parseFloat(r.grade) >= 2 ? 'badge-graded' : r.grade === '—' ? 'badge-pending' : 'badge-overdue'}`}>{r.grade}</span>
+                      <span className={`stu-hw-status-badge ${
+                        r.grade === '—' ? 'badge-pending'
+                          : r.isSpecial ? (r.grade === 'ผ' ? 'badge-graded' : 'badge-overdue')
+                          : parseFloat(r.grade) >= 2 ? 'badge-graded' : 'badge-overdue'
+                      }`}>{r.grade}</span>
                     </td>
                   </tr>
                 ))}

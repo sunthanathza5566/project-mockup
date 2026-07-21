@@ -1,246 +1,207 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+/**
+ * หน้าหลักฝั่งครู
+ *
+ * โครงสร้าง: ทุกฟังก์ชันย้ายเข้าไปอยู่ใน "ปุ่มเมนู ☰" แบบเดียวกับฝั่งนักเรียน
+ * เรียงตามลำดับการใช้งานจริง: ตารางสอน → จัดตาราง → เช็คชื่อ → การบ้าน → คะแนน → สื่อ → สอนพิเศษ → ประวัติ
+ * หน้าแรกแสดง "ข่าวสารโรงเรียน" แทนรายชื่อห้อง/รายชื่อนักเรียน
+ */
+
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { getTeacherProfile, getTeacherClasses, getClassStudents, getTodayAttendance, getTeacherNotifications, markTeacherNotificationRead } from '@/lib/api/teacher.api';
+import { useLang } from '@/context/LangContext';
+import {
+  getTeacherProfile, getTeacherClasses, getTeacherNotifications, markTeacherNotificationRead, isDemoTeacher,
+} from '@/lib/api/teacher.api';
 import { getTeacherRatingSummary } from '@/lib/api/ratings.store';
+import { getFullTeacherProfile } from '@/lib/api/teacher-profile.store';
+import { getTeacherSlots, canManageSchedule } from '@/lib/api/schedule.store';
+import { hasPermission } from '@/lib/api/permissions';
 import AttendanceView from './AttendanceView';
 import AssignmentsView from './AssignmentsView';
 import GradebookView from './GradebookView';
 import MaterialsView from './MaterialsView';
 import ProfileView from './ProfileView';
-import type { TeacherProfile, ClassInfo, TeacherStudent, Notification } from '@/lib/types';
+import ScheduleView from './ScheduleView';
+import ScheduleManagerView from './ScheduleManagerView';
+import TutoringView from './TutoringView';
+import NewsBoard from '@/components/ui/NewsBoard';
 import LangToggle from '@/components/ui/LangToggle';
+import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
+
+type TeacherView =
+  | 'overview' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
+  | 'assignments' | 'gradebook' | 'materials' | 'tutoring' | 'profile';
+
+/** เมนูในปุ่ม ☰ — เรียงตามลำดับการใช้งานที่ควรเป็น */
+const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string; needClass?: boolean }[] = [
+  { view: 'overview',         icon: '🏠', label: 'หน้าหลัก' },
+  { view: 'schedule',         icon: '📅', label: 'ตารางสอน',              perm: 'viewTeachSchedule' },
+  { view: 'schedule-manager', icon: '⚙️', label: 'จัดการตารางสอน',        perm: 'manageTeachSchedule' },
+  { view: 'attendance',       icon: '🔲', label: 'สร้าง QR Code เช็คชื่อ', perm: 'attendanceQR',  needClass: true },
+  { view: 'attendance-report',icon: '📊', label: 'รายงานเช็คชื่อย้อนหลัง', perm: 'viewReports',   needClass: true },
+  { view: 'assignments',      icon: '📚', label: 'การบ้าน & ตรวจงาน',      perm: 'assignments',   needClass: true },
+  { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน (ปพ.5)',     perm: 'gradebook' },
+  { view: 'materials',        icon: '📁', label: 'สื่อการสอน & ประกาศ',    perm: 'materials',     needClass: true },
+  { view: 'tutoring',         icon: '🎓', label: 'เปิดสอนพิเศษ',           perm: 'offerTutoring' },
+  { view: 'profile',          icon: '👤', label: 'ประวัติของฉัน' },
+];
+
+/** หน้าที่มีตารางกว้าง — ให้ใช้พื้นที่เต็มหน้าจอ */
+const WIDE_VIEWS: TeacherView[] = ['gradebook', 'schedule', 'schedule-manager'];
 
 export default function TeacherLayout() {
   const { session, isLoading, logout } = useAuth();
-  const { showToast }       = useToast();
-  const router              = useRouter();
+  const { showToast } = useToast();
+  const { t } = useLang();
+  const router = useRouter();
 
   const [profile,     setProfile]     = useState<TeacherProfile | null>(null);
   const [classes,     setClasses]     = useState<ClassInfo[]>([]);
-  const [selClass,    setSelClass]    = useState<string>('c1');
-  const [students,    setStudents]    = useState<TeacherStudent[]>([]);
-  const [currentView, setCurrentView] = useState<'overview' | 'attendance' | 'assignments' | 'gradebook' | 'materials'>('overview');
-  const [attendanceTab, setAttendanceTab] = useState<'manager' | 'report'>('manager');
+  const [selClass,    setSelClass]    = useState<string>('');
+  const [currentView, setCurrentView] = useState<TeacherView>('overview');
   const [ratingSummary, setRatingSummary] = useState<{ avg: number | null; count: number }>({ avg: null, count: 0 });
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
+  const [notifOpen,  setNotifOpen]  = useState(false);
+  const [burgerOpen, setBurgerOpen] = useState(false);
+  const [todayPeriods, setTodayPeriods] = useState(0);
+  const [weekPeriods,  setWeekPeriods]  = useState(0);
 
   useEffect(() => {
     if (isLoading) return; // รอ AuthContext อ่าน session ก่อน — กัน refresh แล้วโดนดีดออก
     if (!session) { router.push('/login'); return; }
     if (session.role !== 'teacher') { router.push('/dashboard'); return; }
+
     const tid = session.username;
     Promise.all([getTeacherProfile(tid), getTeacherClasses(tid), getTeacherNotifications(tid)]).then(([p, cls, notifs]) => {
       // ทับข้อมูล mock ด้วยตัวตนจริงจาก session — ไม่งั้นครูทุกคนจะกลายเป็นชื่อครูใน mock
-      const merged = { ...p, name: session.name, teacherId: session.code || session.username.toUpperCase(), school: session.school || p.school };
-      setProfile(merged); setClasses(cls); setNotifications(notifs);
-      setRatingSummary(getTeacherRatingSummary(merged.name));
-      if (cls.length > 0) loadClass(cls[0].id);
+      // รหัสครู: ใช้รหัสจากบัญชีก่อน แล้วค่อยตกไปที่รหัสในทะเบียนครู — ต้องตรงกันเพื่อให้แจ้งเตือนส่งถึง
+      const base = { ...p, name: session.name, teacherId: session.code || p.teacherId || session.username.toUpperCase(), school: session.school || p.school };
+      const full = getFullTeacherProfile(tid, base, isDemoTeacher(tid));
+      setProfile(full);
+      setClasses(cls);
+      setNotifications(notifs);
+      setRatingSummary(getTeacherRatingSummary(full.name));
+      if (cls.length > 0) setSelClass(cls[0].id);
+
+      // สรุปคาบสอนจากตารางสอนจริง
+      const slots = getTeacherSlots(tid);
+      const dayMap: Record<number, string> = { 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri' };
+      const today = dayMap[new Date().getDay()];
+      setWeekPeriods(slots.length);
+      setTodayPeriods(today ? slots.filter(s => s.day === today).length : 0);
     });
-  }, [session, isLoading]);
+  }, [session, isLoading, router]);
 
-  async function loadClass(id: string) {
-    setSelClass(id);
-    const studs = await getClassStudents(id);
-    setStudents(studs);
-  }
+  const handleLogout = useCallback(() => {
+    logout(); showToast('ออกจากระบบแล้ว'); router.push('/');
+  }, [logout, showToast, router]);
 
-  function handleLogout() { logout(); showToast('ออกจากระบบแล้ว'); router.push('/'); }
+  /** โหลดห้อง/วิชาที่สอนใหม่จากตารางสอน — เรียกหลังครูแก้ตารางเสร็จ ทุกเมนูจะเห็นข้อมูลล่าสุดทันที */
+  const reloadClasses = useCallback(async () => {
+    if (!session) return;
+    const cls = await getTeacherClasses(session.username);
+    setClasses(cls);
+    setSelClass(prev => (cls.some(c => c.id === prev) ? prev : cls[0]?.id || ''));
+
+    const slots = getTeacherSlots(session.username);
+    const dayMap: Record<number, string> = { 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri' };
+    const today = dayMap[new Date().getDay()];
+    setWeekPeriods(slots.length);
+    setTodayPeriods(today ? slots.filter(s => s.day === today).length : 0);
+  }, [session]);
+
+  const navigate = useCallback((view: TeacherView) => {
+    // ออกจากหน้าจัดตารางสอน = ตารางอาจเปลี่ยน → ดึงห้อง/วิชาที่สอนใหม่
+    setCurrentView(prev => {
+      if (prev === 'schedule-manager' && view !== 'schedule-manager') reloadClasses();
+      return view;
+    });
+    setBurgerOpen(false);
+    setNotifOpen(false);
+  }, [reloadClasses]);
 
   if (!session || !profile) return null;
 
   const currentClass = classes.find(c => c.id === selClass);
-  const initials     = profile.name.replace(/\s+/g,'').substring(0, 2);
+  const initials = profile.name.replace(/^ครู\s*/, '').replace(/\s+/g, '').substring(0, 2);
+  const canManage = canManageSchedule();
+  const visibleNav = NAV_ITEMS.filter(item => !item.perm || hasPermission(item.perm));
+  const activeItem = NAV_ITEMS.find(i => i.view === currentView);
+  const needsClass = !!activeItem?.needClass;
 
   return (
     <div>
+      {/* ── Nav ── */}
       <nav className="dash-nav">
         <div className="dash-logo" onClick={() => router.push('/')}>Edu<span>Flow</span></div>
 
         <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: '0.5rem' }}>
           <LangToggle />
-          {/* Notification bell */}
-          <button
-            onClick={() => setNotifOpen(o => !o)}
-            className="stu-notif-btn"
-            style={{ position: 'relative' }}
-          >
+
+          <button className="stu-notif-btn" onClick={() => { setBurgerOpen(false); setNotifOpen(o => !o); }}>
             🔔
             {notifications.filter(n => n.isNew).length > 0 && (
-              <span className="stu-notif-badge">
-                {notifications.filter(n => n.isNew).length}
-              </span>
+              <span className="stu-notif-badge">{notifications.filter(n => n.isNew).length}</span>
             )}
           </button>
 
-          {/* Profile menu */}
-          <button
-            onClick={() => setProfileMenuOpen(o => !o)}
-            className="dash-user-info"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 1rem' }}
-          >
-            <div className="dash-user-avatar">{initials}</div>
-            <div>
-              <div className="dash-user-name">{profile.name}</div>
-              <div className="dash-user-role">ครู · {profile.school}</div>
-            </div>
-          </button>
+          <button className="stu-burger" onClick={() => { setNotifOpen(false); setBurgerOpen(o => !o); }}>☰</button>
         </div>
-
-        <button className="dash-logout-btn" onClick={handleLogout}>ออกจากระบบ</button>
       </nav>
 
-      <div className="dash-content">
-        {currentView === 'overview' ? (
-          <>
-            <div className="dash-section">
-              <div className="section-label">ครู · {profile.school}</div>
-              <h2 className="dash-h2">สวัสดี คุณครู<em>{profile.name.replace('ครู','').trim()}</em></h2>
-
-              <div className="dash-kpi-row">
-                {[
-                  { num: classes.length, label: 'ห้องที่สอน' },
-                  { num: students.length, label: 'นักเรียนในห้องนี้' },
-                  { num: 3, label: 'คาบวันนี้' },
-                  // ผลประเมินการสอนจากนักเรียน (นิรนาม — เห็นเฉพาะค่าเฉลี่ยรวม)
-                  { num: ratingSummary.avg !== null ? `⭐ ${ratingSummary.avg.toFixed(1)}` : '⭐ —', label: `ผลประเมินการสอน (${ratingSummary.count} ครั้ง)` },
-                ].map((k, i) => (
-                  <div key={i} className="dash-kpi">
-                    <div className="dash-kpi-num">{k.num}</div>
-                    <div className="dash-kpi-label">{k.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Class selector */}
-            <div className="dash-section">
-              <div className="dash-section-title">เลือกห้องเรียน</div>
-              {classes.length === 0 && (
-                <div className="ez-help-box" style={{ marginBottom: '0.75rem' }}>
-                  🕐 บัญชีของท่านยังไม่ได้รับมอบหมายห้องสอน — ข้อมูลจะแสดงเมื่อแอดมินจัดสรรตารางสอนให้
-                  (บัญชีใหม่เริ่มจาก 0 ตามจริง ไม่มีข้อมูลจำลอง)
-                </div>
-              )}
-              <div className="dash-tabs-bar">
-                {classes.map(cls => (
-                  <button
-                    key={cls.id}
-                    className={`dash-tab-btn${selClass === cls.id ? ' active' : ''}`}
-                    onClick={() => loadClass(cls.id)}
-                  >
-                    {cls.icon} {cls.grade}/{cls.room} {cls.subject}
-                  </button>
-                ))}
-              </div>
-
-              {currentClass && (
-                <div className="dash-section">
-                  <div className="dash-section-title">รายชื่อนักเรียน — {currentClass.grade}/{currentClass.room} ({students.length} คน)</div>
-                  <div className="dash-list">
-                    {students.map(s => (
-                      <div key={s.id} className="admin-user-row">
-                        <div className="dash-user-avatar" style={{ width: 32, height: 32, fontSize: '0.7rem' }}>
-                          {s.name.substring(0, 2)}
-                        </div>
-                        <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--brown-dark)', fontWeight: 500 }}>{s.name}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{s.code}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="dash-actions-row">
-                <button className="dash-action-btn" onClick={() => { setAttendanceTab('manager'); setCurrentView('attendance'); }}>🔲 สร้าง QR Code เช็คชื่อ</button>
-                <button className="dash-action-btn" onClick={() => setCurrentView('assignments')}>📚 การบ้าน & ตรวจงาน</button>
-                <button className="dash-action-btn" onClick={() => setCurrentView('gradebook')}>📝 บันทึกคะแนน (ปพ.5)</button>
-                <button className="dash-action-btn" onClick={() => { setAttendanceTab('report'); setCurrentView('attendance'); }}>📊 รายงานเช็คชื่อย้อนหลัง</button>
-                <button className="dash-action-btn" onClick={() => setCurrentView('materials')}>📁 สื่อการสอน & ประกาศ</button>
-              </div>
-            </div>
-
-            <div style={{ background: 'var(--cream)', border: '1px dashed var(--border)', borderRadius: 12, padding: '1.25rem', fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              <strong>TODO (Teacher Dashboard):</strong> หน้านี้จะมีฟีเจอร์เพิ่มเติมเมื่อเชื่อมกับ PostgreSQL:<br />
-              · ✅ เช็คชื่อนักเรียนแต่ละคาบแบบ QR Code (เสร็จแล้ว)<br />
-              · ✅ สั่งการบ้าน + ตรวจให้คะแนน (เสร็จแล้ว — เชื่อมกับฝั่งนักเรียนผ่าน shared store)<br />
-              · อัปโหลดสื่อการสอน (ไฟล์, วิดีโอ, ลิงก์)<br />
-              · โพสต์ประกาศให้นักเรียน<br />
-              · ดูสถิติการเข้าเรียนรายบุคคล
-            </div>
-          </>
-        ) : (
-          <>
+      {/* ── Burger menu (แถวยาวลงมา เรียงตามลำดับการใช้งาน) ── */}
+      <div className={`stu-bm-overlay${burgerOpen ? ' show' : ''}`} onClick={() => setBurgerOpen(false)} />
+      <div className={`stu-bm-panel${burgerOpen ? ' open' : ''}`}>
+        <div className="stu-bm-profile" onClick={() => navigate('profile')}>
+          <div className="stu-bm-avatar">{initials}</div>
+          <div className="stu-bm-pinfo">
+            <div className="stu-bm-pname">{profile.name}</div>
+            <div className="stu-bm-pclass">{t('ครู')} · รหัส {profile.teacherId}</div>
+          </div>
+          <span className="stu-bm-pchevron">›</span>
+        </div>
+        <nav className="stu-bm-nav">
+          <div className="tch-bm-section">เมนูการสอน</div>
+          {visibleNav.map(item => (
             <button
-              onClick={() => setCurrentView('overview')}
-              style={{
-                padding: '0.5rem 1rem',
-                marginBottom: '1.5rem',
-                background: 'var(--brown-dark)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-              }}
+              key={item.view}
+              className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`}
+              onClick={() => navigate(item.view)}
             >
-              ← ย้อนกลับ
+              <span className="stu-bm-iicon">{item.icon}</span>
+              {t(item.label)}
             </button>
-            {currentClass && currentView === 'attendance' && (
-              <AttendanceView
-                key={attendanceTab}
-                teacherId={profile.teacherId}
-                teacherName={profile.name}
-                selectedClass={currentClass}
-                initialTab={attendanceTab}
-              />
-            )}
-            {currentClass && currentView === 'assignments' && (
-              <AssignmentsView teacherName={profile.name} selectedClass={currentClass} />
-            )}
-            {currentView === 'gradebook' && (
-              <GradebookView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
-            )}
-            {currentClass && currentView === 'materials' && (
-              <MaterialsView teacherName={profile.name} selectedClass={currentClass} />
-            )}
-          </>
-        )}
+          ))}
+          <div className="stu-bm-divider" />
+          <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
+            <span className="stu-bm-iicon">🚪</span>{t('ออกจากระบบ')}
+          </button>
+        </nav>
       </div>
 
-      {/* Notification overlay */}
+      {/* ── Notification panel ── */}
       <div className={`stu-notif-overlay${notifOpen ? ' show' : ''}`} onClick={() => setNotifOpen(false)} />
       <div className={`stu-notif-panel${notifOpen ? ' open' : ''}`}>
         <div className="stu-notif-ph">
-          <span className="stu-notif-ph-title">การแจ้งเตือน</span>
+          <span className="stu-notif-ph-title">{t('การแจ้งเตือน')}</span>
           <button className="stu-notif-ph-close" onClick={() => setNotifOpen(false)}>✕</button>
         </div>
         <div className="stu-notif-list-inner">
           {notifications.length === 0 ? (
-            <div className="stu-notif-empty">🔕<br />ไม่มีแจ้งเตือนใหม่</div>
+            <div className="stu-notif-empty">🔕<br />{t('ไม่มีแจ้งเตือนใหม่')}</div>
           ) : (
             notifications.map(n => {
               const typeMap: Record<string, string> = {
-                attendance_report: 'type-grade',
-                assignment_submitted: 'type-grade',
-                info: 'type-info',
-                overdue: 'type-overdue',
-                grade: 'type-grade',
-                hw: 'type-info',
+                attendance_report: 'type-grade', assignment_submitted: 'type-grade',
+                info: 'type-info', overdue: 'type-overdue', grade: 'type-grade', hw: 'type-info',
               };
               const iconMap: Record<string, string> = {
-                attendance_report: '📊',
-                assignment_submitted: '📝',
-                info: '📢',
-                overdue: '⛔',
-                grade: '📊',
-                hw: '📚',
+                attendance_report: '📊', assignment_submitted: '📝',
+                info: '📢', overdue: '⛔', grade: '📊', hw: '📚',
               };
               return (
                 <div
@@ -248,9 +209,7 @@ export default function TeacherLayout() {
                   className={`stu-notif-item ${typeMap[n.type] || 'type-info'}${n.isNew ? ' is-new' : ''}`}
                   onClick={() => {
                     markTeacherNotificationRead(n.id);
-                    setNotifications(prev => prev.map(notif =>
-                      notif.id === n.id ? { ...notif, isNew: false } : notif
-                    ));
+                    setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isNew: false } : x));
                   }}
                 >
                   <div className="stu-notif-item-row">
@@ -259,7 +218,9 @@ export default function TeacherLayout() {
                     <div className="stu-notif-item-content">
                       <div className="stu-notif-item-title">{n.title}</div>
                       <div className="stu-notif-item-body">{n.body}</div>
-                      <div className="stu-notif-item-time">{new Date(n.time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div className="stu-notif-item-time">
+                        {new Date(n.time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -269,112 +230,139 @@ export default function TeacherLayout() {
         </div>
       </div>
 
-      {/* Profile Menu */}
-      {profileMenuOpen && (
-        <>
-          <div
-            onClick={() => setProfileMenuOpen(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 99,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '70px',
-              right: '1.5rem',
-              background: 'white',
-              border: '1px solid var(--border-light)',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              zIndex: 100,
-              minWidth: '200px',
-            }}
-          >
-            <button
-              onClick={() => {
-                setShowProfile(true);
-                setProfileMenuOpen(false);
-              }}
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontSize: '0.9rem',
-                color: 'var(--brown-dark)',
-                borderBottom: '1px solid var(--border-light)',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--cream-dark)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-            >
-              👤 ดูโปรไฟล์
-            </button>
-            <button
-              onClick={handleLogout}
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontSize: '0.9rem',
-                color: '#f44336',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(244,67,54,0.05)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-            >
-              🚪 ออกจากระบบ
-            </button>
-          </div>
-        </>
-      )}
+      {/* ── Content ── */}
+      {/* หน้าที่ต้องใช้พื้นที่กว้าง (ตารางคะแนน/ตารางสอน) ขยายเต็มจอ — หน้าอื่นคุมความกว้างให้อ่านง่าย */}
+      <div className="dash-content" style={{ maxWidth: WIDE_VIEWS.includes(currentView) ? 'none' : currentView === 'overview' ? 960 : 1120 }}>
+        {currentView === 'overview' ? (
+          <>
+            <div className="dash-section">
+              <div className="section-label">{t('ครู')} · {profile.school}</div>
+              <h2 className="dash-h2">สวัสดี คุณครู<em>{profile.name.replace('ครู', '').trim()}</em></h2>
 
-      {/* Profile View */}
-      {showProfile && profile && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'white',
-            overflowY: 'auto',
-            zIndex: 200,
-          }}
-        >
-          <button
-            onClick={() => setShowProfile(false)}
-            style={{
-              position: 'sticky',
-              top: '1.5rem',
-              left: '1.5rem',
-              padding: '0.5rem 1rem',
-              background: 'var(--brown-dark)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              zIndex: 201,
-            }}
-          >
-            ← ย้อนกลับ
-          </button>
-          <ProfileView profile={profile} onClose={() => setShowProfile(false)} />
-        </div>
-      )}
+              <div className="dash-kpi-row">
+                {[
+                  { num: classes.length, label: t('ห้องที่สอน') },
+                  { num: todayPeriods, label: t('คาบวันนี้') },
+                  { num: weekPeriods, label: 'คาบต่อสัปดาห์' },
+                  {
+                    num: ratingSummary.avg !== null ? `⭐ ${ratingSummary.avg.toFixed(1)}` : '⭐ —',
+                    label: `ผลประเมินการสอน (${ratingSummary.count} ครั้ง)`,
+                  },
+                ].map((k, i) => (
+                  <div key={i} className="dash-kpi">
+                    <div className="dash-kpi-num">{k.num}</div>
+                    <div className="dash-kpi-label">{k.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="ez-help-box">
+                💡 ทุกฟังก์ชันการสอนอยู่ในปุ่ม <b>☰ มุมขวาบน</b> — กดเพื่อเปิดเมนู กดซ้ำเพื่อซ่อน
+                {classes.length === 0 && <><br />🕐 ยังไม่มีห้องสอน — เริ่มที่เมนู “จัดการตารางสอน” เพื่อจัดคาบสอนของท่าน</>}
+              </div>
+            </div>
+
+            {/* ข่าวสารโรงเรียนประจำวัน */}
+            <NewsBoard />
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate('overview')}
+              style={{
+                padding: '0.5rem 1rem', marginBottom: '1.25rem', background: 'var(--brown-dark)',
+                color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600,
+              }}
+            >
+              ← {t('ย้อนกลับ')}
+            </button>
+
+            {/* ตัวเลือกห้อง — เฉพาะเมนูที่ต้องระบุห้อง */}
+            {needsClass && (
+              <div className="dash-section">
+                <div className="dash-section-title">{t('เลือกห้องเรียน')}</div>
+                {classes.length === 0 ? (
+                  <div className="ez-help-box">
+                    🕐 ยังไม่มีห้องสอน — จัดตารางสอนของท่านก่อนที่เมนู “จัดการตารางสอน”
+                    แล้วห้อง/วิชาจะปรากฏในทุกเมนูโดยอัตโนมัติ
+                  </div>
+                ) : (
+                  <div className="dash-tabs-bar">
+                    {classes.map(cls => (
+                      <button
+                        key={cls.id}
+                        className={`dash-tab-btn${selClass === cls.id ? ' active' : ''}`}
+                        onClick={() => setSelClass(cls.id)}
+                      >
+                        {cls.icon} {cls.grade}/{cls.room} {cls.subject}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {currentView === 'schedule' && (
+              <ScheduleView
+                teacherUsername={session.username}
+                teacherName={profile.name}
+                canManage={canManage}
+                onManage={() => navigate('schedule-manager')}
+              />
+            )}
+
+            {currentView === 'schedule-manager' && (
+              <ScheduleManagerView
+                teacherUsername={session.username}
+                teacherId={profile.teacherId}
+                teacherName={profile.name}
+                onBack={() => navigate('schedule')}
+              />
+            )}
+
+            {currentClass && (currentView === 'attendance' || currentView === 'attendance-report') && (
+              <AttendanceView
+                key={`${currentView}-${currentClass.id}`}
+                teacherId={profile.teacherId}
+                teacherName={profile.name}
+                selectedClass={currentClass}
+                initialTab={currentView === 'attendance' ? 'manager' : 'report'}
+              />
+            )}
+
+            {currentClass && currentView === 'assignments' && (
+              <AssignmentsView teacherName={profile.name} teacherId={profile.teacherId} selectedClass={currentClass} />
+            )}
+
+            {currentView === 'gradebook' && (
+              <GradebookView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
+            )}
+
+            {currentClass && currentView === 'materials' && (
+              <MaterialsView teacherName={profile.name} selectedClass={currentClass} />
+            )}
+
+            {currentView === 'tutoring' && (
+              <TutoringView
+                teacherUsername={session.username}
+                teacherId={profile.teacherId}
+                teacherName={profile.name}
+                classes={classes}
+                onBack={() => navigate('overview')}
+              />
+            )}
+
+            {currentView === 'profile' && (
+              <ProfileView
+                profile={profile}
+                username={session.username}
+                onClose={() => navigate('overview')}
+                onSaved={setProfile}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -13,6 +13,7 @@
 
 import type { Assignment, Notification, SubmitFileType } from '../types';
 import { STUDENT_ASSIGNMENTS_MOCK, TEACHER_DATA_MOCK } from '../mock-data';
+import { getClassStudentList, getStudentClassIds } from './class-resolver';
 
 const ASSIGNMENTS_KEY = 'eduflow_assignments';
 const NOTIFS_KEY      = 'eduflow_shared_notifs';
@@ -42,6 +43,7 @@ export interface StoredAssignment {
   teacher: string;
   files: number;
   createdAt: number;
+  teacherId?: string;          // รหัสครูผู้สั่งงาน — ใช้ส่งแจ้งเตือนกลับหาเจ้าของงาน
   submitType?: SubmitFileType; // ประเภทไฟล์ที่ครูกำหนดให้ส่ง (default 'pdf')
   submissions: Record<string, StoredSubmission>; // keyed by studentCode
 }
@@ -149,6 +151,7 @@ export function getClassAssignmentsStore(classId: string): StoredAssignment[] {
 export function createAssignmentStore(data: {
   classId: string; key: string; subject: string; title: string;
   details: string; due: string; maxScore: number; teacher: string;
+  teacherId?: string;
   submitType?: SubmitFileType;
 }): StoredAssignment {
   const list = loadAssignments();
@@ -158,9 +161,8 @@ export function createAssignmentStore(data: {
   list.unshift(assignment);
   saveAssignments(list);
 
-  // แจ้งเตือนนักเรียนทุกคนในห้อง
-  TEACHER_DATA_MOCK.students
-    .filter(s => s.classId === data.classId)
+  // แจ้งเตือนนักเรียนทุกคนในห้อง (รองรับทั้งห้อง mock เดิมและห้องจริงจากตารางสอน)
+  getClassStudentList(data.classId)
     .forEach(s => pushNotif(
       `student:${s.code}`, 'hw',
       `งานใหม่: ${data.subject}`,
@@ -222,10 +224,11 @@ export function findStudentClassId(studentCode: string): string | null {
 
 export function getStudentAssignmentsStore(studentCode: string, classId?: string | null): Assignment[] {
   const now = new Date();
-  const cid = classId === undefined ? findStudentClassId(studentCode) : classId;
-  if (!cid) return []; // ยังไม่ถูกจัดเข้าห้อง = ไม่มีการบ้าน (บัญชีใหม่เริ่มจาก 0)
+  // ปกติดึงทุกห้อง/ทุกวิชาที่นักเรียนสังกัด · ส่ง classId มาเอง = บังคับเฉพาะห้องนั้น
+  const ids = classId === undefined ? getStudentClassIds(studentCode) : classId ? [classId] : [];
+  if (ids.length === 0) return []; // ยังไม่ถูกจัดเข้าห้อง = ไม่มีการบ้าน (บัญชีใหม่เริ่มจาก 0)
   return loadAssignments()
-    .filter(a => a.classId === cid)
+    .filter(a => ids.includes(a.classId))
     .map(a => {
       const sub = a.submissions[studentCode];
       let status: Assignment['status'] = 'pending';
@@ -265,9 +268,9 @@ export function submitAssignmentStore(
   };
   saveAssignments(list);
 
-  // แจ้งเตือนครูเจ้าของวิชา
+  // แจ้งเตือนครูเจ้าของงาน (ถ้าไม่มีข้อมูลครู ใช้ครูเดโม่เดิม)
   pushNotif(
-    `teacher:${TEACHER_DATA_MOCK.profile.teacherId}`, 'assignment_submitted',
+    `teacher:${(a.teacherId || TEACHER_DATA_MOCK.profile.teacherId).toUpperCase()}`, 'assignment_submitted',
     'นักเรียนส่งการบ้าน',
     `${studentName} ส่งงาน "${a.title}" แล้ว`,
   );

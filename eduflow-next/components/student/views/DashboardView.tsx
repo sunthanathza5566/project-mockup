@@ -3,6 +3,7 @@
 import type { StudentProfile, StudentStats, Assignment, SchedulePeriod } from '@/lib/types';
 import type { StudentView } from '../StudentLayout';
 import { STU_COLORS } from './colors';
+import NewsBoard from '@/components/ui/NewsBoard';
 
 interface Props {
   profile: StudentProfile;
@@ -53,7 +54,7 @@ export default function DashboardView({ profile, stats, schedule, assignments, a
           { icon: '✅', val: `${stats.attendancePct}%`, lbl: 'เข้าเรียนเดือนนี้', warn: stats.attendancePct < 80, alert: false, onClick: () => setView('classroom') },
           { icon: '📚', val: stats.homeworkPending, lbl: 'การบ้านค้างส่ง', warn: false, alert: stats.homeworkPending > 0, onClick: () => setView('homework') },
           { icon: '⭐', val: stats.gpa, lbl: 'GPA ภาคเรียน', warn: false, alert: false, onClick: undefined },
-          { icon: '💰', val: `฿${stats.balance}`, lbl: 'ยอดเงินคงเหลือ', warn: false, alert: false, onClick: () => showToast('กำลังเปิดระบบเติมเงิน...') },
+          { icon: '💰', val: `฿${stats.balance}`, lbl: 'ยอดเงินคงเหลือ', warn: false, alert: false, onClick: () => setView('topup') },
         ].map((k, i) => (
           <div key={i} className={`stu-kpi-card${k.warn ? ' kpi-warn' : ''}${k.alert ? ' kpi-alert' : ''}`} onClick={k.onClick}>
             <div className="stu-kpi-icon">{k.icon}</div>
@@ -133,17 +134,20 @@ export default function DashboardView({ profile, stats, schedule, assignments, a
         <div className="stu-section-title">ทำรายการด่วน</div>
         <div className="stu-quick-actions">
           {[
-            { label: '🔲 สแกน QR',  action: () => showToast('เปิดระบบสแกน QR...') },
-            { label: '📚 ส่งการบ้าน', action: () => setView('homework') },
-            { label: '🍱 สั่งข้าว',  action: () => showToast('เปิดระบบสั่งข้าว...') },
-            { label: '🛍 ร้านค้า',   action: () => setView('shop') },
-            { label: '💳 เติมเงิน',  action: () => showToast('กำลังเติมเงิน...') },
-            { label: '👤 โปรไฟล์',   action: () => setView('profile') },
+            { label: '📚 ส่งการบ้าน',    action: () => setView('homework') },
+            { label: '📅 ตารางเรียน',    action: () => setView('schedule') },
+            { label: '🎓 จองเรียนพิเศษ', action: () => setView('tutoring') },
+            { label: '🛍 ร้านค้า',       action: () => setView('shop') },
+            { label: '💳 เติมเงิน',      action: () => setView('topup') },
+            { label: '👤 โปรไฟล์',       action: () => setView('profile') },
           ].map((btn, i) => (
             <button key={i} className="stu-quick-btn" onClick={btn.action}>{btn.label}</button>
           ))}
         </div>
       </div>
+
+      {/* ข่าวสารโรงเรียนประจำวัน */}
+      <NewsBoard limit={4} />
     </div>
   );
 }

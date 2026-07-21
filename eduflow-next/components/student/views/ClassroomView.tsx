@@ -5,7 +5,7 @@ import type { StudentProfile, Subject, Assignment } from '@/lib/types';
 import type { StudentView } from '../StudentLayout';
 import { STU_COLORS } from './colors';
 import { getMaterials, getAnnouncements, type Material, type Announcement } from '@/lib/api/materials.store';
-import { TEACHER_DATA_MOCK } from '@/lib/mock-data';
+import { getStudentClassIds } from '@/lib/api/class-resolver';
 
 interface Props {
   profile: StudentProfile;
@@ -22,10 +22,11 @@ export default function ClassroomView({ profile, subjects, assignments, setView,
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   useEffect(() => {
-    // หา classId ของนักเรียนจาก mock — TODO(PostgreSQL): ดึงจาก enrollments จริง
-    const classId = TEACHER_DATA_MOCK.students.find(s => s.code === profile.studentId)?.classId || 'c1';
-    setMaterials(getMaterials(classId));
-    setAnnouncements(getAnnouncements(classId));
+    // รวมสื่อ/ประกาศจากทุกวิชาที่นักเรียนเรียนอยู่ (ห้องเดิม + ห้องจริงจากตารางเรียน)
+    // TODO(PostgreSQL): ดึงจาก enrollments จริงด้วย JOIN เดียว
+    const ids = getStudentClassIds(profile.studentId);
+    setMaterials(ids.flatMap(id => getMaterials(id)).sort((a, b) => b.createdAt - a.createdAt));
+    setAnnouncements(ids.flatMap(id => getAnnouncements(id)).sort((a, b) => b.createdAt - a.createdAt));
   }, [profile.studentId]);
 
   function filterHomework(key: string) {

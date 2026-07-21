@@ -14,6 +14,7 @@
 
 import type { AttendanceSession, AttendanceRecord, AttendanceReport } from '../types';
 import { TEACHER_DATA_MOCK } from '../mock-data';
+import { getClassStudentList } from './class-resolver';
 import { pushSharedNotification } from './assignments.store';
 
 const STORE_KEY = 'eduflow_attendance';
@@ -88,7 +89,8 @@ export function getSessionRecords(sessionId: string): AttendanceRecord[] {
 
 /** จำนวนนักเรียนทั้งหมดในห้อง (สำหรับนับคนขาด) */
 function classStudentCount(classId: string): number {
-  return TEACHER_DATA_MOCK.students.filter(s => s.classId === classId).length;
+  // รองรับทั้งห้อง mock เดิม และห้องจริงที่มาจากตารางสอน (r1#math)
+  return getClassStudentList(classId).length;
 }
 
 // TODO(PostgreSQL):

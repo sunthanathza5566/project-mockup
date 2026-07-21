@@ -18,6 +18,7 @@
 
 import { TEACHER_DATA_MOCK } from '../mock-data';
 import { getSession } from './auth.api';
+import { readJSON, writeJSON } from './storage-cache';
 import type { TeacherStudent, ClassInfo } from '../types';
 
 const STORE_KEY = 'eduflow_academic';
@@ -50,6 +51,38 @@ export interface ScoreComponent {
   max: number;
 }
 
+/**
+ * วิธีตัดสินผลการเรียนของรายวิชา
+ *   numeric = คิดเกรด 4 / 3.5 / ... / 0 (รายวิชาพื้นฐาน-เพิ่มเติม)
+ *   symbol  = ไม่คิดเกรด ใช้ผลการประเมิน ผ / มผ (กิจกรรมพัฒนาผู้เรียน, ชุมนุม/ชมรม)
+ */
+export type GradingMode = 'numeric' | 'symbol';
+
+/**
+ * ผลการเรียนแบบสัญลักษณ์ ตามระเบียบการวัดและประเมินผล (กระทรวงศึกษาธิการ)
+ *   scope: 'activity' = ใช้กับกิจกรรม/ชุมนุมที่ไม่คิดเกรด · 'subject' = รายวิชาที่คิดเกรด · 'all' = ใช้ได้ทั้งสองแบบ
+ * ทุกสัญลักษณ์ไม่ถูกนำไปคิด GPA (ไม่มีค่าน้ำหนักเป็นตัวเลข)
+ */
+export interface SpecialGrade {
+  code: string;
+  label: string;
+  scope: 'activity' | 'subject' | 'all';
+}
+
+export const SPECIAL_GRADES: SpecialGrade[] = [
+  { code: 'ผ',  label: 'ผ่านเกณฑ์การประเมิน',                    scope: 'activity' },
+  { code: 'มผ', label: 'ไม่ผ่านเกณฑ์การประเมิน',                 scope: 'activity' },
+  { code: 'ร',  label: 'รอการตัดสิน / รอการประเมินผล',           scope: 'all' },
+  { code: 'มส', label: 'ไม่มีสิทธิ์เข้ารับการวัดผลปลายภาค',      scope: 'subject' },
+  { code: 'ขส', label: 'ขาดสอบ',                                  scope: 'all' },
+  { code: 'ขร', label: 'ขาดเรียน (เวลาเรียนไม่ครบตามเกณฑ์)',     scope: 'all' },
+];
+
+/** สัญลักษณ์ที่เลือกได้ในวิชานั้น ๆ ตามวิธีตัดสินผล */
+export function specialGradesFor(mode: GradingMode): SpecialGrade[] {
+  return SPECIAL_GRADES.filter(g => g.scope === 'all' || g.scope === (mode === 'symbol' ? 'activity' : 'subject'));
+}
+
 export interface Course {
   id: string;
   classroomId: string;
@@ -60,14 +93,19 @@ export interface Course {
   teacherName: string;
   ownerUsername?: string;         // username ครูประจำวิชา — ใช้ตรวจสิทธิ์
   components: ScoreComponent[];   // สัดส่วนคะแนน ตั้งค่าได้
+  gradingMode: GradingMode;       // คิดเกรด หรือ ผ/มผ
   createdAt: number;
 }
 
-/** คะแนนนักเรียน 1 คนใน 1 วิชา — keyed ตาม ScoreComponent.id */
+/**
+ * คะแนนนักเรียน 1 คนใน 1 วิชา — keyed ตาม ScoreComponent.id
+ * symbol: ผลการเรียนแบบสัญลักษณ์ (ผ/มผ/ร/มส/ขส/ขร) — ถ้ามีค่า จะใช้แทนเกรดตัวเลข
+ */
 export interface ScoreEntry {
   studentCode: string;
   studentName: string;
   scores: Record<string, number | null>;
+  symbol?: string | null;
 }
 
 interface AcademicData {
@@ -94,23 +132,28 @@ export const PRESET_COMPONENTS: Omit<ScoreComponent, 'id'>[] = [
 // ─── Internal ─────────────────────────────────────────────────────────────
 function isBrowser() { return typeof window !== 'undefined'; }
 
+const EMPTY: AcademicData = { years: [], gradeLevels: [], classrooms: [], courses: [], scores: {} };
+
 function load(): AcademicData {
-  if (!isBrowser()) return { years: [], gradeLevels: [], classrooms: [], courses: [], scores: {} };
-  const raw = localStorage.getItem(STORE_KEY);
-  if (raw) return migrate(JSON.parse(raw));
+  if (!isBrowser()) return EMPTY;
+  // readJSON แคชผลตาม "ข้อความดิบ" — ถูกเรียกซ้ำในลูป (หาห้องของนักเรียน) จึงต้องไม่ parse ใหม่ทุกครั้ง
+  const data = readJSON<AcademicData | null>(STORE_KEY, null);
+  if (data) return migrate(data);
   const seeded = seed();
-  localStorage.setItem(STORE_KEY, JSON.stringify(seeded));
+  save(seeded);
   return seeded;
 }
 
 function save(data: AcademicData) {
-  if (isBrowser()) localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  if (isBrowser()) writeJSON(STORE_KEY, data);
 }
 
 /** แปลงข้อมูลรูปแบบเก่า (maxCollected/collected คงที่ 3 ช่อง) → components/scores แบบยืดหยุ่น */
 function migrate(data: AcademicData): AcademicData {
   let changed = false;
   data.courses.forEach((c: Course & { maxCollected?: number; maxMidterm?: number; maxFinal?: number }) => {
+    // วิชาที่สร้างก่อนมีระบบผลการเรียนแบบสัญลักษณ์ = คิดเกรดตามปกติ
+    if (!c.gradingMode) { c.gradingMode = 'numeric'; changed = true; }
     if (!c.components) {
       c.components = [
         { id: 'collected', name: 'คะแนนเก็บ',   max: c.maxCollected ?? 60 },
@@ -226,6 +269,8 @@ function genCourseCode(key: string, gradeName: string): string {
  * TODO(PostgreSQL): SELECT * FROM courses WHERE classroom_id=$1 AND owner_username=$2
  */
 export function syncTeacherCourses(classroomId: string, teacherClasses: ClassInfo[], teacher: { id: string; name: string }): Course[] {
+  /** กิจกรรม/ชุมนุม = ไม่คิดเกรด (ผ/มผ) — ค่านี้มาจากตารางสอนที่ครูตั้งไว้ */
+  const modeOf = (cls: ClassInfo): GradingMode => cls.gradingMode || 'numeric';
   const session = getSession();
   if (!session) return [];
 
@@ -239,17 +284,21 @@ export function syncTeacherCourses(classroomId: string, teacherClasses: ClassInf
     const taught = teacherClasses.filter(c => c.grade === grade.name && c.room === room.room);
     let changed = false;
     for (const cls of taught) {
-      const exists = data.courses.some(c => c.classroomId === classroomId && c.key === cls.key && (c.ownerUsername === session.username || c.teacherName === session.name));
-      if (!exists) {
-        data.courses.push({
-          id: `crs${Date.now()}_${cls.key}`,
-          classroomId, code: genCourseCode(cls.key, grade.name), name: cls.subject, key: cls.key,
-          teacherId: teacher.id, teacherName: teacher.name, ownerUsername: session.username,
-          components: DEFAULT_COMPONENTS.map(c => ({ ...c })),
-          createdAt: Date.now(),
-        });
-        changed = true;
+      const found = data.courses.find(c => c.classroomId === classroomId && c.key === cls.key && (c.ownerUsername === session.username || c.teacherName === session.name));
+      if (found) {
+        // ครูเปลี่ยนวิธีตัดสินผลในตารางสอน → อัปเดตวิชาที่มีอยู่ให้ตรงกัน
+        if (found.gradingMode !== modeOf(cls)) { found.gradingMode = modeOf(cls); changed = true; }
+        continue;
       }
+      data.courses.push({
+        id: `crs${Date.now()}_${cls.key}`,
+        classroomId, code: genCourseCode(cls.key, grade.name), name: cls.subject, key: cls.key,
+        teacherId: teacher.id, teacherName: teacher.name, ownerUsername: session.username,
+        components: DEFAULT_COMPONENTS.map(c => ({ ...c })),
+        gradingMode: modeOf(cls),
+        createdAt: Date.now(),
+      });
+      changed = true;
     }
     if (changed) save(data);
     return data.courses.filter(c => c.classroomId === classroomId && canManageScores(c));
@@ -361,6 +410,23 @@ export function calcPercent(e: ScoreEntry, course: Course): number | null {
   return (total / max) * 100;
 }
 
+/**
+ * ผลการเรียนที่แสดงจริงของนักเรียน 1 คนในวิชานั้น
+ *   - ถ้าครูเลือกสัญลักษณ์ไว้ (ผ/มผ/ร/มส/ขส/ขร) → ใช้สัญลักษณ์นั้นเสมอ
+ *   - วิชาไม่คิดเกรด (กิจกรรม/ชุมนุม) ที่ยังไม่ได้ประเมิน → '—'
+ *   - วิชาคิดเกรด → คำนวณจากเปอร์เซ็นต์ตามปกติ
+ */
+export function resolveGrade(e: ScoreEntry, course: Course): string {
+  if (e.symbol) return e.symbol;
+  if (course.gradingMode === 'symbol') return '—';
+  return calcGrade(calcPercent(e, course));
+}
+
+/** เกรดนี้เป็นสัญลักษณ์ (ไม่นำไปคิด GPA) หรือไม่ */
+export function isSpecialGrade(grade: string): boolean {
+  return SPECIAL_GRADES.some(g => g.code === grade);
+}
+
 /** เกรดตามเกณฑ์ สพฐ. จากเปอร์เซ็นต์: 80+ = 4, 75 = 3.5, 70 = 3, 65 = 2.5, 60 = 2, 55 = 1.5, 50 = 1 */
 export function calcGrade(percent: number | null): string {
   if (percent === null) return '—';
@@ -386,6 +452,8 @@ export interface StudentGradeRow {
   total: number | null;
   maxTotal: number;
   grade: string;
+  gradingMode: GradingMode;  // 'symbol' = วิชากิจกรรม/ชุมนุม ไม่คิดเกรด
+  isSpecial: boolean;        // เกรดเป็นสัญลักษณ์ (ไม่คิด GPA)
 }
 
 export function getStudentGrades(studentCode: string): StudentGradeRow[] {
@@ -397,6 +465,7 @@ export function getStudentGrades(studentCode: string): StudentGradeRow[] {
     const room = data.classrooms.find(c => c.id === course.classroomId);
     const grade = room ? data.gradeLevels.find(g => g.id === room.gradeLevelId) : undefined;
     const year = room ? data.years.find(y => y.id === room.yearId) : undefined;
+    const finalGrade = resolveGrade(entry, course);
     rows.push({
       courseId: course.id, courseCode: course.code, courseName: course.name,
       teacherName: course.teacherName,
@@ -404,15 +473,23 @@ export function getStudentGrades(studentCode: string): StudentGradeRow[] {
       academicYear: year?.year || '—',
       breakdown: course.components.map(c => ({ name: c.name, max: c.max, score: entry.scores[c.id] ?? null })),
       total: calcTotal(entry), maxTotal: maxTotal(course),
-      grade: calcGrade(calcPercent(entry, course)),
+      grade: finalGrade,
+      gradingMode: course.gradingMode,
+      isSpecial: isSpecialGrade(finalGrade),
     });
   }
   return rows;
 }
 
-/** GPA เฉลี่ยจากทุกวิชาที่มีเกรดแล้ว (น้ำหนักเท่ากันทุกวิชา — TODO: ถ่วงด้วยหน่วยกิตเมื่อมีข้อมูลจริง) */
+/**
+ * GPA เฉลี่ยจากวิชาที่คิดเกรดเท่านั้น (น้ำหนักเท่ากันทุกวิชา — TODO: ถ่วงด้วยหน่วยกิตเมื่อมีข้อมูลจริง)
+ * วิชากิจกรรม/ชุมนุม และผลแบบสัญลักษณ์ (ผ/มผ/ร/มส/ขส/ขร) ไม่ถูกนำมาคิด
+ */
 export function calcGPA(rows: StudentGradeRow[]): number | null {
-  const graded = rows.filter(r => r.grade !== '—').map(r => parseFloat(r.grade));
+  const graded = rows
+    .filter(r => r.grade !== '—' && !r.isSpecial)
+    .map(r => parseFloat(r.grade))
+    .filter(g => !Number.isNaN(g));
   if (graded.length === 0) return null;
   return graded.reduce((s, g) => s + g, 0) / graded.length;
 }

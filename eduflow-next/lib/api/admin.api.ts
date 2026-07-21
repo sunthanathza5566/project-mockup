@@ -5,7 +5,8 @@
 
 import { getUsers, saveUsers, getPermissions, savePermissions, getWebAdminLog, hashPassword } from './auth.api';
 import { logActivity } from './activity.log';
-import { DEFAULT_PERMISSIONS, PERMISSION_LABELS, ROLE_LABELS } from '../mock-data';
+import { mergePermissions } from './permissions';
+import { PERMISSION_LABELS, ROLE_LABELS } from '../mock-data';
 import type { User, Permissions, Role } from '../types';
 
 // TODO(PostgreSQL): SELECT * FROM users ORDER BY role, created_at DESC
@@ -34,14 +35,7 @@ export async function deleteUserById(username: string): Promise<void> {
 // TODO(PostgreSQL): SELECT role, permission_key, allowed FROM role_permissions
 // merge กับ DEFAULT เพื่อให้ key สิทธิ์ที่เพิ่มใหม่ปรากฏแม้ localStorage จะมีข้อมูลเก่า
 export async function getAllPermissions(): Promise<Permissions> {
-  const stored = getPermissions();
-  const merged = {} as Permissions;
-  (Object.keys(DEFAULT_PERMISSIONS) as (keyof Permissions)[]).forEach(role => {
-    merged[role] = { ...DEFAULT_PERMISSIONS[role], ...(stored[role] || {}) };
-    // ตัด key เก่าที่ไม่มีในแคตตาล็อกปัจจุบันออก
-    Object.keys(merged[role]).forEach(k => { if (!(k in DEFAULT_PERMISSIONS[role])) delete merged[role][k]; });
-  });
-  return merged;
+  return mergePermissions(getPermissions());
 }
 
 // TODO(PostgreSQL): UPDATE role_permissions SET allowed = $1 WHERE role = $2 AND permission_key = $3

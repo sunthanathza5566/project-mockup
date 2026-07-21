@@ -1,22 +1,26 @@
 'use client';
 
-import { useToast } from '@/context/ToastContext';
+import { useLang } from '@/context/LangContext';
 
 /**
  * ปุ่มเปลี่ยนภาษา ไทย/English — อยู่บน navbar ทุกหน้า
- * ตอนนี้เป็น placeholder: เตรียม UI ไว้ก่อน ยังไม่เปิดใช้งานจริง
- * TODO(i18n): เชื่อมกับระบบแปลภาษา (เช่น next-intl) แล้วเปลี่ยนทั้งหน้า UI ตามภาษาที่เลือก
+ * กด 1 ครั้ง = สลับภาษาของ "หน้านี้" ทันที (หน้าอื่นไม่เปลี่ยนตาม)
  */
 export default function LangToggle() {
-  const { showToast } = useToast();
+  const { lang, toggleLang } = useLang();
+  const isTH = lang === 'th';
+
   return (
     <button
       type="button"
       className="lang-toggle"
-      title="เปลี่ยนภาษา / Change language"
-      onClick={() => showToast('🌐 ระบบเปลี่ยนภาษา ไทย/English — จะเปิดใช้ในเวอร์ชันถัดไป')}
+      title={isTH ? 'เปลี่ยนเป็นภาษาอังกฤษ (เฉพาะหน้านี้)' : 'Switch to Thai (this page only)'}
+      aria-label="Change language"
+      onClick={toggleLang}
     >
-      🌐 ไทย <span className="lang-toggle-alt">| EN</span>
+      🌐 <span className={isTH ? '' : 'lang-toggle-alt'}>ไทย</span>
+      <span className="lang-toggle-sep">|</span>
+      <span className={isTH ? 'lang-toggle-alt' : ''}>EN</span>
     </button>
   );
 }

@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import type { AttendanceReport } from '../types';
 import {
-  calcTotal, calcGrade, calcPercent, calcGPA, maxTotal,
+  calcTotal, calcGPA, maxTotal, resolveGrade,
   type Course, type ScoreEntry, type StudentGradeRow,
 } from '../api/academic.store';
 
@@ -101,28 +101,35 @@ export async function exportScoreSheetToExcel(
   const workbook = new ExcelJS.Workbook();
   const ws = workbook.addWorksheet('บันทึกผลการเรียน');
   const max = maxTotal(course);
+  // วิชากิจกรรม/ชุมนุมไม่คิดเกรด — ไม่ต้องมีคอลัมน์คะแนนและคอลัมน์รวม
+  const isSymbol = course.gradingMode === 'symbol';
+  const components = isSymbol ? [] : course.components;
 
   ws.columns = [
     { key: 'order', width: 8 },
     { key: 'code',  width: 14 },
     { key: 'name',  width: 28 },
-    ...course.components.map(c => ({ key: c.id, width: 16 })),
-    { key: 'total', width: 12 },
-    { key: 'grade', width: 10 },
+    ...components.map(c => ({ key: c.id, width: 16 })),
+    ...(isSymbol ? [] : [{ key: 'total', width: 12 }]),
+    { key: 'grade', width: 12 },
   ];
 
   ws.addRow([`แบบบันทึกผลการเรียน (ปพ.5)`]);
   ws.addRow([`รายวิชา: ${course.name} (${course.code})`]);
   ws.addRow([`ห้องเรียน: ${classroomLabel} · ปีการศึกษา ${academicYear}`]);
   ws.addRow([`ครูผู้สอน: ${course.teacherName}`]);
-  ws.addRow([`เกณฑ์เกรด สพฐ. คิดจากเปอร์เซ็นต์ของคะแนนเต็มรวม ${max} คะแนน`]);
+  ws.addRow([isSymbol
+    ? 'วิชาไม่คิดเกรด — ประเมินผลเป็น ผ (ผ่าน) / มผ (ไม่ผ่าน) ไม่นำไปคิด GPA'
+    : `เกณฑ์เกรด สพฐ. คิดจากเปอร์เซ็นต์ของคะแนนเต็มรวม ${max} คะแนน`]);
+  ws.addRow(['สัญลักษณ์ผลการเรียน: ผ = ผ่าน · มผ = ไม่ผ่าน · ร = รอการตัดสิน · มส = ไม่มีสิทธิ์สอบปลายภาค · ขส = ขาดสอบ · ขร = ขาดเรียน']);
   ws.addRow([]);
   ws.getRow(1).font = { bold: true, size: 14 };
 
   const headerRow = ws.addRow([
     'ลำดับ', 'รหัสนักเรียน', 'ชื่อ-นามสกุล',
-    ...course.components.map(c => `${c.name} (${c.max})`),
-    `รวม (${max})`, 'เกรด',
+    ...components.map(c => `${c.name} (${c.max})`),
+    ...(isSymbol ? [] : [`รวม (${max})`]),
+    isSymbol ? 'ผลการประเมิน' : 'เกรด',
   ]);
   styleHeaderRow(headerRow);
 
@@ -130,19 +137,22 @@ export async function exportScoreSheetToExcel(
     const total = calcTotal(e);
     const row = ws.addRow([
       idx + 1, e.studentCode, e.studentName,
-      ...course.components.map(c => e.scores[c.id] ?? '—'),
-      total ?? '—', calcGrade(calcPercent(e, course)),
+      ...components.map(c => (e.symbol ? '—' : e.scores[c.id] ?? '—')),
+      ...(isSymbol ? [] : [e.symbol ? '—' : total ?? '—']),
+      resolveGrade(e, course),
     ]);
     row.alignment = { horizontal: 'center', vertical: 'middle' };
     row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
     borderRow(row);
   });
 
-  const graded = entries.map(calcTotal).filter((t): t is number => t !== null);
+  // นับว่า "บันทึกแล้ว" ทั้งที่กรอกคะแนน และที่ให้ผลแบบสัญลักษณ์
+  const recorded = entries.filter(e => e.symbol || calcTotal(e) !== null).length;
+  const totals = entries.filter(e => !e.symbol).map(calcTotal).filter((t): t is number => t !== null);
   ws.addRow([]);
-  ws.addRow([`สรุป: บันทึกแล้ว ${graded.length}/${entries.length} คน`,
+  ws.addRow([`สรุป: บันทึกแล้ว ${recorded}/${entries.length} คน`,
     '', '',
-    graded.length ? `เฉลี่ยรวม ${(graded.reduce((s, t) => s + t, 0) / graded.length).toFixed(1)} คะแนน` : '']);
+    !isSymbol && totals.length ? `เฉลี่ยรวม ${(totals.reduce((s, t) => s + t, 0) / totals.length).toFixed(1)} คะแนน` : '']);
 
   await downloadWorkbook(workbook, `ปพ5_${course.code}_${classroomLabel.replace('/', '-')}_${academicYear}.xlsx`);
 }

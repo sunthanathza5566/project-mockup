@@ -12,6 +12,9 @@ import {
   getSharedNotifications, markSharedNotificationRead,
   type StoredAssignment,
 } from './assignments.store';
+import { getTeacherSlots, getClassroomContext, SUBJECT_KEYS } from './schedule.store';
+import { getClassStudentList, makeClassId } from './class-resolver';
+import { subjectColor } from '../ui/subject-colors';
 
 export type { StoredAssignment };
 
@@ -20,7 +23,8 @@ export type { StoredAssignment };
  * ครูที่สมัครใหม่/แอดมินเพิ่ม = เริ่มจาก 0 ไม่มีห้องสอน จนกว่าแอดมินจะจัดสรร
  */
 const DEMO_TEACHER_USERNAMES = ['teacher1', 'T001'];
-const isDemoTeacher = (id: string) => DEMO_TEACHER_USERNAMES.includes(id);
+/** แหล่งเดียวที่ตัดสินว่าเป็นบัญชีครูเดโม่ — ทุกที่ต้อง import ตัวนี้ ห้ามเขียนเช็คซ้ำ */
+export const isDemoTeacher = (id: string) => DEMO_TEACHER_USERNAMES.includes(id);
 
 // TODO(PostgreSQL): SELECT * FROM teachers WHERE user_id = $1
 export async function getTeacherProfile(teacherId: string) {
@@ -34,13 +38,38 @@ export async function getTeacherProfile(teacherId: string) {
 //   FROM teacher_classes tc JOIN classes c ON tc.class_id = c.id
 //   WHERE tc.teacher_id = $1
 export async function getTeacherClasses(teacherId: string): Promise<ClassInfo[]> {
+  // ห้องที่สอนมาจาก "ตารางสอน" เป็นหลัก — ครูจัดตารางแล้วห้องจะขึ้นเองทุกเมนู
+  const fromSchedule = getTeacherClassesFromSchedule(teacherId);
+  if (fromSchedule.length > 0) return fromSchedule;
+  // ยังไม่มีตารางสอน: บัญชีเดโม่ใช้ข้อมูลตัวอย่าง · บัญชีอื่นเริ่มจาก 0 ตามจริง
   return isDemoTeacher(teacherId) ? [...TEACHER_DATA_MOCK.classes] : [];
+}
+
+/** แปลงคาบสอนในตารางเป็นรายการ "ห้อง × วิชา" ที่ครูรับผิดชอบ */
+function getTeacherClassesFromSchedule(teacherUsername: string): ClassInfo[] {
+  const slots = getTeacherSlots(teacherUsername);
+  const map = new Map<string, ClassInfo>();
+  slots.forEach(s => {
+    // ระบุห้อง-วิชาด้วย "รหัสวิชา" ไม่ใช่กลุ่มสาระ — ครูอาจสอน 2 วิชาในสาระเดียวกันในห้องเดียว
+    const id = makeClassId(s.classroomId, s.subjectCode);
+    if (map.has(id)) return;
+    const ctx = getClassroomContext(s.classroomId);
+    if (!ctx) return;
+    map.set(id, {
+      id, grade: ctx.gradeName, room: ctx.room,
+      subject: s.subjectName, key: s.subjectKey, code: s.subjectCode,
+      icon: SUBJECT_KEYS.find(k => k.key === s.subjectKey)?.icon || '📘',
+      color: subjectColor(s.subjectKey).dot,
+      gradingMode: s.gradingMode || 'numeric',
+    });
+  });
+  return Array.from(map.values());
 }
 
 // TODO(PostgreSQL):
 //   SELECT * FROM students WHERE class_id = $1 ORDER BY name
 export async function getClassStudents(classId: string): Promise<TeacherStudent[]> {
-  return TEACHER_DATA_MOCK.students.filter(s => s.classId === classId);
+  return getClassStudentList(classId);
 }
 
 // อ่าน/เขียนผ่าน shared store (localStorage) เพื่อให้เชื่อมกับฝั่งนักเรียนจริง
@@ -59,6 +88,7 @@ export async function getClassAssignments(classId: string): Promise<StoredAssign
 export async function createAssignment(data: {
   classId: string; key: string; subject: string; title: string;
   details: string; due: string; maxScore: number; teacher: string;
+  teacherId?: string;
   submitType?: import('../types').SubmitFileType;
 }): Promise<StoredAssignment> {
   return createAssignmentStore(data);
@@ -112,8 +142,7 @@ export async function postAnnouncement(classId: string, data: {
 //   SELECT student_id, status, check_time FROM attendance_records
 //   WHERE class_id = $1 AND date = CURRENT_DATE
 export async function getTodayAttendance(classId: string) {
-  const students = TEACHER_DATA_MOCK.students.filter(s => s.classId === classId);
-  return students.map(s => ({
+  return getClassStudentList(classId).map(s => ({
     studentId: s.id, studentCode: s.code, name: s.name,
     status: 'on-time' as const, checkTime: '08:02',
   }));

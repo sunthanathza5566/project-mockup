@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/context/AuthContext';
+import { LangProvider } from '@/context/LangContext';
 import { ToastProvider } from '@/context/ToastContext';
 import Toast from '@/components/ui/Toast';
 import './globals.css';
@@ -21,10 +22,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>
-          <ToastProvider>
-            {children}
-            <Toast />
-          </ToastProvider>
+          <LangProvider>
+            <ToastProvider>
+              {children}
+              <Toast />
+            </ToastProvider>
+          </LangProvider>
         </AuthProvider>
       </body>
     </html>

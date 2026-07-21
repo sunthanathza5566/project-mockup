@@ -9,10 +9,11 @@ import { useToast } from '@/context/ToastContext';
 
 interface Props {
   teacherName: string;
+  teacherId?: string;   // ใช้ส่งแจ้งเตือนกลับหาครูเจ้าของงานเมื่อนักเรียนส่งงาน
   selectedClass: ClassInfo;
 }
 
-export default function AssignmentsView({ teacherName, selectedClass }: Props) {
+export default function AssignmentsView({ teacherName, teacherId, selectedClass }: Props) {
   const { showToast } = useToast();
 
   const [assignments, setAssignments] = useState<StoredAssignment[]>([]);
@@ -47,7 +48,7 @@ export default function AssignmentsView({ teacherName, selectedClass }: Props) {
     await createAssignment({
       classId: selectedClass.id, key: selectedClass.key, subject: selectedClass.subject,
       title: title.trim(), details: details.trim(), due: due.trim(),
-      maxScore, teacher: teacherName, submitType,
+      maxScore, teacher: teacherName, teacherId, submitType,
     });
     logActivity('teacher', 'สั่งการบ้าน', `${title.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
     showToast('✅ มอบหมายการบ้านแล้ว — แจ้งเตือนถึงนักเรียนทุกคนในห้อง');

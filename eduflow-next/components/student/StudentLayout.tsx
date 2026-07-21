@@ -9,6 +9,8 @@ import type { StudentProfile, StudentStats, Subject, Assignment, Notification, S
 import LangToggle from '@/components/ui/LangToggle';
 import BookingView from './views/BookingView';
 import TopupView from './views/TopupView';
+import TutoringView from './views/TutoringView';
+import { useLang } from '@/context/LangContext';
 import { getWalletBalance } from '@/lib/api/wallet.store';
 
 import DashboardView from './views/DashboardView';
@@ -22,7 +24,7 @@ import LibraryView   from './views/LibraryView';
 import AttendanceScanView from './AttendanceScanView';
 import TeacherRatingModal from './TeacherRatingModal';
 
-export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'topup';
+export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'topup' | 'tutoring';
 
 const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
@@ -31,6 +33,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'schedule',  icon: '📅', label: 'ตารางเรียน' },
   { view: 'homework',  icon: '📚', label: 'การบ้าน' },
   { view: 'grades',    icon: '🎓', label: 'ผลการเรียน' },
+  { view: 'tutoring',  icon: '🎓', label: 'จองเรียนพิเศษ' },
   { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
   { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
   { view: 'booking',   icon: '📚', label: 'จองหนังสือ' },
@@ -40,6 +43,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
 export default function StudentLayout() {
   const { session, isLoading, logout } = useAuth();
   const { showToast }       = useToast();
+  const { t }               = useLang();
   const router              = useRouter();
 
   // ─── View state ──────────────────────────────────────
@@ -208,7 +212,7 @@ export default function StudentLayout() {
               onClick={() => navigate(item.view)}
             >
               <span className="stu-bm-iicon">{item.icon}</span>
-              {item.label}
+              {t(item.label)}
               {item.view === 'homework' && assignments.filter(a => a.status === 'overdue').length > 0 && (
                 <span className="stu-bm-ibadge">{assignments.filter(a => a.status === 'overdue').length}</span>
               )}
@@ -216,13 +220,13 @@ export default function StudentLayout() {
           ))}
           <div className="stu-bm-divider" />
           <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowAttendanceScan(true); }}>
-            <span className="stu-bm-iicon">📱</span>เช็คชื่อ QR
+            <span className="stu-bm-iicon">📱</span>{t('เช็คชื่อ QR')}
           </button>
           <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowRating(true); }}>
-            <span className="stu-bm-iicon">⭐</span>ให้คะแนนการสอน
+            <span className="stu-bm-iicon">⭐</span>{t('ให้คะแนนการสอน')}
           </button>
           <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
-            <span className="stu-bm-iicon">🚪</span>ออกจากระบบ
+            <span className="stu-bm-iicon">🚪</span>{t('ออกจากระบบ')}
           </button>
         </nav>
       </div>
@@ -231,7 +235,7 @@ export default function StudentLayout() {
       <div className={`stu-notif-overlay${notifOpen ? ' show' : ''}`} onClick={() => setNotifOpen(false)} />
       <div className={`stu-notif-panel${notifOpen ? ' open' : ''}`} id="stu-notif-panel">
         <div className="stu-notif-ph">
-          <span className="stu-notif-ph-title">การแจ้งเตือน</span>
+          <span className="stu-notif-ph-title">{t('การแจ้งเตือน')}</span>
           <button className="stu-notif-ph-close" onClick={() => setNotifOpen(false)}>✕</button>
         </div>
         <div className="stu-notif-list-inner" id="stu-notif-list">
@@ -268,6 +272,7 @@ export default function StudentLayout() {
         {currentView === 'shop'      && <ShopView      {...viewProps} stats={stats!} />}
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
         {currentView === 'booking'   && <BookingView   profile={profile} showToast={showToast} />}
+        {currentView === 'tutoring'  && <TutoringView  profile={profile} showToast={showToast} />}
         {currentView === 'topup'     && <TopupView     profile={profile} showToast={showToast} />}
       </main>
 

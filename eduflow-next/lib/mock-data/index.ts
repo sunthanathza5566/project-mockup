@@ -21,11 +21,13 @@ export const DEFAULT_PERMISSIONS: Permissions = {
     attendanceQR: true, editAttendance: true, viewReports: true,
     assignments: true, gradebook: true, gradeExport: true,
     materials: true, announcements: true, exportData: true,
+    viewTeachSchedule: true, manageTeachSchedule: true, offerTutoring: true,
   },
   student: {
     checkin: true, viewSchedule: true, submitHomework: true,
     viewGrades: true, downloadReports: true, shop: true,
     library: true, rateTeacher: true, viewOwnHistory: true,
+    bookTutoring: true,
   },
   parent: {
     viewChildStatus: true, viewChildGrades: true, viewHistory: true,
@@ -35,6 +37,7 @@ export const DEFAULT_PERMISSIONS: Permissions = {
     manageTeachers: true, manageStudents: true, manageParents: false,
     manageAcademic: true, viewAllReports: true, exportData: true,
     broadcast: true, viewLogs: false,
+    viewTeachSchedule: true, manageTeachSchedule: true,
   },
 };
 
@@ -44,12 +47,15 @@ export const PERMISSION_LABELS: Record<string, Record<string, string>> = {
     viewReports: 'ดูรายงานเช็คชื่อย้อนหลัง', assignments: 'สั่งการบ้าน & ตรวจงานให้คะแนน',
     gradebook: 'บันทึกคะแนน (ปพ.5)', gradeExport: 'ดาวน์โหลดเอกสาร ปพ.',
     materials: 'อัปโหลดสื่อการสอน', announcements: 'ส่งประกาศถึงนักเรียน', exportData: 'Export ข้อมูล Excel',
+    viewTeachSchedule: 'ดูตารางสอน', manageTeachSchedule: 'จัดการตารางสอน (เพิ่ม/แก้ไข/ลบ)',
+    offerTutoring: 'เปิดรับสอนพิเศษนอกเวลา',
   },
   student: {
     checkin: 'เช็คชื่อเข้าเรียน (รหัส/QR)', viewSchedule: 'ดูตารางเรียน',
     submitHomework: 'ส่งการบ้าน', viewGrades: 'ดูผลการเรียน/เกรด',
     downloadReports: 'ดาวน์โหลด ปพ.1 / ปพ.6', shop: 'ใช้งานร้านค้า/แต้มสะสม',
     library: 'ใช้งานห้องสมุด', rateTeacher: 'ประเมินครู (ไม่ระบุตัวตน)', viewOwnHistory: 'ดูประวัติการมาเรียนตัวเอง',
+    bookTutoring: 'จองเรียนพิเศษกับครู',
   },
   parent: {
     viewChildStatus: 'ดูสถานะบุตรหลาน', viewChildGrades: 'ดูผลการเรียนบุตรหลาน',
@@ -61,6 +67,7 @@ export const PERMISSION_LABELS: Record<string, Record<string, string>> = {
     manageParents: 'จัดการผู้ปกครอง', manageAcademic: 'จัดการโครงสร้างวิชาการ (ปี/ชั้น/ห้อง)',
     viewAllReports: 'ดูรายงานทั้งหมดของโรงเรียน', exportData: 'Export ข้อมูลโรงเรียน',
     broadcast: 'ส่งประกาศ/แจ้งเตือนผู้ปกครอง', viewLogs: 'ดู Log ของโรงเรียน',
+    viewTeachSchedule: 'ดูตารางสอนทุกห้อง', manageTeachSchedule: 'จัดการตารางสอนทุกห้อง',
   },
 };
 
@@ -280,6 +287,31 @@ export const TEACHER_DATA_MOCK = {
     { id:'S011', code:'30023', name:'วรรณา ขยันดี',     classId:'c3' },
   ] as TeacherStudent[],
 };
+
+// ─── ข่าวสารโรงเรียน (Dashboard) ───────────────────────────────────────────
+/**
+ * ข่าวสาร/ประกาศ/กิจกรรม/วันหยุด ที่แสดงบนหน้า Dashboard ของครูและนักเรียน
+ * ตอนนี้เป็นข้อมูลตัวอย่างเพื่อให้เห็นหน้าตาก่อน (ยังไม่เปิดให้กดเข้าไปอ่านต่อ)
+ * TODO(PostgreSQL): SELECT * FROM school_news WHERE school_id = $1 ORDER BY publish_at DESC
+ */
+export type SchoolNewsType = 'announce' | 'activity' | 'holiday' | 'calendar';
+
+export interface SchoolNews {
+  id: number;
+  type: SchoolNewsType;
+  title: string;
+  body: string;
+  date: string;
+}
+
+export const SCHOOL_NEWS_MOCK: SchoolNews[] = [
+  { id: 1, type: 'announce', title: 'ประกาศ: กำหนดสอบกลางภาค ภาคเรียนที่ 1', body: 'สอบระหว่างวันที่ 22–26 กรกฎาคม 2569 · นักเรียนตรวจสอบตารางสอบที่บอร์ดหน้าห้องวิชาการ', date: '21 ก.ค. 2569' },
+  { id: 2, type: 'activity', title: 'กิจกรรมวันภาษาไทยแห่งชาติ', body: 'ชมรมภาษาไทยจัดประกวดอ่านทำนองเสนาะและคัดลายมือ ณ หอประชุมใหญ่ เวลา 13:00 น.', date: '29 ก.ค. 2569' },
+  { id: 3, type: 'holiday', title: 'วันหยุด: วันเฉลิมพระชนมพรรษา', body: 'โรงเรียนหยุดการเรียนการสอน 1 วัน · ชดเชยคาบเรียนตามประกาศฝ่ายวิชาการ', date: '28 ก.ค. 2569' },
+  { id: 4, type: 'calendar', title: 'ปฏิทินการศึกษา: ส่งผลการเรียนกลางภาค', body: 'ครูประจำวิชาส่งคะแนนเก็บกลางภาคผ่านระบบ EduFlow ภายในวันที่ 31 กรกฎาคม 2569', date: '31 ก.ค. 2569' },
+  { id: 5, type: 'announce', title: 'ประกาศ: ปรับปรุงระบบอินเทอร์เน็ตอาคาร 3', body: 'งดใช้บริการห้องคอมพิวเตอร์ชั่วคราวในวันเสาร์–อาทิตย์นี้', date: '26 ก.ค. 2569' },
+  { id: 6, type: 'activity', title: 'รับสมัครนักเรียนเข้าร่วมค่ายวิทยาศาสตร์', body: 'เปิดรับ 40 คน · สมัครได้ที่ครูประจำกลุ่มสาระวิทยาศาสตร์ ภายใน 5 สิงหาคม 2569', date: '5 ส.ค. 2569' },
+];
 
 // ─── SCHOOL MOCK DATA ──────────────────────────────────────────────────────
 // TODO(PostgreSQL): ดึงจาก table: schools, reviews

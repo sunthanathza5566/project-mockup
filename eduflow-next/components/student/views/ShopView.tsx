@@ -31,6 +31,7 @@ export default function ShopView({ profile, showToast, refreshWallet, setView }:
 
   // ── Popups ──
   const [pickedItem,   setPickedItem]   = useState<ShopItem | null>(null); // popup เลือก: ใส่ตะกร้า / ชำระทันที
+  const [pickedQty,    setPickedQty]    = useState(1);                     // จำนวนที่เลือกใน popup
   const [checkoutList, setCheckoutList] = useState<{ item: ShopItem; qty: number }[] | null>(null); // หน้ายืนยันชำระเงิน
   const [notEnough,    setNotEnough]    = useState(false); // popup ยอดเงินไม่พอ
   const [receipt,      setReceipt]      = useState<{ list: { item: ShopItem; qty: number }[]; total: number; balance: number } | null>(null);
@@ -49,9 +50,15 @@ export default function ShopView({ profile, showToast, refreshWallet, setView }:
     .filter(x => x.item);
   const cartTotal = cartItems.reduce((s, x) => s + x.item.price * x.qty, 0);
 
+  /** เปิด popup สินค้า พร้อมรีเซ็ตจำนวนเป็น 1 ทุกครั้ง */
+  function openItem(item: ShopItem) {
+    setPickedQty(1);
+    setPickedItem(item);
+  }
+
   function addToCart(item: ShopItem, qty = 1) {
     setCart(c => ({ ...c, [item.id]: (c[item.id] || 0) + qty }));
-    showToast(`🛒 ใส่ "${item.name}" ลงตะกร้าแล้ว`);
+    showToast(`🛒 ใส่ "${item.name}" × ${qty} ลงตะกร้าแล้ว`);
     setPickedItem(null);
   }
 
@@ -96,7 +103,7 @@ export default function ShopView({ profile, showToast, refreshWallet, setView }:
             <div
               key={item.id}
               className={`stu-shop-item${!item.avail ? ' sold-out' : qty > 0 ? ' in-cart' : ''}`}
-              onClick={() => item.avail ? setPickedItem(item) : showToast('สินค้าหมดแล้ว')}
+              onClick={() => item.avail ? openItem(item) : showToast('สินค้าหมดแล้ว')}
             >
               {!item.avail
                 ? <span className="stu-shop-tag stu-shop-tag-out">หมด</span>
@@ -130,10 +137,26 @@ export default function ShopView({ profile, showToast, refreshWallet, setView }:
           <div style={{ ...modalCard, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
             <div style={{ fontSize: '3.2rem', marginBottom: '0.4rem' }}>{pickedItem.icon}</div>
             <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--brown-dark)' }}>{pickedItem.name}</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--brown-mid)', margin: '0.35rem 0 1rem' }}>฿{pickedItem.price}</div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--brown-mid)', margin: '0.35rem 0 0.85rem' }}>฿{pickedItem.price}</div>
+
+            {/* ── เลือกจำนวนก่อนทำรายการ ── */}
+            <div className="stu-qty-row">
+              <button className="stu-qty-btn" onClick={() => setPickedQty(q => Math.max(1, q - 1))} disabled={pickedQty <= 1}>−</button>
+              <input
+                className="stu-qty-input"
+                type="number"
+                min={1}
+                max={99}
+                value={pickedQty}
+                onChange={e => setPickedQty(Math.min(99, Math.max(1, parseInt(e.target.value) || 1)))}
+              />
+              <button className="stu-qty-btn" onClick={() => setPickedQty(q => Math.min(99, q + 1))} disabled={pickedQty >= 99}>+</button>
+            </div>
+            <div className="stu-qty-total">รวม ฿{(pickedItem.price * pickedQty).toLocaleString('th-TH')}</div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-              <button className="stu-hw-submit-btn" style={{ width: '100%' }} onClick={() => addToCart(pickedItem)}>🛒 นำลงใส่ตะกร้า</button>
-              <button className="stu-hw-submit-btn" style={{ width: '100%', background: '#2E8B5B' }} onClick={() => openCheckout([{ item: pickedItem, qty: 1 }])}>💳 ชำระเงินทันที</button>
+              <button className="stu-hw-submit-btn" style={{ width: '100%' }} onClick={() => addToCart(pickedItem, pickedQty)}>🛒 ใส่ตะกร้า ({pickedQty} ชิ้น)</button>
+              <button className="stu-hw-submit-btn" style={{ width: '100%', background: '#2E8B5B' }} onClick={() => openCheckout([{ item: pickedItem, qty: pickedQty }])}>💳 ชำระเงินทันที</button>
               <button className="stu-hw-submit-btn" style={{ width: '100%', background: 'var(--text-muted)' }} onClick={() => setPickedItem(null)}>ยกเลิก</button>
             </div>
           </div>
