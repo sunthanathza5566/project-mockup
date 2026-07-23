@@ -284,15 +284,18 @@ export function syncTeacherCourses(classroomId: string, teacherClasses: ClassInf
     const taught = teacherClasses.filter(c => c.grade === grade.name && c.room === room.room);
     let changed = false;
     for (const cls of taught) {
-      const found = data.courses.find(c => c.classroomId === classroomId && c.key === cls.key && (c.ownerUsername === session.username || c.teacherName === session.name));
+      // ระบุวิชาด้วย "รหัสวิชา" — ครูอาจสอน 2 วิชาในกลุ่มสาระเดียวกันในห้องเดียว (เช่น คณิตพื้นฐาน + คณิตเพิ่มเติม)
+      const code = cls.code || genCourseCode(cls.key, grade.name);
+      const found = data.courses.find(c => c.classroomId === classroomId && c.code === code && (c.ownerUsername === session.username || c.teacherName === session.name));
       if (found) {
-        // ครูเปลี่ยนวิธีตัดสินผลในตารางสอน → อัปเดตวิชาที่มีอยู่ให้ตรงกัน
+        // ครูแก้ตารางสอน → อัปเดตชื่อ/วิธีตัดสินผลของวิชาที่มีอยู่ให้ตรงกัน
         if (found.gradingMode !== modeOf(cls)) { found.gradingMode = modeOf(cls); changed = true; }
+        if (found.name !== cls.subject)        { found.name = cls.subject;        changed = true; }
         continue;
       }
       data.courses.push({
-        id: `crs${Date.now()}_${cls.key}`,
-        classroomId, code: genCourseCode(cls.key, grade.name), name: cls.subject, key: cls.key,
+        id: `crs${Date.now()}_${code}`,
+        classroomId, code, name: cls.subject, key: cls.key,
         teacherId: teacher.id, teacherName: teacher.name, ownerUsername: session.username,
         components: DEFAULT_COMPONENTS.map(c => ({ ...c })),
         gradingMode: modeOf(cls),
