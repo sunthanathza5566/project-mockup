@@ -18,10 +18,12 @@ import {
 import {
   getWeekGrid, getScheduleCourses, getScheduleLog, addSlot, updateSlot, deleteSlot,
   clearClassroomSchedule, canManageSchedule, suggestSubjectCode, dayTH, periodTime,
+  getLunchConfig, setLunchConfig, PERIODS,
   SUBJECT_TYPES, SUBJECT_KEYS, defaultGradingMode,
   type ScheduleSlot, type DayKey, type SubjectType, type ScheduleLogEntry,
 } from '@/lib/api/schedule.store';
 import type { GradingMode } from '@/lib/api/academic.store';
+import { getCatalogSubjects, type CatalogSubject } from '@/lib/api/subject-catalog.store';
 import { getUsers } from '@/lib/api/auth.api';
 import ScheduleGrid from '@/components/schedule/ScheduleGrid';
 import CourseList from '@/components/schedule/CourseList';
@@ -37,7 +39,9 @@ interface Props {
 
 /** ค่าตั้งต้นของฟอร์มคาบสอน */
 interface FormState {
+  catalogId: string;      // วิชาที่เลือกจากคลัง ('' = กรอกเอง)
   subjectName: string;
+  subjectNameEn: string;
   subjectCode: string;
   subjectKey: string;
   subjectType: SubjectType;
@@ -49,7 +53,7 @@ interface FormState {
 }
 
 const emptyForm = (teacherUsername: string): FormState => ({
-  subjectName: '', subjectCode: '', subjectKey: 'math', subjectType: 'พื้นฐาน',
+  catalogId: '', subjectName: '', subjectNameEn: '', subjectCode: '', subjectKey: 'math', subjectType: 'พื้นฐาน',
   gradingMode: 'numeric', credit: 1.0, teacherUsername, room: '', note: '',
 });
 
@@ -83,6 +87,11 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
 
   // รายชื่อครูสำหรับเลือกครูผู้สอน (จากบัญชีจริงในระบบ)
   const [teacherOptions, setTeacherOptions] = useState<{ username: string; name: string; code: string }[]>([]);
+  const [catalog, setCatalog] = useState<CatalogSubject[]>([]);
+
+  // ── ตั้งเวลาพักเที่ยง ──
+  const [lunchOpen, setLunchOpen] = useState(false);
+  const [lunch, setLunch] = useState(getLunchConfig());
 
   useEffect(() => {
     const ys = getAcademicYears();
@@ -92,6 +101,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
       getUsers().filter(u => u.role === 'teacher')
         .map(u => ({ username: u.username, name: u.name, code: u.code || u.username.toUpperCase() }))
     );
+    setCatalog(getCatalogSubjects());
   }, []);
   useEffect(() => { setGrades(selYear ? getGradeLevels(selYear.id) : []); setSelGrade(null); setSelRoom(null); }, [selYear]);
   useEffect(() => { setRooms(selGrade ? getClassrooms(selGrade.id) : []); setSelRoom(null); }, [selGrade]);
@@ -106,20 +116,30 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
     setError('');
     setEditing({ day, period, slot });
     setForm(slot ? {
-      subjectName: slot.subjectName, subjectCode: slot.subjectCode, subjectKey: slot.subjectKey,
+      catalogId: catalog.find(c => c.code === slot.subjectCode)?.id || '',
+      subjectName: slot.subjectName, subjectNameEn: slot.subjectNameEn || '', subjectCode: slot.subjectCode, subjectKey: slot.subjectKey,
       subjectType: slot.subjectType, gradingMode: slot.gradingMode || 'numeric', credit: slot.credit,
       teacherUsername: slot.teacherUsername, room: slot.room, note: slot.note,
     } : emptyForm(teacherUsername));
   }
 
+  /** เลือกวิชาจากคลัง → เติมทุกช่องให้อัตโนมัติ (รหัส/ชื่อไทย/ชื่ออังกฤษ/หน่วยกิต/ประเภท/เกรด) */
+  function pickCatalog(id: string) {
+    const s = catalog.find(x => x.id === id);
+    setForm(prev => s ? {
+      ...prev, catalogId: id,
+      subjectCode: s.code, subjectName: s.name, subjectNameEn: s.nameEn, subjectKey: s.subjectKey,
+      subjectType: s.subjectType, gradingMode: s.gradingMode, credit: s.credit,
+    } : { ...prev, catalogId: '' });
+  }
+
   /**
-   * เติมค่าให้อัตโนมัติเมื่อเปลี่ยนกลุ่มสาระ/ประเภทวิชา (ครูแก้ทับได้)
-   *   - รหัสวิชาตามกลุ่มสาระ + ระดับชั้น
-   *   - เปลี่ยนเป็นกิจกรรม/ชุมนุม → ตั้งเป็น "ไม่คิดเกรด (ผ/มผ)" ให้เลย
+   * เติมค่าให้อัตโนมัติเมื่อกรอกเอง (ไม่ได้เลือกจากคลัง)
+   *   - รหัสวิชาตามกลุ่มสาระ + ระดับชั้น · กิจกรรม/ชุมนุม → ผ/มผ
    */
   function autoFill(next: Partial<FormState>) {
     setForm(prev => {
-      const merged = { ...prev, ...next };
+      const merged = { ...prev, ...next, catalogId: '' };
       if (next.subjectType) merged.gradingMode = defaultGradingMode(next.subjectType);
       if ((next.subjectKey || next.subjectType) && selGrade) {
         merged.subjectCode = suggestSubjectCode(merged.subjectKey, selGrade.name, merged.subjectType);
@@ -131,6 +151,11 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
     });
   }
 
+  function saveLunch() {
+    if (setLunchConfig(lunch)) { showToast(`🍱 ตั้งพักเที่ยงหลังคาบ ${lunch.afterPeriod} · ${lunch.time}`); setLunchOpen(false); bump(); }
+    else showToast('🔒 ไม่มีสิทธิ์ตั้งเวลาพักเที่ยง');
+  }
+
   function handleSave() {
     if (!editing || !selRoom) return;
     const teacher = teacherOptions.find(o => o.username === form.teacherUsername);
@@ -140,6 +165,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
       period: editing.period,
       subjectCode: form.subjectCode || suggestSubjectCode(form.subjectKey, selGrade?.name || 'ม.1', form.subjectType),
       subjectName: form.subjectName,
+      subjectNameEn: form.subjectNameEn,
       subjectKey: form.subjectKey,
       subjectType: form.subjectType,
       gradingMode: form.gradingMode,
@@ -201,10 +227,10 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
     <div className="panel-shell panel-shell-wide">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">⚙️ {t('จัดการตารางสอน')}</h2>
+          <h2 className="panel-title">🗓 <em>แผนการเรียน</em>การสอน</h2>
           <p className="panel-sub">
-            เลือกห้องเรียน แล้วคลิกช่องในตารางเพื่อ <b>เพิ่ม / แก้ไข / ลบ</b> คาบสอน ·
-            ระบบตรวจคาบชนให้อัตโนมัติ (ห้องซ้ำคาบ และครูสอนซ้อนคาบ) · ทุกการกระทำถูกบันทึกลง log
+            ขั้นที่ 2 — เลือกห้อง แล้วคลิกช่องในตารางเพื่อจัดวิชา (เลือกจากคลัง) ลงวัน/เวลา ·
+            ตารางสอนจะดึงข้อมูลนี้ไปแสดงอัตโนมัติ · ระบบกันคาบชนให้ (ห้องซ้ำคาบ/ครูสอนซ้อน) · ทุกการกระทำถูกบันทึก log
           </p>
         </div>
 
@@ -244,12 +270,35 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
             <>
               <div className="sched-courses-head" style={{ marginTop: 0 }}>
                 <span className="sched-courses-title">🏫 ห้อง {selGrade?.name}/{selRoom.room} · ปีการศึกษา {selYear?.year}</span>
-                <button className="ez-btn ez-btn-ghost" style={{ minHeight: 38, fontSize: '0.85rem', color: 'var(--absent)' }} onClick={handleClearRoom}>
-                  🧹 ล้างตารางทั้งห้อง
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button className="ez-btn ez-btn-ghost" style={{ minHeight: 38, fontSize: '0.85rem' }} onClick={() => { setLunch(getLunchConfig()); setLunchOpen(o => !o); }}>
+                    🍱 ตั้งเวลาพักเที่ยง
+                  </button>
+                  <button className="ez-btn ez-btn-ghost" style={{ minHeight: 38, fontSize: '0.85rem', color: 'var(--absent)' }} onClick={handleClearRoom}>
+                    🧹 ล้างตารางทั้งห้อง
+                  </button>
+                </div>
               </div>
+
+              {/* ตั้งเวลาพักเที่ยง — ขยับตำแหน่ง/เวลา แล้วช่องพักในตารางเลื่อนตาม */}
+              {lunchOpen && (
+                <div style={{ background: 'var(--warm-white)', border: '2px solid var(--border)', borderRadius: 12, padding: '1rem', marginBottom: '0.9rem', display: 'flex', gap: '0.6rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <div className="sched-form-field">
+                    <label className="sched-form-label">พักเที่ยงหลังคาบ</label>
+                    <select className="sched-select" value={lunch.afterPeriod} onChange={e => setLunch(l => ({ ...l, afterPeriod: parseInt(e.target.value) }))}>
+                      {PERIODS.slice(0, -1).map(p => <option key={p.period} value={p.period}>คาบ {p.period}</option>)}
+                    </select>
+                  </div>
+                  <div className="sched-form-field">
+                    <label className="sched-form-label">ช่วงเวลา</label>
+                    <input className="ez-input" style={{ minHeight: 44, fontSize: '0.92rem' }} value={lunch.time} onChange={e => setLunch(l => ({ ...l, time: e.target.value }))} placeholder="12:00–13:00" />
+                  </div>
+                  <button className="ez-btn ez-btn-primary" style={{ minHeight: 44 }} onClick={saveLunch}>💾 บันทึก</button>
+                </div>
+              )}
+
               <div className="ez-help-box" style={{ marginBottom: '0.9rem' }}>
-                👆 คลิกช่องว่าง = เพิ่มคาบสอน · คลิกช่องที่มีวิชาแล้ว = แก้ไขหรือลบ
+                👆 คลิกช่องว่าง = เพิ่มคาบสอน (เลือกวิชาจากคลัง) · คลิกช่องที่มีวิชาแล้ว = แก้ไขหรือลบ
               </div>
 
               {grid && <ScheduleGrid grid={grid} highlightTeacher={teacherUsername} onCellClick={openCell} />}
@@ -302,6 +351,16 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
 
             {error && <div className="sched-error">{error}</div>}
 
+            {/* เลือกวิชาจากคลัง (ขั้นที่ 1) — เติมทุกช่องให้อัตโนมัติ */}
+            <div className="sched-form-field" style={{ marginBottom: '0.85rem' }}>
+              <label className="sched-form-label">📚 เลือกวิชาจากคลัง</label>
+              <select className="sched-select" value={form.catalogId} onChange={e => pickCatalog(e.target.value)}>
+                <option value="">— เลือกจากคลังวิชา หรือกรอกเองด้านล่าง —</option>
+                {catalog.map(s => <option key={s.id} value={s.id}>{s.code} · {s.name}{s.nameEn ? ` (${s.nameEn})` : ''}</option>)}
+              </select>
+              {catalog.length === 0 && <div className="gb-pick-hint">ยังไม่มีวิชาในคลัง — เพิ่มที่หน้า “จัดการวิชา” ก่อน หรือกรอกเองด้านล่าง</div>}
+            </div>
+
             <div className="sched-form-grid">
               <div className="sched-form-field">
                 <label className="sched-form-label">กลุ่มสาระ</label>
@@ -327,6 +386,12 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
                 <input className="ez-input" style={{ minHeight: 44, fontSize: '0.92rem' }} value={form.subjectName}
                   placeholder="เช่น คณิตศาสตร์พื้นฐาน"
                   onChange={e => setForm(f => ({ ...f, subjectName: e.target.value }))} />
+              </div>
+              <div className="sched-form-field">
+                <label className="sched-form-label">ชื่อวิชา (อังกฤษ)</label>
+                <input className="ez-input" style={{ minHeight: 44, fontSize: '0.92rem' }} value={form.subjectNameEn}
+                  placeholder="e.g. Basic Mathematics"
+                  onChange={e => setForm(f => ({ ...f, subjectNameEn: e.target.value }))} />
               </div>
               <div className="sched-form-field">
                 <label className="sched-form-label">{t('รหัสวิชา')}</label>

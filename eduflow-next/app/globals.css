@@ -149,6 +149,37 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
 .legend-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.5rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
 .legend-row:hover { background: rgba(107,79,47,0.05); }
 
+/* ─── LOGIN LOADER (มาสคอตน่ารักตอนล็อกอิน) ─── */
+.login-loader { position: fixed; inset: 0; z-index: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem;
+  background: radial-gradient(circle at 50% 40%, var(--cream) 0%, var(--warm-white) 70%); animation: ll-fade 0.3s ease; }
+@keyframes ll-fade { from { opacity: 0; } to { opacity: 1; } }
+.ll-scene { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; }
+.ll-bob { transform-origin: 60px 60px; animation: ll-bob 1s ease-in-out infinite; }
+@keyframes ll-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
+.ll-shadow { fill: rgba(107,79,47,0.18); animation: ll-shadow 1s ease-in-out infinite; }
+@keyframes ll-shadow { 0%, 100% { rx: 34px; opacity: 0.5; } 50% { rx: 26px; opacity: 0.3; } }
+.ll-page { transform-origin: 60px 62px; animation: ll-flip 1.6s ease-in-out infinite; backface-visibility: hidden; }
+@keyframes ll-flip { 0%, 60%, 100% { transform: scaleX(1); } 30% { transform: scaleX(-1); } }
+.ll-eye { animation: ll-blink 2.4s infinite; }
+@keyframes ll-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } transform-origin: center; }
+.ll-face { transform-box: fill-box; }
+.ll-spark { position: absolute; font-size: 1.4rem; animation: ll-float 2.6s ease-in-out infinite; }
+.ll-spark-1 { top: 8%;  left: 12%; animation-delay: 0s; }
+.ll-spark-2 { top: 18%; right: 8%; animation-delay: 0.4s; font-size: 1.1rem; }
+.ll-spark-3 { bottom: 20%; left: 6%; animation-delay: 0.8s; font-size: 1rem; }
+.ll-spark-4 { bottom: 10%; right: 14%; animation-delay: 1.2s; }
+@keyframes ll-float { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; } 50% { transform: translateY(-14px) scale(1.15); opacity: 1; } }
+.ll-text { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--brown-deep); min-height: 1.8rem; animation: ll-text 0.4s ease; }
+@keyframes ll-text { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.ll-dots { display: flex; gap: 0.4rem; }
+.ll-dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--brown-mid); animation: ll-dot 1.2s ease-in-out infinite; }
+.ll-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ll-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes ll-dot { 0%, 100% { transform: scale(0.6); opacity: 0.4; } 50% { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ll-bob, .ll-shadow, .ll-page, .ll-eye, .ll-spark, .ll-dots span { animation: none; }
+}
+
 /* ─── AUTH ─── */
 .auth-wrap { min-height: calc(100vh - 57px); display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--warm-white); }
 .auth-card { background: var(--cream); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2.25rem; width: 100%; max-width: none; box-shadow: 0 24px 64px rgba(61,43,26,0.08); }

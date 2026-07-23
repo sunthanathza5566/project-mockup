@@ -19,7 +19,7 @@
 import { getSession } from './auth.api';
 import { hasPermission } from './permissions';
 import { logActivity } from './activity.log';
-import { getClassrooms, getGradeLevels, getAcademicYears, type GradingMode } from './academic.store';
+import { getClassrooms, getGradeLevels, getAllAcademicYears, type GradingMode } from './academic.store';
 import { readJSON, writeJSON } from './storage-cache';
 
 const STORE_KEY = 'eduflow_schedule';
@@ -51,6 +51,22 @@ export const PERIODS: { period: number; time: string }[] = [
 
 export const LUNCH_AFTER_PERIOD = 4;
 export const LUNCH_TIME = '12:00–13:00';
+
+/** ตำแหน่ง/เวลาพักเที่ยง — ปรับได้ (default หลังคาบ 4 เวลา 12:00–13:00) แล้วคาบอื่นขยับตาม */
+const LUNCH_KEY = 'eduflow_lunch_config';
+export interface LunchConfig { afterPeriod: number; time: string }
+
+export function getLunchConfig(): LunchConfig {
+  return readJSON<LunchConfig>(LUNCH_KEY, { afterPeriod: LUNCH_AFTER_PERIOD, time: LUNCH_TIME });
+}
+
+export function setLunchConfig(cfg: LunchConfig): boolean {
+  if (!canManageSchedule()) return false;
+  const clamped = { afterPeriod: Math.min(Math.max(cfg.afterPeriod, 1), PERIODS.length - 1), time: cfg.time.trim() || LUNCH_TIME };
+  writeJSON(LUNCH_KEY, clamped);
+  logActivity('teacher', 'ตั้งเวลาพักเที่ยง', `หลังคาบ ${clamped.afterPeriod} · ${clamped.time}`);
+  return true;
+}
 
 /** ประเภทรายวิชาตามโครงสร้างหลักสูตร สพฐ. */
 export type SubjectType = 'พื้นฐาน' | 'เพิ่มเติม' | 'กิจกรรมพัฒนาผู้เรียน' | 'ชุมนุม/ชมรม';
@@ -89,6 +105,7 @@ export interface ScheduleSlot {
   period: number;
   subjectCode: string;
   subjectName: string;
+  subjectNameEn?: string;    // ชื่อวิชาภาษาอังกฤษ — แสดงเมื่อสลับภาษา (ครูต่างชาติ)
   subjectKey: string;        // กลุ่มสาระ — ใช้กำหนดสีในตาราง
   subjectType: SubjectType;
   gradingMode: GradingMode;  // คิดเกรด 4–0 หรือ ผ/มผ (กิจกรรม/ชุมนุม)
@@ -97,6 +114,10 @@ export interface ScheduleSlot {
   teacherId: string;
   teacherName: string;
   room: string;              // ห้องที่ใช้สอน เช่น 'ห้อง 201'
+  startTime?: string;        // เวลาเริ่ม เช่น '08:30' (ครูกรอกเองในแผน)
+  endTime?: string;          // เวลาจบ เช่น '09:20'
+  date?: string;             // วันที่เริ่มใช้แผน (ว/ด/ป) — optional
+  active?: boolean;          // เปิด/ปิดใช้งานรายการในแผน (ปิด = ไม่แสดงในตารางสอน) · undefined = เปิด
   note: string;
   createdBy: string;
   createdByName: string;
@@ -162,7 +183,7 @@ function writeLog(classroomId: string, action: ScheduleAction, detail: string) {
 // ─── ป้ายชื่อห้อง ─────────────────────────────────────────────────────────
 /** แปลง classroomId → 'ม.1/1' (ใช้ทั้งใน log และหัวตาราง) */
 export function getClassroomLabel(classroomId: string): string {
-  for (const y of getAcademicYears()) {
+  for (const y of getAllAcademicYears()) {
     for (const g of getGradeLevels(y.id)) {
       const room = getClassrooms(g.id).find(c => c.id === classroomId);
       if (room) return `${g.name}/${room.room}`;
@@ -173,7 +194,7 @@ export function getClassroomLabel(classroomId: string): string {
 
 /** ข้อมูลบริบทของห้อง (ปี/ชั้น/ห้อง) สำหรับหัวตารางและการสร้างคาบ */
 export function getClassroomContext(classroomId: string): { yearId: string; year: string; gradeLevelId: string; gradeName: string; room: string; label: string } | null {
-  for (const y of getAcademicYears()) {
+  for (const y of getAllAcademicYears()) {
     for (const g of getGradeLevels(y.id)) {
       const room = getClassrooms(g.id).find(c => c.id === classroomId);
       if (room) return { yearId: y.id, year: y.year, gradeLevelId: g.id, gradeName: g.name, room: room.room, label: `${g.name}/${room.room}` };
@@ -199,12 +220,32 @@ export function canManageSchedule(): boolean {
 }
 
 // ─── อ่านตาราง ────────────────────────────────────────────────────────────
-/** ตารางของห้องเรียนหนึ่ง (ทุกวิชา ทุกครู) — เรียงตาม วัน → คาบ */
-export function getClassroomSchedule(classroomId: string): ScheduleSlot[] {
+const isSlotActive = (s: ScheduleSlot) => s.active !== false; // undefined = เปิด (ข้อมูลเก่า)
+
+/** รายการในแผนของห้อง (ทั้งเปิดและปิด) — ใช้ในหน้าแผน */
+export function getClassroomPlan(classroomId: string): ScheduleSlot[] {
   const order = DAYS.map(d => d.key);
   return load().slots
     .filter(s => s.classroomId === classroomId)
     .sort((a, b) => order.indexOf(a.day) - order.indexOf(b.day) || a.period - b.period);
+}
+
+/** ตารางของห้องเรียนหนึ่ง — เฉพาะรายการที่ "เปิดใช้งาน" (ตารางสอนดึงจากตรงนี้) */
+export function getClassroomSchedule(classroomId: string): ScheduleSlot[] {
+  return getClassroomPlan(classroomId).filter(isSlotActive);
+}
+
+/** เปิด/ปิดใช้งานรายการในแผน — ปิดแล้วไม่แสดงในตารางสอน (ข้อมูลยังอยู่) */
+export function setSlotActive(id: string, active: boolean): boolean {
+  if (!canManageSchedule()) return false;
+  const data = load();
+  const slot = data.slots.find(s => s.id === id);
+  if (!slot) return false;
+  slot.active = active;
+  save(data);
+  const label = `${dayTH(slot.day)} คาบ ${slot.period} · ${slot.subjectName} (${slot.subjectCode})`;
+  writeLog(slot.classroomId, 'แก้ไขคาบสอน', `${active ? 'เปิด' : 'ปิด'}ใช้งาน · ${label}`);
+  return true;
 }
 
 /**
@@ -227,11 +268,11 @@ export function getWeekGrid(classroomId: string): Record<DayKey, (ScheduleSlot |
   return buildWeekGrid(getClassroomSchedule(classroomId));
 }
 
-/** คาบสอนทั้งหมดของครูคนหนึ่ง (ทุกห้อง) — ใช้หน้า "ตารางสอนของฉัน" และตรวจสอนซ้อน */
+/** คาบสอนที่ "เปิดใช้งาน" ของครูคนหนึ่ง (ทุกห้อง) — ใช้หน้าตารางสอน/นับคาบ/derive ห้องที่สอน */
 export function getTeacherSlots(teacherUsername: string): ScheduleSlot[] {
   const order = DAYS.map(d => d.key);
   return load().slots
-    .filter(s => s.teacherUsername === teacherUsername)
+    .filter(s => s.teacherUsername === teacherUsername && isSlotActive(s))
     .sort((a, b) => order.indexOf(a.day) - order.indexOf(b.day) || a.period - b.period);
 }
 
@@ -244,6 +285,7 @@ export function getTeacherClassroomIds(teacherUsername: string): string[] {
 export interface CourseSummary {
   subjectCode: string;
   subjectName: string;
+  subjectNameEn?: string;
   subjectKey: string;
   subjectType: SubjectType;
   gradingMode: GradingMode;
@@ -266,7 +308,7 @@ export function summarizeCourses(slots: ScheduleSlot[], groupBy: 'teacher' | 'cl
     const found = map.get(key);
     if (found) { found.periodsPerWeek += 1; return; }
     map.set(key, {
-      subjectCode: s.subjectCode, subjectName: s.subjectName, subjectKey: s.subjectKey,
+      subjectCode: s.subjectCode, subjectName: s.subjectName, subjectNameEn: s.subjectNameEn, subjectKey: s.subjectKey,
       subjectType: s.subjectType, gradingMode: s.gradingMode || 'numeric', credit: s.credit,
       teacherName: s.teacherName, teacherUsername: s.teacherUsername,
       periodsPerWeek: 1,
@@ -290,7 +332,8 @@ export function findConflict(
   input: { classroomId: string; day: DayKey; period: number; teacherUsername: string },
   excludeSlotId?: string,
 ): Conflict | null {
-  const all = load().slots.filter(s => s.id !== excludeSlotId && s.day === input.day && s.period === input.period);
+  // รายการที่ปิดใช้งานไม่นับว่าชน (ยังเก็บไว้ในแผนแต่ไม่ออกตาราง)
+  const all = load().slots.filter(s => s.id !== excludeSlotId && isSlotActive(s) && s.day === input.day && s.period === input.period);
 
   const roomClash = all.find(s => s.classroomId === input.classroomId);
   if (roomClash) return {
@@ -327,6 +370,7 @@ export interface SlotInput {
   period: number;
   subjectCode: string;
   subjectName: string;
+  subjectNameEn?: string;
   subjectKey: string;
   subjectType: SubjectType;
   gradingMode: GradingMode;
@@ -335,6 +379,10 @@ export interface SlotInput {
   teacherId: string;
   teacherName: string;
   room: string;
+  startTime?: string;
+  endTime?: string;
+  date?: string;
+  active?: boolean;
   note?: string;
 }
 
@@ -362,6 +410,7 @@ export function addSlot(input: SlotInput): SlotResult {
     period: input.period,
     subjectCode: input.subjectCode.trim(),
     subjectName: input.subjectName.trim(),
+    subjectNameEn: (input.subjectNameEn || '').trim(),
     subjectKey: input.subjectKey,
     subjectType: input.subjectType,
     gradingMode: input.gradingMode,

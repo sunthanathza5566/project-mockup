@@ -22,6 +22,7 @@ export const DEFAULT_PERMISSIONS: Permissions = {
     assignments: true, gradebook: true, gradeExport: true,
     materials: true, announcements: true, exportData: true,
     viewTeachSchedule: true, manageTeachSchedule: true, offerTutoring: true,
+    manageSubjects: true, manageAcademic: false,   // จัดการวิชา = เปิด · จัดโครงสร้างปี/ชั้น/ห้อง = ปิดไว้ (แอดมินเปิดให้หัวหน้าวิชาการ)
   },
   student: {
     checkin: true, viewSchedule: true, submitHomework: true,
@@ -49,6 +50,7 @@ export const PERMISSION_LABELS: Record<string, Record<string, string>> = {
     materials: 'อัปโหลดสื่อการสอน', announcements: 'ส่งประกาศถึงนักเรียน', exportData: 'Export ข้อมูล Excel',
     viewTeachSchedule: 'ดูตารางสอน', manageTeachSchedule: 'จัดการตารางสอน (เพิ่ม/แก้ไข/ลบ)',
     offerTutoring: 'เปิดรับสอนพิเศษนอกเวลา',
+    manageSubjects: 'จัดการรายวิชา (คลังวิชา)', manageAcademic: 'จัดโครงสร้างวิชาการ (ปี/ชั้น/ห้อง)',
   },
   student: {
     checkin: 'เช็คชื่อเข้าเรียน (รหัส/QR)', viewSchedule: 'ดูตารางเรียน',

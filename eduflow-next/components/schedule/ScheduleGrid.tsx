@@ -8,8 +8,9 @@
  */
 
 import { Fragment } from 'react';
-import { DAYS, PERIODS, LUNCH_AFTER_PERIOD, LUNCH_TIME, type ScheduleSlot, type DayKey } from '@/lib/api/schedule.store';
+import { DAYS, PERIODS, getLunchConfig, type ScheduleSlot, type DayKey } from '@/lib/api/schedule.store';
 import { subjectColor } from '@/lib/ui/subject-colors';
+import { useLang } from '@/context/LangContext';
 
 interface Props {
   grid: Record<DayKey, (ScheduleSlot | null)[]>;
@@ -20,6 +21,10 @@ interface Props {
 }
 
 export default function ScheduleGrid({ grid, readOnly = false, highlightTeacher, onCellClick }: Props) {
+  const { lang } = useLang();
+  const lunch = getLunchConfig();
+  // แสดงชื่อวิชาภาษาอังกฤษเมื่อสลับภาษา (ถ้ามี) — รองรับครูต่างชาติ
+  const subjName = (s: ScheduleSlot) => (lang === 'en' && s.subjectNameEn ? s.subjectNameEn : s.subjectName);
   return (
     <div className="sched-scroll">
       <table className="sched-table">
@@ -32,10 +37,10 @@ export default function ScheduleGrid({ grid, readOnly = false, highlightTeacher,
                   คาบ {p.period}
                   <div className="sched-th-time">{p.time}</div>
                 </th>
-                {p.period === LUNCH_AFTER_PERIOD && (
+                {p.period === lunch.afterPeriod && (
                   <th className="sched-lunch-col">
                     พัก
-                    <div className="sched-th-time">{LUNCH_TIME}</div>
+                    <div className="sched-th-time">{lunch.time}</div>
                   </th>
                 )}
               </Fragment>
@@ -60,7 +65,7 @@ export default function ScheduleGrid({ grid, readOnly = false, highlightTeacher,
                     >
                       {slot && c ? (
                         <>
-                          <div className="sched-cell-subj" style={{ color: c.text }}>{slot.subjectName}</div>
+                          <div className="sched-cell-subj" style={{ color: c.text }}>{subjName(slot)}</div>
                           <div className="sched-cell-code">{slot.subjectCode}</div>
                           <div className="sched-cell-teacher">{slot.teacherName}</div>
                           {slot.room && <div className="sched-cell-room">📍 {slot.room}</div>}
@@ -69,7 +74,7 @@ export default function ScheduleGrid({ grid, readOnly = false, highlightTeacher,
                         <span className="sched-cell-plus">{readOnly ? '' : '+'}</span>
                       )}
                     </td>
-                    {p.period === LUNCH_AFTER_PERIOD && <td className="sched-lunch-cell">🍱</td>}
+                    {p.period === lunch.afterPeriod && <td className="sched-lunch-cell">🍱</td>}
                   </Fragment>
                 );
               })}

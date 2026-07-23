@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { loginUser, getLockUntil, verifyEmail } from '@/lib/api/auth.api';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import LoginLoader from './LoginLoader';
 
 export default function LoginForm() {
   const [username, setUsername] = useState('');
@@ -17,6 +18,7 @@ export default function LoginForm() {
   const [hint,     setHint]     = useState('');
   const [showDemo, setShowDemo] = useState(false);
   const [needVerify, setNeedVerify] = useState(false); // บัญชียังไม่ยืนยันอีเมล
+  const [loadingName, setLoadingName] = useState<string | null>(null); // แสดงหน้าโหลดมาสคอตตอนล็อกอินสำเร็จ
 
   const { refresh } = useAuth();
   const { showToast } = useToast();
@@ -45,12 +47,13 @@ export default function LoginForm() {
     const result = await loginUser(username.trim(), password);
 
     if (result.success && result.user) {
-      refresh();
-      showToast(`ยินดีต้อนรับ ${result.user.name}`);
+      // แสดงมาสคอตกำลังโหลด ~1.6 วิ ให้ล็อกอินมีลูกเล่นก่อนพาเข้าหน้าหลัก
+      setLoadingName(result.user.name);
       const role = result.user.role;
-      if (role === 'student')     router.push('/student');
-      else if (role === 'teacher') router.push('/teacher');
-      else                         router.push('/dashboard');
+      const dest = role === 'student' ? '/student' : role === 'teacher' ? '/teacher' : '/dashboard';
+      await new Promise(r => setTimeout(r, 1600));
+      refresh();
+      router.push(dest);
       return;
     }
 
@@ -59,6 +62,8 @@ export default function LoginForm() {
     if (result.error === 'locked')  { const until = result.lockUntil!; const s = Math.ceil((until - Date.now()) / 1000); setLockMsg(`บัญชีถูกล็อค — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`); return; }
     if (result.error === 'invalid') { setError('รูปแบบ Username หรือ รหัสผ่านผิด โปรดตรวจสอบแล้วทำการเข้าสู่ระบบอีกครั้ง'); setHint(`เหลืออีก ${result.remaining} ครั้งก่อนถูกล็อค 5 นาที`); }
   }
+
+  if (loadingName) return <LoginLoader name={loadingName} />;
 
   return (
     <div className="auth-wrap">

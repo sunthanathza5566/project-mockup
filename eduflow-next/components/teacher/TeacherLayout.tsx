@@ -27,20 +27,24 @@ import MaterialsView from './MaterialsView';
 import ProfileView from './ProfileView';
 import ScheduleView from './ScheduleView';
 import ScheduleManagerView from './ScheduleManagerView';
+import SubjectCatalogView from './SubjectCatalogView';
+import AcademicStructureView from './AcademicStructureView';
 import TutoringView from './TutoringView';
 import NewsBoard from '@/components/ui/NewsBoard';
 import LangToggle from '@/components/ui/LangToggle';
 import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
 type TeacherView =
-  | 'overview' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
+  | 'overview' | 'academic' | 'subjects' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
   | 'assignments' | 'gradebook' | 'materials' | 'tutoring' | 'profile';
 
-/** เมนูในปุ่ม ☰ — เรียงตามลำดับการใช้งานที่ควรเป็น */
+/** เมนูในปุ่ม ☰ — เรียงตามลำดับการใช้งานที่ควรเป็น (pipeline: โครงสร้าง → วิชา → แผน → ตารางสอน) */
 const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string; needClass?: boolean }[] = [
   { view: 'overview',         icon: '🏠', label: 'หน้าหลัก' },
+  { view: 'academic',         icon: '🏫', label: 'โครงสร้างวิชาการ',       perm: 'manageAcademic' },
+  { view: 'subjects',         icon: '📚', label: 'จัดการวิชา',             perm: 'manageSubjects' },
+  { view: 'schedule-manager', icon: '🗓', label: 'แผนการเรียนการสอน',     perm: 'manageTeachSchedule' },
   { view: 'schedule',         icon: '📅', label: 'ตารางสอน',              perm: 'viewTeachSchedule' },
-  { view: 'schedule-manager', icon: '⚙️', label: 'จัดการตารางสอน',        perm: 'manageTeachSchedule' },
   { view: 'attendance',       icon: '🔲', label: 'สร้าง QR Code เช็คชื่อ', perm: 'attendanceQR',  needClass: true },
   { view: 'attendance-report',icon: '📊', label: 'รายงานเช็คชื่อย้อนหลัง', perm: 'viewReports',   needClass: true },
   { view: 'assignments',      icon: '📚', label: 'การบ้าน & ตรวจงาน',      perm: 'assignments',   needClass: true },
@@ -51,7 +55,7 @@ const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string
 ];
 
 /** หน้าที่มีตารางกว้าง — ให้ใช้พื้นที่เต็มหน้าจอ */
-const WIDE_VIEWS: TeacherView[] = ['gradebook', 'schedule', 'schedule-manager'];
+const WIDE_VIEWS: TeacherView[] = ['gradebook', 'schedule', 'schedule-manager', 'subjects', 'academic'];
 
 export default function TeacherLayout() {
   const { session, isLoading, logout } = useAuth();
@@ -115,9 +119,10 @@ export default function TeacherLayout() {
   }, [session]);
 
   const navigate = useCallback((view: TeacherView) => {
-    // ออกจากหน้าจัดตารางสอน = ตารางอาจเปลี่ยน → ดึงห้อง/วิชาที่สอนใหม่
+    // ออกจากหน้าจัดโครงสร้าง/แผน = ข้อมูลอาจเปลี่ยน → ดึงห้อง/วิชาที่สอนใหม่ ทุกเมนูเห็นล่าสุด
+    const structural: TeacherView[] = ['schedule-manager', 'academic', 'subjects'];
     setCurrentView(prev => {
-      if (prev === 'schedule-manager' && view !== 'schedule-manager') reloadClasses();
+      if (structural.includes(prev) && prev !== view) reloadClasses();
       return view;
     });
     setBurgerOpen(false);
@@ -300,6 +305,14 @@ export default function TeacherLayout() {
                   </div>
                 )}
               </div>
+            )}
+
+            {currentView === 'academic' && (
+              <AcademicStructureView onGoToPlan={() => navigate('subjects')} />
+            )}
+
+            {currentView === 'subjects' && (
+              <SubjectCatalogView onGoToPlan={() => navigate('schedule-manager')} />
             )}
 
             {currentView === 'schedule' && (

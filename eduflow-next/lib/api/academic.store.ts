@@ -29,6 +29,7 @@ export interface AcademicYear {
   year: string;        // เช่น '2567'
   createdBy: string;
   createdAt: number;
+  active?: boolean;    // เปิดใช้งานอยู่ไหม — ปิดปีเก่าเพื่อไม่ให้ตัวเลือกล้น (undefined = เปิด สำหรับข้อมูลเก่า)
 }
 
 export interface GradeLevel {
@@ -177,7 +178,7 @@ function migrate(data: AcademicData): AcademicData {
 
 /** ข้อมูลตั้งต้น: ปี 2567 + ระดับชั้น/ห้องที่ตรงกับห้องสอนใน mock เพื่อให้ครูใช้ได้ทันที */
 function seed(): AcademicData {
-  const year: AcademicYear = { id: 'y2567', year: '2567', createdBy: 'webadmin', createdAt: Date.now() };
+  const year: AcademicYear = { id: 'y2567', year: '2567', createdBy: 'webadmin', createdAt: Date.now(), active: true };
   const gradeLevels: GradeLevel[] = [
     { id: 'g1', yearId: 'y2567', name: 'ม.1' },
     { id: 'g2', yearId: 'y2567', name: 'ม.2' },
@@ -203,20 +204,62 @@ export function canManageScores(course: Course): boolean {
   return course.ownerUsername ? course.ownerUsername === session.username : course.teacherName === session.name;
 }
 
-// ─── Academic Year (แอดมินเท่านั้น) ──────────────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM academic_years ORDER BY year DESC
+// ─── Academic Year ───────────────────────────────────────────────────────
+const isActive = (y: AcademicYear) => y.active !== false; // undefined = เปิด (ข้อมูลเก่า)
+
+/** ปีที่ "เปิดใช้งาน" เท่านั้น — ใช้ในตัวเลือกของหน้าจัดตาราง/บันทึกคะแนน (ปีที่ปิดถูกซ่อน) */
+// TODO(PostgreSQL): SELECT * FROM academic_years WHERE active ORDER BY year DESC
 export function getAcademicYears(): AcademicYear[] {
+  return [...load().years].filter(isActive).sort((a, b) => b.year.localeCompare(a.year));
+}
+
+/** ทุกปี รวมที่ปิดแล้ว — ใช้ในหน้าจัดการ และการ resolve ป้ายห้อง/บริบทของข้อมูลย้อนหลัง */
+export function getAllAcademicYears(): AcademicYear[] {
   return [...load().years].sort((a, b) => b.year.localeCompare(a.year));
 }
 
-// TODO(PostgreSQL): INSERT INTO academic_years (year, created_by) VALUES ($1, $2)
+// TODO(PostgreSQL): INSERT INTO academic_years (year, created_by, active) VALUES ($1, $2, true)
 export function createAcademicYear(year: string, createdBy: string): AcademicYear | null {
   const data = load();
   if (data.years.some(y => y.year === year)) return null; // ห้ามซ้ำ
-  const item: AcademicYear = { id: `y${Date.now()}`, year, createdBy, createdAt: Date.now() };
+  const item: AcademicYear = { id: `y${Date.now()}`, year, createdBy, createdAt: Date.now(), active: true };
   data.years.push(item);
   save(data);
   return item;
+}
+
+/** เปิด/ปิดการใช้งานปีการศึกษา — ปิดแล้วซ่อนจากตัวเลือก แต่ข้อมูลยังอยู่ครบ (กดเปิดคืนได้) */
+export function setYearActive(yearId: string, active: boolean): boolean {
+  const data = load();
+  const y = data.years.find(x => x.id === yearId);
+  if (!y) return false;
+  y.active = active;
+  save(data);
+  return true;
+}
+
+/** จำนวนคาบสอน/รายการคะแนนที่ผูกกับปีนี้ — ใช้เตือนก่อนลบ */
+export function yearUsage(yearId: string): { classrooms: number; courses: number } {
+  const data = load();
+  const roomIds = data.classrooms.filter(c => c.yearId === yearId).map(c => c.id);
+  const courses = data.courses.filter(c => roomIds.includes(c.classroomId)).length;
+  return { classrooms: roomIds.length, courses };
+}
+
+/** ลบปีการศึกษา (พร้อมชั้น/ห้อง/วิชา/คะแนนในปีนั้น) — เรียกหลังผู้ใช้ยืนยันแล้วเท่านั้น */
+export function deleteAcademicYear(yearId: string): boolean {
+  const data = load();
+  if (!data.years.some(y => y.id === yearId)) return false;
+  const roomIds = new Set(data.classrooms.filter(c => c.yearId === yearId).map(c => c.id));
+  const removedCourseIds = data.courses.filter(c => roomIds.has(c.classroomId)).map(c => c.id);
+  data.years = data.years.filter(y => y.id !== yearId);
+  data.gradeLevels = data.gradeLevels.filter(g => g.yearId !== yearId);
+  data.classrooms = data.classrooms.filter(c => c.yearId !== yearId);
+  data.courses = data.courses.filter(c => !roomIds.has(c.classroomId));
+  removedCourseIds.forEach(id => { delete data.scores[id]; });     // คะแนน keyed ตาม courseId
+  if (data.rosters) roomIds.forEach(id => { delete data.rosters![id]; });
+  save(data);
+  return true;
 }
 
 // ─── Grade Level (แอดมินเท่านั้น) ────────────────────────────────────────
@@ -233,6 +276,21 @@ export function createGradeLevel(yearId: string, name: string): GradeLevel | nul
   return item;
 }
 
+/** ลบระดับชั้น (พร้อมห้อง/วิชา/คะแนนในชั้นนั้น) — เรียกหลังยืนยันแล้ว */
+export function deleteGradeLevel(gradeLevelId: string): boolean {
+  const data = load();
+  if (!data.gradeLevels.some(g => g.id === gradeLevelId)) return false;
+  const roomIds = new Set(data.classrooms.filter(c => c.gradeLevelId === gradeLevelId).map(c => c.id));
+  const removedCourseIds = data.courses.filter(c => roomIds.has(c.classroomId)).map(c => c.id);
+  data.gradeLevels = data.gradeLevels.filter(g => g.id !== gradeLevelId);
+  data.classrooms = data.classrooms.filter(c => c.gradeLevelId !== gradeLevelId);
+  data.courses = data.courses.filter(c => !roomIds.has(c.classroomId));
+  removedCourseIds.forEach(id => { delete data.scores[id]; });
+  if (data.rosters) roomIds.forEach(id => { delete data.rosters![id]; });
+  save(data);
+  return true;
+}
+
 // ─── Classroom (แอดมินเท่านั้น) ──────────────────────────────────────────
 export function getClassrooms(gradeLevelId: string): Classroom[] {
   return load().classrooms.filter(c => c.gradeLevelId === gradeLevelId);
@@ -245,6 +303,27 @@ export function createClassroom(yearId: string, gradeLevelId: string, room: stri
   data.classrooms.push(item);
   save(data);
   return item;
+}
+
+/** ลบห้องเรียน (พร้อมวิชา/คะแนน/นักเรียนในห้องนั้น) — เรียกหลังยืนยันแล้ว */
+export function deleteClassroom(classroomId: string): boolean {
+  const data = load();
+  if (!data.classrooms.some(c => c.id === classroomId)) return false;
+  const removedCourseIds = data.courses.filter(c => c.classroomId === classroomId).map(c => c.id);
+  data.classrooms = data.classrooms.filter(c => c.id !== classroomId);
+  data.courses = data.courses.filter(c => c.classroomId !== classroomId);
+  removedCourseIds.forEach(id => { delete data.scores[id]; });
+  if (data.rosters) delete data.rosters[classroomId];
+  save(data);
+  return true;
+}
+
+/** ห้องนี้มีคาบสอน/คะแนนผูกอยู่ไหม — ใช้เตือนก่อนลบ */
+export function classroomUsage(classroomId: string): { courses: number; scored: boolean } {
+  const data = load();
+  const courses = data.courses.filter(c => c.classroomId === classroomId);
+  const scored = courses.some(c => (data.scores[c.id] || []).some(e => e.symbol || Object.values(e.scores).some(v => v !== null)));
+  return { courses: courses.length, scored };
 }
 
 // ─── Course / รายวิชา — ดึงอัตโนมัติจากตารางสอนของครู ────────────────────
