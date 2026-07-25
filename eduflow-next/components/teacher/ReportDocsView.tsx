@@ -2,8 +2,9 @@
 
 /**
  * เอกสารผลการเรียน (ปพ.1–ปพ.9) — เมนูแยกของครู
- * เลือก ปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสารที่ต้องการออกจากการ์ด ปพ.1–9
- * ตอนนี้พร้อมเฉพาะ ปพ.5 (แบบบันทึกผลการเรียนประจำรายวิชา) · ที่เหลือรอเชื่อมข้อมูลเพิ่ม
+ * เลือก ปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสารจากการ์ด ปพ.1–9 (3×3 การ์ดใหญ่)
+ * เอกสารถูกจำกัดตาม "ระดับชั้น" ที่เลือก — การ์ดที่ไม่ตรงระดับชั้นจะถูกล็อก
+ * ตอนนี้พร้อมออกจริงเฉพาะ ปพ.5 (บันทึกผลการเรียนรายวิชา)
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ import {
 import { getSession } from '@/lib/api/auth.api';
 import { logActivity } from '@/lib/api/activity.log';
 import { exportScoreSheetToExcel } from '@/lib/utils/excel-export';
+import { PP_DOCS, isDocAllowedForGrade, allowedGradesLabel, type PPDoc } from '@/lib/report-docs';
 import type { ClassInfo } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
@@ -23,19 +25,6 @@ interface Props {
   teacherName: string;
   classes: ClassInfo[];
 }
-
-/** เอกสาร ปพ.1–ปพ.9 ตามระเบียบงานทะเบียนวัดผล */
-const PP_DOCS: { id: string; name: string; title: string; desc: string; ready: boolean; needCourse?: boolean }[] = [
-  { id: 'pp1', name: 'ปพ.1', title: 'ระเบียนแสดงผลการเรียน',              desc: 'ผลการเรียนรายบุคคลตลอดหลักสูตร (Transcript)', ready: false },
-  { id: 'pp2', name: 'ปพ.2', title: 'ประกาศนียบัตร',                      desc: 'หลักฐานแสดงการสำเร็จการศึกษา',              ready: false },
-  { id: 'pp3', name: 'ปพ.3', title: 'แบบรายงานผู้สำเร็จการศึกษา',         desc: 'บัญชีรายชื่อผู้จบหลักสูตร',                  ready: false },
-  { id: 'pp4', name: 'ปพ.4', title: 'ผลการพัฒนาคุณลักษณะอันพึงประสงค์',  desc: 'ผลการประเมินคุณลักษณะ 8 ประการ',           ready: false },
-  { id: 'pp5', name: 'ปพ.5', title: 'แบบบันทึกผลการเรียนประจำรายวิชา',    desc: 'สมุดบันทึกคะแนนของวิชานี้ (Excel)',         ready: true, needCourse: true },
-  { id: 'pp6', name: 'ปพ.6', title: 'รายงานผลการพัฒนาคุณภาพผู้เรียน',     desc: 'สมุดรายงานประจำตัว (ออกรายบุคคล)',          ready: false },
-  { id: 'pp7', name: 'ปพ.7', title: 'ใบรับรองผลการศึกษา',                 desc: 'หนังสือรับรองการเป็นนักเรียน',              ready: false },
-  { id: 'pp8', name: 'ปพ.8', title: 'ระเบียนสะสม',                        desc: 'ข้อมูลพัฒนาการรายบุคคล',                    ready: false },
-  { id: 'pp9', name: 'ปพ.9', title: 'สมุดบันทึกผลการเรียนรู้',            desc: 'สมุดประจำวิชา',                            ready: false },
-];
 
 export default function ReportDocsView({ teacherId, teacherName, classes }: Props) {
   const { showToast } = useToast();
@@ -74,31 +63,35 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
 
   async function exportPP5() {
     if (!selCourse || !selGrade || !selRoom || !selYear) return;
-    const entries = getScores(selCourse.id);
-    await exportScoreSheetToExcel(selCourse, `${selGrade.name}/${selRoom.room}`, selYear.year, entries);
+    await exportScoreSheetToExcel(selCourse, `${selGrade.name}/${selRoom.room}`, selYear.year, getScores(selCourse.id));
     logActivity('teacher', 'ดาวน์โหลด ปพ.5', `${selCourse.name} (${selCourse.code}) ห้อง ${selGrade.name}/${selRoom.room}`);
     showToast('📥 ดาวน์โหลดแบบบันทึกผลการเรียน (ปพ.5) แล้ว');
   }
 
-  function handlePick(doc: typeof PP_DOCS[number]) {
+  /** สถานะของการ์ดตามระดับชั้นที่เลือก + ความพร้อมของเอกสาร */
+  function docState(doc: PPDoc): { status: 'ready' | 'locked' | 'soon'; note: string } {
+    if (selGrade && !isDocAllowedForGrade(doc, selGrade.name))
+      return { status: 'locked', note: `ออกเฉพาะชั้น ${allowedGradesLabel(doc)}` };
+    if (doc.id === 'pp5') return { status: 'ready', note: 'ดาวน์โหลด Excel' };
+    return { status: 'soon', note: 'กำลังพัฒนา' };
+  }
+
+  function handlePick(doc: PPDoc) {
+    const st = docState(doc);
+    if (st.status === 'locked') { showToast(`🔒 ${doc.name} ${st.note}`); return; }
     if (doc.id === 'pp5') {
       if (!selCourse) { showToast('⚠️ เลือกปี → ชั้น → ห้อง → วิชา ก่อน แล้วจึงออก ปพ.5'); return; }
       exportPP5();
       return;
     }
-    showToast(`📄 ${doc.name} (${doc.title}) กำลังพัฒนา — ต้องเชื่อมข้อมูลเพิ่ม (เช่น ความประพฤติ/อนุมัติจบ/ข้อมูลตลอดหลักสูตร)`);
+    showToast(`📄 ${doc.name} (${doc.title}) กำลังพัฒนา — ต้องเชื่อมข้อมูลเพิ่ม (เช่น ความประพฤติ/อนุมัติจบ)`);
   }
 
   if (!session || (session.role !== 'teacher' && session.role !== 'web_admin')) {
     return (
-      <div className="panel-shell">
-        <div className="panel-card">
-          <div className="perm-denied">
-            <span className="perm-denied-icon">🔒</span>
-            หน้าเอกสารผลการเรียน ใช้ได้เฉพาะ <b>ครู</b> และ <b>ผู้ดูแลระบบ</b> เท่านั้น
-          </div>
-        </div>
-      </div>
+      <div className="panel-shell"><div className="panel-card">
+        <div className="perm-denied"><span className="perm-denied-icon">🔒</span>หน้าเอกสารผลการเรียน ใช้ได้เฉพาะ <b>ครู</b> และ <b>ผู้ดูแลระบบ</b> เท่านั้น</div>
+      </div></div>
     );
   }
 
@@ -108,12 +101,9 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
   }) {
     return (
       <div className="gb-pick">
-        <label className="gb-pick-label">
-          <span className={`gb-pick-num${value ? ' done' : ''}`}>{value ? '✓' : num}</span>{label}
-        </label>
+        <label className="gb-pick-label"><span className={`gb-pick-num${value ? ' done' : ''}`}>{value ? '✓' : num}</span>{label}</label>
         <select className="sched-select" value={value} disabled={disabled} onChange={e => onChange(e.target.value)}>
-          <option value="">— เลือก{label} —</option>
-          {children}
+          <option value="">— เลือก{label} —</option>{children}
         </select>
         {!disabled && empty && <div className="gb-pick-hint">{empty}</div>}
       </div>
@@ -127,12 +117,11 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
           <h2 className="panel-title">📄 เอกสาร<em>ผลการเรียน</em></h2>
           <p className="panel-sub">
             เลือกปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสาร ปพ. ที่ต้องการออก ·
-            ตอนนี้พร้อมใช้: <b>ปพ.5</b> (แบบบันทึกผลการเรียนประจำรายวิชา)
+            เอกสารจำกัดตาม<b>ระดับชั้น</b> · ตอนนี้พร้อมใช้: <b>ปพ.5</b>
           </p>
         </div>
 
         <div className="panel-body">
-          {/* เลือกปี/ชั้น/ห้อง/วิชา (ปพ.5 ต้องเลือกวิชา · เอกสารอื่นเลือกแค่ห้องก็พอในอนาคต) */}
           <div className="gb-picker-row">
             <Picker num={1} label="ปีการศึกษา" value={selYear?.id || ''}
               empty={years.length === 0 ? 'ยังไม่มีปีการศึกษา' : undefined}
@@ -157,25 +146,29 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
           </div>
 
           <div className="ez-help-box" style={{ marginBottom: '1.25rem' }}>
-            {selCourse
-              ? <>พร้อมออกเอกสารของวิชา <b>{selCourse.name} ({selCourse.code})</b> · ห้อง {selGrade?.name}/{selRoom?.room} · ปี {selYear?.year}</>
-              : <>💡 เลือกให้ครบเพื่อออก <b>ปพ.5</b> — เอกสารอื่น (ปพ.1–4, 6–9) ยังอยู่ระหว่างพัฒนา</>}
+            {selGrade
+              ? <>ระดับชั้น <b>{selGrade.name}</b> — เอกสารที่ไม่ตรงระดับชั้นจะถูกล็อก 🔒{selCourse && <> · พร้อมออก ปพ.5 ของ <b>{selCourse.name} ({selCourse.code})</b></>}</>
+              : <>💡 เลือกปี → ชั้น → ห้อง → วิชา ก่อน · เอกสารจะเปิด/ล็อกตามระดับชั้นที่เลือก</>}
           </div>
 
-          {/* การ์ดเอกสาร ปพ.1–9 */}
-          <div className="admin-menu-grid">
+          {/* การ์ดเอกสาร 3×3 */}
+          <div className="doc-grid">
             {PP_DOCS.map(doc => {
-              const usable = doc.ready && (!doc.needCourse || !!selCourse);
+              const st = docState(doc);
               return (
-                <button key={doc.id} className="admin-menu-card" style={{ opacity: usable ? 1 : 0.62 }} onClick={() => handlePick(doc)}>
-                  <div className="admin-menu-icon">{doc.ready ? '📥' : '📄'}</div>
-                  <div className="admin-menu-label">
-                    {doc.name}
-                    {doc.ready
-                      ? <span className="sched-type-badge sched-type-activity" style={{ marginLeft: '0.4rem', fontSize: '0.62rem' }}>พร้อมใช้</span>
-                      : <span className="sched-type-badge sched-type-club" style={{ marginLeft: '0.4rem', fontSize: '0.62rem' }}>กำลังพัฒนา</span>}
+                <button key={doc.id} className={`doc-card${st.status === 'locked' ? ' locked' : ''}`} onClick={() => handlePick(doc)}>
+                  <div className="doc-card-icon">{st.status === 'ready' ? '📥' : st.status === 'locked' ? '🔒' : '📄'}</div>
+                  <div className="doc-card-head">
+                    <span className="doc-card-name">{doc.name}</span>
+                    <span className={`doc-card-status ${st.status === 'ready' ? 'doc-status-ready' : st.status === 'locked' ? 'doc-status-locked' : 'doc-status-soon'}`}>
+                      {st.status === 'ready' ? 'พร้อมใช้' : st.status === 'locked' ? 'ล็อกตามระดับชั้น' : 'กำลังพัฒนา'}
+                    </span>
                   </div>
-                  <div className="admin-menu-desc">{doc.title}<br />{doc.desc}</div>
+                  <div className="doc-card-title">{doc.title}</div>
+                  <div className="doc-card-desc">{doc.desc}</div>
+                  <div className="doc-card-status doc-status-soon" style={{ background: 'var(--cream-dark)', color: 'var(--text-muted)' }}>
+                    ระดับชั้น: {allowedGradesLabel(doc)}
+                  </div>
                 </button>
               );
             })}

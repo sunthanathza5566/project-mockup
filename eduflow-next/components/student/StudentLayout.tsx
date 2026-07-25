@@ -11,6 +11,7 @@ import BookingView from './views/BookingView';
 import TopupView from './views/TopupView';
 import TutoringView from './views/TutoringView';
 import EbookView from './views/EbookView';
+import StudentDocsView from './views/StudentDocsView';
 import { useLang } from '@/context/LangContext';
 import { getWalletBalance } from '@/lib/api/wallet.store';
 
@@ -25,7 +26,7 @@ import LibraryView   from './views/LibraryView';
 import AttendanceScanView from './AttendanceScanView';
 import TeacherRatingModal from './TeacherRatingModal';
 
-export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'ebook' | 'topup' | 'tutoring';
+export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'docs' | 'shop' | 'library' | 'booking' | 'ebook' | 'topup' | 'tutoring';
 
 const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
@@ -34,6 +35,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'schedule',  icon: '📅', label: 'ตารางเรียน' },
   { view: 'homework',  icon: '📚', label: 'การบ้าน' },
   { view: 'grades',    icon: '🎓', label: 'ผลการเรียน' },
+  { view: 'docs',      icon: '📄', label: 'เอกสารผลการเรียน' },
   { view: 'tutoring',  icon: '🎓', label: 'จองเรียนพิเศษ' },
   { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
   { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
@@ -271,6 +273,7 @@ export default function StudentLayout() {
         {currentView === 'schedule'  && <ScheduleView  {...viewProps} />}
         {currentView === 'homework'  && <HomeworkView  {...viewProps} />}
         {currentView === 'grades'    && <GradesView    profile={profile} showToast={showToast} />}
+        {currentView === 'docs'      && <StudentDocsView profile={profile} showToast={showToast} />}
         {currentView === 'shop'      && <ShopView      {...viewProps} stats={stats!} />}
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
         {currentView === 'booking'   && <BookingView   profile={profile} showToast={showToast} />}

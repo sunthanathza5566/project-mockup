@@ -166,6 +166,12 @@ export const EN: Record<string, string> = {
 
   // ── หน้าครู ──
   'เมนูการสอน': 'Teaching menu',
+  'วิชาการ': 'Academic',
+  'การเรียนการสอน': 'Teaching & class',
+  'บริการ & อื่น ๆ': 'Services & more',
+  'เอกสารผลการเรียน': 'Report documents',
+  'เอกสารผลการเรียน (ปพ.)': 'Report documents (Por.Por.)',
+  'ตั้งค่าเอกสาร': 'Document settings',
   'ประวัติของฉัน': 'My profile',
   'ตารางสอนของฉัน': 'My teaching schedule',
   'ตารางเรียนรายห้อง': 'Schedule by classroom',

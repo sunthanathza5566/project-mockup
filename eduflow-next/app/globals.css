@@ -753,6 +753,24 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
 .stu-qty-input:focus { border-color: var(--brown-mid); }
 .stu-qty-total { font-size: 0.9rem; font-weight: 600; color: var(--brown-deep); margin-bottom: 0.9rem; }
 
+/* ═══════════ เอกสารผลการเรียน ปพ. (การ์ดใหญ่ 3×3) ═══════════ */
+.doc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.doc-card { position: relative; display: flex; flex-direction: column; gap: 0.5rem; background: var(--cream); border: 2px solid var(--border); border-radius: 18px; padding: 1.6rem 1.5rem; min-height: 172px; text-align: left; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
+.doc-card:hover:not(.locked) { border-color: var(--brown-mid); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(61,43,24,0.12); }
+.doc-card.locked { cursor: not-allowed; opacity: 0.55; background: var(--warm-white); }
+.doc-card-icon { font-size: 2.4rem; line-height: 1; }
+.doc-card-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.doc-card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--brown-dark); }
+.doc-card-title { font-size: 0.98rem; font-weight: 600; color: var(--brown-deep); line-height: 1.35; }
+.doc-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; flex: 1; }
+.doc-card-status { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; padding: 0.22rem 0.7rem; border-radius: 50px; align-self: flex-start; }
+.doc-status-ready  { background: rgba(92,138,92,0.16);  color: #2E5C2E; }
+.doc-status-locked { background: rgba(160,80,80,0.12);  color: #7A3030; }
+.doc-status-soon   { background: rgba(196,128,74,0.16); color: #7A4A20; }
+.doc-card-actions { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
+@media (max-width: 900px) { .doc-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .doc-grid { grid-template-columns: 1fr; } }
+
 /* ═══════════ ตารางสอน / ตารางเรียน ═══════════ */
 .sched-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .sched-table { width: 100%; border-collapse: separate; border-spacing: 4px; min-width: 900px; }

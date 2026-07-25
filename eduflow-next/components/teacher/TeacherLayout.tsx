@@ -37,23 +37,31 @@ import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
 type TeacherView =
   | 'overview' | 'academic' | 'subjects' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
-  | 'assignments' | 'gradebook' | 'reportdocs' | 'materials' | 'tutoring' | 'profile';
+  | 'assignments' | 'gradebook' | 'reportdocs' | 'docsettings' | 'materials' | 'tutoring' | 'profile';
 
-/** เมนูในปุ่ม ☰ — เรียงตามลำดับการใช้งานที่ควรเป็น (pipeline: โครงสร้าง → วิชา → แผน → ตารางสอน) */
-const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string; needClass?: boolean }[] = [
+/** ลำดับหมวดหมู่ในเมนู ☰ */
+const NAV_GROUPS = ['วิชาการ', 'การเรียนการสอน', 'บริการ & อื่น ๆ'] as const;
+type NavGroup = typeof NAV_GROUPS[number];
+
+/** เมนูในปุ่ม ☰ — จัดกลุ่มเป็นหมวด (วิชาการ = pipeline โครงสร้าง→วิชา→แผน→ตาราง→คะแนน→เอกสาร) */
+const NAV_ITEMS: { view: TeacherView; icon: string; label: string; group?: NavGroup; perm?: string; needClass?: boolean }[] = [
   { view: 'overview',         icon: '🏠', label: 'หน้าหลัก' },
-  { view: 'academic',         icon: '🏫', label: 'โครงสร้างวิชาการ',       perm: 'manageAcademic' },
-  { view: 'subjects',         icon: '📚', label: 'จัดการวิชา',             perm: 'manageSubjects' },
-  { view: 'schedule-manager', icon: '🗓', label: 'แผนการเรียนการสอน',     perm: 'manageTeachSchedule' },
-  { view: 'schedule',         icon: '📅', label: 'ตารางสอน',              perm: 'viewTeachSchedule' },
-  { view: 'attendance',       icon: '🔲', label: 'สร้าง QR Code เช็คชื่อ', perm: 'attendanceQR',  needClass: true },
-  { view: 'attendance-report',icon: '📊', label: 'รายงานเช็คชื่อย้อนหลัง', perm: 'viewReports',   needClass: true },
-  { view: 'assignments',      icon: '📚', label: 'การบ้าน & ตรวจงาน',      perm: 'assignments',   needClass: true },
-  { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน',            perm: 'gradebook' },
-  { view: 'reportdocs',       icon: '📄', label: 'เอกสารผลการเรียน (ปพ.)', perm: 'gradeExport' },
-  { view: 'materials',        icon: '📁', label: 'สื่อการสอน & ประกาศ',    perm: 'materials',     needClass: true },
-  { view: 'tutoring',         icon: '🎓', label: 'เปิดสอนพิเศษ',           perm: 'offerTutoring' },
-  { view: 'profile',          icon: '👤', label: 'ประวัติของฉัน' },
+  // ── วิชาการ ──
+  { view: 'academic',         icon: '🏫', label: 'โครงสร้างวิชาการ',       group: 'วิชาการ', perm: 'manageAcademic' },
+  { view: 'subjects',         icon: '📚', label: 'จัดการวิชา',             group: 'วิชาการ', perm: 'manageSubjects' },
+  { view: 'schedule-manager', icon: '🗓', label: 'แผนการเรียนการสอน',     group: 'วิชาการ', perm: 'manageTeachSchedule' },
+  { view: 'schedule',         icon: '📅', label: 'ตารางสอน',              group: 'วิชาการ', perm: 'viewTeachSchedule' },
+  { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน',            group: 'วิชาการ', perm: 'gradebook' },
+  { view: 'reportdocs',       icon: '📄', label: 'เอกสารผลการเรียน (ปพ.)', group: 'วิชาการ', perm: 'gradeExport' },
+  { view: 'docsettings',      icon: '⚙️', label: 'ตั้งค่าเอกสาร',          group: 'วิชาการ', perm: 'gradeExport' },
+  // ── การเรียนการสอน ──
+  { view: 'attendance',       icon: '🔲', label: 'สร้าง QR Code เช็คชื่อ', group: 'การเรียนการสอน', perm: 'attendanceQR',  needClass: true },
+  { view: 'attendance-report',icon: '📊', label: 'รายงานเช็คชื่อย้อนหลัง', group: 'การเรียนการสอน', perm: 'viewReports',   needClass: true },
+  { view: 'assignments',      icon: '📚', label: 'การบ้าน & ตรวจงาน',      group: 'การเรียนการสอน', perm: 'assignments',   needClass: true },
+  { view: 'materials',        icon: '📁', label: 'สื่อการสอน & ประกาศ',    group: 'การเรียนการสอน', perm: 'materials',     needClass: true },
+  // ── บริการ & อื่น ๆ ──
+  { view: 'tutoring',         icon: '🎓', label: 'เปิดสอนพิเศษ',           group: 'บริการ & อื่น ๆ', perm: 'offerTutoring' },
+  { view: 'profile',          icon: '👤', label: 'ประวัติของฉัน',          group: 'บริการ & อื่น ๆ' },
 ];
 
 /** หน้าที่มีตารางกว้าง — ให้ใช้พื้นที่เต็มหน้าจอ */
@@ -172,17 +180,27 @@ export default function TeacherLayout() {
           <span className="stu-bm-pchevron">›</span>
         </div>
         <nav className="stu-bm-nav">
-          <div className="tch-bm-section">เมนูการสอน</div>
-          {visibleNav.map(item => (
-            <button
-              key={item.view}
-              className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`}
-              onClick={() => navigate(item.view)}
-            >
-              <span className="stu-bm-iicon">{item.icon}</span>
-              {t(item.label)}
+          {/* หน้าหลัก (ไม่อยู่ในหมวด) */}
+          {visibleNav.filter(i => !i.group).map(item => (
+            <button key={item.view} className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`} onClick={() => navigate(item.view)}>
+              <span className="stu-bm-iicon">{item.icon}</span>{t(item.label)}
             </button>
           ))}
+          {/* เมนูจัดกลุ่มตามหมวด */}
+          {NAV_GROUPS.map(group => {
+            const items = visibleNav.filter(i => i.group === group);
+            if (items.length === 0) return null;
+            return (
+              <div key={group}>
+                <div className="tch-bm-section">{t(group)}</div>
+                {items.map(item => (
+                  <button key={item.view} className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`} onClick={() => navigate(item.view)}>
+                    <span className="stu-bm-iicon">{item.icon}</span>{t(item.label)}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
           <div className="stu-bm-divider" />
           <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
             <span className="stu-bm-iicon">🚪</span>{t('ออกจากระบบ')}
@@ -355,6 +373,21 @@ export default function TeacherLayout() {
 
             {currentView === 'reportdocs' && (
               <ReportDocsView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
+            )}
+
+            {currentView === 'docsettings' && (
+              <div className="panel-shell">
+                <div className="panel-card">
+                  <div className="panel-head">
+                    <h2 className="panel-title">⚙️ ตั้งค่า<em>เอกสาร</em></h2>
+                    <p className="panel-sub">กำหนดรูปแบบ/หัวเอกสาร ปพ. · ตราโรงเรียน · ผู้ลงนาม · เกณฑ์การประเมิน</p>
+                  </div>
+                  <div className="perm-denied" style={{ background: 'rgba(196,128,74,0.08)', borderColor: 'rgba(196,128,74,0.3)', color: '#7A4A20' }}>
+                    <span className="perm-denied-icon">🚧</span>
+                    หน้านี้กำลังพัฒนา — เตรียมไว้สำหรับตั้งค่าเอกสารผลการเรียน (หัวกระดาษ ปพ. · ตราโรงเรียน · ผู้อำนวยการลงนาม)
+                  </div>
+                </div>
+              </div>
             )}
 
             {currentClass && currentView === 'materials' && (
