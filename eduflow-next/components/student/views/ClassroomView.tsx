@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { StudentProfile, Subject, Assignment } from '@/lib/types';
 import type { StudentView } from '../StudentLayout';
 import { STU_COLORS } from './colors';
-import { getMaterials, getAnnouncements, type Material, type Announcement } from '@/lib/api/materials.store';
+import { getMaterials, getAnnouncements, incrementMaterialViews, type Material, type Announcement } from '@/lib/api/materials.store';
 import { getStudentClassIds } from '@/lib/api/class-resolver';
 
 interface Props {
@@ -71,7 +71,7 @@ export default function ClassroomView({ profile, subjects, assignments, setView,
                   {m.description && <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{m.description}</div>}
                 </div>
                 {m.type !== 'file' && m.url.startsWith('http') ? (
-                  <a href={m.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--brown-deep)', textDecoration: 'underline', whiteSpace: 'nowrap' }}>เปิด →</a>
+                  <a href={m.url} target="_blank" rel="noopener noreferrer" onClick={() => incrementMaterialViews(m.id)} style={{ fontSize: '0.75rem', color: 'var(--brown-deep)', textDecoration: 'underline', whiteSpace: 'nowrap' }}>เปิด →</a>
                 ) : (
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{m.url}</span>
                 )}

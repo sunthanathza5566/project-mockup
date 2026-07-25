@@ -31,11 +31,11 @@ import ScheduleManagerView from './ScheduleManagerView';
 import SubjectCatalogView from './SubjectCatalogView';
 import AcademicStructureView from './AcademicStructureView';
 import TutoringView from './TutoringView';
-import NewsBoard from '@/components/ui/NewsBoard';
+import TeacherOverview from './TeacherOverview';
 import LangToggle from '@/components/ui/LangToggle';
 import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
-type TeacherView =
+export type TeacherView =
   | 'overview' | 'academic' | 'subjects' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
   | 'assignments' | 'gradebook' | 'reportdocs' | 'docsettings' | 'materials' | 'tutoring' | 'profile';
 
@@ -110,9 +110,7 @@ export default function TeacherLayout() {
     });
   }, [session, isLoading, router]);
 
-  const handleLogout = useCallback(() => {
-    logout(); showToast('ออกจากระบบแล้ว'); router.push('/');
-  }, [logout, showToast, router]);
+  const handleLogout = useCallback(() => { logout(); }, [logout]);  // logout จัดการอนิเมชั่น + redirect เอง
 
   /** โหลดห้อง/วิชาที่สอนใหม่จากตารางสอน — เรียกหลังครูแก้ตารางเสร็จ ทุกเมนูจะเห็นข้อมูลล่าสุดทันที */
   const reloadClasses = useCallback(async () => {
@@ -259,37 +257,17 @@ export default function TeacherLayout() {
       {/* หน้าที่ต้องใช้พื้นที่กว้าง (ตารางคะแนน/ตารางสอน) ขยายเต็มจอ — หน้าอื่นคุมความกว้างให้อ่านง่าย */}
       <div className="dash-content" style={{ maxWidth: WIDE_VIEWS.includes(currentView) ? 'none' : currentView === 'overview' ? 960 : 1120 }}>
         {currentView === 'overview' ? (
-          <>
-            <div className="dash-section">
-              <div className="section-label">{t('ครู')} · {profile.school}</div>
-              <h2 className="dash-h2">สวัสดี คุณครู<em>{profile.name.replace('ครู', '').trim()}</em></h2>
-
-              <div className="dash-kpi-row">
-                {[
-                  { num: classes.length, label: t('ห้องที่สอน') },
-                  { num: todayPeriods, label: t('คาบวันนี้') },
-                  { num: weekPeriods, label: 'คาบต่อสัปดาห์' },
-                  {
-                    num: ratingSummary.avg !== null ? `⭐ ${ratingSummary.avg.toFixed(1)}` : '⭐ —',
-                    label: `ผลประเมินการสอน (${ratingSummary.count} ครั้ง)`,
-                  },
-                ].map((k, i) => (
-                  <div key={i} className="dash-kpi">
-                    <div className="dash-kpi-num">{k.num}</div>
-                    <div className="dash-kpi-label">{k.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="ez-help-box">
-                💡 ทุกฟังก์ชันการสอนอยู่ในปุ่ม <b>☰ มุมขวาบน</b> — กดเพื่อเปิดเมนู กดซ้ำเพื่อซ่อน
-                {classes.length === 0 && <><br />🕐 ยังไม่มีห้องสอน — เริ่มที่เมนู “จัดการตารางสอน” เพื่อจัดคาบสอนของท่าน</>}
-              </div>
-            </div>
-
-            {/* ข่าวสารโรงเรียนประจำวัน */}
-            <NewsBoard />
-          </>
+          <TeacherOverview
+            profile={profile}
+            classes={classes}
+            username={session.username}
+            ratingSummary={ratingSummary}
+            todayPeriods={todayPeriods}
+            weekPeriods={weekPeriods}
+            onNavigate={navigate}
+            onSelectClass={setSelClass}
+            t={t}
+          />
         ) : (
           <>
             <button

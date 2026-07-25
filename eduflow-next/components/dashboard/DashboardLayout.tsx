@@ -28,7 +28,7 @@ export default function DashboardLayout() {
 
   if (!session || !['school_admin', 'parent'].includes(session.role)) return null;
 
-  function handleLogout() { logout(); showToast('ออกจากระบบแล้ว'); router.push('/'); }
+  function handleLogout() { logout(); }  // logout จัดการอนิเมชั่น + กลับหน้าแรกให้เอง
 
   return (
     <div>

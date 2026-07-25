@@ -29,7 +29,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   if (!session || session.role !== 'web_admin') return null;
 
-  function handleLogout() { logout(); showToast('ออกจากระบบแล้ว'); router.push('/'); }
+  function handleLogout() { logout(); }  // logout จัดการอนิเมชั่น + กลับหน้าแรกให้เอง
 
   return (
     <div>

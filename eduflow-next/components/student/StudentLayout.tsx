@@ -28,20 +28,27 @@ import TeacherRatingModal from './TeacherRatingModal';
 
 export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'docs' | 'shop' | 'library' | 'booking' | 'ebook' | 'topup' | 'tutoring';
 
-const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
+/** ลำดับหมวดหมู่ในเมนู ☰ ของนักเรียน */
+const NAV_GROUPS = ['การเรียน', 'ห้องสมุด & บริการ', 'บัญชี & อื่น ๆ'] as const;
+type StuNavGroup = typeof NAV_GROUPS[number];
+
+const NAV_ITEMS: { view: StudentView; icon: string; label: string; group?: StuNavGroup }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
-  { view: 'profile',   icon: '👤', label: 'โปรไฟล์' },
-  { view: 'classroom', icon: '🏫', label: 'ห้องเรียน' },
-  { view: 'schedule',  icon: '📅', label: 'ตารางเรียน' },
-  { view: 'homework',  icon: '📚', label: 'การบ้าน' },
-  { view: 'grades',    icon: '🎓', label: 'ผลการเรียน' },
-  { view: 'docs',      icon: '📄', label: 'เอกสารผลการเรียน' },
-  { view: 'tutoring',  icon: '🎓', label: 'จองเรียนพิเศษ' },
-  { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
-  { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
-  { view: 'ebook',     icon: '📱', label: 'ห้องสมุดออนไลน์' },
-  { view: 'booking',   icon: '📚', label: 'จองหนังสือ' },
-  { view: 'topup',     icon: '💰', label: 'กระเป๋าเงิน' },
+  // ── การเรียน ──
+  { view: 'classroom', icon: '🏫', label: 'ห้องเรียน',          group: 'การเรียน' },
+  { view: 'schedule',  icon: '📅', label: 'ตารางเรียน',         group: 'การเรียน' },
+  { view: 'homework',  icon: '📚', label: 'การบ้าน',            group: 'การเรียน' },
+  { view: 'grades',    icon: '🎓', label: 'ผลการเรียน',         group: 'การเรียน' },
+  { view: 'docs',      icon: '📄', label: 'เอกสารผลการเรียน',   group: 'การเรียน' },
+  { view: 'tutoring',  icon: '🎓', label: 'จองเรียนพิเศษ',      group: 'การเรียน' },
+  // ── ห้องสมุด & บริการ ──
+  { view: 'library',   icon: '📖', label: 'ห้องสมุด',           group: 'ห้องสมุด & บริการ' },
+  { view: 'ebook',     icon: '📱', label: 'ห้องสมุดออนไลน์',    group: 'ห้องสมุด & บริการ' },
+  { view: 'booking',   icon: '📚', label: 'จองหนังสือ',         group: 'ห้องสมุด & บริการ' },
+  { view: 'shop',      icon: '🛍', label: 'ร้านค้า',            group: 'ห้องสมุด & บริการ' },
+  { view: 'topup',     icon: '💰', label: 'กระเป๋าเงิน',        group: 'ห้องสมุด & บริการ' },
+  // ── บัญชี & อื่น ๆ ──
+  { view: 'profile',   icon: '👤', label: 'โปรไฟล์',            group: 'บัญชี & อื่น ๆ' },
 ];
 
 export default function StudentLayout() {
@@ -107,9 +114,7 @@ export default function StudentLayout() {
     });
   }, [session, isLoading]);
 
-  const handleLogout = useCallback(() => {
-    logout(); showToast('ออกจากระบบแล้ว'); router.push('/');
-  }, [logout, showToast, router]);
+  const handleLogout = useCallback(() => { logout(); }, [logout]);  // logout จัดการอนิเมชั่น + redirect เอง
 
   const navigate = useCallback((view: StudentView) => {
     setCurrentView(view);
@@ -208,27 +213,40 @@ export default function StudentLayout() {
           <span className="stu-bm-pchevron">›</span>
         </div>
         <nav className="stu-bm-nav">
-          {NAV_ITEMS.map(item => (
-            <button
-              key={item.view}
-              className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`}
-              data-bmview={item.view}
-              onClick={() => navigate(item.view)}
-            >
-              <span className="stu-bm-iicon">{item.icon}</span>
-              {t(item.label)}
-              {item.view === 'homework' && assignments.filter(a => a.status === 'overdue').length > 0 && (
-                <span className="stu-bm-ibadge">{assignments.filter(a => a.status === 'overdue').length}</span>
-              )}
+          {/* หน้าหลัก (ไม่อยู่ในหมวด) */}
+          {NAV_ITEMS.filter(i => !i.group).map(item => (
+            <button key={item.view} className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`} data-bmview={item.view} onClick={() => navigate(item.view)}>
+              <span className="stu-bm-iicon">{item.icon}</span>{t(item.label)}
             </button>
           ))}
+          {/* เมนูจัดกลุ่มตามหมวด */}
+          {NAV_GROUPS.map(group => {
+            const items = NAV_ITEMS.filter(i => i.group === group);
+            const overdue = assignments.filter(a => a.status === 'overdue').length;
+            return (
+              <div key={group}>
+                <div className="tch-bm-section">{t(group)}</div>
+                {items.map(item => (
+                  <button key={item.view} className={`stu-bm-item${currentView === item.view ? ' bm-active' : ''}`} data-bmview={item.view} onClick={() => navigate(item.view)}>
+                    <span className="stu-bm-iicon">{item.icon}</span>{t(item.label)}
+                    {item.view === 'homework' && overdue > 0 && <span className="stu-bm-ibadge">{overdue}</span>}
+                  </button>
+                ))}
+                {/* ทำรายการด่วน (modal) อยู่ในหมวดการเรียน */}
+                {group === 'การเรียน' && (
+                  <>
+                    <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowAttendanceScan(true); }}>
+                      <span className="stu-bm-iicon">📱</span>{t('เช็คชื่อ QR')}
+                    </button>
+                    <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowRating(true); }}>
+                      <span className="stu-bm-iicon">⭐</span>{t('ให้คะแนนการสอน')}
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
           <div className="stu-bm-divider" />
-          <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowAttendanceScan(true); }}>
-            <span className="stu-bm-iicon">📱</span>{t('เช็คชื่อ QR')}
-          </button>
-          <button className="stu-bm-item" onClick={() => { setBurgerOpen(false); setShowRating(true); }}>
-            <span className="stu-bm-iicon">⭐</span>{t('ให้คะแนนการสอน')}
-          </button>
           <button className="stu-bm-item stu-bm-item-logout" onClick={handleLogout}>
             <span className="stu-bm-iicon">🚪</span>{t('ออกจากระบบ')}
           </button>

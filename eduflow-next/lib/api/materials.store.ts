@@ -22,8 +22,12 @@ export interface Material {
   title: string;
   description: string;
   url: string;        // ลิงก์ หรือชื่อไฟล์ (mock — ยังไม่มี storage จริง)
+  category: string;   // หน่วย/บทเรียน เช่น "บทที่ 1" — '' = ยังไม่จัดหมวด
+  pinned: boolean;    // ปักหมุดให้เด่นบนสุด
+  views: number;      // จำนวนครั้งที่นักเรียนเปิดดู
   teacherName: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface Announcement {
@@ -61,19 +65,51 @@ function notifyClass(classId: string, title: string, body: string) {
 
 // ─── สื่อการสอน ───────────────────────────────────────────────────────────
 
-// TODO(PostgreSQL): SELECT * FROM materials WHERE class_id = $1 ORDER BY created_at DESC
-export function getMaterials(classId: string): Material[] {
-  return load().materials.filter(m => m.classId === classId);
+/** เติมค่า default ให้ข้อมูลเก่าที่ยังไม่มีฟิลด์ใหม่ (category/pinned/views) */
+function normalize(m: Material): Material {
+  return { ...m, category: m.category ?? '', pinned: m.pinned ?? false, views: m.views ?? 0 };
 }
 
-// TODO(PostgreSQL): INSERT INTO materials (class_id, type, title, description, url, created_by) VALUES (...)
-export function createMaterial(data: Omit<Material, 'id' | 'createdAt'>): Material {
+// TODO(PostgreSQL): SELECT * FROM materials WHERE class_id = $1 ORDER BY is_pinned DESC, created_at DESC
+export function getMaterials(classId: string): Material[] {
+  return load().materials
+    .filter(m => m.classId === classId)
+    .map(normalize)
+    .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (b.createdAt - a.createdAt));
+}
+
+// TODO(PostgreSQL): INSERT INTO materials (class_id, type, title, description, url, category, is_pinned, created_by) VALUES (...)
+export function createMaterial(
+  data: Omit<Material, 'id' | 'createdAt' | 'views' | 'pinned'> & { pinned?: boolean },
+): Material {
   const store = load();
-  const item: Material = { ...data, id: Date.now(), createdAt: Date.now() };
+  const item: Material = { ...data, pinned: data.pinned ?? false, views: 0, id: Date.now(), createdAt: Date.now() };
   store.materials.unshift(item);
   save(store);
   notifyClass(data.classId, `สื่อการสอนใหม่`, `${data.teacherName} เพิ่ม "${data.title}" — ดูได้ที่หน้าห้องเรียน`);
   return item;
+}
+
+// TODO(PostgreSQL): UPDATE materials SET ... WHERE id = $1 AND created_by = $2
+export function updateMaterial(id: number, patch: Partial<Omit<Material, 'id' | 'classId' | 'createdAt'>>): void {
+  const store = load();
+  store.materials = store.materials.map(m => (m.id === id ? { ...normalize(m), ...patch, updatedAt: Date.now() } : m));
+  save(store);
+}
+
+/** สลับปักหมุด — ให้สื่อสำคัญเด่นบนสุด */
+export function toggleMaterialPin(id: number): void {
+  const store = load();
+  store.materials = store.materials.map(m => (m.id === id ? { ...normalize(m), pinned: !normalize(m).pinned } : m));
+  save(store);
+}
+
+/** เพิ่มยอดเข้าชม — เรียกจากฝั่งนักเรียนเมื่อกดเปิดสื่อ
+ *  TODO(PostgreSQL): UPDATE materials SET views = views + 1 WHERE id = $1 */
+export function incrementMaterialViews(id: number): void {
+  const store = load();
+  store.materials = store.materials.map(m => (m.id === id ? { ...normalize(m), views: normalize(m).views + 1 } : m));
+  save(store);
 }
 
 // TODO(PostgreSQL): DELETE FROM materials WHERE id = $1 AND created_by = $2

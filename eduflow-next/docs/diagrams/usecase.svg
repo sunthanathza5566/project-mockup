@@ -1,0 +1,281 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 1180" font-family="'Leelawadee UI','Tahoma',sans-serif">
+  <defs>
+    <marker id="tri" markerWidth="16" markerHeight="16" refX="13" refY="6" orient="auto">
+      <path d="M1,1 L13,6 L1,11 Z" fill="white" stroke="#8A7862" stroke-width="1.2"/>
+    </marker>
+    <marker id="openarrow" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+      <path d="M1,1 L8,4 L1,7" fill="none" stroke="#8A7862" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1720" height="1180" fill="#FFFDF8"/>
+
+  <!-- หัวเรื่อง -->
+  <text x="860" y="48" text-anchor="middle" font-size="30" font-weight="800" fill="#3D2B1A">Use Case Diagram — ระบบ EduFlow</text>
+  <text x="860" y="76" text-anchor="middle" font-size="15" fill="#8A7862">ระบบอำนวยความสะดวกโรงเรียน · แผนภาพกรณีการใช้งานจำแนกตามบทบาทผู้ใช้</text>
+
+  <!-- System boundary -->
+  <rect x="430" y="180" width="850" height="920" rx="18" fill="none" stroke="#C9B79C" stroke-width="2"/>
+  <text x="455" y="208" font-size="16" font-weight="700" fill="#A8926F">ระบบ EduFlow</text>
+
+  <!-- association lines (วาดก่อนเพื่อให้อยู่หลัง pill) -->
+  <g><line x1="860" y1="150" x2="860" y2="224.52" stroke="#9A8467" stroke-width="1.3" opacity="0.55"/>
+<line x1="860" y1="150" x2="860" y2="309.52" stroke="#9A8467" stroke-width="1.3" opacity="0.55"/>
+<line x1="860" y1="150" x2="994.2596014615062" y2="238.60499758666109" stroke="#9A8467" stroke-width="1.3" opacity="0.55"/>
+<line x1="860" y1="150" x2="732.3144383923432" y2="238.60499758666109" stroke="#9A8467" stroke-width="1.3" opacity="0.55"/>
+<line x1="860" y1="150" x2="722.9490269445345" y2="317.69801030838795" stroke="#9A8467" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="476.7" y2="470" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="478.74576452776006" y2="534.3877529958453" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="482.32683167329776" y2="604.204503425192" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="489.53795777872585" y2="670.4789745247217" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="498.6772374954922" y2="737.7551548326982" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="497.15168118982774" y2="805.8076101697968" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="506.9877371921636" y2="879.3312258695166" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="518.6879299612447" y2="948.3444794151686" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="517.8605142825394" y2="1017.6162301672844" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="470" x2="692.5691311311764" y2="883.5756620053714" stroke="#2E7D5B" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="900" x2="647.0017217246753" y2="995.0972795408286" stroke="#B5533E" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="900" x2="511.2860287711773" y2="490.66877413048337" stroke="#B5533E" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="900" x2="484.5460650540607" y2="765.795496574808" stroke="#B5533E" stroke-width="1.3" opacity="0.55"/>
+<line x1="250" y1="900" x2="467.12933914005833" y2="830.9916555393511" stroke="#B5533E" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1050.65" y2="470" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1240.85" y2="470" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1238.864405017174" y2="534.3877529958453" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1242.6157448590589" y2="599.5127703125728" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1226.43563980863" y2="670.4789745247217" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1217.7155411807132" y2="737.7551548326982" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1221.2368234560654" y2="805.8076101697968" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="1215.8777905271788" y2="879.3312258695166" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="470" x2="835.4427173769939" y2="886.8004760520377" stroke="#8B5A2B" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="760" x2="1035.4297883983224" y2="702.9771149880173" stroke="#4A6FA5" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="760" x2="1038.8011492808191" y2="482.59482067996555" stroke="#4A6FA5" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="760" x2="1035.7174697948633" y2="798.0076870692812" stroke="#4A6FA5" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="940" x2="1040.6024678461447" y2="901.9923129307188" stroke="#6A4C93" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="940" x2="1028.7209804321656" y2="710.8493084856854" stroke="#6A4C93" stroke-width="1.3" opacity="0.55"/>
+<line x1="1470" y1="940" x2="1033.2405709343052" y2="806.7449886957842" stroke="#6A4C93" stroke-width="1.3" opacity="0.55"/></g>
+  <g><line x1="250" y1="430" x2="820" y2="190" stroke="#2E7D5B" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.6" marker-end="url(#tri)"/>
+<line x1="250" y1="860" x2="800" y2="210" stroke="#B5533E" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.6" marker-end="url(#tri)"/>
+<line x1="1470" y1="430" x2="900" y2="190" stroke="#8B5A2B" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.6" marker-end="url(#tri)"/>
+<line x1="1470" y1="720" x2="920" y2="205" stroke="#4A6FA5" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.6" marker-end="url(#tri)"/>
+<line x1="1470" y1="900" x2="930" y2="215" stroke="#6A4C93" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.6" marker-end="url(#tri)"/></g>
+
+  <!-- use cases -->
+  
+  <g class="uc">
+    <ellipse cx="860" cy="250" rx="75" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="860" y="256" text-anchor="middle" font-size="14.5" fill="#3D2B1A">เข้าสู่ระบบ</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="860" cy="335" rx="95" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="860" y="332" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ยืนยันตัวตน</text><text x="860" y="350" text-anchor="middle" font-size="14.5" fill="#3D2B1A">(ล็อคเมื่อผิดหลายครั้ง)</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1060" cy="250" rx="75" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1060" y="256" text-anchor="middle" font-size="14.5" fill="#3D2B1A">สมัครสมาชิก</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="660" cy="250" rx="82.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="660" y="256" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดการโปรไฟล์</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="660" cy="335" rx="87.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="660" y="341" text-anchor="middle" font-size="14.5" fill="#3D2B1A">รับการแจ้งเตือน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="470" rx="85" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="476" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดูตารางเรียน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="540" rx="85" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="537" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดูห้องเรียน</text><text x="560" y="555" text-anchor="middle" font-size="14.5" fill="#3D2B1A">(สื่อ/ประกาศ)</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="615" rx="87.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="621" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดู & ส่งการบ้าน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="685" rx="87.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="691" text-anchor="middle" font-size="14.5" fill="#3D2B1A">เช็คชื่อผ่าน QR</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="755" rx="85" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="761" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดูผลการเรียน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="825" rx="97.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="822" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดาวน์โหลดเอกสาร</text><text x="560" y="840" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ผลการเรียน (ปพ.)</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="900" rx="92.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="897" text-anchor="middle" font-size="14.5" fill="#3D2B1A">อ่านหนังสือ</text><text x="560" y="915" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ห้องสมุดออนไลน์</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="970" rx="80" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="976" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จองหนังสือ</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="560" cy="1040" rx="90" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="560" y="1037" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ซื้อสินค้า /</text><text x="560" y="1055" text-anchor="middle" font-size="14.5" fill="#3D2B1A">เติมเงินกระเป๋า</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="760" cy="900" rx="90" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="760" y="897" text-anchor="middle" font-size="14.5" fill="#3D2B1A">เรียนพิเศษ</text><text x="760" y="915" text-anchor="middle" font-size="14.5" fill="#3D2B1A">(จอง / เปิดสอน)</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="760" cy="1000" rx="117.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="760" y="997" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ติดตามผลการเรียน /</text><text x="760" y="1015" text-anchor="middle" font-size="14.5" fill="#3D2B1A">การเข้าเรียนบุตรหลาน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="960" cy="470" rx="92.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="960" y="467" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดการโครงสร้าง</text><text x="960" y="485" text-anchor="middle" font-size="14.5" fill="#3D2B1A">วิชาการ</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="470" rx="82.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="476" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดการรายวิชา</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="540" rx="82.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="546" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดตารางสอน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="610" rx="92.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="607" text-anchor="middle" font-size="14.5" fill="#3D2B1A">สร้าง QR เช็คชื่อ</text><text x="1160" y="625" text-anchor="middle" font-size="14.5" fill="#3D2B1A">& ดูรายงาน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="685" rx="82.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="682" text-anchor="middle" font-size="14.5" fill="#3D2B1A">สั่ง & ตรวจ</text><text x="1160" y="700" text-anchor="middle" font-size="14.5" fill="#3D2B1A">การบ้าน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="755" rx="80" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="761" text-anchor="middle" font-size="14.5" fill="#3D2B1A">บันทึกคะแนน</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="825" rx="95" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="822" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ออกเอกสาร</text><text x="1160" y="840" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ผลการเรียน (ปพ.)</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="1160" cy="900" rx="97.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="1160" y="897" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดการสื่อการสอน</text><text x="1160" y="915" text-anchor="middle" font-size="14.5" fill="#3D2B1A">& ประกาศ</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="960" cy="700" rx="77.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="960" y="706" text-anchor="middle" font-size="14.5" fill="#3D2B1A">จัดการผู้ใช้</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="960" cy="900" rx="82.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="960" y="897" text-anchor="middle" font-size="14.5" fill="#3D2B1A">กำหนดสิทธิ์</text><text x="960" y="915" text-anchor="middle" font-size="14.5" fill="#3D2B1A">การเข้าถึง</text>
+  </g>
+
+  <g class="uc">
+    <ellipse cx="960" cy="800" rx="77.5" ry="26" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.6"/>
+    <text x="960" y="806" text-anchor="middle" font-size="14.5" fill="#3D2B1A">ดู Log ระบบ</text>
+  </g>
+
+  <!-- include arrows (บน pill) -->
+  <line x1="860" y1="276" x2="860" y2="309" stroke="#8A7862" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#openarrow)"/>
+  <text x="860" y="287.5" text-anchor="middle" font-size="11" fill="#8A7862" font-style="italic">«include»</text>
+
+  <!-- parent actor: ผู้ใช้ระบบ -->
+  
+  <g class="actor">
+    <circle cx="860" cy="90" r="13" fill="none" stroke="#3D2B1A" stroke-width="2.4"/>
+    <line x1="860" y1="103" x2="860" y2="137" stroke="#3D2B1A" stroke-width="2.4"/>
+    <line x1="840" y1="115" x2="880" y2="115" stroke="#3D2B1A" stroke-width="2.4"/>
+    <line x1="860" y1="137" x2="844" y2="163" stroke="#3D2B1A" stroke-width="2.4"/>
+    <line x1="860" y1="137" x2="876" y2="163" stroke="#3D2B1A" stroke-width="2.4"/>
+    <text x="860" y="185" text-anchor="middle" font-size="19" font-weight="700" fill="#3D2B1A">ผู้ใช้ระบบ</text>
+    <text x="860" y="205" text-anchor="middle" font-size="12.5" fill="#8A7862">«abstract»</text>
+  </g>
+
+  <!-- actors -->
+  
+  <g class="actor">
+    <circle cx="250" cy="430" r="13" fill="none" stroke="#2E7D5B" stroke-width="2.4"/>
+    <line x1="250" y1="443" x2="250" y2="477" stroke="#2E7D5B" stroke-width="2.4"/>
+    <line x1="230" y1="455" x2="270" y2="455" stroke="#2E7D5B" stroke-width="2.4"/>
+    <line x1="250" y1="477" x2="234" y2="503" stroke="#2E7D5B" stroke-width="2.4"/>
+    <line x1="250" y1="477" x2="266" y2="503" stroke="#2E7D5B" stroke-width="2.4"/>
+    <text x="250" y="525" text-anchor="middle" font-size="19" font-weight="700" fill="#2E7D5B">นักเรียน</text>
+    
+  </g>
+  
+  <g class="actor">
+    <circle cx="250" cy="860" r="13" fill="none" stroke="#B5533E" stroke-width="2.4"/>
+    <line x1="250" y1="873" x2="250" y2="907" stroke="#B5533E" stroke-width="2.4"/>
+    <line x1="230" y1="885" x2="270" y2="885" stroke="#B5533E" stroke-width="2.4"/>
+    <line x1="250" y1="907" x2="234" y2="933" stroke="#B5533E" stroke-width="2.4"/>
+    <line x1="250" y1="907" x2="266" y2="933" stroke="#B5533E" stroke-width="2.4"/>
+    <text x="250" y="955" text-anchor="middle" font-size="19" font-weight="700" fill="#B5533E">ผู้ปกครอง</text>
+    
+  </g>
+  
+  <g class="actor">
+    <circle cx="1470" cy="430" r="13" fill="none" stroke="#8B5A2B" stroke-width="2.4"/>
+    <line x1="1470" y1="443" x2="1470" y2="477" stroke="#8B5A2B" stroke-width="2.4"/>
+    <line x1="1450" y1="455" x2="1490" y2="455" stroke="#8B5A2B" stroke-width="2.4"/>
+    <line x1="1470" y1="477" x2="1454" y2="503" stroke="#8B5A2B" stroke-width="2.4"/>
+    <line x1="1470" y1="477" x2="1486" y2="503" stroke="#8B5A2B" stroke-width="2.4"/>
+    <text x="1470" y="525" text-anchor="middle" font-size="19" font-weight="700" fill="#8B5A2B">ครู</text>
+    
+  </g>
+  
+  <g class="actor">
+    <circle cx="1470" cy="720" r="13" fill="none" stroke="#4A6FA5" stroke-width="2.4"/>
+    <line x1="1470" y1="733" x2="1470" y2="767" stroke="#4A6FA5" stroke-width="2.4"/>
+    <line x1="1450" y1="745" x2="1490" y2="745" stroke="#4A6FA5" stroke-width="2.4"/>
+    <line x1="1470" y1="767" x2="1454" y2="793" stroke="#4A6FA5" stroke-width="2.4"/>
+    <line x1="1470" y1="767" x2="1486" y2="793" stroke="#4A6FA5" stroke-width="2.4"/>
+    <text x="1470" y="815" text-anchor="middle" font-size="19" font-weight="700" fill="#4A6FA5">แอดมินโรงเรียน</text>
+    
+  </g>
+  
+  <g class="actor">
+    <circle cx="1470" cy="900" r="13" fill="none" stroke="#6A4C93" stroke-width="2.4"/>
+    <line x1="1470" y1="913" x2="1470" y2="947" stroke="#6A4C93" stroke-width="2.4"/>
+    <line x1="1450" y1="925" x2="1490" y2="925" stroke="#6A4C93" stroke-width="2.4"/>
+    <line x1="1470" y1="947" x2="1454" y2="973" stroke="#6A4C93" stroke-width="2.4"/>
+    <line x1="1470" y1="947" x2="1486" y2="973" stroke="#6A4C93" stroke-width="2.4"/>
+    <text x="1470" y="995" text-anchor="middle" font-size="19" font-weight="700" fill="#6A4C93">เว็บแอดมิน</text>
+    
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(1470, 92)">
+    <rect x="0" y="0" width="238" height="150" rx="10" fill="white" stroke="#C9B79C" stroke-width="1.2"/>
+    <text x="14" y="24" font-size="13.5" font-weight="700" fill="#3D2B1A">สัญลักษณ์</text>
+    <line x1="14" y1="44" x2="44" y2="44" stroke="#8A7862" stroke-width="1.4"/>
+    <text x="52" y="48" font-size="12" fill="#5A4A38">association (ใช้งาน)</text>
+    <line x1="14" y1="68" x2="44" y2="68" stroke="#8A7862" stroke-width="1.4" marker-end="url(#tri)"/>
+    <text x="52" y="72" font-size="12" fill="#5A4A38">generalization (สืบทอด)</text>
+    <line x1="14" y1="92" x2="44" y2="92" stroke="#8A7862" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#openarrow)"/>
+    <text x="52" y="96" font-size="12" fill="#5A4A38">«include»</text>
+    <ellipse cx="26" cy="118" rx="14" ry="9" fill="#FBF7F0" stroke="#C9A876" stroke-width="1.4"/>
+    <text x="52" y="122" font-size="12" fill="#5A4A38">use case (กรณีใช้งาน)</text>
+    <text x="14" y="142" font-size="11" fill="#8A7862">รวม 5 บทบาท · 27 กรณีการใช้งาน</text>
+  </g>
+</svg>
