@@ -235,17 +235,27 @@ export function getClassroomSchedule(classroomId: string): ScheduleSlot[] {
   return getClassroomPlan(classroomId).filter(isSlotActive);
 }
 
-/** เปิด/ปิดใช้งานรายการในแผน — ปิดแล้วไม่แสดงในตารางสอน (ข้อมูลยังอยู่) */
-export function setSlotActive(id: string, active: boolean): boolean {
-  if (!canManageSchedule()) return false;
+/**
+ * เปิด/ปิดใช้งานรายการในแผน — ปิดแล้วไม่แสดงในตารางสอน (ข้อมูลยังอยู่)
+ * คืน { ok:false } พร้อมเหตุผลถ้าเปิดแล้วจะชนคาบ (มีรายการอื่นเปิดอยู่ในคาบเดียวกัน)
+ */
+export function setSlotActive(id: string, active: boolean): { ok: boolean; error?: string } {
+  if (!canManageSchedule()) return { ok: false, error: '🔒 ไม่มีสิทธิ์' };
   const data = load();
   const slot = data.slots.find(s => s.id === id);
-  if (!slot) return false;
+  if (!slot) return { ok: false, error: 'ไม่พบรายการนี้' };
+
+  // เปิดใช้งานคืน ต้องตรวจคาบชนเหมือนตอนเพิ่ม/แก้ (ระหว่างปิดอยู่ อาจมีรายการอื่นมาแทนคาบนี้)
+  if (active) {
+    const conflict = findConflict({ classroomId: slot.classroomId, day: slot.day, period: slot.period, teacherUsername: slot.teacherUsername }, id);
+    if (conflict) return { ok: false, error: `⚠️ ${conflict.message}` };
+  }
+
   slot.active = active;
   save(data);
   const label = `${dayTH(slot.day)} คาบ ${slot.period} · ${slot.subjectName} (${slot.subjectCode})`;
   writeLog(slot.classroomId, 'แก้ไขคาบสอน', `${active ? 'เปิด' : 'ปิด'}ใช้งาน · ${label}`);
-  return true;
+  return { ok: true };
 }
 
 /**
@@ -419,6 +429,10 @@ export function addSlot(input: SlotInput): SlotResult {
     teacherId: input.teacherId,
     teacherName: input.teacherName.trim(),
     room: input.room.trim(),
+    startTime: (input.startTime || '').trim() || periodTime(input.period).split('–')[0],
+    endTime: (input.endTime || '').trim() || periodTime(input.period).split('–')[1] || '',
+    date: (input.date || '').trim(),
+    active: input.active !== false,
     note: (input.note || '').trim(),
     createdBy: session?.username || 'unknown',
     createdByName: session?.name || '—',

@@ -12,10 +12,12 @@ import {
   getAllAcademicYears, createAcademicYear, setYearActive, deleteAcademicYear, yearUsage,
   getGradeLevels, createGradeLevel, deleteGradeLevel,
   getClassrooms, createClassroom, deleteClassroom, classroomUsage,
+  getClassroomStudents, addStudentToClassroom, removeStudentFromClassroom,
   type AcademicYear, type GradeLevel, type Classroom,
 } from '@/lib/api/academic.store';
 import { hasPermission } from '@/lib/api/permissions';
 import { getSession } from '@/lib/api/auth.api';
+import type { TeacherStudent } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
 interface Props { onGoToPlan?: () => void }
@@ -29,17 +31,39 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
   const [rooms,  setRooms]  = useState<Classroom[]>([]);
   const [selYear,  setSelYear]  = useState('');
   const [selGrade, setSelGrade] = useState('');
+  const [selRoom,  setSelRoom]  = useState('');
+  const [students, setStudents] = useState<TeacherStudent[]>([]);
 
   const [newYear,  setNewYear]  = useState('');
   const [newGrade, setNewGrade] = useState('');
   const [newRoom,  setNewRoom]  = useState('');
+  const [newStuCode, setNewStuCode] = useState('');
+  const [newStuName, setNewStuName] = useState('');
 
   const reloadYears = useCallback(() => setYears(getAllAcademicYears()), []);
   useEffect(() => { reloadYears(); }, [reloadYears]);
-  useEffect(() => { setGrades(selYear ? getGradeLevels(selYear) : []); setSelGrade(''); }, [selYear, years]);
-  useEffect(() => { setRooms(selGrade ? getClassrooms(selGrade) : []); }, [selGrade, grades]);
+  useEffect(() => { setGrades(selYear ? getGradeLevels(selYear) : []); setSelGrade(''); setSelRoom(''); }, [selYear, years]);
+  useEffect(() => { setRooms(selGrade ? getClassrooms(selGrade) : []); setSelRoom(''); }, [selGrade, grades]);
+  useEffect(() => { setStudents(selRoom ? getClassroomStudents(selRoom) : []); }, [selRoom, rooms]);
 
   const gradeName = grades.find(g => g.id === selGrade)?.name || '';
+  const roomNo = rooms.find(r => r.id === selRoom)?.room || '';
+
+  function addStudent() {
+    const code = newStuCode.trim(); const name = newStuName.trim();
+    if (!selRoom) { showToast('⚠️ เลือกห้องก่อน'); return; }
+    if (!code || !name) { showToast('⚠️ กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
+    if (!addStudentToClassroom(selRoom, code, name)) { showToast('⚠️ รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
+    showToast(`✅ เพิ่ม ${name} (${code}) เข้าห้อง ${gradeName}/${roomNo}`);
+    setNewStuCode(''); setNewStuName(''); setStudents(getClassroomStudents(selRoom));
+  }
+
+  function removeStudent(s: TeacherStudent) {
+    if (!window.confirm(`ลบ "${s.name}" ออกจากห้อง ${gradeName}/${roomNo}?`)) return;
+    removeStudentFromClassroom(selRoom, s.code);
+    showToast(`ลบ ${s.name} ออกจากห้องแล้ว`);
+    setStudents(getClassroomStudents(selRoom));
+  }
 
   function addYear() {
     const y = newYear.trim();
@@ -167,19 +191,43 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
 
         {/* ── ห้องเรียน ── */}
         {selGrade && (
-          <div className="panel-body">
-            <div className="stu-info-card-title">🚪 ห้องเรียน — {gradeName}</div>
+          <div className="panel-body" style={{ marginBottom: '1rem' }}>
+            <div className="stu-info-card-title">🚪 ห้องเรียน — {gradeName} <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(คลิกห้องเพื่อจัดนักเรียน)</span></div>
             <div className="acad-students" style={{ marginBottom: '0.85rem' }}>
               {rooms.length === 0 ? <span className="acad-empty">ยังไม่มีห้อง</span> : rooms.map(c => (
-                <div key={c.id} className="acad-student-chip">
+                <div key={c.id} className="acad-student-chip" style={{ cursor: 'pointer', borderColor: selRoom === c.id ? 'var(--brown-mid)' : undefined, background: selRoom === c.id ? 'var(--cream-dark)' : undefined }} onClick={() => setSelRoom(c.id)}>
                   <span style={{ fontWeight: 600 }}>{gradeName}/{c.room}</span>
-                  <button className="acad-student-del" onClick={() => removeRoom(c)}>✕</button>
+                  <button className="acad-student-del" onClick={e => { e.stopPropagation(); removeRoom(c); }}>✕</button>
                 </div>
               ))}
             </div>
             <div className="acad-add-row">
               <input className="ez-input acad-input" placeholder="เลขห้องใหม่ เช่น 3" value={newRoom} onChange={e => setNewRoom(e.target.value)} />
               <button className="ez-btn ez-btn-primary acad-btn" onClick={addRoom}>➕ เพิ่มห้อง</button>
+            </div>
+          </div>
+        )}
+
+        {/* ── นักเรียนในห้อง (ให้ระบบบันทึกคะแนนดึงไปใช้จริง) ── */}
+        {selRoom && (
+          <div className="panel-body">
+            <div className="stu-info-card-title">👥 นักเรียนในห้อง {gradeName}/{roomNo} ({students.length} คน)</div>
+            <div className="ez-help-box" style={{ marginBottom: '0.85rem' }}>
+              รายชื่อนี้คือทะเบียนห้องจริง — <b>ระบบบันทึกคะแนนและตารางเรียนของนักเรียนจะดึงจากตรงนี้</b>
+            </div>
+            <div className="acad-students" style={{ marginBottom: '0.85rem' }}>
+              {students.length === 0 ? <span className="acad-empty">ยังไม่มีนักเรียนในห้องนี้ — เพิ่มด้านล่าง</span> : students.map(s => (
+                <div key={s.code} className="acad-student-chip">
+                  <span style={{ fontFamily: 'monospace', color: 'var(--text-muted)' }}>{s.code}</span>
+                  <span>{s.name}</span>
+                  {s.classId === selRoom && <button className="acad-student-del" onClick={() => removeStudent(s)}>✕</button>}
+                </div>
+              ))}
+            </div>
+            <div className="acad-add-row">
+              <input className="ez-input acad-input" placeholder="รหัสนักเรียน เช่น 10026" value={newStuCode} onChange={e => setNewStuCode(e.target.value)} />
+              <input className="ez-input acad-input" style={{ flex: 1.5 }} placeholder="ชื่อ-นามสกุล" value={newStuName} onChange={e => setNewStuName(e.target.value)} />
+              <button className="ez-btn ez-btn-primary acad-btn" onClick={addStudent}>➕ เพิ่มนักเรียน</button>
             </div>
           </div>
         )}

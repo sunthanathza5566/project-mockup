@@ -94,7 +94,7 @@ export function rentEbook(bookId: number, days: number, student: { code: string;
 
   const now = Date.now();
   const rental: EbookRental = {
-    id: now, bookId, bookTitle: book.title, category: book.category, cover: book.cover,
+    id: now + Math.floor(Math.random() * 1000), bookId, bookTitle: book.title, category: book.category, cover: book.cover,
     studentCode: student.code, studentName: student.name,
     rentedAt: now, expiresAt: now + days * 24 * 60 * 60 * 1000, durationDays: days, completed: false,
   };

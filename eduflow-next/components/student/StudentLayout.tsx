@@ -10,6 +10,7 @@ import LangToggle from '@/components/ui/LangToggle';
 import BookingView from './views/BookingView';
 import TopupView from './views/TopupView';
 import TutoringView from './views/TutoringView';
+import EbookView from './views/EbookView';
 import { useLang } from '@/context/LangContext';
 import { getWalletBalance } from '@/lib/api/wallet.store';
 
@@ -24,7 +25,7 @@ import LibraryView   from './views/LibraryView';
 import AttendanceScanView from './AttendanceScanView';
 import TeacherRatingModal from './TeacherRatingModal';
 
-export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'topup' | 'tutoring';
+export type StudentView = 'dashboard' | 'profile' | 'classroom' | 'schedule' | 'homework' | 'grades' | 'shop' | 'library' | 'booking' | 'ebook' | 'topup' | 'tutoring';
 
 const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '🏠', label: 'หน้าหลัก' },
@@ -36,6 +37,7 @@ const NAV_ITEMS: { view: StudentView; icon: string; label: string }[] = [
   { view: 'tutoring',  icon: '🎓', label: 'จองเรียนพิเศษ' },
   { view: 'shop',      icon: '🛍', label: 'ร้านค้า' },
   { view: 'library',   icon: '📖', label: 'ห้องสมุด' },
+  { view: 'ebook',     icon: '📱', label: 'ห้องสมุดออนไลน์' },
   { view: 'booking',   icon: '📚', label: 'จองหนังสือ' },
   { view: 'topup',     icon: '💰', label: 'กระเป๋าเงิน' },
 ];
@@ -273,6 +275,7 @@ export default function StudentLayout() {
         {currentView === 'library'   && <LibraryView   {...viewProps} />}
         {currentView === 'booking'   && <BookingView   profile={profile} showToast={showToast} />}
         {currentView === 'tutoring'  && <TutoringView  profile={profile} showToast={showToast} />}
+        {currentView === 'ebook'     && <EbookView     profile={profile} showToast={showToast} />}
         {currentView === 'topup'     && <TopupView     profile={profile} showToast={showToast} />}
       </main>
 

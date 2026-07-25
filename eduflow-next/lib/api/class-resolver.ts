@@ -12,7 +12,7 @@
  */
 
 import { TEACHER_DATA_MOCK } from '../mock-data';
-import { getAcademicYears, getGradeLevels, getClassrooms, getClassroomStudents } from './academic.store';
+import { getAllAcademicYears, getGradeLevels, getClassrooms, getClassroomStudents } from './academic.store';
 import { getClassroomSchedule } from './schedule.store';
 import type { TeacherStudent } from '../types';
 
@@ -27,10 +27,14 @@ export function makeClassId(classroomId: string, subjectCode: string): string {
   return `${classroomId}#${subjectCode}`;
 }
 
-/** ห้องเรียนทั้งหมดในระบบ (จากโครงสร้างวิชาการ) */
+/**
+ * ห้องเรียนทั้งหมดในระบบ (จากโครงสร้างวิชาการ)
+ * ใช้ getAllAcademicYears — ต้องเห็นทุกปี รวมปีที่ปิดใช้งาน ไม่งั้นนักเรียนในปีที่ถูกปิด
+ * จะหาห้องตัวเองไม่เจอ (ตารางเรียน/การบ้าน/สื่อ หายหมด)
+ */
 export function listClassroomIds(): string[] {
   const ids: string[] = [];
-  getAcademicYears().forEach(y =>
+  getAllAcademicYears().forEach(y =>
     getGradeLevels(y.id).forEach(g =>
       getClassrooms(g.id).forEach(r => ids.push(r.id))));
   return ids;

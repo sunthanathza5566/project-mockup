@@ -100,8 +100,13 @@ export function updateCatalogSubject(id: string, patch: Partial<SubjectInput>): 
   const list = load();
   const s = list.find(x => x.id === id);
   if (!s) return false;
-  if (patch.code && list.some(x => x.id !== id && x.code === patch.code!.trim())) return false; // กันรหัสซ้ำ
-  Object.assign(s, patch, { updatedAt: Date.now() });
+  // trim ช่องข้อความก่อนบันทึก (ให้ตรงกับตอนสร้าง) — กันรหัสมีช่องว่างแล้วเลี่ยงการตรวจซ้ำ
+  const clean: Partial<SubjectInput> = { ...patch };
+  if (clean.code !== undefined)   clean.code = clean.code.trim();
+  if (clean.name !== undefined)   clean.name = clean.name.trim();
+  if (clean.nameEn !== undefined) clean.nameEn = clean.nameEn.trim();
+  if (clean.code && list.some(x => x.id !== id && x.code === clean.code)) return false; // กันรหัสซ้ำ
+  Object.assign(s, clean, { updatedAt: Date.now() });
   save(list);
   logActivity('teacher', 'แก้ไขรายวิชา', `${s.name} (${s.code})`);
   return true;

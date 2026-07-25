@@ -23,6 +23,7 @@ import { hasPermission } from '@/lib/api/permissions';
 import AttendanceView from './AttendanceView';
 import AssignmentsView from './AssignmentsView';
 import GradebookView from './GradebookView';
+import ReportDocsView from './ReportDocsView';
 import MaterialsView from './MaterialsView';
 import ProfileView from './ProfileView';
 import ScheduleView from './ScheduleView';
@@ -36,7 +37,7 @@ import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
 type TeacherView =
   | 'overview' | 'academic' | 'subjects' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
-  | 'assignments' | 'gradebook' | 'materials' | 'tutoring' | 'profile';
+  | 'assignments' | 'gradebook' | 'reportdocs' | 'materials' | 'tutoring' | 'profile';
 
 /** เมนูในปุ่ม ☰ — เรียงตามลำดับการใช้งานที่ควรเป็น (pipeline: โครงสร้าง → วิชา → แผน → ตารางสอน) */
 const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string; needClass?: boolean }[] = [
@@ -48,14 +49,15 @@ const NAV_ITEMS: { view: TeacherView; icon: string; label: string; perm?: string
   { view: 'attendance',       icon: '🔲', label: 'สร้าง QR Code เช็คชื่อ', perm: 'attendanceQR',  needClass: true },
   { view: 'attendance-report',icon: '📊', label: 'รายงานเช็คชื่อย้อนหลัง', perm: 'viewReports',   needClass: true },
   { view: 'assignments',      icon: '📚', label: 'การบ้าน & ตรวจงาน',      perm: 'assignments',   needClass: true },
-  { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน (ปพ.5)',     perm: 'gradebook' },
+  { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน',            perm: 'gradebook' },
+  { view: 'reportdocs',       icon: '📄', label: 'เอกสารผลการเรียน (ปพ.)', perm: 'gradeExport' },
   { view: 'materials',        icon: '📁', label: 'สื่อการสอน & ประกาศ',    perm: 'materials',     needClass: true },
   { view: 'tutoring',         icon: '🎓', label: 'เปิดสอนพิเศษ',           perm: 'offerTutoring' },
   { view: 'profile',          icon: '👤', label: 'ประวัติของฉัน' },
 ];
 
 /** หน้าที่มีตารางกว้าง — ให้ใช้พื้นที่เต็มหน้าจอ */
-const WIDE_VIEWS: TeacherView[] = ['gradebook', 'schedule', 'schedule-manager', 'subjects', 'academic'];
+const WIDE_VIEWS: TeacherView[] = ['gradebook', 'reportdocs', 'schedule', 'schedule-manager', 'subjects', 'academic'];
 
 export default function TeacherLayout() {
   const { session, isLoading, logout } = useAuth();
@@ -349,6 +351,10 @@ export default function TeacherLayout() {
 
             {currentView === 'gradebook' && (
               <GradebookView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
+            )}
+
+            {currentView === 'reportdocs' && (
+              <ReportDocsView teacherId={profile.teacherId} teacherName={profile.name} classes={classes} />
             )}
 
             {currentClass && currentView === 'materials' && (

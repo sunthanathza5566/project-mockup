@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  getAcademicYears, createAcademicYear,
+  getAllAcademicYears, createAcademicYear,
   getGradeLevels, createGradeLevel,
   getClassrooms, createClassroom,
   getClassroomStudents, addStudentToClassroom, removeStudentFromClassroom,
@@ -55,7 +55,7 @@ export default function AcademicManager({ adminUsername }: Props) {
   const [pending, setPending] = useState<PendingItem[]>([]);
 
   const refresh = useCallback(() => {
-    const ys = getAcademicYears();
+    const ys = getAllAcademicYears();
     setYears(ys);
     if (!selYear && ys.length > 0) setSelYear(ys[0].id);
   }, [selYear]);
@@ -151,7 +151,7 @@ export default function AcademicManager({ adminUsername }: Props) {
       }
     }
     setPending(p => p.filter(x => !x.confirmed));
-    setYears(getAcademicYears());
+    setYears(getAllAcademicYears());
     if (selYear) setGradeLevels(getGradeLevels(selYear));
     if (selGrade) setClassrooms(getClassrooms(selGrade));
     if (selRoom) setRoomStudents(getClassroomStudents(selRoom));

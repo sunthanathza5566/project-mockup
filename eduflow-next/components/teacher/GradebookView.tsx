@@ -9,7 +9,6 @@ import {
 } from '@/lib/api/academic.store';
 import { getSession } from '@/lib/api/auth.api';
 import { logActivity, logActivityThrottled } from '@/lib/api/activity.log';
-import { exportScoreSheetToExcel } from '@/lib/utils/excel-export';
 import type { ClassInfo } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 
@@ -20,10 +19,11 @@ interface Props {
 }
 
 /**
- * บันทึกคะแนน (ปพ.5)
+ * บันทึกคะแนน
  * Flow: ปีการศึกษา → ระดับชั้น → ห้องที่มีรายการสอน → วิชาแสดงอัตโนมัติจากตารางสอน
+ * นักเรียนดึงจากทะเบียนห้องจริง (getClassroomStudents) — ครูจัดนักเรียนเข้าห้องได้ที่หน้าโครงสร้างวิชาการ
  * สิทธิ์: เฉพาะครูประจำวิชา + super admin (บังคับซ้ำใน academic.store ทุกจุดเขียนข้อมูล)
- * บันทึกอัตโนมัติ real-time — ไม่มีปุ่มบันทึก
+ * เอกสารผลการเรียน ปพ.1–9 อยู่ที่เมนูแยก "เอกสารผลการเรียน" · บันทึกอัตโนมัติ real-time — ไม่มีปุ่มบันทึก
  */
 export default function GradebookView({ teacherId, teacherName, classes }: Props) {
   const { showToast } = useToast();
@@ -146,13 +146,6 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
     applyComponents(selCourse.components.filter(x => x.id !== c.id));
   }
 
-  async function handleExport() {
-    if (!selCourse || !selGrade || !selRoom || !selYear) return;
-    await exportScoreSheetToExcel(selCourse, `${selGrade.name}/${selRoom.room}`, selYear.year, entries);
-    logActivity('teacher', 'ดาวน์โหลด ปพ.5', `${selCourse.name} (${selCourse.code}) ห้อง ${selGrade.name}/${selRoom.room}`);
-    showToast('📥 ดาวน์โหลดแบบบันทึกผลการเรียน (ปพ.5) แล้ว');
-  }
-
   // ── ไม่มีสิทธิ์เข้าหน้านี้ ──
   if (!session || (session.role !== 'teacher' && session.role !== 'web_admin')) {
     return (
@@ -160,7 +153,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
         <div className="panel-card">
           <div className="perm-denied">
             <span className="perm-denied-icon">🔒</span>
-            หน้าบันทึกคะแนน (ปพ.5) ใช้ได้เฉพาะ <b>ครูประจำวิชา</b> และ <b>ผู้ดูแลระบบ</b> เท่านั้น
+            หน้าบันทึกคะแนน ใช้ได้เฉพาะ <b>ครูประจำวิชา</b> และ <b>ผู้ดูแลระบบ</b> เท่านั้น
           </div>
         </div>
       </div>
@@ -198,7 +191,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
     <div className="panel-shell panel-shell-wide ez-sm">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">📝 บันทึก<em>คะแนน</em> (ปพ.5)</h2>
+          <h2 className="panel-title">📝 บันทึก<em>คะแนน</em></h2>
           <p className="panel-sub">
             เลือกปี → ชั้น → ห้องที่ท่านสอน แล้ววิชาของท่านจะแสดงอัตโนมัติจากตารางสอน ·
             คะแนนบันทึกทันทีที่พิมพ์ ไม่ต้องกดปุ่มใด ๆ
@@ -267,7 +260,6 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
                 ? <span className="ez-autosave">✓ บันทึกอัตโนมัติ {lastSaved}</span>
                 : <span className="ez-autosave" style={{ color: 'var(--text-muted)', background: 'var(--cream-dark)' }}>บันทึกอัตโนมัติเมื่อพิมพ์</span>}
               {!isSymbolCourse && <button className="ez-btn ez-btn-ghost" onClick={() => setShowSettings(s => !s)}>⚙️ ตั้งค่าสัดส่วนคะแนน</button>}
-              <button className="ez-btn ez-btn-ghost" onClick={handleExport}>📥 ปพ.5 (Excel)</button>
             </div>
           </div>
 
