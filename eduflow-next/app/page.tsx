@@ -8,6 +8,7 @@ import AboutSection from '@/components/landing/AboutSection';
 import ShowcaseSection from '@/components/landing/ShowcaseSection';
 import CtaSection from '@/components/landing/CtaSection';
 import Footer from '@/components/landing/Footer';
+import NewsBoard from '@/components/ui/NewsBoard';
 
 /* scroll ไป section ตาม ?hash=... (มาจาก navbar หน้า login) — แยก component เพราะ useSearchParams ต้องอยู่ใน Suspense */
 function HashScroller() {
@@ -37,6 +38,11 @@ export default function HomePage() {
         <HeroSection />
         <AboutSection />
         <ShowcaseSection />
+        <section id="news" className="ll-news-sec">
+          <div className="ll-news-inner">
+            <NewsBoard title="ข่าวสาร กิจกรรม และประกาศของโรงเรียน" limit={6} />
+          </div>
+        </section>
         <CtaSection />
       </main>
       <Footer />

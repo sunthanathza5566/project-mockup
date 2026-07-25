@@ -32,6 +32,7 @@ import SubjectCatalogView from './SubjectCatalogView';
 import AcademicStructureView from './AcademicStructureView';
 import TutoringView from './TutoringView';
 import TeacherOverview from './TeacherOverview';
+import FeedRail from '@/components/ui/FeedRail';
 import LangToggle from '@/components/ui/LangToggle';
 import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
@@ -255,19 +256,25 @@ export default function TeacherLayout() {
 
       {/* ── Content ── */}
       {/* หน้าที่ต้องใช้พื้นที่กว้าง (ตารางคะแนน/ตารางสอน) ขยายเต็มจอ — หน้าอื่นคุมความกว้างให้อ่านง่าย */}
-      <div className="dash-content" style={{ maxWidth: WIDE_VIEWS.includes(currentView) ? 'none' : currentView === 'overview' ? 960 : 1120 }}>
+      <div className="dash-content" style={{ maxWidth: WIDE_VIEWS.includes(currentView) || currentView === 'overview' ? 'none' : 1120 }}>
         {currentView === 'overview' ? (
-          <TeacherOverview
-            profile={profile}
-            classes={classes}
-            username={session.username}
-            ratingSummary={ratingSummary}
-            todayPeriods={todayPeriods}
-            weekPeriods={weekPeriods}
-            onNavigate={navigate}
-            onSelectClass={setSelClass}
-            t={t}
-          />
+          <div className="dash-3col">
+            <FeedRail side="left" title="🗓 วันหยุด & ข่าวสาร" />
+            <div className="dash-3col-main">
+              <TeacherOverview
+                profile={profile}
+                classes={classes}
+                username={session.username}
+                ratingSummary={ratingSummary}
+                todayPeriods={todayPeriods}
+                weekPeriods={weekPeriods}
+                onNavigate={navigate}
+                onSelectClass={setSelClass}
+                t={t}
+              />
+            </div>
+            <FeedRail side="right" title="🎉 กิจกรรม & เกร็ดความรู้" />
+          </div>
         ) : (
           <>
             <button
