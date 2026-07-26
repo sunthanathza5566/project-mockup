@@ -961,3 +961,12 @@ footer p { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
 .feed-post-title { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 600; color: var(--brown-ink, var(--brown-dark)); margin: 0.7rem 0 0.35rem; line-height: 1.35; }
 .feed-post-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); }
 .feed-post-text { font-size: 0.96rem; line-height: 1.9; color: var(--text-body); white-space: pre-line; }
+
+/* ── Log controls (เลือกจำนวน + ล้าง log) ── */
+.log-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; margin: 0.4rem 0 0.9rem; }
+.log-controls-count { font-size: 0.8rem; color: var(--text-muted); }
+.log-controls-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.log-controls-sel { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-body); }
+.log-controls-sel select { padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--warm-white); color: var(--text-body); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; }
+.log-clear-btn { padding: 0.4rem 0.85rem; border: 1px solid var(--absent); background: var(--warm-white); color: var(--absent); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700; }
+.log-clear-btn:hover { background: var(--absent); color: #fff; }

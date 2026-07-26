@@ -15,7 +15,7 @@ import {
   type AcademicYear, type GradeLevel, type Classroom,
 } from '@/lib/api/academic.store';
 import {
-  getClassroomPlan, getScheduleCourses, getScheduleLog, addSlot, updateSlot, deleteSlot, setSlotActive,
+  getClassroomPlan, getScheduleCourses, getScheduleLog, clearScheduleLog, addSlot, updateSlot, deleteSlot, setSlotActive,
   clearClassroomSchedule, canManageSchedule, suggestSubjectCode, dayTH, periodTime,
   getLunchConfig, setLunchConfig,
   DAYS, PERIODS, SUBJECT_TYPES, SUBJECT_KEYS, defaultGradingMode,
@@ -23,7 +23,8 @@ import {
 } from '@/lib/api/schedule.store';
 import type { GradingMode } from '@/lib/api/academic.store';
 import { getCatalogSubjects, type CatalogSubject } from '@/lib/api/subject-catalog.store';
-import { getUsers } from '@/lib/api/auth.api';
+import { getUsers, getSession } from '@/lib/api/auth.api';
+import LogControls from '@/components/ui/LogControls';
 import CourseList from '@/components/schedule/CourseList';
 import { subjectColor } from '@/lib/ui/subject-colors';
 import { useToast } from '@/context/ToastContext';
@@ -84,6 +85,8 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
 
   const [refreshKey, setRefreshKey] = useState(0);
   const bump = useCallback(() => setRefreshKey(k => k + 1), []);
+  const [logSize, setLogSize] = useState(20);
+  const isWebAdmin = getSession()?.role === 'web_admin';
 
   // ── ฟอร์มเพิ่ม/แก้ไขรายการในแผน ──
   const [form, setForm] = useState<FormState>(emptyForm(teacherUsername));
@@ -108,7 +111,15 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
   const plan = selRoom ? getClassroomPlan(selRoom.id) : [];
   const courses = selRoom ? getScheduleCourses(selRoom.id) : [];
   const logs: ScheduleLogEntry[] = selRoom ? getScheduleLog(selRoom.id) : getScheduleLog();
+  const shownLogs = logSize === -1 ? logs : logs.slice(0, logSize);
   void refreshKey; // ให้ค่าด้านบนคำนวณใหม่หลังบันทึก (ข้อมูลอยู่ใน localStorage)
+
+  function handleClearLog() {
+    if (!window.confirm('ล้างประวัติการแก้ไข (log) นี้ทั้งหมด?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
+    const res = clearScheduleLog(selRoom?.id);
+    if (res.ok) { bump(); showToast('🗑 ล้าง log แล้ว'); }
+    else showToast(res.error || 'ล้างไม่สำเร็จ');
+  }
 
   /** เลือกวิชาจากคลัง → เติมช่องวิชาให้อัตโนมัติ */
   function pickCatalog(id: string) {
@@ -417,9 +428,16 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
             บันทึกทุกการเพิ่ม/แก้ไข/ลบ/เปิด-ปิด พร้อม <b>ผู้ทำรายการ</b> และ <b>วันเวลา</b>
             {selRoom ? ` (เฉพาะห้อง ${selGrade?.name}/${selRoom.room})` : ' (ทุกห้อง)'}
           </div>
+          <LogControls
+            total={logs.length}
+            shown={shownLogs.length}
+            pageSize={logSize}
+            onPageSize={setLogSize}
+            onClear={isWebAdmin ? handleClearLog : undefined}
+          />
           {logs.length === 0 ? (
             <div className="acad-empty">ยังไม่มีประวัติการแก้ไข</div>
-          ) : logs.slice(0, 30).map(l => (
+          ) : shownLogs.map(l => (
             <div key={l.id} className="sched-log-row">
               <span className={`sched-log-action ${LOG_CLASS[l.action] || 'sched-log-edit'}`}>{l.action}</span>
               <div className="sched-log-body">

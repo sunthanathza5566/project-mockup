@@ -30,6 +30,14 @@ export function getActivityLog(): ActivityEntry[] {
   return JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
 }
 
+/** ล้างประวัติทั้งหมด — เฉพาะ web admin เท่านั้น (คืน false ถ้าไม่มีสิทธิ์) */
+export function clearActivityLog(): boolean {
+  if (!isBrowser()) return false;
+  if (getSession()?.role !== 'web_admin') return false;
+  localStorage.removeItem(LOG_KEY);
+  return true;
+}
+
 export function logActivity(category: LogCategory, action: string, detail = ''): void {
   if (!isBrowser()) return;
   const s = getSession();

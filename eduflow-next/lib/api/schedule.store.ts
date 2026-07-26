@@ -161,6 +161,14 @@ export function getScheduleLog(classroomId?: string): ScheduleLogEntry[] {
   return classroomId ? entries.filter(e => e.classroomId === classroomId) : entries;
 }
 
+/** ล้าง log ตารางสอน — เฉพาะ web admin (ถ้าระบุห้องจะล้างเฉพาะห้องนั้น ไม่งั้นล้างทั้งหมด) */
+export function clearScheduleLog(classroomId?: string): { ok: boolean; error?: string } {
+  if (getSession()?.role !== 'web_admin') return { ok: false, error: '🔒 เฉพาะเว็บแอดมินเท่านั้นที่ล้าง log ได้' };
+  const remain = classroomId ? getScheduleLog().filter(e => e.classroomId !== classroomId) : [];
+  writeJSON(LOG_KEY, remain);
+  return { ok: true };
+}
+
 function writeLog(classroomId: string, action: ScheduleAction, detail: string) {
   if (!isBrowser()) return;
   const s = getSession();
