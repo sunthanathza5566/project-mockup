@@ -42,7 +42,7 @@ export default function NewsBoard({ limit = 6, title = 'ข่าวสารแ
               {n.image && (
                 <button className="feed-card-imgbtn" onClick={() => setZoom(n)} title="กดดูภาพเต็ม">
                   <img src={n.image} alt={n.title} className="feed-card-img" />
-                  <span className="feed-card-imghint">🔍 ดูภาพ</span>
+                  <span className="feed-card-imghint">ดูภาพ</span>
                 </button>
               )}
             </div>

@@ -51,10 +51,10 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
 
   function addStudent() {
     const code = newStuCode.trim(); const name = newStuName.trim();
-    if (!selRoom) { showToast('⚠️ เลือกห้องก่อน'); return; }
-    if (!code || !name) { showToast('⚠️ กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
-    if (!addStudentToClassroom(selRoom, code, name)) { showToast('⚠️ รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
-    showToast(`✅ เพิ่ม ${name} (${code}) เข้าห้อง ${gradeName}/${roomNo}`);
+    if (!selRoom) { showToast('เลือกห้องก่อน'); return; }
+    if (!code || !name) { showToast('กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
+    if (!addStudentToClassroom(selRoom, code, name)) { showToast('รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
+    showToast(`เพิ่ม ${name} (${code}) เข้าห้อง ${gradeName}/${roomNo}`);
     setNewStuCode(''); setNewStuName(''); setStudents(getClassroomStudents(selRoom));
   }
 
@@ -67,9 +67,9 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
 
   function addYear() {
     const y = newYear.trim();
-    if (!/^\d{4}$/.test(y)) { showToast('⚠️ ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
-    if (!createAcademicYear(y, getSession()?.username || 'teacher')) { showToast('⚠️ ปีการศึกษานี้มีอยู่แล้ว'); return; }
-    showToast(`✅ เพิ่มปีการศึกษา ${y} แล้ว`); setNewYear(''); reloadYears();
+    if (!/^\d{4}$/.test(y)) { showToast('ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
+    if (!createAcademicYear(y, getSession()?.username || 'teacher')) { showToast('ปีการศึกษานี้มีอยู่แล้ว'); return; }
+    showToast(`เพิ่มปีการศึกษา ${y} แล้ว`); setNewYear(''); reloadYears();
   }
 
   function toggleYear(y: AcademicYear) {
@@ -86,33 +86,33 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
       : '';
     if (!window.confirm(`ลบปีการศึกษา ${y.year}?${warn}`)) return;
     deleteAcademicYear(y.id);
-    showToast(`🗑 ลบปีการศึกษา ${y.year} แล้ว`);
+    showToast(`ลบปีการศึกษา ${y.year} แล้ว`);
     if (selYear === y.id) setSelYear('');
     reloadYears();
   }
 
   function addGrade() {
     const g = newGrade.trim();
-    if (!selYear) { showToast('⚠️ เลือกปีการศึกษาก่อน'); return; }
-    if (!g) { showToast('⚠️ กรอกชื่อระดับชั้น เช่น ม.4'); return; }
-    if (!createGradeLevel(selYear, g)) { showToast('⚠️ ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
-    showToast(`✅ เพิ่มระดับชั้น ${g}`); setNewGrade(''); setGrades(getGradeLevels(selYear));
+    if (!selYear) { showToast('เลือกปีการศึกษาก่อน'); return; }
+    if (!g) { showToast('กรอกชื่อระดับชั้น เช่น ม.4'); return; }
+    if (!createGradeLevel(selYear, g)) { showToast('ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
+    showToast(`เพิ่มระดับชั้น ${g}`); setNewGrade(''); setGrades(getGradeLevels(selYear));
   }
 
   function removeGrade(g: GradeLevel) {
     if (!window.confirm(`ลบระดับชั้น ${g.name}? ห้อง/วิชา/คะแนนในชั้นนี้จะถูกลบด้วย`)) return;
     deleteGradeLevel(g.id);
-    showToast(`🗑 ลบระดับชั้น ${g.name} แล้ว`);
+    showToast(`ลบระดับชั้น ${g.name} แล้ว`);
     if (selGrade === g.id) setSelGrade('');
     setGrades(getGradeLevels(selYear));
   }
 
   function addRoom() {
     const r = newRoom.trim();
-    if (!selGrade) { showToast('⚠️ เลือกระดับชั้นก่อน'); return; }
-    if (!r) { showToast('⚠️ กรอกเลขห้อง เช่น 3'); return; }
-    if (!createClassroom(selYear, selGrade, r)) { showToast('⚠️ ห้องนี้มีอยู่แล้ว'); return; }
-    showToast(`✅ เพิ่มห้อง ${gradeName}/${r}`); setNewRoom(''); setRooms(getClassrooms(selGrade));
+    if (!selGrade) { showToast('เลือกระดับชั้นก่อน'); return; }
+    if (!r) { showToast('กรอกเลขห้อง เช่น 3'); return; }
+    if (!createClassroom(selYear, selGrade, r)) { showToast('ห้องนี้มีอยู่แล้ว'); return; }
+    showToast(`เพิ่มห้อง ${gradeName}/${r}`); setNewRoom(''); setRooms(getClassrooms(selGrade));
   }
 
   function removeRoom(c: Classroom) {
@@ -120,7 +120,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
     const warn = u.courses > 0 ? `\n\n⚠️ ห้องนี้มี ${u.courses} รายวิชา${u.scored ? ' และมีคะแนนบันทึกแล้ว' : ''} — จะถูกลบด้วย` : '';
     if (!window.confirm(`ลบห้อง ${gradeName}/${c.room}?${warn}`)) return;
     deleteClassroom(c.id);
-    showToast(`🗑 ลบห้อง ${gradeName}/${c.room} แล้ว`);
+    showToast(`ลบห้อง ${gradeName}/${c.room} แล้ว`);
     setRooms(getClassrooms(selGrade));
   }
 
@@ -142,7 +142,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
     <div className="panel-shell panel-shell-wide">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">🏫 โครงสร้าง<em>วิชาการ</em></h2>
+          <h2 className="panel-title">โครงสร้าง<em>วิชาการ</em></h2>
           <p className="panel-sub">
             จัดการปีการศึกษา · ระดับชั้น · ห้องเรียน — ปิดปีเก่าเพื่อซ่อนจากตัวเลือก (ข้อมูลยังอยู่ครบ กดเปิดคืนได้)
           </p>
@@ -150,7 +150,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
 
         {/* ── ปีการศึกษา ── */}
         <div className="panel-body" style={{ marginBottom: '1rem' }}>
-          <div className="stu-info-card-title">📅 ปีการศึกษา</div>
+          <div className="stu-info-card-title">ปีการศึกษา</div>
           <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '0.85rem' }}>
             {years.length === 0 ? <div className="acad-empty">ยังไม่มีปีการศึกษา</div> : years.map(y => {
               const active = y.active !== false;
@@ -173,7 +173,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
         {/* ── ระดับชั้น ── */}
         {selYear && (
           <div className="panel-body" style={{ marginBottom: '1rem' }}>
-            <div className="stu-info-card-title">🎓 ระดับชั้น — ปี {years.find(y => y.id === selYear)?.year}</div>
+            <div className="stu-info-card-title">ระดับชั้น — ปี {years.find(y => y.id === selYear)?.year}</div>
             <div className="acad-students" style={{ marginBottom: '0.85rem' }}>
               {grades.length === 0 ? <span className="acad-empty">ยังไม่มีระดับชั้น</span> : grades.map(g => (
                 <div key={g.id} className={`acad-student-chip${selGrade === g.id ? '' : ''}`} style={{ cursor: 'pointer', borderColor: selGrade === g.id ? 'var(--brown-mid)' : undefined }} onClick={() => setSelGrade(g.id)}>
@@ -192,7 +192,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
         {/* ── ห้องเรียน ── */}
         {selGrade && (
           <div className="panel-body" style={{ marginBottom: '1rem' }}>
-            <div className="stu-info-card-title">🚪 ห้องเรียน — {gradeName} <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(คลิกห้องเพื่อจัดนักเรียน)</span></div>
+            <div className="stu-info-card-title">ห้องเรียน — {gradeName} <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(คลิกห้องเพื่อจัดนักเรียน)</span></div>
             <div className="acad-students" style={{ marginBottom: '0.85rem' }}>
               {rooms.length === 0 ? <span className="acad-empty">ยังไม่มีห้อง</span> : rooms.map(c => (
                 <div key={c.id} className="acad-student-chip" style={{ cursor: 'pointer', borderColor: selRoom === c.id ? 'var(--brown-mid)' : undefined, background: selRoom === c.id ? 'var(--cream-dark)' : undefined }} onClick={() => setSelRoom(c.id)}>
@@ -211,7 +211,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
         {/* ── นักเรียนในห้อง (ให้ระบบบันทึกคะแนนดึงไปใช้จริง) ── */}
         {selRoom && (
           <div className="panel-body">
-            <div className="stu-info-card-title">👥 นักเรียนในห้อง {gradeName}/{roomNo} ({students.length} คน)</div>
+            <div className="stu-info-card-title">นักเรียนในห้อง {gradeName}/{roomNo} ({students.length} คน)</div>
             <div className="ez-help-box" style={{ marginBottom: '0.85rem' }}>
               รายชื่อนี้คือทะเบียนห้องจริง — <b>ระบบบันทึกคะแนนและตารางเรียนของนักเรียนจะดึงจากตรงนี้</b>
             </div>

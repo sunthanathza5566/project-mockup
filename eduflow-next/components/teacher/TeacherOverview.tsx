@@ -250,7 +250,7 @@ export default function TeacherOverview({
       {/* ── ห้องที่สอนของฉัน ── */}
       {classes.length > 0 && (
         <div className="dash-section">
-          <div className="dash-section-title">🏫 ห้องที่สอนของฉัน</div>
+          <div className="dash-section-title">ห้องที่สอนของฉัน</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.85rem' }}>
             {classes.map(c => (
               <div key={c.id} style={{ ...cardStyle, padding: '1rem', borderTop: `3px solid ${c.color || 'var(--brown-light)'}` }}>

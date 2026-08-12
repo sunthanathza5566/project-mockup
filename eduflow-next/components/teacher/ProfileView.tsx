@@ -34,7 +34,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
     setForm(next);
     onSaved?.(next);
     setIsEditing(false);
-    showToast('💾 บันทึกประวัติเรียบร้อย — บันทึกลง log แล้ว');
+    showToast('บันทึกประวัติเรียบร้อย — บันทึกลง log แล้ว');
   }
 
   const initials = (form.firstName?.[0] || form.name[0] || '?') + (form.lastName?.[0] || '');
@@ -45,11 +45,11 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
       <div className="panel-shell" style={{ padding: '2rem 1.5rem' }}>
         <div className="panel-card">
           <div className="panel-head">
-            <h2 className="panel-title">✏️ แก้ไข<em>ประวัติครู</em></h2>
+            <h2 className="panel-title">แก้ไข<em>ประวัติครู</em></h2>
             <p className="panel-sub">กรอกข้อมูลให้ครบถ้วนเพื่อใช้ในงานทะเบียนบุคลากรและการติดต่อฉุกเฉิน</p>
           </div>
 
-          <EditSection title="👤 ข้อมูลส่วนบุคคล">
+          <EditSection title="ข้อมูลส่วนบุคคล">
             <Field label="คำนำหน้า"    value={form.prefix}    onChange={v => set('prefix', v)} placeholder="นาย / นาง / นางสาว" />
             <Field label="ชื่อ"         value={form.firstName} onChange={v => set('firstName', v)} />
             <Field label="นามสกุล"      value={form.lastName}  onChange={v => set('lastName', v)} />
@@ -64,7 +64,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
             <Field label="สถานภาพสมรส"  value={form.maritalStatus} onChange={v => set('maritalStatus', v)} />
           </EditSection>
 
-          <EditSection title="🏠 ที่อยู่ & ช่องทางติดต่อ">
+          <EditSection title="ที่อยู่ & ช่องทางติดต่อ">
             <Field label="ที่อยู่ปัจจุบัน" value={form.addressCurrent} onChange={v => set('addressCurrent', v)} wide />
             <Field label="ที่อยู่ตามทะเบียนบ้าน" value={form.addressRegistered} onChange={v => set('addressRegistered', v)} wide />
             <Field label="เบอร์โทรศัพท์" value={form.phone} onChange={v => set('phone', v)} />
@@ -75,14 +75,14 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
             <Field label="เบอร์ฉุกเฉิน"  value={form.emergencyPhone} onChange={v => set('emergencyPhone', v)} />
           </EditSection>
 
-          <EditSection title="🩺 ข้อมูลสุขภาพ">
+          <EditSection title="ข้อมูลสุขภาพ">
             <Field label="โรคประจำตัว" value={form.congenitalDisease} onChange={v => set('congenitalDisease', v)} placeholder="ไม่มี" />
             <Field label="ประวัติแพ้ยา" value={form.drugAllergy} onChange={v => set('drugAllergy', v)} placeholder="ไม่มี" />
             <Field label="ประวัติแพ้อาหาร" value={form.foodAllergy} onChange={v => set('foodAllergy', v)} placeholder="ไม่มี" />
             <Field label="หมายเหตุด้านสุขภาพ" value={form.healthNote} onChange={v => set('healthNote', v)} wide />
           </EditSection>
 
-          <EditSection title="🎓 ข้อมูลการปฏิบัติงาน">
+          <EditSection title="ข้อมูลการปฏิบัติงาน">
             <Field label="ตำแหน่ง"      value={form.position} onChange={v => set('position', v)} />
             <Field label="วิทยฐานะ"     value={form.academicRank} onChange={v => set('academicRank', v)} />
             <Field label="กลุ่มสาระ"    value={form.subjectGroup} onChange={v => set('subjectGroup', v)} />
@@ -129,7 +129,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
         </div>
 
         <div className="stu-info-grid">
-          <Card title="👤 ข้อมูลส่วนบุคคล">
+          <Card title="ข้อมูลส่วนบุคคล">
             <Row label="ชื่อ-นามสกุล" value={form.name} />
             <Row label="ชื่อเล่น" value={show(form.nickname)} />
             <Row label="เพศ" value={show(form.gender)} />
@@ -141,7 +141,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
             <Row label="สถานภาพสมรส" value={show(form.maritalStatus)} />
           </Card>
 
-          <Card title="📞 ช่องทางติดต่อ">
+          <Card title="ช่องทางติดต่อ">
             <Row label="เบอร์โทรศัพท์" value={show(form.phone)} />
             <Row label="อีเมล" value={show(form.email)} />
             <Row label="LINE ID" value={show(form.lineId)} />
@@ -150,19 +150,19 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
             <Row label="เบอร์ฉุกเฉิน" value={show(form.emergencyPhone)} />
           </Card>
 
-          <Card title="🏠 ที่อยู่">
+          <Card title="ที่อยู่">
             <Row label="ที่อยู่ปัจจุบัน" value={show(form.addressCurrent)} />
             <Row label="ตามทะเบียนบ้าน" value={show(form.addressRegistered)} />
           </Card>
 
-          <Card title="🩺 ข้อมูลสุขภาพ">
+          <Card title="ข้อมูลสุขภาพ">
             <Row label="โรคประจำตัว" value={form.congenitalDisease?.trim() || 'ไม่มี'} />
             <Row label="แพ้ยา" value={form.drugAllergy?.trim() || 'ไม่มี'} />
             <Row label="แพ้อาหาร" value={form.foodAllergy?.trim() || 'ไม่มี'} />
             <Row label="หมายเหตุ" value={show(form.healthNote)} />
           </Card>
 
-          <Card title="🎓 ข้อมูลการปฏิบัติงาน">
+          <Card title="ข้อมูลการปฏิบัติงาน">
             <Row label="ตำแหน่ง" value={show(form.position)} />
             <Row label="วิทยฐานะ" value={show(form.academicRank)} />
             <Row label="กลุ่มสาระ" value={show(form.subjectGroup)} />
@@ -171,7 +171,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
             <Row label="ปีการศึกษา" value={show(form.academicYear)} />
           </Card>
 
-          <Card title="📜 ใบประกอบวิชาชีพ">
+          <Card title="ใบประกอบวิชาชีพ">
             <Row label="เลขที่ใบประกอบวิชาชีพ" value={show(form.teacherLicense)} />
             <Row label="วันหมดอายุ" value={show(form.licenseExpiry)} />
             <Row label="โรงเรียน" value={show(form.school)} />
@@ -180,7 +180,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
 
         {/* ประวัติการศึกษา */}
         {(form.education?.length || 0) > 0 && (
-          <ListCard title="🎓 ประวัติการศึกษา">
+          <ListCard title="ประวัติการศึกษา">
             {form.education!.map((e: EducationRecord, i) => (
               <div key={i} className="sched-log-row">
                 <span className="sched-log-action sched-log-add">{e.level}</span>
@@ -195,7 +195,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
 
         {/* ประวัติการทำงาน */}
         {(form.workHistory?.length || 0) > 0 && (
-          <ListCard title="💼 ประวัติการทำงาน">
+          <ListCard title="ประวัติการทำงาน">
             {form.workHistory!.map((w: WorkRecord, i) => (
               <div key={i} className="sched-log-row">
                 <span className="sched-log-action sched-log-edit">{w.year}</span>
@@ -209,7 +209,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
         )}
 
         {(form.trainings?.length || 0) > 0 && (
-          <ListCard title="📚 ประวัติการอบรม/พัฒนาตนเอง">
+          <ListCard title="ประวัติการอบรม/พัฒนาตนเอง">
             {form.trainings!.map((t, i) => (
               <div key={i} className="sched-log-row"><div className="sched-log-body"><div className="sched-log-detail">• {t}</div></div></div>
             ))}
@@ -217,7 +217,7 @@ export default function TeacherProfileView({ profile, username, onClose, onSaved
         )}
 
         {(form.awards?.length || 0) > 0 && (
-          <ListCard title="🏆 รางวัล & ผลงาน">
+          <ListCard title="รางวัล & ผลงาน">
             {form.awards!.map((a, i) => (
               <div key={i} className="sched-log-row"><div className="sched-log-body"><div className="sched-log-detail">• {a}</div></div></div>
             ))}

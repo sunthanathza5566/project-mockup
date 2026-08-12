@@ -55,13 +55,13 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
   function submit() {
     setError('');
     if (editingId) {
-      if (updateCatalogSubject(editingId, form)) { showToast('💾 แก้ไขวิชาแล้ว'); setEditingId(null); setForm(emptyForm()); refresh(); }
+      if (updateCatalogSubject(editingId, form)) { showToast('แก้ไขวิชาแล้ว'); setEditingId(null); setForm(emptyForm()); refresh(); }
       else setError('บันทึกไม่สำเร็จ (รหัสวิชาอาจซ้ำ หรือไม่มีสิทธิ์)');
       return;
     }
     const r = createCatalogSubject(form);
     if (!r.ok) { setError(r.error); return; }
-    showToast(`✅ เพิ่มวิชา "${r.subject.name}" (${r.subject.code}) แล้ว`);
+    showToast(`เพิ่มวิชา "${r.subject.name}" (${r.subject.code}) แล้ว`);
     setForm(emptyForm());
     refresh();
   }
@@ -76,7 +76,7 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
   function remove(s: CatalogSubject) {
     if (!window.confirm(`ลบวิชา "${s.name}" (${s.code}) ออกจากคลัง?\nวิชาที่จัดลงตารางสอนไว้แล้วจะไม่ถูกลบ`)) return;
     deleteCatalogSubject(s.id);
-    showToast('🗑 ลบวิชาออกจากคลังแล้ว');
+    showToast('ลบวิชาออกจากคลังแล้ว');
     if (editingId === s.id) { setEditingId(null); setForm(emptyForm()); }
     refresh();
   }
@@ -99,7 +99,7 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
     <div className="panel-shell panel-shell-wide">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">📚 จัดการ<em>รายวิชา</em></h2>
+          <h2 className="panel-title">จัดการ<em>รายวิชา</em></h2>
           <p className="panel-sub">
             ขั้นที่ 1 — สร้างคลังรายวิชา (รหัส · ชื่อไทย · ชื่ออังกฤษ · หน่วยกิต) ·
             เสร็จแล้วนำไปจัดลงวัน/เวลาในหน้าแผนการเรียน
@@ -155,7 +155,7 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
 
         {/* ── รายการวิชาในคลัง ── */}
         <div className="panel-body">
-          <div className="stu-info-card-title">📋 วิชาในคลัง ({subjects.length})</div>
+          <div className="stu-info-card-title">วิชาในคลัง ({subjects.length})</div>
           {subjects.length === 0 ? (
             <div className="stu-empty">ยังไม่มีวิชาในคลัง — เพิ่มด้านบน</div>
           ) : (

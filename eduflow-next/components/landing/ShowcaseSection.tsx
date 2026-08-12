@@ -59,7 +59,7 @@ export default function ShowcaseSection() {
                   <div style={{ background: 'var(--brown-dark)', color: 'var(--cream)', borderRadius: 7, padding: '0.55rem', fontSize: '0.72rem', fontWeight: 500, textAlign: 'center', marginTop: '0.5rem' }}>✓ ยืนยันการลงชื่อเข้าเรียน</div>
                   <div style={{ marginTop: '0.75rem', background: 'var(--brown-dark)', color: 'var(--cream)', borderRadius: 8, padding: '0.55rem 0.9rem', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#5C8A5C', flexShrink: 0 }} />
-                    <span>🟢 ลงชื่อสำเร็จ · ธนาพร สุขใจ · มาทัน 08:02 น.</span>
+                    <span>ลงชื่อสำเร็จ · ธนาพร สุขใจ · มาทัน 08:02 น.</span>
                   </div>
                 </div>
               </div>

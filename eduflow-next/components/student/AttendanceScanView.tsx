@@ -22,19 +22,19 @@ export default function AttendanceScanView({ onClose }: AttendanceScanViewProps)
   const { session: authSession } = useAuth();
 
   function handleValidateQR() {
-    if (!qrInput.trim()) { showToast('❌ กรุณากรอกโค้ดจากหน้าจอครู'); return; }
+    if (!qrInput.trim()) { showToast('กรุณากรอกโค้ดจากหน้าจอครู'); return; }
     const validated = validateQR(qrInput);
-    if (!validated) { showToast('❌ โค้ดไม่ถูกต้องหรือหมดอายุแล้ว (15 นาที)'); return; }
+    if (!validated) { showToast('โค้ดไม่ถูกต้องหรือหมดอายุแล้ว (15 นาที)'); return; }
     setSession(validated);
-    showToast('✅ พบคาบเรียน — ยืนยันเพื่อเช็คชื่อ');
+    showToast('พบคาบเรียน — ยืนยันเพื่อเช็คชื่อ');
   }
 
   function handleCheckIn() {
     if (!session || !authSession) return;
     const res = checkIn(session.id, authSession.code, authSession.name);
     if (!res.ok) {
-      if (res.reason === 'duplicate') showToast('⚠️ คุณเช็คชื่อคาบนี้ไปแล้ว');
-      else showToast('❌ QR หมดอายุแล้ว — แจ้งครูให้สร้างใหม่');
+      if (res.reason === 'duplicate') showToast('คุณเช็คชื่อคาบนี้ไปแล้ว');
+      else showToast('QR หมดอายุแล้ว — แจ้งครูให้สร้างใหม่');
       return;
     }
     setResult(res.record.status);

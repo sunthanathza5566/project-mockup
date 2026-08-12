@@ -21,11 +21,11 @@ export default function TeacherRatingModal({ todaySchedule, onClose, showToast }
   const [comment,   setComment]   = useState('');
 
   function handleSubmit() {
-    if (!selPeriod) { showToast('⚠️ เลือกคาบเรียนก่อน'); return; }
-    if (stars === 0) { showToast('⚠️ ให้คะแนนดาวก่อน (1–5)'); return; }
+    if (!selPeriod) { showToast('เลือกคาบเรียนก่อน'); return; }
+    if (stars === 0) { showToast('ให้คะแนนดาวก่อน (1–5)'); return; }
     submitTeacherRating(selPeriod.teacher, selPeriod.subject, stars, comment.trim());
     markRatedToday(selPeriod.teacher, selPeriod.subject);
-    showToast('✅ ส่งแบบประเมินแบบนิรนามแล้ว — ขอบคุณครับ');
+    showToast('ส่งแบบประเมินแบบนิรนามแล้ว — ขอบคุณครับ');
     onClose();
   }
 

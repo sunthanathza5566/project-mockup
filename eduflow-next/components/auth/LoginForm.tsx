@@ -92,19 +92,19 @@ export default function LoginForm() {
               color: 'var(--brown-dark)',
             }}
           >
-            <span>📋 บัญชีทดสอบ</span>
+            <span>บัญชีทดสอบ</span>
             <span style={{ fontSize: '1.2rem' }}>{showDemo ? '▼' : '▶'}</span>
           </button>
 
           {showDemo && (
             <div className="auth-demo-hint" style={{ marginTop: '0.75rem', textAlign: 'left', lineHeight: 1.9 }}>
               <strong>บัญชีทดสอบทั้งหมด:</strong><br />
-              🧑‍🏫 ครู (มีตารางสอน): <code>teacher1 / Teacher1</code><br />
-              🎓 นักเรียน (มีข้อมูลครบ): <code>student1 / Student1</code><br />
-              👨‍👧 ผู้ปกครองของ ธนาพร (10021): <code>parent1 / Parent01</code><br />
-              👩‍👦 ผู้ปกครองของ สมศักดิ์ (10022): <code>parent2 / Parent02</code><br />
-              🏫 Admin โรงเรียน: <code>schadmin / Admin001</code><br />
-              🛠 Web Admin: <code>webadmin / Admin123</code><br />
+              ครู (มีตารางสอน): <code>teacher1 / Teacher1</code><br />
+              นักเรียน (มีข้อมูลครบ): <code>student1 / Student1</code><br />
+              ผู้ปกครองของ ธนาพร (10021): <code>parent1 / Parent01</code><br />
+              ผู้ปกครองของ สมศักดิ์ (10022): <code>parent2 / Parent02</code><br />
+              Admin โรงเรียน: <code>schadmin / Admin001</code><br />
+              Web Admin: <code>webadmin / Admin123</code><br />
               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                 * บัญชีที่แอดมินเพิ่มเอง ใช้รหัสผ่านเริ่มต้น Eduflow1 · บัญชีสมัครใหม่ = เริ่มจาก 0 ไม่มีข้อมูลจำลอง
               </span>
@@ -112,17 +112,17 @@ export default function LoginForm() {
           )}
         </div>
 
-        {error   && <div className="auth-alert auth-alert-err">⚠️ {error}</div>}
-        {lockMsg && <div className="auth-alert auth-alert-warn">🔒 {lockMsg}</div>}
+        {error   && <div className="auth-alert auth-alert-err">{error}</div>}
+        {lockMsg && <div className="auth-alert auth-alert-warn">{lockMsg}</div>}
         {needVerify && (
           <div className="auth-alert auth-alert-warn">
-            📧 บัญชีนี้ยังไม่ได้ยืนยันอีเมล
+            บัญชีนี้ยังไม่ได้ยืนยันอีเมล
             <button
               type="button"
               className="auth-btn-main"
               style={{ width: '100%', marginTop: '0.6rem' }}
               onClick={() => {
-                if (verifyEmail(username.trim())) { setNeedVerify(false); showToast('✅ ยืนยันอีเมลแล้ว — เข้าสู่ระบบได้เลย'); }
+                if (verifyEmail(username.trim())) { setNeedVerify(false); showToast('ยืนยันอีเมลแล้ว — เข้าสู่ระบบได้เลย'); }
               }}
             >
               ✅ กดลิงก์ยืนยันในอีเมล (จำลอง)

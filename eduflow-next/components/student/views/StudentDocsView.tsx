@@ -35,16 +35,16 @@ export default function StudentDocsView({ profile, showToast }: Props) {
   }
 
   async function download(doc: PPDoc) {
-    if (rows.length === 0) { showToast('⚠️ ยังไม่มีผลการเรียนให้ออกเอกสาร'); return; }
+    if (rows.length === 0) { showToast('ยังไม่มีผลการเรียนให้ออกเอกสาร'); return; }
     if (STUDENT_READY[doc.id] === 'transcript') await exportTranscriptPP1(fullName, profile.studentId, rows);
     else await exportStudentGradeReport(fullName, profile.studentId, rows);
-    showToast(`📥 ดาวน์โหลด ${doc.name} (${doc.title}) แล้ว`);
+    showToast(`ดาวน์โหลด ${doc.name} (${doc.title}) แล้ว`);
   }
 
   function handlePick(doc: PPDoc) {
     const st = docState(doc);
-    if (st.status === 'locked') { showToast(`🔒 ${doc.name} ${st.note}`); return; }
-    if (st.status === 'soon') { showToast(`📄 ${doc.name} (${doc.title}) กำลังพัฒนา`); return; }
+    if (st.status === 'locked') { showToast(`${doc.name} ${st.note}`); return; }
+    if (st.status === 'soon') { showToast(`${doc.name} (${doc.title}) กำลังพัฒนา`); return; }
     setPreview(doc); // เปิดพรีวิวก่อนดาวน์โหลด
   }
 

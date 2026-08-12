@@ -117,7 +117,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
   function handleClearLog() {
     if (!window.confirm('ล้างประวัติการแก้ไข (log) นี้ทั้งหมด?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
     const res = clearScheduleLog(selRoom?.id);
-    if (res.ok) { bump(); showToast('🗑 ล้าง log แล้ว'); }
+    if (res.ok) { bump(); showToast('ล้าง log แล้ว'); }
     else showToast(res.error || 'ล้างไม่สำเร็จ');
   }
 
@@ -194,20 +194,20 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
 
   function remove(s: ScheduleSlot) {
     if (!window.confirm(`ลบ "${s.subjectName}" ${dayTH(s.day)} คาบ ${s.period} ออกจากแผน?`)) return;
-    if (deleteSlot(s.id).ok) { showToast('🗑 ลบรายการแล้ว'); if (editingId === s.id) resetForm(); bump(); }
+    if (deleteSlot(s.id).ok) { showToast('ลบรายการแล้ว'); if (editingId === s.id) resetForm(); bump(); }
   }
 
   function clearRoom() {
     if (!selRoom || !selGrade) return;
     if (!window.confirm(`ล้างแผนทั้งหมดของห้อง ${selGrade.name}/${selRoom.room}?\nการกระทำนี้จะถูกบันทึกใน log`)) return;
     const r = clearClassroomSchedule(selRoom.id);
-    if (!r.ok) { showToast(`⚠️ ${r.error}`); return; }
-    showToast(`🧹 ล้างแผนแล้ว ${r.removed} รายการ`); bump();
+    if (!r.ok) { showToast(`${r.error}`); return; }
+    showToast(`ล้างแผนแล้ว ${r.removed} รายการ`); bump();
   }
 
   function saveLunch() {
-    if (setLunchConfig(lunch)) { showToast(`🍱 พักเที่ยงหลังคาบ ${lunch.afterPeriod} · ${lunch.time}`); setLunchOpen(false); bump(); }
-    else showToast('🔒 ไม่มีสิทธิ์ตั้งเวลาพักเที่ยง');
+    if (setLunchConfig(lunch)) { showToast(`พักเที่ยงหลังคาบ ${lunch.afterPeriod} · ${lunch.time}`); setLunchOpen(false); bump(); }
+    else showToast('ไม่มีสิทธิ์ตั้งเวลาพักเที่ยง');
   }
 
   if (!allowed) {
@@ -229,7 +229,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
     <div className="panel-shell panel-shell-wide">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">🗓 <em>แผนการเรียน</em>การสอน</h2>
+          <h2 className="panel-title"><em>แผนการเรียน</em>การสอน</h2>
           <p className="panel-sub">
             ขั้นที่ 2 — เลือกห้อง แล้วเพิ่มรายการในแผน (วิชา · วัน · คาบ · เวลา · วันที่) ·
             เปิด/ปิดแต่ละรายการได้ · <b>ตารางสอนจะแสดงเฉพาะรายการที่เปิดใช้งาน</b>
@@ -367,7 +367,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
             {/* ── รายการในแผน ── */}
             <div className="panel-body">
               <div className="sched-courses-head" style={{ marginTop: 0 }}>
-                <span className="sched-courses-title">📋 รายการในแผน — {selGrade?.name}/{selRoom.room} ({plan.length})</span>
+                <span className="sched-courses-title">รายการในแผน — {selGrade?.name}/{selRoom.room} ({plan.length})</span>
                 {plan.length > 0 && <button className="ez-btn ez-btn-ghost" style={{ minHeight: 36, fontSize: '0.82rem', color: 'var(--absent)' }} onClick={clearRoom}>🧹 ล้างแผนทั้งห้อง</button>}
               </div>
 
@@ -416,14 +416,14 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
                 </div>
               )}
 
-              <CourseList courses={courses} title="📘 รายวิชาที่เปิดใช้งาน (แสดงในตารางสอน)" />
+              <CourseList courses={courses} title="รายวิชาที่เปิดใช้งาน (แสดงในตารางสอน)" />
             </div>
           </>
         )}
 
         {/* ── Log ── */}
         <div className="sched-log">
-          <div className="sched-log-title">📜 {t('ประวัติการแก้ไข (Log)')}</div>
+          <div className="sched-log-title">{t('ประวัติการแก้ไข (Log)')}</div>
           <div className="sched-log-sub">
             บันทึกทุกการเพิ่ม/แก้ไข/ลบ/เปิด-ปิด พร้อม <b>ผู้ทำรายการ</b> และ <b>วันเวลา</b>
             {selRoom ? ` (เฉพาะห้อง ${selGrade?.name}/${selRoom.room})` : ' (ทุกห้อง)'}
@@ -442,7 +442,7 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
               <span className={`sched-log-action ${LOG_CLASS[l.action] || 'sched-log-edit'}`}>{l.action}</span>
               <div className="sched-log-body">
                 <div className="sched-log-detail">{l.classLabel} · {l.detail}</div>
-                <div className="sched-log-meta">🕐 {l.timestamp} · โดย <span className="sched-log-actor">{l.actorName}</span> (ID: {l.actorUsername} · {l.actorRole})</div>
+                <div className="sched-log-meta">{l.timestamp} · โดย <span className="sched-log-actor">{l.actorName}</span> (ID: {l.actorUsername} · {l.actorRole})</div>
               </div>
             </div>
           ))}

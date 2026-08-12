@@ -51,7 +51,7 @@ export default function FeedRail({ side, title, limit = 8 }: Props) {
             {it.image && (
               <button className="feed-card-imgbtn" onClick={() => setZoom(it)} title="กดดูภาพเต็ม">
                 <img src={it.image} alt={it.title} className="feed-card-img" />
-                <span className="feed-card-imghint">🔍 ดูภาพ</span>
+                <span className="feed-card-imghint">ดูภาพ</span>
               </button>
             )}
           </div>

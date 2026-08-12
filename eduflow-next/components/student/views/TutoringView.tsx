@@ -67,7 +67,7 @@ export default function TutoringView({ profile, showToast }: Props) {
   function cancelBooking(b: TutorBooking) {
     const reason = window.prompt('เหตุผลในการยกเลิก (แจ้งคุณครู):') || '';
     if (updateBookingStatus(b.id, 'cancelled', reason)) {
-      showToast('✕ ยกเลิกการจองแล้ว — แจ้งคุณครูเรียบร้อย');
+      showToast('ยกเลิกการจองแล้ว — แจ้งคุณครูเรียบร้อย');
       refresh();
     }
   }

@@ -15,7 +15,7 @@ const TYPE_BADGE: Record<SubjectType, string> = {
   'ชุมนุม/ชมรม': 'sched-type-club',
 };
 
-export default function CourseList({ courses, title = '📘 รายละเอียดรายวิชาในตารางสอน' }: { courses: CourseSummary[]; title?: string }) {
+export default function CourseList({ courses, title = 'รายละเอียดรายวิชาในตารางสอน' }: { courses: CourseSummary[]; title?: string }) {
   if (courses.length === 0) return null;
 
   const totalCredit = courses.reduce((s, c) => s + (c.credit || 0), 0);

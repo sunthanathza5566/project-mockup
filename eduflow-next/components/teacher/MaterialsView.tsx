@@ -81,8 +81,8 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
   }
 
   function handleSaveMaterial() {
-    if (!matTitle.trim()) { showToast('⚠️ กรอกชื่อสื่อการสอนก่อน'); return; }
-    if ((matType === 'link' || matType === 'video') && !matUrl.trim()) { showToast('⚠️ กรอก URL ก่อน'); return; }
+    if (!matTitle.trim()) { showToast('กรอกชื่อสื่อการสอนก่อน'); return; }
+    if ((matType === 'link' || matType === 'video') && !matUrl.trim()) { showToast('กรอก URL ก่อน'); return; }
 
     if (editId !== null) {
       updateMaterial(editId, {
@@ -90,7 +90,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
         url: matUrl.trim() || `${matTitle.trim()}.pdf`, category: matCat.trim(), pinned: matPin,
       });
       logActivity('teacher', 'แก้ไขสื่อการสอน', `${matTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-      showToast('✅ แก้ไขสื่อการสอนแล้ว');
+      showToast('แก้ไขสื่อการสอนแล้ว');
     } else {
       createMaterial({
         classId: selectedClass.id, type: matType,
@@ -99,21 +99,21 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
         category: matCat.trim(), pinned: matPin, teacherName,
       });
       logActivity('teacher', 'เพิ่มสื่อการสอน', `${matTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-      showToast('✅ เพิ่มสื่อการสอนแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
+      showToast('เพิ่มสื่อการสอนแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     }
     resetForm();
     refresh();
   }
 
   function handleCreateAnnouncement() {
-    if (!annTitle.trim() || !annBody.trim()) { showToast('⚠️ กรอกหัวข้อและเนื้อหาก่อน'); return; }
+    if (!annTitle.trim() || !annBody.trim()) { showToast('กรอกหัวข้อและเนื้อหาก่อน'); return; }
     createAnnouncement({
       classId: selectedClass.id,
       title: annTitle.trim(), body: annBody.trim(), pinned: annPinned,
       teacherName,
     });
     logActivity('teacher', 'โพสต์ประกาศ', `${annTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('✅ โพสต์ประกาศแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
+    showToast('โพสต์ประกาศแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     setAnnTitle(''); setAnnBody(''); setAnnPinned(false); setShowAnnForm(false);
     refresh();
   }
@@ -154,8 +154,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
 
   return (
     <div className="dash-section">
-      <div className="dash-section-title">
-        📁 สื่อการสอน & ประกาศ — {selectedClass.grade}/{selectedClass.room} {selectedClass.subject}
+      <div className="dash-section-title">สื่อการสอน & ประกาศ — {selectedClass.grade}/{selectedClass.room} {selectedClass.subject}
       </div>
 
       {/* Tabs */}

@@ -24,15 +24,15 @@ export default function GradesView({ profile, showToast }: Props) {
   const gpa = calcGPA(rows);
 
   async function handleExport() {
-    if (rows.length === 0) { showToast('⚠️ ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
+    if (rows.length === 0) { showToast('ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
     await exportStudentGradeReport(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
-    showToast('📥 ดาวน์โหลดรายงานผลการเรียน (ปพ.6) แล้ว');
+    showToast('ดาวน์โหลดรายงานผลการเรียน (ปพ.6) แล้ว');
   }
 
   async function handleExportPP1() {
-    if (rows.length === 0) { showToast('⚠️ ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
+    if (rows.length === 0) { showToast('ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
     await exportTranscriptPP1(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
-    showToast('📥 ดาวน์โหลดระเบียนแสดงผลการเรียน (ปพ.1) แล้ว');
+    showToast('ดาวน์โหลดระเบียนแสดงผลการเรียน (ปพ.1) แล้ว');
   }
 
   return (

@@ -58,7 +58,7 @@ export default function LibraryView({ profile, showToast }: Props) {
     await markBookRead(profile.studentId, book.id);
     setReadDone(prev => ({ ...prev, [book.id]: true }));
     setOpenBook(null);
-    showToast(`✅ อ่าน "${book.title}" จบแล้ว! ได้คะแนนจิตพิสัย +1 ⭐`);
+    showToast(`อ่าน "${book.title}" จบแล้ว! ได้คะแนนจิตพิสัย +1 ⭐`);
   }
 
   return (

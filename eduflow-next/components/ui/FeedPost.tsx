@@ -17,7 +17,7 @@ export default function FeedPost({ item, onClose }: { item: FeedItem; onClose: (
         <div className="feed-post-body">
           <span className="feed-badge" style={{ color: m.color, background: `${m.color}14` }}>{m.icon} {m.label}</span>
           <h2 className="feed-post-title">{item.title}</h2>
-          <div className="feed-post-date">🗓 {item.date}</div>
+          <div className="feed-post-date">{item.date}</div>
           <p className="feed-post-text">{item.body}</p>
         </div>
       </article>

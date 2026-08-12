@@ -65,7 +65,7 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
     if (!selCourse || !selGrade || !selRoom || !selYear) return;
     await exportScoreSheetToExcel(selCourse, `${selGrade.name}/${selRoom.room}`, selYear.year, getScores(selCourse.id));
     logActivity('teacher', 'ดาวน์โหลด ปพ.5', `${selCourse.name} (${selCourse.code}) ห้อง ${selGrade.name}/${selRoom.room}`);
-    showToast('📥 ดาวน์โหลดแบบบันทึกผลการเรียน (ปพ.5) แล้ว');
+    showToast('ดาวน์โหลดแบบบันทึกผลการเรียน (ปพ.5) แล้ว');
   }
 
   /** สถานะของการ์ดตามระดับชั้นที่เลือก + ความพร้อมของเอกสาร */
@@ -78,13 +78,13 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
 
   function handlePick(doc: PPDoc) {
     const st = docState(doc);
-    if (st.status === 'locked') { showToast(`🔒 ${doc.name} ${st.note}`); return; }
+    if (st.status === 'locked') { showToast(`${doc.name} ${st.note}`); return; }
     if (doc.id === 'pp5') {
-      if (!selCourse) { showToast('⚠️ เลือกปี → ชั้น → ห้อง → วิชา ก่อน แล้วจึงออก ปพ.5'); return; }
+      if (!selCourse) { showToast('เลือกปี → ชั้น → ห้อง → วิชา ก่อน แล้วจึงออก ปพ.5'); return; }
       exportPP5();
       return;
     }
-    showToast(`📄 ${doc.name} (${doc.title}) กำลังพัฒนา — ต้องเชื่อมข้อมูลเพิ่ม (เช่น ความประพฤติ/อนุมัติจบ)`);
+    showToast(`${doc.name} (${doc.title}) กำลังพัฒนา — ต้องเชื่อมข้อมูลเพิ่ม (เช่น ความประพฤติ/อนุมัติจบ)`);
   }
 
   if (!session || (session.role !== 'teacher' && session.role !== 'web_admin')) {
@@ -114,7 +114,7 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
     <div className="panel-shell panel-shell-wide ez-sm">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">📄 เอกสาร<em>ผลการเรียน</em></h2>
+          <h2 className="panel-title">เอกสาร<em>ผลการเรียน</em></h2>
           <p className="panel-sub">
             เลือกปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสาร ปพ. ที่ต้องการออก ·
             เอกสารจำกัดตาม<b>ระดับชั้น</b> · ตอนนี้พร้อมใช้: <b>ปพ.5</b>

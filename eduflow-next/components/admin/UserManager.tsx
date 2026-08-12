@@ -45,8 +45,8 @@ export default function UserManager() {
       STUDENT_CITIZEN_REGISTRY,
       session?.name || 'web admin',
     );
-    if (!r.ok) { showToast(`⚠️ ${r.error}`); return; }
-    showToast(`✅ เติมเงิน ฿${tuAmount.toLocaleString('th-TH')} ให้ ${tuName.trim()} แล้ว — ยอดใหม่ ฿${r.balance!.toLocaleString('th-TH')}`);
+    if (!r.ok) { showToast(`${r.error}`); return; }
+    showToast(`เติมเงิน ฿${tuAmount.toLocaleString('th-TH')} ให้ ${tuName.trim()} แล้ว — ยอดใหม่ ฿${r.balance!.toLocaleString('th-TH')}`);
     setTuCode(''); setTuCitizen(''); setTuName(''); setTuAmount(100);
   }
 
@@ -71,7 +71,7 @@ export default function UserManager() {
 
   function handleAdd() {
     const person = candidates.find(p => p.code === selCode);
-    if (!person) { showToast('⚠️ เลือกรายชื่อจาก dropdown ก่อน'); return; }
+    if (!person) { showToast('เลือกรายชื่อจาก dropdown ก่อน'); return; }
     setPending(person); // ขั้นที่ 1: เพิ่มเข้าคิว รอยืนยัน
   }
 
@@ -85,8 +85,8 @@ export default function UserManager() {
       code: pending.code,
       school: 'โรงเรียนทดสอบ EduFlow',
     });
-    if (!res.ok) { showToast(`⚠️ ${res.error}`); return; }
-    showToast(`✅ เพิ่ม "${pending.name}" เป็น${ROLE_LABELS[selRole]}แล้ว (username: ${pending.code.toLowerCase()} รหัสผ่านเริ่มต้น: ${DEFAULT_PASSWORD})`);
+    if (!res.ok) { showToast(`${res.error}`); return; }
+    showToast(`เพิ่ม "${pending.name}" เป็น${ROLE_LABELS[selRole]}แล้ว (username: ${pending.code.toLowerCase()} รหัสผ่านเริ่มต้น: ${DEFAULT_PASSWORD})`);
     setPending(null); setSelCode(''); setSearch('');
     refresh();
   }
@@ -102,7 +102,7 @@ export default function UserManager() {
   if (!selRole) {
     return (
       <div className="dash-section">
-        <div className="ez-title">👥 จัดการผู้ใช้</div>
+        <div className="ez-title">จัดการผู้ใช้</div>
         <div className="ez-subtitle">เลือกประเภทผู้ใช้ที่ต้องการจัดการ — แต่ละประเภทมีหน้าจัดการของตัวเอง</div>
         <div className="admin-menu-grid">
           {ROLE_CARDS.map(c => {
@@ -129,11 +129,11 @@ export default function UserManager() {
 
       {/* ── เพิ่มรายชื่อ ── */}
       <div style={{ background: 'var(--cream)', border: '2px solid var(--border)', borderRadius: 14, padding: '1.2rem', marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>➕ เพิ่ม{ROLE_LABELS[selRole]}เข้าระบบ</div>
+        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>เพิ่ม{ROLE_LABELS[selRole]}เข้าระบบ</div>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <input
             className="ez-input" style={{ flex: 1, minWidth: 180, minHeight: 46 }}
-            placeholder="🔍 ค้นหาด้วยชื่อ นามสกุล หรือรหัส"
+            placeholder="ค้นหาด้วยชื่อ นามสกุล หรือรหัส"
             value={search} onChange={e => { setSearch(e.target.value); setPending(null); }}
           />
           <select
@@ -161,7 +161,7 @@ export default function UserManager() {
       {/* ── เติมเงินตรงให้นักเรียน (เฉพาะ role นักเรียน · กรณีระบบ PromptPay ขัดข้อง) ── */}
       {selRole === 'student' && (
         <div style={{ background: 'rgba(196,128,74,0.07)', border: '2px solid rgba(196,128,74,0.35)', borderRadius: 14, padding: '1.2rem', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#7A4A20', marginBottom: '0.35rem' }}>💰 เติมเงินให้นักเรียนโดยตรง (กรณีระบบขัดข้อง)</div>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#7A4A20', marginBottom: '0.35rem' }}>เติมเงินให้นักเรียนโดยตรง (กรณีระบบขัดข้อง)</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
             ต้อง verify ให้ตรงกับข้อมูลที่บันทึกไว้ในระบบทั้ง 3 อย่าง: รหัสนักเรียน + เลขบัตรประชาชน + ชื่อ-นามสกุล · ทุกรายการถูกบันทึกลง Log
           </div>

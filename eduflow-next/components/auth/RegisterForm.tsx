@@ -37,8 +37,8 @@ export default function RegisterForm() {
   }
 
   function handleVerify() {
-    if (!verifyEmail(username.trim())) { showToast('⚠️ ไม่พบบัญชี'); return; }
-    showToast('✅ ยืนยันอีเมลสำเร็จ! เข้าสู่ระบบได้เลย');
+    if (!verifyEmail(username.trim())) { showToast('ไม่พบบัญชี'); return; }
+    showToast('ยืนยันอีเมลสำเร็จ! เข้าสู่ระบบได้เลย');
     router.push('/login');
   }
 
@@ -53,7 +53,7 @@ export default function RegisterForm() {
 
           {/* จำลองกล่องจดหมาย — ใช้ฟรี ไม่ต้องต่อบริการส่งอีเมล */}
           <div style={{ background: 'var(--cream)', border: '1px dashed var(--border)', borderRadius: 12, padding: '1.1rem', margin: '1.25rem 0', textAlign: 'left' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>📥 กล่องจดหมายของคุณ (จำลอง)</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>กล่องจดหมายของคุณ (จำลอง)</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--brown-dark)', fontWeight: 600, marginBottom: '0.25rem' }}>EduFlow — ยืนยันการสมัครสมาชิก</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--text-body)', marginBottom: '0.75rem' }}>สวัสดี {firstName} กดปุ่มด้านล่างเพื่อยืนยันว่าอีเมลนี้เป็นของคุณ</div>
             <button className="auth-btn-main" style={{ width: '100%' }} onClick={handleVerify}>
@@ -76,7 +76,7 @@ export default function RegisterForm() {
         <h1 className="auth-title">สมัครสมาชิก</h1>
         <p className="auth-sub">สร้างบัญชีใหม่เพื่อเข้าใช้งาน EduFlow</p>
 
-        {error && <div className="auth-alert auth-alert-err">⚠️ {error}</div>}
+        {error && <div className="auth-alert auth-alert-err">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="auth-field">

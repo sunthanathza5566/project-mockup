@@ -55,7 +55,7 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
   }, [activeSession?.id]);
 
   function handleGenerateQR() {
-    if (activeSession) { showToast('⚠️ มี QR ที่ยังไม่หมดอายุอยู่แล้ว — ใช้อันเดิมหรือส่งรายงานก่อน'); return; }
+    if (activeSession) { showToast('มี QR ที่ยังไม่หมดอายุอยู่แล้ว — ใช้อันเดิมหรือส่งรายงานก่อน'); return; }
     createAttendanceSession({
       teacherId, teacherName,
       classId: selectedClass.id, classLabel,
@@ -63,28 +63,28 @@ export default function AttendanceView({ teacherId, teacherName, selectedClass, 
     });
     refresh();
     logActivity('teacher', 'สร้าง QR เช็คชื่อ', `${classLabel} ${selectedClass.subject}`);
-    showToast('✅ สร้าง QR แล้ว (อายุ 15 นาที · 10 นาทีแรก = ตรงเวลา)');
+    showToast('สร้าง QR แล้ว (อายุ 15 นาที · 10 นาทีแรก = ตรงเวลา)');
   }
 
   function handleSubmitReport(sessionId: string) {
     const report = submitSessionReport(sessionId);
-    if (!report) { showToast('❌ ไม่พบ session'); return; }
+    if (!report) { showToast('ไม่พบ session'); return; }
     refresh();
     setView('report');
     logActivity('teacher', 'ส่งรายงานเช็คชื่อ', `${classLabel} ${selectedClass.subject}`);
-    showToast('✅ ส่งรายงานแล้ว — ดูย้อนหลังได้ที่แท็บรายงาน');
+    showToast('ส่งรายงานแล้ว — ดูย้อนหลังได้ที่แท็บรายงาน');
   }
 
   async function handleExport(report: AttendanceReport) {
     await exportAttendanceReportToExcel(report);
-    showToast('📥 ดาวน์โหลดรายงานเช็คชื่อแล้ว');
+    showToast('ดาวน์โหลดรายงานเช็คชื่อแล้ว');
   }
 
   const timeLeft = activeSession ? Math.max(0, Math.ceil((activeSession.expiresAt - Date.now()) / 60000)) : 0;
 
   return (
     <div className="dash-section">
-      <div className="dash-section-title">📋 เช็คชื่อ — {classLabel} {selectedClass.subject}</div>
+      <div className="dash-section-title">เช็คชื่อ — {classLabel} {selectedClass.subject}</div>
 
       {/* Tabs */}
       <div className="dash-tabs-bar" style={{ marginBottom: '1.25rem' }}>

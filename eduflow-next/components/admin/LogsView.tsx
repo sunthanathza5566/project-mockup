@@ -32,8 +32,8 @@ export default function LogsView() {
 
   function handleClear() {
     if (!window.confirm('ล้างประวัติการใช้งานทั้งหมด?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
-    if (clearActivityLog()) { setActivity([]); showToast('🗑 ล้าง log แล้ว'); }
-    else showToast('🔒 เฉพาะเว็บแอดมินเท่านั้นที่ล้าง log ได้');
+    if (clearActivityLog()) { setActivity([]); showToast('ล้าง log แล้ว'); }
+    else showToast('เฉพาะเว็บแอดมินเท่านั้นที่ล้าง log ได้');
   }
 
   const filtered = activity.filter(e => filter === 'all' || e.category === filter);
@@ -41,7 +41,7 @@ export default function LogsView() {
 
   return (
     <div className="dash-section">
-      <div className="ez-title">📋 Log ระบบ</div>
+      <div className="ez-title">Log ระบบ</div>
       <div className="ez-subtitle">ทุก action ของแอดมินและครูถูกบันทึกไว้ — หากพบ bug หรือ user error สามารถไล่ตรวจสอบและแก้เป็นจุด ๆ ได้</div>
 
       {/* ── Activity Log ── */}

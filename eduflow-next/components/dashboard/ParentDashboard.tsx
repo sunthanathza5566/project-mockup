@@ -55,7 +55,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
   /** เติมผ่าน PromptPay (จำลอง): แสดง QR → ระบบตรวจสอบยอดอัตโนมัติ → ยืนยันเข้ากระเป๋า */
   function startPromptPay() {
-    if (topupAmt <= 0) { showToast('⚠️ ใส่จำนวนเงินก่อน'); return; }
+    if (topupAmt <= 0) { showToast('ใส่จำนวนเงินก่อน'); return; }
     setPpStep('qr');
   }
   function simulatePaid() {
@@ -86,9 +86,9 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
     : null;
 
   async function handleExportGrades() {
-    if (grades.length === 0) { showToast('⚠️ ยังไม่มีคะแนนในระบบ'); return; }
+    if (grades.length === 0) { showToast('ยังไม่มีคะแนนในระบบ'); return; }
     await exportStudentGradeReport(childName, childCode, grades);
-    showToast('📥 ดาวน์โหลดใบรายงานผลการเรียนของลูกแล้ว');
+    showToast('ดาวน์โหลดใบรายงานผลการเรียนของลูกแล้ว');
   }
 
   function handleReadNotif(id: number) {
@@ -118,7 +118,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
       {/* ── กระเป๋าเงินลูก — เติมเงินได้เฉพาะผู้ปกครอง (ควบคุมขอบเขตการใช้จ่าย) ── */}
       <div className="dash-section">
-        <div className="dash-section-title">💰 กระเป๋าเงินของ {childName || 'ลูก'}</div>
+        <div className="dash-section-title">กระเป๋าเงินของ {childName || 'ลูก'}</div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'stretch' }}>
           <div style={{ flex: 1, minWidth: 220, background: 'var(--brown-dark)', color: 'var(--cream)', borderRadius: 14, padding: '1.1rem', textAlign: 'center' }}>
             <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>ยอดเงินคงเหลือ</div>
@@ -139,7 +139,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
             </div>
             <button className="dash-action-btn" style={{ background: 'var(--brown-dark)', color: 'var(--cream)' }} onClick={startPromptPay}>📲 เติม ฿{topupAmt.toLocaleString('th-TH')} ผ่าน PromptPay</button>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-              🔒 เติมเงินได้เฉพาะผู้ปกครอง — นักเรียนเติมเองไม่ได้ · ระบบตรวจสอบและยืนยันยอดอัตโนมัติ
+              เติมเงินได้เฉพาะผู้ปกครอง — นักเรียนเติมเองไม่ได้ · ระบบตรวจสอบและยืนยันยอดอัตโนมัติ
             </div>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
           <div style={{ width: 'min(340px, 92vw)', background: 'var(--warm-white)', borderRadius: 16, padding: '1.5rem', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
             {ppStep === 'qr' && (
               <>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>📲 สแกนจ่ายด้วย PromptPay</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>สแกนจ่ายด้วย PromptPay</div>
                 <div style={{ width: 170, height: 170, margin: '0 auto 0.75rem', background: 'var(--cream)', border: '2px dashed var(--border)', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
                   ▦<div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>QR จำลอง (ระบบทดสอบ)</div>
                 </div>
@@ -194,7 +194,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
       {/* ── แจ้งเตือน (เช็คชื่อจริงของลูก) ── */}
       <div className="dash-section">
-        <div className="dash-section-title">🔔 แจ้งเตือนล่าสุด</div>
+        <div className="dash-section-title">แจ้งเตือนล่าสุด</div>
         <div className="dash-notif-list">
           {notifs.length === 0
             ? <div className="dash-notif">ยังไม่มีแจ้งเตือน — จะแจ้งอัตโนมัติเมื่อ {childName || 'ลูก'} เช็คชื่อเข้าเรียน</div>
@@ -213,7 +213,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
       {/* ── ผลการเรียนของลูก ── */}
       <div className="dash-section">
-        <div className="dash-section-title">🎓 ผลการเรียน ({grades.length} วิชา)</div>
+        <div className="dash-section-title">ผลการเรียน ({grades.length} วิชา)</div>
         {grades.length === 0 ? (
           <div className="stu-empty">ยังไม่มีคะแนนในระบบ — จะแสดงเมื่อครูบันทึกผ่านระบบบันทึกคะแนน</div>
         ) : (
@@ -250,7 +250,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
       {/* ── การเช็คชื่อล่าสุด ── */}
       <div className="dash-section">
-        <div className="dash-section-title">📋 การเช็คชื่อล่าสุด (ผ่าน QR)</div>
+        <div className="dash-section-title">การเช็คชื่อล่าสุด (ผ่าน QR)</div>
         {checkIns.length === 0 ? (
           <div className="stu-empty">ยังไม่มีประวัติเช็คชื่อผ่าน QR</div>
         ) : (
@@ -272,7 +272,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
       {/* ── การบ้านค้างของลูก ── */}
       <div className="dash-section">
-        <div className="dash-section-title">📚 การบ้านค้าง ({pendingHw.length} ชิ้น)</div>
+        <div className="dash-section-title">การบ้านค้าง ({pendingHw.length} ชิ้น)</div>
         {pendingHw.length === 0 ? (
           <div className="stu-empty">ไม่มีการบ้านค้าง ✓</div>
         ) : (

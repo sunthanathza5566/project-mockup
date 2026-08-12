@@ -42,7 +42,7 @@ export default function BookingView({ profile, showToast }: Props) {
   function handleReserve(book: CatalogBook) {
     const name = `${profile.firstName} ${profile.lastName}`.trim() || profile.studentId;
     const r = reserveBook(book.id, profile.studentId, name);
-    if (!r.ok) { showToast(`⚠️ ${r.error}`); setConfirmBook(null); return; }
+    if (!r.ok) { showToast(`${r.error}`); setConfirmBook(null); return; }
     showToast(r.status === 'ready'
       ? `✅ จอง "${book.title}" สำเร็จ — รับได้ที่ห้องสมุดภายใน 3 วัน`
       : `⏳ "${book.title}" เล่มหมด — เข้าคิวรอแล้ว จะแจ้งเตือนเมื่อถึงคิว`);

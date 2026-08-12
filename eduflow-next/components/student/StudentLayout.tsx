@@ -16,7 +16,6 @@ import { useLang } from '@/context/LangContext';
 import { getWalletBalance } from '@/lib/api/wallet.store';
 
 import DashboardView from './views/DashboardView';
-import FeedRail from '@/components/ui/FeedRail';
 import ProfileView   from './views/ProfileView';
 import ClassroomView from './views/ClassroomView';
 import ScheduleView  from './views/ScheduleView';
@@ -180,7 +179,7 @@ export default function StudentLayout() {
             ['หน้าหลัก',   () => navigate('dashboard')],
             ['จองหนังสือ', () => navigate('booking')],
             ['ร้านค้า',    () => navigate('shop')],
-            ['สั่งข้าว',   () => showToast('🍚 ระบบสั่งข้าวกำลังพัฒนา — เร็ว ๆ นี้')],
+            ['สั่งข้าว',   () => showToast('ระบบสั่งข้าวกำลังพัฒนา — เร็ว ๆ นี้')],
             ['เติมเงิน',   () => navigate('topup')],
           ] as [string, () => void][]).map(([lnk, go], i) => (
             <li key={i}>
@@ -286,13 +285,7 @@ export default function StudentLayout() {
 
       {/* ── Main content ── */}
       <main className="stu-main" style={{ flex: 1, overflowY: 'auto' }}>
-        {currentView === 'dashboard' && (
-          <div className="dash-3col">
-            <FeedRail side="left" title="🗓 วันหยุด & ข่าวสาร" />
-            <div className="dash-3col-main"><DashboardView {...viewProps} /></div>
-            <FeedRail side="right" title="🎉 กิจกรรม & เกร็ดความรู้" />
-          </div>
-        )}
+        {currentView === 'dashboard' && <DashboardView {...viewProps} />}
         {currentView === 'profile'   && <ProfileView   {...viewProps} />}
         {currentView === 'classroom' && <ClassroomView {...viewProps} />}
         {currentView === 'schedule'  && <ScheduleView  {...viewProps} />}

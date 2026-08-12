@@ -68,7 +68,7 @@ export default function ScheduleGrid({ grid, readOnly = false, highlightTeacher,
                           <div className="sched-cell-subj" style={{ color: c.text }}>{subjName(slot)}</div>
                           <div className="sched-cell-code">{slot.subjectCode}</div>
                           <div className="sched-cell-teacher">{slot.teacherName}</div>
-                          {slot.room && <div className="sched-cell-room">📍 {slot.room}</div>}
+                          {slot.room && <div className="sched-cell-room">{slot.room}</div>}
                         </>
                       ) : (
                         <span className="sched-cell-plus">{readOnly ? '' : '+'}</span>

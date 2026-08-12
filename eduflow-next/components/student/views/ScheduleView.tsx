@@ -101,7 +101,7 @@ export default function ScheduleView({ profile, schedule, currentDay, setCurrent
         <div className="stu-empty">ห้องเรียนของท่านยังไม่มีตารางเรียนในระบบ 🕐<br />รอครูจัดตารางสอนให้ห้องนี้</div>
       )}
 
-      {courses.length > 0 && <CourseList courses={courses} title="📘 รายวิชาที่ต้องเรียนในภาคเรียนนี้" />}
+      {courses.length > 0 && <CourseList courses={courses} title="รายวิชาที่ต้องเรียนในภาคเรียนนี้" />}
     </div>
   );
 }

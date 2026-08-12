@@ -44,14 +44,14 @@ export default function AssignmentsView({ teacherName, teacherId, selectedClass 
   useEffect(() => { refresh(); }, [refresh]);
 
   async function handleCreate() {
-    if (!title.trim() || !due.trim()) { showToast('⚠️ กรอกชื่องานและกำหนดส่งก่อน'); return; }
+    if (!title.trim() || !due.trim()) { showToast('กรอกชื่องานและกำหนดส่งก่อน'); return; }
     await createAssignment({
       classId: selectedClass.id, key: selectedClass.key, subject: selectedClass.subject,
       title: title.trim(), details: details.trim(), due: due.trim(),
       maxScore, teacher: teacherName, teacherId, submitType,
     });
     logActivity('teacher', 'สั่งการบ้าน', `${title.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('✅ มอบหมายการบ้านแล้ว — แจ้งเตือนถึงนักเรียนทุกคนในห้อง');
+    showToast('มอบหมายการบ้านแล้ว — แจ้งเตือนถึงนักเรียนทุกคนในห้อง');
     setTitle(''); setDetails(''); setDue(''); setMaxScore(10); setSubmitType('pdf'); setShowForm(false);
     refresh();
   }
@@ -60,12 +60,12 @@ export default function AssignmentsView({ teacherName, teacherId, selectedClass 
     const key = `${assignmentId}:${studentCode}`;
     const score = parseFloat(gradeScores[key]);
     if (isNaN(score) || score < 0 || score > maxScoreOfWork) {
-      showToast(`⚠️ คะแนนต้องอยู่ระหว่าง 0–${maxScoreOfWork}`);
+      showToast(`คะแนนต้องอยู่ระหว่าง 0–${maxScoreOfWork}`);
       return;
     }
     await gradeSubmission(assignmentId, studentCode, score, gradeNotes[key] || '');
     logActivity('teacher', 'ให้คะแนนการบ้าน', `นักเรียน ${studentCode} ได้ ${score}/${maxScoreOfWork} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('✅ ให้คะแนนแล้ว — แจ้งเตือนถึงนักเรียน');
+    showToast('ให้คะแนนแล้ว — แจ้งเตือนถึงนักเรียน');
     refresh();
   }
 
@@ -73,7 +73,7 @@ export default function AssignmentsView({ teacherName, teacherId, selectedClass 
 
   return (
     <div className="dash-section">
-      <div className="ez-title">📚 การบ้าน — ห้อง {selectedClass.grade}/{selectedClass.room} วิชา{selectedClass.subject}</div>
+      <div className="ez-title">การบ้าน — ห้อง {selectedClass.grade}/{selectedClass.room} วิชา{selectedClass.subject}</div>
       <div className="ez-subtitle">สั่งการบ้าน ดูว่าใครส่งแล้ว และกดตรวจให้คะแนนได้จากหน้านี้</div>
 
       {/* ── สั่งการบ้านใหม่ ── */}
@@ -104,9 +104,9 @@ export default function AssignmentsView({ teacherName, teacherId, selectedClass 
             <div>
               <label className="ez-label">ประเภทไฟล์ที่ให้นักเรียนส่ง</label>
               <select className="ez-input" value={submitType} onChange={e => setSubmitType(e.target.value as 'pdf' | 'video' | 'slides')} style={{ cursor: 'pointer' }}>
-                <option value="pdf">📄 ใบงาน/เอกสาร — PDF เท่านั้น</option>
-                <option value="video">🎬 คลิปวิดีโอ</option>
-                <option value="slides">📑 สไลด์นำเสนอ (.ppt/.pptx/PDF)</option>
+                <option value="pdf">ใบงาน/เอกสาร — PDF เท่านั้น</option>
+                <option value="video">คลิปวิดีโอ</option>
+                <option value="slides">สไลด์นำเสนอ (.ppt/.pptx/PDF)</option>
               </select>
             </div>
           </div>

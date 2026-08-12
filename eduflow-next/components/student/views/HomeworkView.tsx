@@ -69,7 +69,7 @@ export default function HomeworkView({ profile, assignments, homeworkFilter, set
     if (!f) return;
     const rule = FILE_RULES[a.submitType || 'pdf'];
     if (!rule.check(f)) {
-      showToast(`⚠️ งานนี้ครูกำหนดให้ส่ง ${rule.label} — ไฟล์ "${f.name}" ไม่ตรงประเภท`);
+      showToast(`งานนี้ครูกำหนดให้ส่ง ${rule.label} — ไฟล์ "${f.name}" ไม่ตรงประเภท`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -79,10 +79,10 @@ export default function HomeworkView({ profile, assignments, homeworkFilter, set
   }
 
   async function confirmSubmit(a: Assignment) {
-    if (!file) { showToast('⚠️ แนบไฟล์งานก่อนส่ง'); return; }
+    if (!file) { showToast('แนบไฟล์งานก่อนส่ง'); return; }
     const name = `${profile.firstName} ${profile.lastName}`.trim() || profile.studentId;
     await submitAssignment(a.id, profile.studentId, name, submitNote, { name: file.name, size: file.size });
-    showToast('✅ ส่งการบ้านสำเร็จ! — แจ้งเตือนถึงครูแล้ว');
+    showToast('ส่งการบ้านสำเร็จ! — แจ้งเตือนถึงครูแล้ว');
     setConfirmOpen(false); setSubmitId(null); setSubmitNote(''); setFile(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl('');
@@ -187,7 +187,7 @@ export default function HomeworkView({ profile, assignments, homeworkFilter, set
                             style={{ width: '100%', padding: '0.6rem', border: '1px solid var(--border)', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', resize: 'vertical', outline: 'none' }}
                           />
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button className="stu-hw-submit-btn" onClick={() => file ? setConfirmOpen(true) : showToast('⚠️ แนบไฟล์งานก่อนส่ง')}>📤 ส่งการบ้าน</button>
+                            <button className="stu-hw-submit-btn" onClick={() => file ? setConfirmOpen(true) : showToast('แนบไฟล์งานก่อนส่ง')}>📤 ส่งการบ้าน</button>
                             <button className="stu-hw-submit-btn" style={{ background: 'var(--text-muted)' }} onClick={() => setSubmitId(null)}>ยกเลิก</button>
                           </div>
 

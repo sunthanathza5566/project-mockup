@@ -86,26 +86,26 @@ export default function AcademicManager({ adminUsername }: Props) {
 
   function queueYear() {
     const y = newYear.trim();
-    if (!/^\d{4}$/.test(y)) { showToast('⚠️ ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
-    if (years.some(x => x.year === y) || pending.some(p => p.kind === 'year' && p.payload.year === y)) { showToast('⚠️ ปีการศึกษานี้มีอยู่แล้ว'); return; }
+    if (!/^\d{4}$/.test(y)) { showToast('ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
+    if (years.some(x => x.year === y) || pending.some(p => p.kind === 'year' && p.payload.year === y)) { showToast('ปีการศึกษานี้มีอยู่แล้ว'); return; }
     queue('year', `ปีการศึกษา ${y}`, { year: y });
     setNewYear('');
   }
 
   function queueGrade() {
     const g = newGrade.trim();
-    if (!g) { showToast('⚠️ กรอกชื่อระดับชั้น เช่น ม.4'); return; }
-    if (!selYear) { showToast('⚠️ เลือกปีการศึกษาก่อน'); return; }
-    if (gradeLevels.some(x => x.name === g) || pending.some(p => p.kind === 'grade' && p.payload.gradeName === g && p.payload.yearId === selYear)) { showToast('⚠️ ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
+    if (!g) { showToast('กรอกชื่อระดับชั้น เช่น ม.4'); return; }
+    if (!selYear) { showToast('เลือกปีการศึกษาก่อน'); return; }
+    if (gradeLevels.some(x => x.name === g) || pending.some(p => p.kind === 'grade' && p.payload.gradeName === g && p.payload.yearId === selYear)) { showToast('ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
     queue('grade', `ระดับชั้น ${g} (ปี ${years.find(y => y.id === selYear)?.year})`, { gradeName: g, yearId: selYear });
     setNewGrade('');
   }
 
   function queueRoom() {
     const r = newRoom.trim();
-    if (!r) { showToast('⚠️ กรอกเลขห้อง เช่น 3'); return; }
-    if (!selGrade) { showToast('⚠️ เลือกระดับชั้นก่อน'); return; }
-    if (classrooms.some(x => x.room === r) || pending.some(p => p.kind === 'room' && p.payload.room === r && p.payload.gradeId === selGrade)) { showToast('⚠️ ห้องนี้มีอยู่แล้วในระดับชั้นนี้'); return; }
+    if (!r) { showToast('กรอกเลขห้อง เช่น 3'); return; }
+    if (!selGrade) { showToast('เลือกระดับชั้นก่อน'); return; }
+    if (classrooms.some(x => x.room === r) || pending.some(p => p.kind === 'room' && p.payload.room === r && p.payload.gradeId === selGrade)) { showToast('ห้องนี้มีอยู่แล้วในระดับชั้นนี้'); return; }
     const gradeName = gradeLevels.find(g => g.id === selGrade)?.name || '';
     queue('room', `ห้อง ${gradeName}/${r}`, { room: r, yearId: selYear, gradeId: selGrade });
     setNewRoom('');
@@ -114,9 +114,9 @@ export default function AcademicManager({ adminUsername }: Props) {
   function queueStudent() {
     const code = newStudentCode.trim();
     const name = newStudentName.trim();
-    if (!code || !name) { showToast('⚠️ กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
-    if (!selRoom) { showToast('⚠️ เลือกห้องเรียนก่อน'); return; }
-    if (roomStudents.some(s => s.code === code) || pending.some(p => p.kind === 'student' && p.payload.code === code && p.payload.roomId === selRoom)) { showToast('⚠️ รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
+    if (!code || !name) { showToast('กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
+    if (!selRoom) { showToast('เลือกห้องเรียนก่อน'); return; }
+    if (roomStudents.some(s => s.code === code) || pending.some(p => p.kind === 'student' && p.payload.code === code && p.payload.roomId === selRoom)) { showToast('รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
     const gradeName = gradeLevels.find(g => g.id === selGrade)?.name || '';
     const roomNo = classrooms.find(c => c.id === selRoom)?.room || '';
     queue('student', `${name} (${code}) → ห้อง ${gradeName}/${roomNo}`, { code, name, roomId: selRoom });
@@ -134,7 +134,7 @@ export default function AcademicManager({ adminUsername }: Props) {
   // ── ขั้นที่ 3: บันทึกขึ้นระบบจริง (เฉพาะรายการที่ยืนยันแล้ว) ──
   function commitConfirmed() {
     const confirmed = pending.filter(p => p.confirmed);
-    if (confirmed.length === 0) { showToast('⚠️ ยังไม่มีรายการที่กดยืนยัน'); return; }
+    if (confirmed.length === 0) { showToast('ยังไม่มีรายการที่กดยืนยัน'); return; }
     if (!window.confirm(`บันทึก ${confirmed.length} รายการขึ้นระบบจริง?\nข้อมูลจะแสดงให้ ครู นักเรียน และผู้ปกครอง ใช้งานทันที`)) return;
 
     let ok = 0;
@@ -155,7 +155,7 @@ export default function AcademicManager({ adminUsername }: Props) {
     if (selYear) setGradeLevels(getGradeLevels(selYear));
     if (selGrade) setClassrooms(getClassrooms(selGrade));
     if (selRoom) setRoomStudents(getClassroomStudents(selRoom));
-    showToast(`✅ บันทึกขึ้นระบบแล้ว ${ok} รายการ — ครู/นักเรียน/ผู้ปกครอง ใช้งานได้ทันที`);
+    showToast(`บันทึกขึ้นระบบแล้ว ${ok} รายการ — ครู/นักเรียน/ผู้ปกครอง ใช้งานได้ทันที`);
   }
 
   function handleRemoveStudent(code: string, name: string) {
@@ -186,7 +186,7 @@ export default function AcademicManager({ adminUsername }: Props) {
 
   return (
     <div className="dash-section">
-      <div className="ez-title">🏫 โครงสร้างวิชาการ</div>
+      <div className="ez-title">โครงสร้างวิชาการ</div>
       <div className="ez-subtitle">
         ฐานของระบบบันทึกคะแนนและเอกสาร ปพ. — ทุกการเพิ่มต้อง <b>ยืนยัน</b> และ <b>บันทึกขึ้นระบบ</b> อีกครั้ง
         ก่อนข้อมูลจะไปถึงครู นักเรียน และผู้ปกครอง
@@ -273,7 +273,7 @@ export default function AcademicManager({ adminUsername }: Props) {
       {pending.length > 0 && (
         <div className="acad-pending">
           <div className="acad-pending-title">
-            🗂 รายการรอขึ้นระบบ ({pending.length}) — ยืนยันทีละรายการ แล้วกดบันทึกขึ้นระบบจริง
+            รายการรอขึ้นระบบ ({pending.length}) — ยืนยันทีละรายการ แล้วกดบันทึกขึ้นระบบจริง
           </div>
           {pending.map(item => (
             <div key={item.id} className={`acad-pending-row${item.confirmed ? ' confirmed' : ''}`}>

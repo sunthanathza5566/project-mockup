@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
  * หน้าจอกำลังโหลดตอนออกจากระบบ — มาสคอตหนังสือโบกมือลา (คู่กับ LoginLoader)
  * แสดงสั้น ๆ ~1.3 วิ ระหว่างล้าง session แล้วพากลับหน้าแรก
  */
-const MESSAGES = ['กำลังบันทึกงานของคุณ…', 'กำลังออกจากระบบ…', 'แล้วพบกันใหม่! 👋'];
+const MESSAGES = ['กำลังบันทึกงานของคุณ…', 'กำลังออกจากระบบ…', 'แล้วพบกันใหม่!'];
 
 export default function LogoutLoader() {
   const [msgIdx, setMsgIdx] = useState(0);

@@ -56,21 +56,21 @@ export default function ContentView() {
   async function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 2_500_000) { showToast('⚠️ ไฟล์ใหญ่เกิน ~2.5MB — ย่อรูปก่อน'); return; }
+    if (f.size > 2_500_000) { showToast('ไฟล์ใหญ่เกิน ~2.5MB — ย่อรูปก่อน'); return; }
     setImage(await fileToDataUrl(f));
   }
 
   function submit() {
-    if (!title.trim() || !body.trim()) { showToast('⚠️ กรอกหัวข้อและเนื้อหาก่อน'); return; }
+    if (!title.trim() || !body.trim()) { showToast('กรอกหัวข้อและเนื้อหาก่อน'); return; }
     const payload = { type: tab, title: title.trim(), body: body.trim(), date: date.trim() || 'อัปเดตล่าสุด', image, pinned, placement: place };
     if (editId !== null) {
       updateFeed(editId, payload);
       logActivity('admin', 'แก้ไขข่าว/ฟีด', `${FEED_META[tab].label}: ${title.trim()}`);
-      showToast('✅ แก้ไขแล้ว');
+      showToast('แก้ไขแล้ว');
     } else {
       createFeed(payload);
       logActivity('admin', 'เพิ่มข่าว/ฟีด', `${FEED_META[tab].label}: ${title.trim()}`);
-      showToast('✅ เพิ่มแล้ว — แสดงบนแดชบอร์ดครู/นักเรียนทันที');
+      showToast('เพิ่มแล้ว — แสดงบนแดชบอร์ดครู/นักเรียนทันที');
     }
     reset(); refresh();
   }
@@ -82,7 +82,7 @@ export default function ContentView() {
 
   return (
     <div className="dash-section">
-      <div className="dash-section-title">📰 จัดการข่าว & ฟีด — แสดงบนแดชบอร์ดครู/นักเรียน + หน้าแรก</div>
+      <div className="dash-section-title">จัดการข่าว & ฟีด — แสดงบนแดชบอร์ดครู/นักเรียน + หน้าแรก</div>
 
       {/* สลับโหมด: แก้เนื้อหา ↔ จัดตำแหน่งราง */}
       <div className="dash-tabs-bar" style={{ marginBottom: '1rem' }}>
@@ -93,7 +93,7 @@ export default function ContentView() {
       {mode === 'arrange' && (
         <>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            ลากลำดับด้วยปุ่ม ▲▼ · ย้ายฝั่งซ้าย/ขวาได้ · ลำดับนี้คือลำดับจริงที่โผล่บนแดชบอร์ด (ปักหมุด 📌 จะเด้งขึ้นบนสุดเสมอ)
+            ลากลำดับด้วยปุ่ม ▲▼ · ย้ายฝั่งซ้าย/ขวาได้ · ลำดับนี้คือลำดับจริงที่โผล่บนแดชบอร์ด (ปักหมุด จะเด้งขึ้นบนสุดเสมอ)
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {SIDES.map(({ side, label }) => (
@@ -154,14 +154,14 @@ export default function ContentView() {
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>รูปเก็บเป็นไฟล์จริง (base64) · แนะนำ ≤ 2.5MB · TODO: ย้ายขึ้น storage จริงภายหลัง</div>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem' }}>
-            🧭 แสดงที่ราง:
+            แสดงที่ราง:
             <select value={place} onChange={e => setPlace(e.target.value as RailSide)} style={{ ...input, width: 'auto', cursor: 'pointer' }}>
               <option value="left">◀ ซ้าย (วันหยุด & ข่าวสาร)</option>
               <option value="right">ขวา (กิจกรรม & เกร็ดความรู้) ▶</option>
             </select>
           </label>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={pinned} onChange={e => setPinned(e.target.checked)} /> 📌 ปักหมุดขึ้นก่อน
+            <input type="checkbox" checked={pinned} onChange={e => setPinned(e.target.checked)} /> ปักหมุดขึ้นก่อน
           </label>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button className="dash-action-btn" onClick={submit}>{editId !== null ? '💾 บันทึก' : '📤 เผยแพร่'}</button>

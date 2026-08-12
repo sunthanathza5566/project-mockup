@@ -26,7 +26,7 @@ export default function PermissionsManager() {
 
   async function toggle(role: string, perm: string, val: boolean) {
     await updatePermission(role, perm, val);
-    showToast(`${val ? '✅ เปิด' : '🚫 ปิด'}สิทธิ์ "${PERMISSION_LABELS[role]?.[perm] || perm}" ของ${ROLE_LABELS[role]}`);
+    showToast(`${val ? 'เปิด' : 'ปิด'}สิทธิ์ "${PERMISSION_LABELS[role]?.[perm] || perm}" ของ${ROLE_LABELS[role]}`);
     refresh();
   }
 
@@ -34,7 +34,7 @@ export default function PermissionsManager() {
 
   return (
     <div className="dash-section">
-      <div className="ez-title">🔐 สิทธิ์การเข้าถึง</div>
+      <div className="ez-title">สิทธิ์การเข้าถึง</div>
       <div className="ez-subtitle">
         เปิด/ปิดการใช้งานแต่ละฟังก์ชันของทุก role — <b>web admin เป็นผู้กำหนดสิทธิ์ทั้งหมด</b> การเปลี่ยนแปลงถูกบันทึกลง Log ทุกครั้ง
       </div>
@@ -53,7 +53,7 @@ export default function PermissionsManager() {
                   <div className="perm-card-sub">เปิดใช้ {enabled} จาก {Object.keys(rp).length} สิทธิ์</div>
                 </div>
               </div>
-              {note && <div className="perm-card-note">💡 {note}</div>}
+              {note && <div className="perm-card-note">{note}</div>}
               <div className="perm-rows">
                 {Object.keys(rp).map(perm => (
                   <label key={perm} className={`perm-row-v2${rp[perm] ? ' on' : ''}`}>

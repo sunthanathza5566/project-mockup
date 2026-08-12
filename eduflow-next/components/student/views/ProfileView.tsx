@@ -34,7 +34,7 @@ export default function ProfileView({ profile, showToast }: Props) {
 
       <div className="stu-info-grid">
         <div className="stu-info-card">
-          <div className="stu-info-card-title">👤 ข้อมูลส่วนตัว</div>
+          <div className="stu-info-card-title">ข้อมูลส่วนตัว</div>
           <InfoRow label="ชื่อ"      val={profile.firstName} />
           <InfoRow label="นามสกุล"   val={profile.lastName} />
           <InfoRow label="ชื่อเล่น"  val={profile.nickname} />
@@ -46,7 +46,7 @@ export default function ProfileView({ profile, showToast }: Props) {
         </div>
 
         <div className="stu-info-card">
-          <div className="stu-info-card-title">🏫 ข้อมูลการศึกษา</div>
+          <div className="stu-info-card-title">ข้อมูลการศึกษา</div>
           <InfoRow label="รหัสนักเรียน"     val={profile.studentId} />
           <InfoRow label="ระดับชั้น"        val={profile.grade} />
           <InfoRow label="ห้องเรียน"        val={profile.room} />
@@ -55,7 +55,7 @@ export default function ProfileView({ profile, showToast }: Props) {
         </div>
 
         <div className="stu-info-card">
-          <div className="stu-info-card-title">👨‍👩‍👧 ข้อมูลผู้ปกครอง</div>
+          <div className="stu-info-card-title">ข้อมูลผู้ปกครอง</div>
           <InfoRow label="ชื่อบิดา"    val={profile.father.name} />
           <InfoRow label="อาชีพบิดา"   val={profile.father.occupation} />
           <InfoRow label="เบอร์โทรบิดา" val={profile.father.phone} />
@@ -66,7 +66,7 @@ export default function ProfileView({ profile, showToast }: Props) {
         </div>
 
         <div className="stu-info-card">
-          <div className="stu-info-card-title">📱 ช่องทางติดต่อ</div>
+          <div className="stu-info-card-title">ช่องทางติดต่อ</div>
           <InfoRow label="เบอร์โทรนักเรียน" val={profile.phone} />
           <InfoRow label="อีเมล"            val={profile.email} />
           <InfoRow label="Line ID"          val={profile.lineId} />

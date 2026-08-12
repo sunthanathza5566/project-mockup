@@ -82,7 +82,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
       // log กันถี่ — การพิมพ์ต่อเนื่องในวิชาเดียวกัน บันทึก log ครั้งเดียวต่อนาที
       logActivityThrottled('teacher', 'บันทึกคะแนน', `${selCourse?.name} (${selCourse?.code})`, `score:${selCourseId}`);
     } else {
-      showToast('🔒 ไม่มีสิทธิ์บันทึกคะแนนวิชานี้ — เฉพาะครูประจำวิชาเท่านั้น');
+      showToast('ไม่มีสิทธิ์บันทึกคะแนนวิชานี้ — เฉพาะครูประจำวิชาเท่านั้น');
     }
   }
 
@@ -121,7 +121,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
       setEntries(getScores(selCourse.id));
       setLastSaved(new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     } else {
-      showToast('🔒 ไม่มีสิทธิ์แก้สัดส่วนคะแนนวิชานี้');
+      showToast('ไม่มีสิทธิ์แก้สัดส่วนคะแนนวิชานี้');
     }
   }
 
@@ -133,15 +133,15 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
   }
 
   function addComponent(name: string, max: number) {
-    if (!selCourse || !name.trim() || max <= 0) { showToast('⚠️ ใส่ชื่อหัวข้อและคะแนนเต็มก่อน'); return; }
-    if (selCourse.components.some(c => c.name === name.trim())) { showToast('⚠️ มีหัวข้อนี้อยู่แล้ว'); return; }
+    if (!selCourse || !name.trim() || max <= 0) { showToast('ใส่ชื่อหัวข้อและคะแนนเต็มก่อน'); return; }
+    if (selCourse.components.some(c => c.name === name.trim())) { showToast('มีหัวข้อนี้อยู่แล้ว'); return; }
     applyComponents([...selCourse.components, { id: `cmp${Date.now()}`, name: name.trim(), max }]);
-    showToast(`✅ เพิ่มหัวข้อ "${name.trim()}" แล้ว`);
+    showToast(`เพิ่มหัวข้อ "${name.trim()}" แล้ว`);
   }
 
   function removeComponent(c: ScoreComponent) {
     if (!selCourse) return;
-    if (selCourse.components.length <= 1) { showToast('⚠️ ต้องมีหัวข้อคะแนนอย่างน้อย 1 หัวข้อ'); return; }
+    if (selCourse.components.length <= 1) { showToast('ต้องมีหัวข้อคะแนนอย่างน้อย 1 หัวข้อ'); return; }
     if (!window.confirm(`ลบหัวข้อ "${c.name}"? คะแนนที่กรอกไว้ในหัวข้อนี้จะถูกลบด้วย`)) return;
     applyComponents(selCourse.components.filter(x => x.id !== c.id));
   }
@@ -191,7 +191,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
     <div className="panel-shell panel-shell-wide ez-sm">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">📝 บันทึก<em>คะแนน</em></h2>
+          <h2 className="panel-title">บันทึก<em>คะแนน</em></h2>
           <p className="panel-sub">
             เลือกปี → ชั้น → ห้องที่ท่านสอน แล้ววิชาของท่านจะแสดงอัตโนมัติจากตารางสอน ·
             คะแนนบันทึกทันทีที่พิมพ์ ไม่ต้องกดปุ่มใด ๆ

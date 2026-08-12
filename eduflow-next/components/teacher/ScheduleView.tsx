@@ -79,7 +79,7 @@ export default function ScheduleView({ teacherUsername, teacherName, onManage, c
     <div className="panel-shell panel-shell-wide">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">📅 {t('ตารางสอน')}</h2>
+          <h2 className="panel-title">{t('ตารางสอน')}</h2>
           <p className="panel-sub">
             ทุกห้องเรียนมีตารางของตัวเอง — ข้อมูลดึงจากแผนการเรียน (ปีการศึกษา · ระดับชั้น · ห้อง)
             {canManage && ' · ท่านมีสิทธิ์จัดตารางสอน'}
@@ -104,7 +104,7 @@ export default function ScheduleView({ teacherUsername, teacherName, onManage, c
           {mode === 'mine' ? (
             <>
               <div className="sched-courses-head" style={{ marginTop: 0 }}>
-                <span className="sched-courses-title">👤 {teacherName}</span>
+                <span className="sched-courses-title">{teacherName}</span>
                 <span className="sched-courses-sum">{mySlots.length} คาบ/สัปดาห์ · {new Set(mySlots.map(s => s.classroomId)).size} ห้อง</span>
               </div>
               {mySlots.length === 0 ? (
@@ -115,7 +115,7 @@ export default function ScheduleView({ teacherUsername, teacherName, onManage, c
               ) : (
                 <>
                   <ScheduleGrid grid={myGrid} readOnly highlightTeacher={teacherUsername} />
-                  <CourseList courses={myCourses} title="📘 รายวิชาที่ท่านสอน" />
+                  <CourseList courses={myCourses} title="รายวิชาที่ท่านสอน" />
                 </>
               )}
             </>
@@ -159,7 +159,7 @@ export default function ScheduleView({ teacherUsername, teacherName, onManage, c
               ) : roomGrid && (
                 <>
                   <div className="sched-courses-head" style={{ marginTop: 0 }}>
-                    <span className="sched-courses-title">🏫 ห้อง {selGrade?.name}/{selRoom.room}</span>
+                    <span className="sched-courses-title">ห้อง {selGrade?.name}/{selRoom.room}</span>
                     <span className="sched-courses-sum">ปีการศึกษา {selYear?.year}</span>
                   </div>
                   <ScheduleGrid grid={roomGrid} readOnly highlightTeacher={teacherUsername} />

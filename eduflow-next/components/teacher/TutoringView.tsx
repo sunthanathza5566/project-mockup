@@ -77,7 +77,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
       active: true,
     });
     if (!r.ok) { setError(r.error); return; }
-    showToast(`✅ เปิดสอน "${subjectName}" แล้ว · เลขที่หลักฐาน ${r.offer.documentRef}`);
+    showToast(`เปิดสอน "${subjectName}" แล้ว · เลขที่หลักฐาน ${r.offer.documentRef}`);
     setShowForm(false);
     resetForm();
     refresh();
@@ -86,7 +86,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
   function handleDelete(o: TutorOffer) {
     if (!window.confirm(`ยกเลิกการเปิดสอน "${o.subjectName}"?`)) return;
     deleteOffer(o.id);
-    showToast('🗑 ยกเลิกการเปิดสอนแล้ว');
+    showToast('ยกเลิกการเปิดสอนแล้ว');
     refresh();
   }
 
@@ -99,7 +99,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
   function setBooking(b: TutorBooking, status: 'confirmed' | 'cancelled' | 'done') {
     const reason = status === 'cancelled' ? (window.prompt('เหตุผลในการยกเลิก (แจ้งนักเรียน):') || '') : '';
     if (updateBookingStatus(b.id, status, reason)) {
-      showToast(`✅ อัปเดตเป็น "${BOOKING_STATUS_LABEL[status]}" แล้ว`);
+      showToast(`อัปเดตเป็น "${BOOKING_STATUS_LABEL[status]}" แล้ว`);
       refresh();
     }
   }
@@ -125,7 +125,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
     <div className="panel-shell">
       <div className="panel-card">
         <div className="panel-head">
-          <h2 className="panel-title">🎓 เปิด<em>สอนพิเศษ</em>นอกเวลา</h2>
+          <h2 className="panel-title">เปิด<em>สอนพิเศษ</em>นอกเวลา</h2>
           <p className="panel-sub">
             ลงทะเบียนวิชาที่ท่านรับสอนเสริม — นักเรียนจะเห็นเฉพาะวิชาที่ตนเรียนอยู่ในปีการศึกษานั้น
             · หลักฐานการลงทะเบียนถูกออกเลขที่ให้อัตโนมัติ (ระบบตรวจสอบเอกสารจริงจะเพิ่มภายหลัง)
@@ -206,7 +206,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
             </div>
 
             {/* รอบเวลา */}
-            <div className="stu-info-card-title" style={{ marginTop: '0.5rem' }}>🕐 รอบเวลาที่สอน</div>
+            <div className="stu-info-card-title" style={{ marginTop: '0.5rem' }}>รอบเวลาที่สอน</div>
             {slots.map((s, i) => (
               <div key={s.id} className="acad-add-row" style={{ marginBottom: '0.5rem' }}>
                 <select className="sched-select" value={s.day} onChange={e => setSlots(list => list.map(x => x.id === s.id ? { ...x, day: e.target.value as TutorSlot['day'] } : x))}>
@@ -233,7 +233,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
 
         {/* ── รายการที่เปิดสอนอยู่ ── */}
         <div className="panel-body">
-          <div className="stu-info-card-title">📋 วิชาที่ท่านเปิดสอน ({offers.length})</div>
+          <div className="stu-info-card-title">วิชาที่ท่านเปิดสอน ({offers.length})</div>
           {offers.length === 0 ? (
             <div className="stu-empty">ยังไม่ได้เปิดสอนวิชาใด — กด “ลงทะเบียนเปิดสอนวิชาใหม่” เพื่อเริ่ม</div>
           ) : (
@@ -255,8 +255,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
                   <div className="ez-student-meta" style={{ marginTop: '0.25rem' }}>
                     รอบเวลา: {o.slots.map(s => `${slotLabel(s)} (จองแล้ว ${getSlotBookedCount(o.id, s.id)}/${o.capacity})`).join(' · ')}
                   </div>
-                  <div className="sched-log-meta" style={{ marginTop: '0.3rem' }}>
-                    📎 หลักฐาน: {o.documentName} · สถานะตรวจสอบ: {o.verified ? '✅ ตรวจสอบแล้ว' : '⏳ รอฝ่ายบุคคลตรวจสอบ (จำลอง)'}
+                  <div className="sched-log-meta" style={{ marginTop: '0.3rem' }}>หลักฐาน: {o.documentName} · สถานะตรวจสอบ: {o.verified ? '✅ ตรวจสอบแล้ว' : '⏳ รอฝ่ายบุคคลตรวจสอบ (จำลอง)'}
                   </div>
                   <div className="sched-modal-actions" style={{ marginTop: '0.6rem' }}>
                     <button className="ez-btn ez-btn-ghost acad-btn" onClick={() => toggleActive(o)}>
@@ -272,7 +271,7 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
 
         {/* ── นักเรียนที่จองเข้ามา ── */}
         <div className="panel-body" style={{ marginTop: '1.25rem' }}>
-          <div className="stu-info-card-title">🧾 รายการจองจากนักเรียน ({bookings.length})</div>
+          <div className="stu-info-card-title">รายการจองจากนักเรียน ({bookings.length})</div>
           {bookings.length === 0 ? (
             <div className="stu-empty">ยังไม่มีนักเรียนจอง</div>
           ) : (

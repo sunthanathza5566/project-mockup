@@ -68,15 +68,15 @@ function SchoolsContent() {
                   <div className="school-meta">{school.district}, {school.province}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 500, color: 'var(--brown-deep)', background: 'var(--cream-dark)', padding: '0.2rem 0.5rem', borderRadius: 6, flexShrink: 0 }}>
-                  ⭐ {school.rating}
+                  {school.rating}
                 </div>
               </div>
               <div className="school-tags">
                 {school.tags.map(tag => <span key={tag} className="school-tag">{tag}</span>)}
               </div>
               <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                <span>👥 {school.students.toLocaleString('th-TH')} นักเรียน</span>
-                <span>👩‍🏫 {school.teachers} ครู</span>
+                <span>{school.students.toLocaleString('th-TH')} นักเรียน</span>
+                <span>{school.teachers} ครู</span>
               </div>
             </div>
           ))}

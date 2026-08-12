@@ -67,8 +67,8 @@ export default function EbookView({ profile, showToast }: Props) {
   function doRent() {
     if (!rentBook) return;
     const r = rentEbook(rentBook.id, rentDays, student);
-    if (!r.ok) { showToast(`⚠️ ${r.error}`); setRentBook(null); return; }
-    showToast(`📖 เช่า "${rentBook.title}" ${rentDays} วันแล้ว — เปิดอ่านได้เลย`);
+    if (!r.ok) { showToast(`${r.error}`); setRentBook(null); return; }
+    showToast(`เช่า "${rentBook.title}" ${rentDays} วันแล้ว — เปิดอ่านได้เลย`);
     setRentBook(null);
     setTab('shelf');
     refresh();
@@ -86,7 +86,7 @@ export default function EbookView({ profile, showToast }: Props) {
     setReader({ ...reader, page, rental: reachedEnd ? { ...reader.rental, completed: true } : reader.rental });
     if (reachedEnd) {
       markCompleted(reader.rental.id);
-      showToast('🎉 อ่านจบแล้ว! ได้รับแต้มนักอ่าน +1');
+      showToast('อ่านจบแล้ว! ได้รับแต้มนักอ่าน +1');
       refresh();
     }
   }
@@ -251,8 +251,7 @@ export default function EbookView({ profile, showToast }: Props) {
                 })}
               </div>
             )}
-            <div className="sched-log-meta" style={{ marginTop: '0.6rem' }}>
-              📌 บันทึกไว้เผื่อระบบแลกแต้ม/รางวัลยอดนักอ่านในอนาคต: {profile.firstName} {profile.lastName} เช่าหนังสือรวม {stats.totalRentals} ครั้ง
+            <div className="sched-log-meta" style={{ marginTop: '0.6rem' }}>บันทึกไว้เผื่อระบบแลกแต้ม/รางวัลยอดนักอ่านในอนาคต: {profile.firstName} {profile.lastName} เช่าหนังสือรวม {stats.totalRentals} ครั้ง
             </div>
           </div>
         </>
