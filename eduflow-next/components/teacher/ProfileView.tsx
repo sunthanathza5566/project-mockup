@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import type { TeacherProfile, EducationRecord, WorkRecord } from '@/lib/types';
 import { saveTeacherProfile } from '@/lib/api/teacher-profile.store';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface ProfileViewProps {
   profile: TeacherProfile;
@@ -23,18 +23,19 @@ const show = (v?: string) => (v && v.trim() ? v : DASH);
 export default function TeacherProfileView({ profile, username, onClose, onSaved }: ProfileViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState<TeacherProfile>(profile);
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
 
   const set = (k: keyof TeacherProfile, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  function handleSave() {
+  async function handleSave() {
+    if (!(await confirm({ title: 'บันทึกประวัติ?', message: 'บันทึกการแก้ไขประวัติของท่านลงระบบ (บันทึกลง log)', confirmText: 'บันทึก' }))) return;
     const name = [form.prefix, form.firstName, form.lastName].filter(Boolean).join(' ').trim() || form.name;
     const next = { ...form, name };
     saveTeacherProfile(username, next);
     setForm(next);
     onSaved?.(next);
     setIsEditing(false);
-    showToast('บันทึกประวัติเรียบร้อย — บันทึกลง log แล้ว');
+    notify({ title: 'บันทึกประวัติแล้ว', message: 'บันทึกลง log เรียบร้อย', variant: 'success' });
   }
 
   const initials = (form.firstName?.[0] || form.name[0] || '?') + (form.lastName?.[0] || '');

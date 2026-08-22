@@ -109,11 +109,26 @@ function loadNotifs(): SharedNotification[] {
   return JSON.parse(localStorage.getItem(NOTIFS_KEY) || '[]');
 }
 
+/**
+ * สร้าง id แจ้งเตือนที่ "ไม่ซ้ำแน่นอน" แม้ push หลายรายการใน millisecond เดียวกัน
+ * (เช่น แจ้งเตือนนักเรียนทั้งห้องพร้อมกันในลูปเดียว — notifyClass)
+ *
+ * เดิมใช้ Date.now() ตรง ๆ ทำให้หลายแจ้งเตือนได้ id เดียวกัน → markSharedNotificationRead
+ * ที่ค้นด้วย .find(id) จะไป mark ผิดตัว/ผิดคน (store เดียวเก็บทุก audience รวมกัน)
+ */
+let lastNotifId = 0;
+function nextNotifId(): number {
+  const id = Math.max(Date.now(), lastNotifId + 1);
+  lastNotifId = id;
+  return id;
+}
+
 /** ส่งแจ้งเตือนเข้า shared store — ใช้ได้จากทุก store (การบ้าน, เช็คชื่อ ฯลฯ) */
 export function pushSharedNotification(audience: string, type: Notification['type'], title: string, body: string) {
   if (!isBrowser()) return;
   const list = loadNotifs();
-  list.unshift({ id: Date.now(), audience, type, isNew: true, title, body, time: Date.now() });
+  const now = Date.now();
+  list.unshift({ id: nextNotifId(), audience, type, isNew: true, title, body, time: now });
   localStorage.setItem(NOTIFS_KEY, JSON.stringify(list.slice(0, 50)));
 }
 

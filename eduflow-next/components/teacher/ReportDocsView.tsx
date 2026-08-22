@@ -2,9 +2,9 @@
 
 /**
  * เอกสารผลการเรียน (ปพ.1–ปพ.9) — เมนูแยกของครู
- * เลือก ปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสารจากการ์ด ปพ.1–9 (3×3 การ์ดใหญ่)
+ * เลือก ปี → ชั้น → ห้อง (→ วิชา สำหรับ ปพ.5) แล้วเลือกเอกสารจากการ์ด ปพ.
  * เอกสารถูกจำกัดตาม "ระดับชั้น" ที่เลือก — การ์ดที่ไม่ตรงระดับชั้นจะถูกล็อก
- * ตอนนี้พร้อมออกจริงเฉพาะ ปพ.5 (บันทึกผลการเรียนรายวิชา)
+ * พร้อมออกจริง: ปพ.1/2/3/4/6 (พิมพ์/PDF) และ ปพ.5 (Excel — ต้องเลือกวิชาก่อน)
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -17,8 +17,10 @@ import { getSession } from '@/lib/api/auth.api';
 import { logActivity } from '@/lib/api/activity.log';
 import { exportScoreSheetToExcel } from '@/lib/utils/excel-export';
 import { PP_DOCS, isDocAllowedForGrade, allowedGradesLabel, type PPDoc } from '@/lib/report-docs';
+import { roomStudents, PER_STUDENT_DOCS, IMPLEMENTED_DOCS, type DocStudent } from '@/lib/report-docs-data';
+import ReportDocPreview from './ReportDocPreview';
 import type { ClassInfo } from '@/lib/types';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   teacherId: string;
@@ -27,7 +29,7 @@ interface Props {
 }
 
 export default function ReportDocsView({ teacherId, teacherName, classes }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const session = getSession();
   const isAdmin = session?.role === 'web_admin';
 
@@ -40,6 +42,9 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
   const [selGrade,    setSelGrade]    = useState<GradeLevel | null>(null);
   const [selRoom,     setSelRoom]     = useState<Classroom | null>(null);
   const [selCourseId, setSelCourseId] = useState<string | null>(null);
+
+  const [pickFor, setPickFor] = useState<PPDoc | null>(null);              // เลือกนักเรียนสำหรับเอกสารรายบุคคล
+  const [preview, setPreview] = useState<{ doc: PPDoc; student?: DocStudent } | null>(null);
 
   const selCourse = courses.find(c => c.id === selCourseId) || null;
 
@@ -63,9 +68,10 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
 
   async function exportPP5() {
     if (!selCourse || !selGrade || !selRoom || !selYear) return;
+    if (!(await confirm({ title: 'ดาวน์โหลด ปพ.5?', message: <>แบบบันทึกผลการเรียน <b>{selCourse.name}</b> ({selCourse.code})<br />ห้อง {selGrade.name}/{selRoom.room}</>, confirmText: 'ดาวน์โหลด Excel' }))) return;
     await exportScoreSheetToExcel(selCourse, `${selGrade.name}/${selRoom.room}`, selYear.year, getScores(selCourse.id));
     logActivity('teacher', 'ดาวน์โหลด ปพ.5', `${selCourse.name} (${selCourse.code}) ห้อง ${selGrade.name}/${selRoom.room}`);
-    showToast('ดาวน์โหลดแบบบันทึกผลการเรียน (ปพ.5) แล้ว');
+    notify({ title: 'ดาวน์โหลดแล้ว', message: 'แบบบันทึกผลการเรียน (ปพ.5)', variant: 'success' });
   }
 
   /** สถานะของการ์ดตามระดับชั้นที่เลือก + ความพร้อมของเอกสาร */
@@ -73,18 +79,25 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
     if (selGrade && !isDocAllowedForGrade(doc, selGrade.name))
       return { status: 'locked', note: `ออกเฉพาะชั้น ${allowedGradesLabel(doc)}` };
     if (doc.id === 'pp5') return { status: 'ready', note: 'ดาวน์โหลด Excel' };
+    if (IMPLEMENTED_DOCS.has(doc.id)) return { status: 'ready', note: 'พิมพ์ / บันทึก PDF' };
     return { status: 'soon', note: 'กำลังพัฒนา' };
   }
 
   function handlePick(doc: PPDoc) {
     const st = docState(doc);
-    if (st.status === 'locked') { showToast(`${doc.name} ${st.note}`); return; }
+    if (st.status === 'locked') { notify({ title: `${doc.name} ถูกล็อก`, message: st.note, variant: 'warning' }); return; }
     if (doc.id === 'pp5') {
-      if (!selCourse) { showToast('เลือกปี → ชั้น → ห้อง → วิชา ก่อน แล้วจึงออก ปพ.5'); return; }
+      if (!selCourse) { notify({ title: 'ยังออกเอกสารไม่ได้', message: 'เลือกปี → ชั้น → ห้อง → วิชา ก่อน แล้วจึงออก ปพ.5', variant: 'warning' }); return; }
       exportPP5();
       return;
     }
-    showToast(`${doc.name} (${doc.title}) กำลังพัฒนา — ต้องเชื่อมข้อมูลเพิ่ม (เช่น ความประพฤติ/อนุมัติจบ)`);
+    if (IMPLEMENTED_DOCS.has(doc.id)) {
+      if (!selRoom || !selGrade) { notify({ title: 'ยังออกเอกสารไม่ได้', message: 'เลือกปี → ชั้น → ห้อง ก่อนออกเอกสาร', variant: 'warning' }); return; }
+      if (PER_STUDENT_DOCS.has(doc.id)) { setPickFor(doc); return; }  // เลือกนักเรียนก่อน (ปพ.1/4/6)
+      setPreview({ doc });                                            // เอกสารทั้งห้อง (ปพ.3)
+      return;
+    }
+    notify({ title: `${doc.name} กำลังพัฒนา`, message: doc.title, variant: 'info' });
   }
 
   if (!session || (session.role !== 'teacher' && session.role !== 'web_admin')) {
@@ -111,13 +124,14 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
   }
 
   return (
+    <>
     <div className="panel-shell panel-shell-wide ez-sm">
       <div className="panel-card">
         <div className="panel-head">
           <h2 className="panel-title">เอกสาร<em>ผลการเรียน</em></h2>
           <p className="panel-sub">
-            เลือกปี → ชั้น → ห้อง → วิชา แล้วเลือกเอกสาร ปพ. ที่ต้องการออก ·
-            เอกสารจำกัดตาม<b>ระดับชั้น</b> · ตอนนี้พร้อมใช้: <b>ปพ.5</b>
+            เลือกปีการศึกษา → ระดับชั้น → ห้องเรียน แล้วเลือกเอกสาร ปพ. ที่ต้องการออก ·
+            เอกสารจำกัดตาม<b>ระดับชั้น</b>
           </p>
         </div>
 
@@ -138,22 +152,22 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
               onChange={v => { const r = visibleRooms.find(x => x.id === v); if (r) pickRoom(r); else { setSelRoom(null); setSelCourseId(null); } }}>
               {visibleRooms.map(r => <option key={r.id} value={r.id}>ห้อง {selGrade?.name}/{r.room}</option>)}
             </Picker>
-            <Picker num={4} label="วิชา" value={selCourseId || ''} disabled={!selRoom}
-              empty={selRoom && courses.length === 0 ? 'ห้องนี้ไม่มีวิชาของท่าน' : undefined}
+            <Picker num={4} label="วิชา (สำหรับ ปพ.5)" value={selCourseId || ''} disabled={!selRoom}
+              empty={selRoom && courses.length === 0 ? 'ยังไม่มีวิชาในห้องนี้' : undefined}
               onChange={v => setSelCourseId(v || null)}>
               {courses.map(c => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </Picker>
           </div>
 
           <div className="ez-help-box" style={{ marginBottom: '1.25rem' }}>
-            {selGrade
-              ? <>ระดับชั้น <b>{selGrade.name}</b> — เอกสารที่ไม่ตรงระดับชั้นจะถูกล็อก 🔒{selCourse && <> · พร้อมออก ปพ.5 ของ <b>{selCourse.name} ({selCourse.code})</b></>}</>
-              : <>💡 เลือกปี → ชั้น → ห้อง → วิชา ก่อน · เอกสารจะเปิด/ล็อกตามระดับชั้นที่เลือก</>}
+            {selRoom
+              ? <>ห้อง <b>{selGrade?.name}/{selRoom.room}</b> — เอกสารที่ไม่ตรงระดับชั้นจะถูกล็อก</>
+              : <>เลือกปีการศึกษา → ระดับชั้น → ห้องเรียน ก่อน · เอกสารจะเปิด/ล็อกตามระดับชั้น</>}
           </div>
 
           {/* การ์ดเอกสาร 3×3 */}
           <div className="doc-grid">
-            {PP_DOCS.map(doc => {
+            {PP_DOCS.filter(d => ['pp1', 'pp2', 'pp3', 'pp4', 'pp5', 'pp6'].includes(d.id)).map(doc => {
               const st = docState(doc);
               return (
                 <button key={doc.id} className={`doc-card${st.status === 'locked' ? ' locked' : ''}`} onClick={() => handlePick(doc)}>
@@ -176,5 +190,34 @@ export default function ReportDocsView({ teacherId, teacherName, classes }: Prop
         </div>
       </div>
     </div>
+
+    {/* เลือกนักเรียนสำหรับเอกสารรายบุคคล (ปพ.1/4/6) */}
+    {pickFor && selRoom && selGrade && (
+      <div onClick={() => setPickFor(null)} style={{ position: 'fixed', inset: 0, zIndex: 790, background: 'rgba(18,10,4,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: 'min(420px,100%)', maxHeight: '80vh', overflowY: 'auto', background: 'var(--warm-white)', borderRadius: 16, padding: '1.25rem', boxShadow: 'var(--card-shadow-hover)' }}>
+          <div style={{ fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.85rem' }}>{pickFor.name} — เลือกนักเรียน (ห้อง {selGrade.name}/{selRoom.room})</div>
+          {roomStudents(selRoom.id).length === 0
+            ? <div className="stu-empty">ไม่มีนักเรียนในห้องนี้</div>
+            : roomStudents(selRoom.id).map(st => (
+              <button key={st.code} onClick={() => { setPreview({ doc: pickFor, student: st }); setPickFor(null); }} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '0.6rem 0.8rem', marginBottom: '0.4rem', border: '1px solid var(--border)', borderRadius: 10, background: 'var(--cream)', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-body)' }}>
+                <span>{st.name}</span><span style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>{st.code}</span>
+              </button>
+            ))}
+          <button onClick={() => setPickFor(null)} style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: 8, background: 'transparent', color: 'var(--brown-deep)', cursor: 'pointer' }}>ยกเลิก</button>
+        </div>
+      </div>
+    )}
+
+    {preview && selGrade && selRoom && (
+      <ReportDocPreview
+        doc={preview.doc}
+        classroomLabel={`${selGrade.name}/${selRoom.room}`}
+        academicYear={selYear?.year || ''}
+        classroomId={selRoom.id}
+        student={preview.student}
+        onClose={() => setPreview(null)}
+      />
+    )}
+    </>
   );
 }

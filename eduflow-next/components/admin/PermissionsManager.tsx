@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { PERMISSION_LABELS, ROLE_LABELS } from '@/lib/mock-data';
 import { getAllPermissions, updatePermission } from '@/lib/api/admin.api';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import type { Permissions } from '@/lib/types';
 
 const ROLE_META: { role: keyof Permissions; icon: string; note?: string }[] = [
@@ -18,16 +18,18 @@ const ROLE_META: { role: keyof Permissions; icon: string; note?: string }[] = [
  * ครอบคลุมทุกฟังก์ชันจริงของแต่ละ role · UI แบบสวิตช์เปิด/ปิด
  */
 export default function PermissionsManager() {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const [perms, setPerms] = useState<Permissions | null>(null);
 
   const refresh = useCallback(() => { getAllPermissions().then(setPerms); }, []);
   useEffect(() => { refresh(); }, [refresh]);
 
   async function toggle(role: string, perm: string, val: boolean) {
+    const label = PERMISSION_LABELS[role]?.[perm] || perm;
+    if (!(await confirm({ title: val ? 'เปิดสิทธิ์นี้?' : 'ปิดสิทธิ์นี้?', message: <>{val ? 'เปิด' : 'ปิด'}สิทธิ์ <b>“{label}”</b> ของ{ROLE_LABELS[role]}</>, variant: val ? 'primary' : 'warning', confirmText: val ? 'เปิดสิทธิ์' : 'ปิดสิทธิ์' }))) { refresh(); return; }
     await updatePermission(role, perm, val);
-    showToast(`${val ? 'เปิด' : 'ปิด'}สิทธิ์ "${PERMISSION_LABELS[role]?.[perm] || perm}" ของ${ROLE_LABELS[role]}`);
     refresh();
+    notify({ title: val ? 'เปิดสิทธิ์แล้ว' : 'ปิดสิทธิ์แล้ว', message: <>“{label}” · {ROLE_LABELS[role]}</>, variant: 'success' });
   }
 
   if (!perms) return null;

@@ -4,6 +4,8 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef, Re
 import { useRouter } from 'next/navigation';
 import type { Session } from '@/lib/types';
 import { getSession, clearSession, initAuth } from '@/lib/api/auth.api';
+import { seedDemoAcademics, seedDemoCohort, seedFullGrades, seedDemoRosterGrades, allStudentCodes } from '@/lib/api/academic.store';
+import { seedDemoAssessments } from '@/lib/api/assessment.store';
 import LogoutLoader from '@/components/auth/LogoutLoader';
 
 interface AuthContextValue {
@@ -50,6 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // TODO(PostgreSQL): แทนที่ด้วย next-auth หรือ JWT verify
     initAuth();
+    seedDemoAcademics();   // จำลองข้อมูลผลการเรียน ปี 2568/2569 (รันครั้งเดียว) สำหรับทดสอบเอกสาร ปพ.
+    seedDemoCohort();      // cohort ที่เลื่อนชั้นข้ามปี (รหัสเดิม) — ให้ ปพ.1 แสดงผลครบทุกปี
+    seedFullGrades();      // ห้องทดสอบครบทุกชั้น ป.1-6/ม.1-6 (ปี 2569) สำหรับทดสอบเลื่อนชั้น
+    seedDemoRosterGrades(); // คะแนนบัญชี demo ม.1/1 (10021-10025) — ให้ GPA Dashboard = หน้าผลการเรียน
+    // จำลองผลประเมินคุณลักษณะฯ ให้นักเรียน "ทุกคนที่มีอยู่จริงในห้อง" (mock + seed + cohort)
+    // — กันเอกสาร ปพ.1/4/6 ขึ้น '—' เพราะนักเรียนบางคนไม่อยู่ในชุดรหัสที่ generate เอง
+    seedDemoAssessments(allStudentCodes());
     refresh();
   }, [refresh]);
 

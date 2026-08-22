@@ -7,6 +7,7 @@ import {
   reserveBook, getMyReservations, cancelReservation, queuePosition,
   type CatalogBook, type Reservation,
 } from '@/lib/api/booking.store';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   profile: StudentProfile;
@@ -20,7 +21,8 @@ const STATUS_META: Record<string, { label: string; cls: string }> = {
 };
 
 /** จองหนังสือเล่มจริง — รายการมาจาก catalog ที่นำเข้าไว้ (แบ่งตามประเภท) */
-export default function BookingView({ profile, showToast }: Props) {
+export default function BookingView({ profile }: Props) {
+  const { confirm, notify } = useDialog();
   const [catalog,  setCatalog]  = useState<CatalogBook[]>([]);
   const [cats,     setCats]     = useState<string[]>([]);
   const [catFilter, setCatFilter] = useState('ทั้งหมด');
@@ -42,19 +44,19 @@ export default function BookingView({ profile, showToast }: Props) {
   function handleReserve(book: CatalogBook) {
     const name = `${profile.firstName} ${profile.lastName}`.trim() || profile.studentId;
     const r = reserveBook(book.id, profile.studentId, name);
-    if (!r.ok) { showToast(`${r.error}`); setConfirmBook(null); return; }
-    showToast(r.status === 'ready'
-      ? `✅ จอง "${book.title}" สำเร็จ — รับได้ที่ห้องสมุดภายใน 3 วัน`
-      : `⏳ "${book.title}" เล่มหมด — เข้าคิวรอแล้ว จะแจ้งเตือนเมื่อถึงคิว`);
     setConfirmBook(null);
+    if (!r.ok) { notify({ title: 'จองไม่สำเร็จ', message: r.error || '', variant: 'danger' }); return; }
     refresh();
+    notify(r.status === 'ready'
+      ? { title: 'จองสำเร็จ', message: <>“{book.title}” — รับได้ที่ห้องสมุดภายใน 3 วัน</>, variant: 'success' }
+      : { title: 'เข้าคิวรอแล้ว', message: <>“{book.title}” เล่มหมด — ระบบจะแจ้งเตือนเมื่อถึงคิว</>, variant: 'info' });
   }
 
-  function handleCancel(r: Reservation & { book?: CatalogBook }) {
-    if (!confirm(`ยกเลิกการจอง "${r.book?.title}"?`)) return;
+  async function handleCancel(r: Reservation & { book?: CatalogBook }) {
+    if (!(await confirm({ title: 'ยกเลิกการจองหนังสือ?', message: <b>{r.book?.title}</b>, variant: 'danger', confirmText: 'ยกเลิกการจอง' }))) return;
     cancelReservation(r.id);
-    showToast('ยกเลิกการจองแล้ว');
     refresh();
+    notify({ title: 'ยกเลิกการจองแล้ว', message: r.book?.title || '', variant: 'success' });
   }
 
   return (

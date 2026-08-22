@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getAdminLog } from '@/lib/api/admin.api';
 import { getActivityLog, clearActivityLog, type ActivityEntry, type LogCategory } from '@/lib/api/activity.log';
 import { getSession } from '@/lib/api/auth.api';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import LogControls from '@/components/ui/LogControls';
 
 type Filter = 'all' | LogCategory;
@@ -17,7 +17,7 @@ const CAT_META: Record<LogCategory, { label: string; cls: string }> = {
 
 /** Log ระบบ — รวมประวัติ web admin + activity log ของแอดมิน/ครู เพื่อตรวจสอบย้อนหลัง */
 export default function LogsView() {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const [adminLog, setAdminLog] = useState<{ admins: { username: string; name: string; addedAt: string; addedBy: string }[]; loginHistory: { username: string; timestamp: string; action: string }[] } | null>(null);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [filter,   setFilter]   = useState<Filter>('all');
@@ -30,10 +30,10 @@ export default function LogsView() {
     setActivity(getActivityLog());
   }, []);
 
-  function handleClear() {
-    if (!window.confirm('ล้างประวัติการใช้งานทั้งหมด?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
-    if (clearActivityLog()) { setActivity([]); showToast('ล้าง log แล้ว'); }
-    else showToast('เฉพาะเว็บแอดมินเท่านั้นที่ล้าง log ได้');
+  async function handleClear() {
+    if (!(await confirm({ title: 'ล้างประวัติการใช้งานทั้งหมด?', message: 'การกระทำนี้ย้อนกลับไม่ได้', variant: 'danger', confirmText: 'ล้าง log' }))) return;
+    if (clearActivityLog()) { setActivity([]); notify({ title: 'ล้าง log แล้ว', variant: 'success' }); }
+    else notify({ title: 'ไม่มีสิทธิ์', message: 'เฉพาะเว็บแอดมินเท่านั้นที่ล้าง log ได้', variant: 'danger' });
   }
 
   const filtered = activity.filter(e => filter === 'all' || e.category === filter);

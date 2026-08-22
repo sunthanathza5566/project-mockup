@@ -27,7 +27,7 @@ import { getUsers, getSession } from '@/lib/api/auth.api';
 import LogControls from '@/components/ui/LogControls';
 import CourseList from '@/components/schedule/CourseList';
 import { subjectColor } from '@/lib/ui/subject-colors';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import { useLang } from '@/context/LangContext';
 
 interface Props {
@@ -69,7 +69,7 @@ const LOG_CLASS: Record<string, string> = {
 };
 
 export default function ScheduleManagerView({ teacherUsername, teacherId, teacherName, onBack }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const { t } = useLang();
   const allowed = canManageSchedule();
 
@@ -114,11 +114,11 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
   const shownLogs = logSize === -1 ? logs : logs.slice(0, logSize);
   void refreshKey; // ให้ค่าด้านบนคำนวณใหม่หลังบันทึก (ข้อมูลอยู่ใน localStorage)
 
-  function handleClearLog() {
-    if (!window.confirm('ล้างประวัติการแก้ไข (log) นี้ทั้งหมด?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
+  async function handleClearLog() {
+    if (!(await confirm({ title: 'ล้างประวัติการแก้ไข (log) ทั้งหมด?', message: 'การกระทำนี้ย้อนกลับไม่ได้', variant: 'danger', confirmText: 'ล้าง log' }))) return;
     const res = clearScheduleLog(selRoom?.id);
-    if (res.ok) { bump(); showToast('ล้าง log แล้ว'); }
-    else showToast(res.error || 'ล้างไม่สำเร็จ');
+    if (res.ok) { bump(); notify({ title: 'ล้าง log แล้ว', variant: 'success' }); }
+    else notify({ title: 'ล้างไม่สำเร็จ', message: res.error || '', variant: 'danger' });
   }
 
   /** เลือกวิชาจากคลัง → เติมช่องวิชาให้อัตโนมัติ */
@@ -139,9 +139,15 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
 
   function resetForm() { setEditingId(null); setForm(emptyForm(teacherUsername)); setError(''); }
 
-  function submit() {
+  async function submit() {
     if (!selRoom) return;
     setError('');
+    if (!form.subjectName.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'เลือกวิชาจากคลังหรือกรอกชื่อวิชาก่อน', variant: 'warning' }); return; }
+    if (!(await confirm({
+      title: editingId ? 'บันทึกการแก้ไขรายการ?' : 'เพิ่มรายการลงแผน?',
+      message: <><b>{form.subjectName}</b> · {dayTH(form.day)} คาบ {form.period} · {form.startTime}{form.endTime ? `–${form.endTime}` : ''}</>,
+      confirmText: editingId ? 'บันทึกการแก้ไข' : 'เพิ่มลงแผน',
+    }))) return;
     const teacher = teacherOptions.find(o => o.username === form.teacherUsername);
     const payload = {
       classroomId: selRoom.id,
@@ -164,10 +170,11 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
       note: form.note,
     };
     const result = editingId ? updateSlot(editingId, payload) : addSlot(payload);
-    if (!result.ok) { setError(result.error); return; }
-    showToast(editingId ? '✅ แก้ไขรายการในแผนแล้ว' : `✅ เพิ่ม "${payload.subjectName}" ลงแผน (${dayTH(form.day)} คาบ ${form.period})`);
+    if (!result.ok) { setError(result.error); notify({ title: 'บันทึกไม่สำเร็จ', message: result.error, variant: 'danger' }); return; }
+    const wasEditing = !!editingId;
     resetForm();
     bump();
+    notify({ title: wasEditing ? 'แก้ไขรายการแล้ว' : 'เพิ่มลงแผนแล้ว', message: <>{payload.subjectName} · {dayTH(form.day)} คาบ {form.period}</>, variant: 'success' });
   }
 
   function startEdit(s: ScheduleSlot) {
@@ -184,30 +191,31 @@ export default function ScheduleManagerView({ teacherUsername, teacherId, teache
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function toggle(s: ScheduleSlot) {
+  async function toggle(s: ScheduleSlot) {
     const turningOn = s.active === false;
     const r = setSlotActive(s.id, turningOn);
-    if (!r.ok) { showToast(r.error || 'เปลี่ยนสถานะไม่สำเร็จ'); return; }
-    showToast(turningOn ? '▶️ เปิดใช้งานรายการ — จะแสดงในตารางสอน' : '⏸ ปิดรายการ — ซ่อนจากตารางสอน (ยังอยู่ในแผน)');
+    if (!r.ok) { notify({ title: 'เปลี่ยนสถานะไม่สำเร็จ', message: r.error || '', variant: 'danger' }); return; }
     bump();
+    notify({ title: turningOn ? 'เปิดใช้งานรายการแล้ว' : 'ปิดรายการแล้ว', message: turningOn ? 'จะแสดงในตารางสอน' : 'ซ่อนจากตารางสอน (ยังอยู่ในแผน)', variant: 'success' });
   }
 
-  function remove(s: ScheduleSlot) {
-    if (!window.confirm(`ลบ "${s.subjectName}" ${dayTH(s.day)} คาบ ${s.period} ออกจากแผน?`)) return;
-    if (deleteSlot(s.id).ok) { showToast('ลบรายการแล้ว'); if (editingId === s.id) resetForm(); bump(); }
+  async function remove(s: ScheduleSlot) {
+    if (!(await confirm({ title: 'ลบรายการออกจากแผน?', message: <><b>{s.subjectName}</b> · {dayTH(s.day)} คาบ {s.period}</>, variant: 'danger', confirmText: 'ลบรายการ' }))) return;
+    if (deleteSlot(s.id).ok) { if (editingId === s.id) resetForm(); bump(); notify({ title: 'ลบรายการแล้ว', message: s.subjectName, variant: 'success' }); }
   }
 
-  function clearRoom() {
+  async function clearRoom() {
     if (!selRoom || !selGrade) return;
-    if (!window.confirm(`ล้างแผนทั้งหมดของห้อง ${selGrade.name}/${selRoom.room}?\nการกระทำนี้จะถูกบันทึกใน log`)) return;
+    if (!(await confirm({ title: `ล้างแผนทั้งหมดของห้อง ${selGrade.name}/${selRoom.room}?`, message: 'การกระทำนี้จะถูกบันทึกใน log', variant: 'danger', confirmText: 'ล้างแผนทั้งห้อง' }))) return;
     const r = clearClassroomSchedule(selRoom.id);
-    if (!r.ok) { showToast(`${r.error}`); return; }
-    showToast(`ล้างแผนแล้ว ${r.removed} รายการ`); bump();
+    if (!r.ok) { notify({ title: 'ล้างไม่สำเร็จ', message: r.error || '', variant: 'danger' }); return; }
+    bump();
+    notify({ title: 'ล้างแผนแล้ว', message: `ลบ ${r.removed} รายการ`, variant: 'success' });
   }
 
   function saveLunch() {
-    if (setLunchConfig(lunch)) { showToast(`พักเที่ยงหลังคาบ ${lunch.afterPeriod} · ${lunch.time}`); setLunchOpen(false); bump(); }
-    else showToast('ไม่มีสิทธิ์ตั้งเวลาพักเที่ยง');
+    if (setLunchConfig(lunch)) { setLunchOpen(false); bump(); notify({ title: 'ตั้งเวลาพักเที่ยงแล้ว', message: `หลังคาบ ${lunch.afterPeriod} · ${lunch.time}`, variant: 'success' }); }
+    else notify({ title: 'ไม่มีสิทธิ์', message: 'ไม่มีสิทธิ์ตั้งเวลาพักเที่ยง', variant: 'danger' });
   }
 
   if (!allowed) {

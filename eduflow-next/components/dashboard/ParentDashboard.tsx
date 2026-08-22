@@ -7,6 +7,7 @@ import { getStudentGrades, calcGPA, type StudentGradeRow } from '@/lib/api/acade
 import { getSharedNotifications, markSharedNotificationRead } from '@/lib/api/assignments.store';
 import { getWalletBalance, getWalletTxns, addWalletFunds, type WalletTxn } from '@/lib/api/wallet.store';
 import { exportStudentGradeReport } from '@/lib/utils/excel-export';
+import { useDialog } from '@/context/DialogContext';
 import type { Assignment, Notification } from '@/lib/types';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
  * เช็คชื่อ (attendance.store) · การบ้าน (assignments.store) · เกรด (academic.store)
  */
 export default function ParentDashboard({ childCode, childName, showToast }: Props) {
+  const { confirm, notify } = useDialog();
   const [attendance, setAttendance] = useState<{ month: { onTime: number; late: number; absent: number; total: number } } | null>(null);
   const [checkIns,   setCheckIns]   = useState<StudentAttendanceDetail[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -55,7 +57,7 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
 
   /** เติมผ่าน PromptPay (จำลอง): แสดง QR → ระบบตรวจสอบยอดอัตโนมัติ → ยืนยันเข้ากระเป๋า */
   function startPromptPay() {
-    if (topupAmt <= 0) { showToast('ใส่จำนวนเงินก่อน'); return; }
+    if (topupAmt <= 0) { notify({ title: 'ใส่จำนวนเงินก่อน', message: 'ระบุจำนวนเงินที่ต้องการเติมก่อน', variant: 'warning' }); return; }
     setPpStep('qr');
   }
   function simulatePaid() {
@@ -86,9 +88,10 @@ export default function ParentDashboard({ childCode, childName, showToast }: Pro
     : null;
 
   async function handleExportGrades() {
-    if (grades.length === 0) { showToast('ยังไม่มีคะแนนในระบบ'); return; }
+    if (grades.length === 0) { notify({ title: 'ยังไม่มีข้อมูล', message: 'ยังไม่มีคะแนนในระบบ', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'ดาวน์โหลดใบรายงานผลการเรียน?', message: <>ผลการเรียนของ <b>{childName}</b> ({grades.length} วิชา)</>, confirmText: 'ดาวน์โหลด' }))) return;
     await exportStudentGradeReport(childName, childCode, grades);
-    showToast('ดาวน์โหลดใบรายงานผลการเรียนของลูกแล้ว');
+    notify({ title: 'ดาวน์โหลดแล้ว', message: 'ใบรายงานผลการเรียนของลูก', variant: 'success' });
   }
 
   function handleReadNotif(id: number) {

@@ -26,10 +26,18 @@ export async function addUserAccount(u: { username: string; password: string; ro
 }
 
 // TODO(PostgreSQL): DELETE FROM users WHERE username = $1 AND role != 'web_admin'
-export async function deleteUserById(username: string): Promise<void> {
-  const target = getUsers().find(u => u.username === username);
-  saveUsers(getUsers().filter(u => u.username !== username));
+export async function deleteUserById(username: string): Promise<{ ok: boolean; error?: string }> {
+  const users = getUsers();
+  const target = users.find(u => u.username === username);
+  // กันลบบัญชีผู้ดูแลระบบสูงสุด (web_admin) — ป้องกันระบบถูกล็อกจนไม่มีแอดมินเข้าได้
+  // (โค้ดเดิมไม่ได้บังคับกติกา != 'web_admin' ตาม SQL comment ทำให้ลบ super admin ทิ้งได้)
+  if (target?.role === 'web_admin') {
+    logActivity('admin', 'ปฏิเสธการลบผู้ใช้', `พยายามลบบัญชีผู้ดูแลระบบสูงสุด: ${username}`);
+    return { ok: false, error: 'ไม่สามารถลบบัญชีผู้ดูแลระบบสูงสุด (web admin) ได้' };
+  }
+  saveUsers(users.filter(u => u.username !== username));
   logActivity('admin', 'ลบผู้ใช้', target ? `${ROLE_LABELS[target.role] || target.role}: ${target.name} (${username})` : username);
+  return { ok: true };
 }
 
 // TODO(PostgreSQL): SELECT role, permission_key, allowed FROM role_permissions

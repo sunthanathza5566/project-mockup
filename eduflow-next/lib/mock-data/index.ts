@@ -22,7 +22,7 @@ export const DEFAULT_PERMISSIONS: Permissions = {
     assignments: true, gradebook: true, gradeExport: true,
     materials: true, announcements: true, exportData: true,
     viewTeachSchedule: true, manageTeachSchedule: true, offerTutoring: true,
-    manageSubjects: true, manageAcademic: false,   // จัดการวิชา = เปิด · จัดโครงสร้างปี/ชั้น/ห้อง = ปิดไว้ (แอดมินเปิดให้หัวหน้าวิชาการ)
+    manageSubjects: true, manageAcademic: true,   // จัดการวิชา + จัดโครงสร้างปี/ชั้น/ห้อง (มีปุ่มเลื่อนระดับชั้น)
   },
   student: {
     checkin: true, viewSchedule: true, submitHomework: true,

@@ -9,14 +9,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   getTeacherOffers, createOffer, deleteOffer, updateOffer,
-  getTeacherBookings, updateBookingStatus, getSlotBookedCount,
+  getTeacherBookings, updateBookingStatus, getSlotBookedCount, seedDemoTutoring,
   TUTOR_MODE_LABEL, TUTOR_DAYS, BOOKING_STATUS_LABEL, slotLabel,
   type TutorOffer, type TutorSlot, type TutorMode, type TutorBooking,
 } from '@/lib/api/tutoring.store';
 import { SUBJECT_KEYS } from '@/lib/api/schedule.store';
+import { isDemoTeacher } from '@/lib/api/teacher.api';
 import { hasPermission } from '@/lib/api/permissions';
 import type { ClassInfo } from '@/lib/types';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   teacherUsername: string;
@@ -29,7 +30,7 @@ interface Props {
 const emptySlot = (): TutorSlot => ({ id: `ts${Date.now()}${Math.random().toString(36).slice(2, 5)}`, day: 'sat', start: '09:00', end: '10:30' });
 
 export default function TutoringView({ teacherUsername, teacherId, teacherName, classes, onBack }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify, prompt } = useDialog();
   const allowed = hasPermission('offerTutoring');
 
   const [offers,   setOffers]   = useState<TutorOffer[]>([]);
@@ -56,7 +57,11 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
     setBookings(getTeacherBookings(teacherUsername));
   }, [teacherUsername]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    // ครูเดโม่: จำลองข้อมูลเปิดสอนพิเศษ + การจองของนักเรียนที่สอนอยู่ (ทำครั้งเดียว)
+    if (isDemoTeacher(teacherUsername)) seedDemoTutoring(teacherUsername, teacherId, teacherName);
+    refresh();
+  }, [refresh, teacherUsername, teacherId, teacherName]);
 
   function resetForm() {
     setSubjectKey(classes[0]?.key || 'math');
@@ -67,7 +72,14 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
     setError('');
   }
 
-  function handleCreate() {
+  async function handleCreate() {
+    if (!subjectName.trim()) { setError('กรุณาเลือกวิชาที่ต้องการเปิดสอน'); notify({ title: 'ข้อมูลไม่ครบ', message: 'กรุณาเลือกวิชาที่ต้องการเปิดสอน', variant: 'warning' }); return; }
+    if (slots.length === 0) { notify({ title: 'ข้อมูลไม่ครบ', message: 'เพิ่มรอบเวลาที่สอนอย่างน้อย 1 รอบ', variant: 'warning' }); return; }
+    if (!(await confirm({
+      title: 'ลงทะเบียนเปิดสอนวิชานี้?',
+      message: <><b>{subjectName}</b> · {TUTOR_MODE_LABEL[mode]}<br />฿{price}/ชม. · รับรอบละ {capacity} คน · {slots.length} รอบเวลา</>,
+      confirmText: 'ลงทะเบียนเปิดสอน',
+    }))) return;
     const r = createOffer({
       teacherUsername, teacherId, teacherName,
       subjectKey, subjectName, subjectCode,
@@ -76,31 +88,40 @@ export default function TutoringView({ teacherUsername, teacherId, teacherName, 
       documentName: docName || 'ยังไม่ได้แนบเอกสาร',
       active: true,
     });
-    if (!r.ok) { setError(r.error); return; }
-    showToast(`เปิดสอน "${subjectName}" แล้ว · เลขที่หลักฐาน ${r.offer.documentRef}`);
+    if (!r.ok) { setError(r.error); notify({ title: 'เปิดสอนไม่สำเร็จ', message: r.error, variant: 'danger' }); return; }
     setShowForm(false);
     resetForm();
     refresh();
+    notify({ title: 'เปิดสอนพิเศษแล้ว', message: <>เปิดสอน <b>{subjectName}</b><br />เลขที่หลักฐาน {r.offer.documentRef}</>, variant: 'success' });
   }
 
-  function handleDelete(o: TutorOffer) {
-    if (!window.confirm(`ยกเลิกการเปิดสอน "${o.subjectName}"?`)) return;
+  async function handleDelete(o: TutorOffer) {
+    if (!(await confirm({ title: 'ยกเลิกการเปิดสอนวิชานี้?', message: <>ยกเลิกการเปิดสอน <b>{o.subjectName}</b> — การจองที่ค้างอยู่จะไม่ถูกลบ</>, variant: 'danger', confirmText: 'ยกเลิกการเปิดสอน' }))) return;
     deleteOffer(o.id);
-    showToast('ยกเลิกการเปิดสอนแล้ว');
     refresh();
+    notify({ title: 'ยกเลิกการเปิดสอนแล้ว', message: o.subjectName, variant: 'success' });
   }
 
-  function toggleActive(o: TutorOffer) {
+  async function toggleActive(o: TutorOffer) {
+    if (!(await confirm({ title: o.active ? 'ปิดรับจองชั่วคราว?' : 'เปิดรับจองอีกครั้ง?', message: <><b>{o.subjectName}</b> — {o.active ? 'นักเรียนจะจองรอบใหม่ไม่ได้จนกว่าจะเปิดคืน' : 'นักเรียนจะจองรอบได้อีกครั้ง'}</>, variant: o.active ? 'warning' : 'primary', confirmText: o.active ? 'ปิดรับจอง' : 'เปิดรับจอง' }))) return;
     updateOffer(o.id, { active: !o.active });
-    showToast(o.active ? '⏸ ปิดรับจองชั่วคราวแล้ว' : '▶️ เปิดรับจองอีกครั้ง');
     refresh();
+    notify({ title: o.active ? 'ปิดรับจองแล้ว' : 'เปิดรับจองแล้ว', message: o.subjectName, variant: 'success' });
   }
 
-  function setBooking(b: TutorBooking, status: 'confirmed' | 'cancelled' | 'done') {
-    const reason = status === 'cancelled' ? (window.prompt('เหตุผลในการยกเลิก (แจ้งนักเรียน):') || '') : '';
+  async function setBooking(b: TutorBooking, status: 'confirmed' | 'cancelled' | 'done') {
+    let reason = '';
+    if (status === 'cancelled') {
+      const r = await prompt({ title: 'ยกเลิกการจองของนักเรียน?', message: <>ยกเลิกการจองของ <b>{b.studentName}</b> · {b.subjectName}<br />ระบุเหตุผล (แจ้งนักเรียน):</>, placeholder: 'เช่น รอบเต็ม / ปรับตารางสอน', variant: 'danger', confirmText: 'ยืนยันยกเลิก', required: true });
+      if (r === null) return;
+      reason = r;
+    } else {
+      const label = status === 'confirmed' ? 'ยืนยันการสอน' : 'ทำเครื่องหมายเรียนเสร็จสิ้น';
+      if (!(await confirm({ title: `${label}?`, message: <><b>{b.studentName}</b> · {b.subjectName} · {b.slotLabel}</>, variant: status === 'confirmed' ? 'success' : 'primary', confirmText: label }))) return;
+    }
     if (updateBookingStatus(b.id, status, reason)) {
-      showToast(`อัปเดตเป็น "${BOOKING_STATUS_LABEL[status]}" แล้ว`);
       refresh();
+      notify({ title: `อัปเดตเป็น “${BOOKING_STATUS_LABEL[status]}”`, message: <>{b.studentName} · {b.subjectName}</>, variant: status === 'cancelled' ? 'warning' : 'success' });
     }
   }
 

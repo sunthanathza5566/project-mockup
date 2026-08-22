@@ -18,14 +18,16 @@ import {
 import type { CourseSummary } from '@/lib/api/schedule.store';
 import { subjectColor } from '@/lib/ui/subject-colors';
 import { hasPermission } from '@/lib/api/permissions';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   profile: StudentProfile;
   showToast: (m: string) => void;
 }
 
-export default function TutoringView({ profile, showToast }: Props) {
+export default function TutoringView({ profile }: Props) {
   const allowed = hasPermission('bookTutoring');
+  const { notify, prompt } = useDialog();
 
   const [subjects, setSubjects] = useState<CourseSummary[]>([]);
   const [selSubject, setSelSubject] = useState<CourseSummary | null>(null);
@@ -64,11 +66,12 @@ export default function TutoringView({ profile, showToast }: Props) {
     refresh();
   }
 
-  function cancelBooking(b: TutorBooking) {
-    const reason = window.prompt('เหตุผลในการยกเลิก (แจ้งคุณครู):') || '';
+  async function cancelBooking(b: TutorBooking) {
+    const reason = await prompt({ title: 'ยกเลิกการจองเรียนพิเศษ?', message: <><b>{b.subjectName}</b> · {b.teacherName} · {b.slotLabel}<br />ระบุเหตุผล (แจ้งคุณครู):</>, placeholder: 'เช่น ติดธุระ / เปลี่ยนแผน', variant: 'danger', confirmText: 'ยืนยันยกเลิก', required: true });
+    if (reason === null) return;
     if (updateBookingStatus(b.id, 'cancelled', reason)) {
-      showToast('ยกเลิกการจองแล้ว — แจ้งคุณครูเรียบร้อย');
       refresh();
+      notify({ title: 'ยกเลิกการจองแล้ว', message: 'แจ้งคุณครูเรียบร้อย', variant: 'success' });
     }
   }
 

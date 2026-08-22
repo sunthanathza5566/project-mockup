@@ -12,18 +12,18 @@ import {
   getAllAcademicYears, createAcademicYear, setYearActive, deleteAcademicYear, yearUsage,
   getGradeLevels, createGradeLevel, deleteGradeLevel,
   getClassrooms, createClassroom, deleteClassroom, classroomUsage,
-  getClassroomStudents, addStudentToClassroom, removeStudentFromClassroom,
+  getClassroomStudents, addStudentToClassroom, removeStudentFromClassroom, promoteClassroom,
   type AcademicYear, type GradeLevel, type Classroom,
 } from '@/lib/api/academic.store';
 import { hasPermission } from '@/lib/api/permissions';
 import { getSession } from '@/lib/api/auth.api';
 import type { TeacherStudent } from '@/lib/types';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props { onGoToPlan?: () => void }
 
 export default function AcademicStructureView({ onGoToPlan }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const allowed = hasPermission('manageAcademic');
 
   const [years,  setYears]  = useState<AcademicYear[]>([]);
@@ -33,6 +33,7 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
   const [selGrade, setSelGrade] = useState('');
   const [selRoom,  setSelRoom]  = useState('');
   const [students, setStudents] = useState<TeacherStudent[]>([]);
+  const [promoteArm, setPromoteArm] = useState(false);   // ยืนยันเลื่อนชั้น 2 สเต็ป (กดอีกครั้ง)
 
   const [newYear,  setNewYear]  = useState('');
   const [newGrade, setNewGrade] = useState('');
@@ -44,84 +45,91 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
   useEffect(() => { reloadYears(); }, [reloadYears]);
   useEffect(() => { setGrades(selYear ? getGradeLevels(selYear) : []); setSelGrade(''); setSelRoom(''); }, [selYear, years]);
   useEffect(() => { setRooms(selGrade ? getClassrooms(selGrade) : []); setSelRoom(''); }, [selGrade, grades]);
-  useEffect(() => { setStudents(selRoom ? getClassroomStudents(selRoom) : []); }, [selRoom, rooms]);
+  useEffect(() => { setStudents(selRoom ? getClassroomStudents(selRoom) : []); setPromoteArm(false); }, [selRoom, rooms]);
 
   const gradeName = grades.find(g => g.id === selGrade)?.name || '';
   const roomNo = rooms.find(r => r.id === selRoom)?.room || '';
 
-  function addStudent() {
+  async function addStudent() {
     const code = newStuCode.trim(); const name = newStuName.trim();
-    if (!selRoom) { showToast('เลือกห้องก่อน'); return; }
-    if (!code || !name) { showToast('กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
-    if (!addStudentToClassroom(selRoom, code, name)) { showToast('รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
-    showToast(`เพิ่ม ${name} (${code}) เข้าห้อง ${gradeName}/${roomNo}`);
+    if (!selRoom) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกห้องก่อนเพิ่มนักเรียน', variant: 'warning' }); return; }
+    if (!code || !name) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกรหัสและชื่อนักเรียนให้ครบก่อน', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'เพิ่มนักเรียนเข้าห้อง?', message: <>เพิ่ม <b>{name}</b> ({code}) เข้าห้อง <b>{gradeName}/{roomNo}</b></>, confirmText: 'เพิ่มนักเรียน' }))) return;
+    if (!addStudentToClassroom(selRoom, code, name)) { notify({ title: 'เพิ่มไม่สำเร็จ', message: 'รหัสนักเรียนนี้อยู่ในห้องแล้ว', variant: 'danger' }); return; }
     setNewStuCode(''); setNewStuName(''); setStudents(getClassroomStudents(selRoom));
+    notify({ title: 'เพิ่มนักเรียนแล้ว', message: <>{name} ({code}) เข้าห้อง {gradeName}/{roomNo} เรียบร้อย</>, variant: 'success' });
   }
 
-  function removeStudent(s: TeacherStudent) {
-    if (!window.confirm(`ลบ "${s.name}" ออกจากห้อง ${gradeName}/${roomNo}?`)) return;
+  async function removeStudent(s: TeacherStudent) {
+    if (!(await confirm({ title: 'ลบนักเรียนออกจากห้อง?', message: <>ลบ <b>{s.name}</b> ออกจากห้อง {gradeName}/{roomNo}</>, variant: 'danger', confirmText: 'ลบ' }))) return;
     removeStudentFromClassroom(selRoom, s.code);
-    showToast(`ลบ ${s.name} ออกจากห้องแล้ว`);
     setStudents(getClassroomStudents(selRoom));
+    notify({ title: 'ลบนักเรียนแล้ว', message: `${s.name} ออกจากห้องเรียบร้อย`, variant: 'success' });
   }
 
-  function addYear() {
+  async function addYear() {
     const y = newYear.trim();
-    if (!/^\d{4}$/.test(y)) { showToast('ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
-    if (!createAcademicYear(y, getSession()?.username || 'teacher')) { showToast('ปีการศึกษานี้มีอยู่แล้ว'); return; }
-    showToast(`เพิ่มปีการศึกษา ${y} แล้ว`); setNewYear(''); reloadYears();
+    if (!/^\d{4}$/.test(y)) { notify({ title: 'รูปแบบปีไม่ถูกต้อง', message: 'ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'เพิ่มปีการศึกษา?', message: <>เพิ่มปีการศึกษา <b>{y}</b> เข้าระบบ</>, confirmText: 'เพิ่มปี' }))) return;
+    if (!createAcademicYear(y, getSession()?.username || 'teacher')) { notify({ title: 'เพิ่มไม่สำเร็จ', message: 'ปีการศึกษานี้มีอยู่แล้ว', variant: 'danger' }); return; }
+    setNewYear(''); reloadYears();
+    notify({ title: 'เพิ่มปีการศึกษาแล้ว', message: `ปีการศึกษา ${y} พร้อมใช้งาน`, variant: 'success' });
   }
 
-  function toggleYear(y: AcademicYear) {
+  async function toggleYear(y: AcademicYear) {
     const on = y.active === false;
+    if (!(await confirm({ title: on ? 'เปิดใช้งานปีการศึกษา?' : 'ปิดใช้งานปีการศึกษา?', message: on ? <>เปิดใช้งานปี <b>{y.year}</b> ให้แสดงในตัวเลือก</> : <>ปิดปี <b>{y.year}</b> — ซ่อนจากตัวเลือก (ข้อมูลยังอยู่ครบ เปิดคืนได้)</>, variant: on ? 'primary' : 'warning', confirmText: on ? 'เปิดใช้งาน' : 'ปิดใช้งาน' }))) return;
     setYearActive(y.id, on);
-    showToast(on ? `▶️ เปิดใช้งานปี ${y.year}` : `⏸ ปิดใช้งานปี ${y.year} — ซ่อนจากตัวเลือก (ข้อมูลยังอยู่)`);
     reloadYears();
+    notify({ title: on ? 'เปิดใช้งานแล้ว' : 'ปิดใช้งานแล้ว', message: `ปีการศึกษา ${y.year}`, variant: 'success' });
   }
 
-  function removeYear(y: AcademicYear) {
+  async function removeYear(y: AcademicYear) {
     const u = yearUsage(y.id);
     const warn = u.classrooms > 0 || u.courses > 0
-      ? `\n\n⚠️ ปีนี้มี ${u.classrooms} ห้อง และ ${u.courses} รายวิชาผูกอยู่ — จะถูกลบทั้งหมด (รวมคะแนน)`
-      : '';
-    if (!window.confirm(`ลบปีการศึกษา ${y.year}?${warn}`)) return;
+      ? <><br /><br /><span style={{ color: 'var(--absent)' }}>⚠️ ปีนี้มี {u.classrooms} ห้อง และ {u.courses} รายวิชาผูกอยู่ — จะถูกลบทั้งหมด (รวมคะแนน)</span></> : null;
+    if (!(await confirm({ title: `ลบปีการศึกษา ${y.year}?`, message: <>การลบย้อนกลับไม่ได้{warn}</>, variant: 'danger', confirmText: 'ลบปีการศึกษา' }))) return;
     deleteAcademicYear(y.id);
-    showToast(`ลบปีการศึกษา ${y.year} แล้ว`);
     if (selYear === y.id) setSelYear('');
     reloadYears();
+    notify({ title: 'ลบปีการศึกษาแล้ว', message: `ปีการศึกษา ${y.year}`, variant: 'success' });
   }
 
-  function addGrade() {
+  async function addGrade() {
     const g = newGrade.trim();
-    if (!selYear) { showToast('เลือกปีการศึกษาก่อน'); return; }
-    if (!g) { showToast('กรอกชื่อระดับชั้น เช่น ม.4'); return; }
-    if (!createGradeLevel(selYear, g)) { showToast('ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
-    showToast(`เพิ่มระดับชั้น ${g}`); setNewGrade(''); setGrades(getGradeLevels(selYear));
+    if (!selYear) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกปีการศึกษาก่อน', variant: 'warning' }); return; }
+    if (!g) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกชื่อระดับชั้น เช่น ม.4', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'เพิ่มระดับชั้น?', message: <>เพิ่มระดับชั้น <b>{g}</b></>, confirmText: 'เพิ่มชั้น' }))) return;
+    if (!createGradeLevel(selYear, g)) { notify({ title: 'เพิ่มไม่สำเร็จ', message: 'ระดับชั้นนี้มีอยู่แล้วในปีนี้', variant: 'danger' }); return; }
+    setNewGrade(''); setGrades(getGradeLevels(selYear));
+    notify({ title: 'เพิ่มระดับชั้นแล้ว', message: g, variant: 'success' });
   }
 
-  function removeGrade(g: GradeLevel) {
-    if (!window.confirm(`ลบระดับชั้น ${g.name}? ห้อง/วิชา/คะแนนในชั้นนี้จะถูกลบด้วย`)) return;
+  async function removeGrade(g: GradeLevel) {
+    if (!(await confirm({ title: `ลบระดับชั้น ${g.name}?`, message: 'ห้อง/วิชา/คะแนนในชั้นนี้จะถูกลบด้วย — ย้อนกลับไม่ได้', variant: 'danger', confirmText: 'ลบระดับชั้น' }))) return;
     deleteGradeLevel(g.id);
-    showToast(`ลบระดับชั้น ${g.name} แล้ว`);
     if (selGrade === g.id) setSelGrade('');
     setGrades(getGradeLevels(selYear));
+    notify({ title: 'ลบระดับชั้นแล้ว', message: g.name, variant: 'success' });
   }
 
-  function addRoom() {
+  async function addRoom() {
     const r = newRoom.trim();
-    if (!selGrade) { showToast('เลือกระดับชั้นก่อน'); return; }
-    if (!r) { showToast('กรอกเลขห้อง เช่น 3'); return; }
-    if (!createClassroom(selYear, selGrade, r)) { showToast('ห้องนี้มีอยู่แล้ว'); return; }
-    showToast(`เพิ่มห้อง ${gradeName}/${r}`); setNewRoom(''); setRooms(getClassrooms(selGrade));
+    if (!selGrade) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกระดับชั้นก่อน', variant: 'warning' }); return; }
+    if (!r) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกเลขห้อง เช่น 3', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'เพิ่มห้องเรียน?', message: <>เพิ่มห้อง <b>{gradeName}/{r}</b></>, confirmText: 'เพิ่มห้อง' }))) return;
+    if (!createClassroom(selYear, selGrade, r)) { notify({ title: 'เพิ่มไม่สำเร็จ', message: 'ห้องนี้มีอยู่แล้ว', variant: 'danger' }); return; }
+    setNewRoom(''); setRooms(getClassrooms(selGrade));
+    notify({ title: 'เพิ่มห้องแล้ว', message: `${gradeName}/${r}`, variant: 'success' });
   }
 
-  function removeRoom(c: Classroom) {
+  async function removeRoom(c: Classroom) {
     const u = classroomUsage(c.id);
-    const warn = u.courses > 0 ? `\n\n⚠️ ห้องนี้มี ${u.courses} รายวิชา${u.scored ? ' และมีคะแนนบันทึกแล้ว' : ''} — จะถูกลบด้วย` : '';
-    if (!window.confirm(`ลบห้อง ${gradeName}/${c.room}?${warn}`)) return;
+    const warn = u.courses > 0 ? <><br /><br /><span style={{ color: 'var(--absent)' }}>⚠️ ห้องนี้มี {u.courses} รายวิชา{u.scored ? ' และมีคะแนนบันทึกแล้ว' : ''} — จะถูกลบด้วย</span></> : null;
+    if (!(await confirm({ title: `ลบห้อง ${gradeName}/${c.room}?`, message: <>การลบย้อนกลับไม่ได้{warn}</>, variant: 'danger', confirmText: 'ลบห้อง' }))) return;
     deleteClassroom(c.id);
-    showToast(`ลบห้อง ${gradeName}/${c.room} แล้ว`);
     setRooms(getClassrooms(selGrade));
+    notify({ title: 'ลบห้องแล้ว', message: `${gradeName}/${c.room}`, variant: 'success' });
   }
 
   if (!allowed) {
@@ -229,6 +237,20 @@ export default function AcademicStructureView({ onGoToPlan }: Props) {
               <input className="ez-input acad-input" style={{ flex: 1.5 }} placeholder="ชื่อ-นามสกุล" value={newStuName} onChange={e => setNewStuName(e.target.value)} />
               <button className="ez-btn ez-btn-primary acad-btn" onClick={addStudent}>➕ เพิ่มนักเรียน</button>
             </div>
+            {students.length > 0 && (
+              <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <button className={`ez-btn ${promoteArm ? 'ez-btn-primary' : 'ez-btn-ghost'}`} onClick={async () => {
+                  if (!(await confirm({ title: 'เลื่อนทั้งห้องขึ้นชั้นถัดไป?', message: <>สร้างห้องปีถัดไปให้อัตโนมัติ + คัดลอกรายชื่อ <b>{students.length} คน</b> (รหัสเดิม)</>, confirmText: 'เลื่อนชั้น' }))) return;
+                  const r = promoteClassroom(selRoom);
+                  setPromoteArm(false);
+                  if (r.ok) { reloadYears(); notify({ title: 'เลื่อนชั้นสำเร็จ', message: `เลื่อนขึ้น ${r.targetGrade} ปีการศึกษา ${r.targetYear} (${students.length} คน)`, variant: 'success' }); }
+                  else notify({ title: 'เลื่อนชั้นไม่สำเร็จ', message: r.error || '', variant: 'danger' });
+                }}>{promoteArm ? '⬆ กดอีกครั้งเพื่อยืนยันการเลื่อนชั้น' : '⬆ เลื่อนทั้งห้องขึ้นชั้นถัดไป (ปีถัดไป)'}</button>
+                {promoteArm
+                  ? <button className="ez-btn ez-btn-ghost" onClick={() => setPromoteArm(false)}>ยกเลิก</button>
+                  : <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>สร้างห้องปีถัดไปให้อัตโนมัติ + คัดลอกรายชื่อ (รหัสเดิม)</span>}
+              </div>
+            )}
           </div>
         )}
 

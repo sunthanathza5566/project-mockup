@@ -32,12 +32,14 @@ import SubjectCatalogView from './SubjectCatalogView';
 import AcademicStructureView from './AcademicStructureView';
 import TutoringView from './TutoringView';
 import TeacherOverview from './TeacherOverview';
+import DocSettingsView from './DocSettingsView';
+import AssessmentView from './AssessmentView';
 import LangToggle from '@/components/ui/LangToggle';
 import type { TeacherProfile, ClassInfo, Notification } from '@/lib/types';
 
 export type TeacherView =
   | 'overview' | 'academic' | 'subjects' | 'schedule' | 'schedule-manager' | 'attendance' | 'attendance-report'
-  | 'assignments' | 'gradebook' | 'reportdocs' | 'docsettings' | 'materials' | 'tutoring' | 'profile';
+  | 'assignments' | 'gradebook' | 'assessment' | 'reportdocs' | 'docsettings' | 'materials' | 'tutoring' | 'profile';
 
 /** ลำดับหมวดหมู่ในเมนู ☰ */
 const NAV_GROUPS = ['วิชาการ', 'การเรียนการสอน', 'บริการ & อื่น ๆ'] as const;
@@ -52,6 +54,7 @@ const NAV_ITEMS: { view: TeacherView; icon: string; label: string; group?: NavGr
   { view: 'schedule-manager', icon: '🗓', label: 'แผนการเรียนการสอน',     group: 'วิชาการ', perm: 'manageTeachSchedule' },
   { view: 'schedule',         icon: '📅', label: 'ตารางสอน',              group: 'วิชาการ', perm: 'viewTeachSchedule' },
   { view: 'gradebook',        icon: '📝', label: 'บันทึกคะแนน',            group: 'วิชาการ', perm: 'gradebook' },
+  { view: 'assessment',       icon: '📋', label: 'บันทึกผลประเมิน',        group: 'วิชาการ', perm: 'gradebook' },
   { view: 'reportdocs',       icon: '📄', label: 'เอกสารผลการเรียน (ปพ.)', group: 'วิชาการ', perm: 'gradeExport' },
   { view: 'docsettings',      icon: '⚙️', label: 'ตั้งค่าเอกสาร',          group: 'วิชาการ', perm: 'gradeExport' },
   // ── การเรียนการสอน ──
@@ -111,6 +114,23 @@ export default function TeacherLayout() {
   }, [session, isLoading, router]);
 
   const handleLogout = useCallback(() => { logout(); }, [logout]);  // logout จัดการอนิเมชั่น + redirect เอง
+
+  // แจ้งเตือนแบบ near-real-time: นักเรียนส่งงาน/จองเรียนพิเศษในอีกแท็บ → ดึงแจ้งเตือนใหม่ทันที
+  const refreshNotifications = useCallback(async () => {
+    if (!session) return;
+    setNotifications(await getTeacherNotifications(session.username));
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) return;
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === 'eduflow_shared_notifs') refreshNotifications();
+    };
+    const onFocus = () => refreshNotifications();
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus); };
+  }, [session, refreshNotifications]);
 
   /** โหลดห้อง/วิชาที่สอนใหม่จากตารางสอน — เรียกหลังครูแก้ตารางเสร็จ ทุกเมนูจะเห็นข้อมูลล่าสุดทันที */
   const reloadClasses = useCallback(async () => {
@@ -354,19 +374,10 @@ export default function TeacherLayout() {
             )}
 
             {currentView === 'docsettings' && (
-              <div className="panel-shell">
-                <div className="panel-card">
-                  <div className="panel-head">
-                    <h2 className="panel-title">ตั้งค่า<em>เอกสาร</em></h2>
-                    <p className="panel-sub">กำหนดรูปแบบ/หัวเอกสาร ปพ. · ตราโรงเรียน · ผู้ลงนาม · เกณฑ์การประเมิน</p>
-                  </div>
-                  <div className="perm-denied" style={{ background: 'rgba(196,128,74,0.08)', borderColor: 'rgba(196,128,74,0.3)', color: '#7A4A20' }}>
-                    <span className="perm-denied-icon">🚧</span>
-                    หน้านี้กำลังพัฒนา — เตรียมไว้สำหรับตั้งค่าเอกสารผลการเรียน (หัวกระดาษ ปพ. · ตราโรงเรียน · ผู้อำนวยการลงนาม)
-                  </div>
-                </div>
-              </div>
+              <DocSettingsView defaultSchool={profile.school} />
             )}
+
+            {currentView === 'assessment' && <AssessmentView />}
 
             {currentClass && currentView === 'materials' && (
               <MaterialsView teacherName={profile.name} selectedClass={currentClass} />

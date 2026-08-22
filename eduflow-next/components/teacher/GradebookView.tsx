@@ -11,6 +11,7 @@ import { getSession } from '@/lib/api/auth.api';
 import { logActivity, logActivityThrottled } from '@/lib/api/activity.log';
 import type { ClassInfo } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   teacherId: string;
@@ -27,6 +28,7 @@ interface Props {
  */
 export default function GradebookView({ teacherId, teacherName, classes }: Props) {
   const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const session = getSession();
   const isAdmin = session?.role === 'web_admin';
 
@@ -132,18 +134,19 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
     ));
   }
 
-  function addComponent(name: string, max: number) {
+  function addComponent(name: string, max: number, excludeFromTotal = false) {
     if (!selCourse || !name.trim() || max <= 0) { showToast('ใส่ชื่อหัวข้อและคะแนนเต็มก่อน'); return; }
     if (selCourse.components.some(c => c.name === name.trim())) { showToast('มีหัวข้อนี้อยู่แล้ว'); return; }
-    applyComponents([...selCourse.components, { id: `cmp${Date.now()}`, name: name.trim(), max }]);
+    applyComponents([...selCourse.components, { id: `cmp${Date.now()}`, name: name.trim(), max, excludeFromTotal }]);
     showToast(`เพิ่มหัวข้อ "${name.trim()}" แล้ว`);
   }
 
-  function removeComponent(c: ScoreComponent) {
+  async function removeComponent(c: ScoreComponent) {
     if (!selCourse) return;
-    if (selCourse.components.length <= 1) { showToast('ต้องมีหัวข้อคะแนนอย่างน้อย 1 หัวข้อ'); return; }
-    if (!window.confirm(`ลบหัวข้อ "${c.name}"? คะแนนที่กรอกไว้ในหัวข้อนี้จะถูกลบด้วย`)) return;
+    if (selCourse.components.length <= 1) { notify({ title: 'ลบไม่ได้', message: 'ต้องมีหัวข้อคะแนนอย่างน้อย 1 หัวข้อ', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'ลบหัวข้อคะแนนนี้?', message: <>ลบหัวข้อ <b>{c.name}</b> — คะแนนที่กรอกไว้ในหัวข้อนี้จะถูกลบด้วย</>, variant: 'danger', confirmText: 'ลบหัวข้อ' }))) return;
     applyComponents(selCourse.components.filter(x => x.id !== c.id));
+    notify({ title: 'ลบหัวข้อแล้ว', message: c.name, variant: 'success' });
   }
 
   // ── ไม่มีสิทธิ์เข้าหน้านี้ ──
@@ -164,6 +167,8 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
   const courseMax = selCourse ? maxTotal(selCourse) : 0;
   // วิชากิจกรรม/ชุมนุม = ไม่คิดเกรด → ซ่อนช่องคะแนน เหลือเฉพาะการประเมิน ผ/มผ
   const isSymbolCourse = selCourse?.gradingMode === 'symbol';
+  // ล็อก: รวมคะแนนเต็มของสัดส่วนต้องไม่เกิน 100 — ถ้าเกิน ต้องแก้ก่อนจึงกรอกคะแนนได้
+  const overLimit = !isSymbolCourse && courseMax > 100;
   const symbolOptions = selCourse ? specialGradesFor(selCourse.gradingMode) : [];
   const filledCount = entries.filter(e => e.symbol || Object.values(e.scores).some(v => v !== null)).length;
 
@@ -264,17 +269,23 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
           </div>
 
           {/* ── ตั้งค่าสัดส่วนคะแนน ── */}
-          {showSettings && (
+          {(showSettings || overLimit) && (
             <div style={{ background: 'var(--warm-white)', border: '2px solid var(--border)', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.6rem' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: overLimit ? 'var(--absent)' : 'var(--brown-dark)', marginBottom: '0.6rem' }}>
                 ⚙️ สัดส่วนคะแนน — รวมคะแนนเต็ม {courseMax} คะแนน (เกรดคิดจากเปอร์เซ็นต์ของคะแนนเต็มรวม)
               </div>
+              {overLimit && (
+                <div style={{ background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.45)', color: 'var(--absent)', borderRadius: 8, padding: '0.6rem 0.85rem', marginBottom: '0.85rem', fontSize: '0.9rem', fontWeight: 600 }}>
+                  ⚠ ไม่สามารถตั้งค่าสัดส่วนคะแนนเกิน 100 ได้ — ตอนนี้รวม {courseMax} คะแนน กรุณาแก้ไขให้รวมไม่เกิน 100
+                </div>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.85rem' }}>
                 {selCourse.components.map(c => (
                   <div key={c.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <input className="ez-input" style={{ flex: 1, minWidth: 160 }} value={c.name} onChange={e => editComponent(c.id, 'name', e.target.value)} />
                     <span style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>เต็ม</span>
                     <input className="ez-score-input" type="number" min={1} value={c.max} onChange={e => editComponent(c.id, 'max', e.target.value)} />
+                    {c.excludeFromTotal && <span style={{ fontSize: '0.72rem', color: 'var(--brown-mid)', background: 'var(--cream-dark)', padding: '0.2rem 0.5rem', borderRadius: 6, whiteSpace: 'nowrap' }}>ไม่คิดรวม</span>}
                     <button className="ez-btn ez-btn-ghost" style={{ color: 'var(--absent)', minHeight: 42 }} onClick={() => removeComponent(c)}>🗑 ลบ</button>
                   </div>
                 ))}
@@ -282,7 +293,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
               <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.4rem' }}>เพิ่มหัวข้อคะแนน:</div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
                 {PRESET_COMPONENTS.filter(p => !selCourse.components.some(c => c.name === p.name)).map(p => (
-                  <button key={p.name} className="ez-choice-btn" onClick={() => addComponent(p.name, p.max)}>➕ {p.name} ({p.max})</button>
+                  <button key={p.name} className="ez-choice-btn" onClick={() => addComponent(p.name, p.max, p.excludeFromTotal)}>➕ {p.name} ({p.max}){p.excludeFromTotal ? ' · ไม่คิดรวม' : ''}</button>
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -294,7 +305,12 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
             </div>
           )}
 
-          {entries.length === 0 ? (
+          {overLimit ? (
+            <div className="perm-denied" style={{ background: 'rgba(160,80,80,0.08)', borderColor: 'rgba(160,80,80,0.4)', color: 'var(--absent)' }}>
+              <span className="perm-denied-icon">🔒</span>
+              สัดส่วนคะแนนรวมเกิน 100 (ตอนนี้ {courseMax} คะแนน) — กรุณาแก้ไขสัดส่วนคะแนนด้านบนให้รวมไม่เกิน 100 ก่อน แล้วตารางบันทึกคะแนนจะแสดง
+            </div>
+          ) : entries.length === 0 ? (
             <div className="stu-empty">ห้องนี้ยังไม่มีนักเรียนในระบบ — แอดมินต้องเพิ่มนักเรียนเข้าห้องก่อน</div>
           ) : (
             <>
@@ -305,7 +321,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
                       <th>ลำดับ</th>
                       <th style={{ textAlign: 'left' }}>ชื่อ-นามสกุล</th>
                       {!isSymbolCourse && selCourse.components.map(c => (
-                        <th key={c.id}>{c.name}<br /><span style={{ fontWeight: 400, fontSize: '0.8rem' }}>(เต็ม {c.max})</span></th>
+                        <th key={c.id}>{c.name}<br /><span style={{ fontWeight: 400, fontSize: '0.8rem', color: c.excludeFromTotal ? 'var(--brown-mid)' : undefined }}>{c.excludeFromTotal ? `ประเมินแยก · ${c.max}` : `(เต็ม ${c.max})`}</span></th>
                       ))}
                       {!isSymbolCourse && <th>รวม<br /><span style={{ fontWeight: 400, fontSize: '0.8rem' }}>(เต็ม {courseMax})</span></th>}
                       <th>ผลพิเศษ<br /><span style={{ fontWeight: 400, fontSize: '0.8rem' }}>{isSymbolCourse ? '(ผ / มผ)' : '(ถ้ามี)'}</span></th>
@@ -314,7 +330,7 @@ export default function GradebookView({ teacherId, teacherName, classes }: Props
                   </thead>
                   <tbody>
                     {entries.map((e, idx) => {
-                      const total = calcTotal(e);
+                      const total = calcTotal(e, selCourse);
                       const grade = resolveGrade(e, selCourse);
                       const special = isSpecialGrade(grade);
                       return (

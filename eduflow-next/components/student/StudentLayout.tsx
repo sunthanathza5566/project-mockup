@@ -152,6 +152,19 @@ export default function StudentLayout() {
     setNotifications(notif);
   }, [session]);
 
+  // แจ้งเตือนแบบ near-real-time: เมื่อครูสั่งงาน/ให้คะแนน/เติมเงิน ในอีกแท็บ (localStorage เปลี่ยน)
+  // → 'storage' event ยิงข้ามแท็บ · 'focus' = กลับมาที่แท็บนี้ ให้ดึงแจ้งเตือนใหม่ทันที
+  useEffect(() => {
+    if (!session) return;
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === 'eduflow_shared_notifs' || e.key === 'eduflow_assignments') refreshAssignments();
+    };
+    const onFocus = () => refreshAssignments();
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus); };
+  }, [session, refreshAssignments]);
+
   const newNotifCount = notifications.filter(n => n.isNew).length;
   const initials      = profile ? (profile.firstName[0] || '') + (profile.lastName?.[0] || '') : '??';
 
@@ -179,7 +192,6 @@ export default function StudentLayout() {
             ['หน้าหลัก',   () => navigate('dashboard')],
             ['จองหนังสือ', () => navigate('booking')],
             ['ร้านค้า',    () => navigate('shop')],
-            ['สั่งข้าว',   () => showToast('ระบบสั่งข้าวกำลังพัฒนา — เร็ว ๆ นี้')],
             ['เติมเงิน',   () => navigate('topup')],
           ] as [string, () => void][]).map(([lnk, go], i) => (
             <li key={i}>

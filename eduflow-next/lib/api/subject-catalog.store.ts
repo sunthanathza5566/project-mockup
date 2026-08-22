@@ -40,7 +40,11 @@ function load(): CatalogSubject[] {
 }
 function save(list: CatalogSubject[]) { writeJSON(STORE_KEY, list); }
 
-/** วิชาตัวอย่างชุดเล็ก เพื่อให้ครูเห็นรูปแบบและใช้จัดแผนได้ทันที */
+/**
+ * คลังวิชา ม.1 มาตรฐาน (8 กลุ่มสาระพื้นฐาน + เพิ่มเติม + กิจกรรมพัฒนาผู้เรียน)
+ * หน่วยกิตอิงเกณฑ์ สพฐ. ต่อภาคเรียน (40 ชม. = 1.0 นก. · 20 ชม. = 0.5 นก.)
+ * — เพื่อให้ครู/แอดมินมีรายวิชาอ้างอิงครบ และ GPA ถ่วงหน่วยกิตได้ถูกต้องตั้งแต่แรก
+ */
 function seed(): CatalogSubject[] {
   const now = Date.now();
   const base = (code: string, name: string, nameEn: string, credit: number, key: string, type: SubjectType): CatalogSubject => ({
@@ -48,11 +52,24 @@ function seed(): CatalogSubject[] {
     gradingMode: defaultGradingMode(type), createdBy: 'system', createdByName: 'ระบบ (ตัวอย่าง)', createdAt: now,
   });
   const seeded = [
-    base('ค21101', 'คณิตศาสตร์พื้นฐาน', 'Basic Mathematics', 1.5, 'math', 'พื้นฐาน'),
-    base('ท21101', 'ภาษาไทย',            'Thai Language',      1.5, 'thai', 'พื้นฐาน'),
-    base('ว21101', 'วิทยาศาสตร์',        'Science',            1.5, 'sci',  'พื้นฐาน'),
-    base('อ21101', 'ภาษาอังกฤษ',         'English',            1.5, 'eng',  'พื้นฐาน'),
-    base('ก21901', 'ชุมนุม',             'Club Activity',      0,   'guidance', 'ชุมนุม/ชมรม'),
+    // ── รายวิชาพื้นฐาน 8 กลุ่มสาระ ──
+    base('ท21101', 'ภาษาไทย',                        'Thai Language',                1.5, 'thai',    'พื้นฐาน'),
+    base('ค21101', 'คณิตศาสตร์พื้นฐาน',              'Basic Mathematics',            1.5, 'math',    'พื้นฐาน'),
+    base('ว21101', 'วิทยาศาสตร์และเทคโนโลยี',        'Science & Technology',         1.5, 'science', 'พื้นฐาน'),
+    base('ว21102', 'วิทยาการคำนวณ',                  'Computing Science',            0.5, 'com',     'พื้นฐาน'),
+    base('ส21101', 'สังคมศึกษา ศาสนาและวัฒนธรรม',    'Social Studies',               1.5, 'social',  'พื้นฐาน'),
+    base('ส21102', 'ประวัติศาสตร์',                  'History',                      0.5, 'social',  'พื้นฐาน'),
+    base('พ21101', 'สุขศึกษาและพลศึกษา',             'Health & Physical Education',  0.5, 'pe',      'พื้นฐาน'),
+    base('ศ21101', 'ศิลปะ',                          'Arts',                         0.5, 'art',     'พื้นฐาน'),
+    base('ง21101', 'การงานอาชีพ',                    'Occupations',                  0.5, 'career',  'พื้นฐาน'),
+    base('อ21101', 'ภาษาอังกฤษ',                     'English',                      1.5, 'english', 'พื้นฐาน'),
+    // ── รายวิชาเพิ่มเติม ──
+    base('ค21201', 'คณิตศาสตร์เพิ่มเติม',            'Additional Mathematics',       1.0, 'math',    'เพิ่มเติม'),
+    base('อ21201', 'ภาษาอังกฤษเพื่อการสื่อสาร',      'English for Communication',    1.0, 'english', 'เพิ่มเติม'),
+    // ── กิจกรรมพัฒนาผู้เรียน (ไม่คิดหน่วยกิต/ไม่คิดเกรด) ──
+    base('ก21901', 'กิจกรรมชุมนุม',                  'Club Activity',                0,   'guidance', 'ชุมนุม/ชมรม'),
+    base('ก21902', 'ลูกเสือ–เนตรนารี',               'Scout',                        0,   'guidance', 'กิจกรรมพัฒนาผู้เรียน'),
+    base('ก21903', 'กิจกรรมแนะแนว',                  'Guidance',                     0,   'guidance', 'กิจกรรมพัฒนาผู้เรียน'),
   ];
   if (typeof window !== 'undefined') writeJSON(STORE_KEY, seeded);
   return seeded;

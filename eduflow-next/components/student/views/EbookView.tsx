@@ -15,6 +15,7 @@ import {
   RENT_OPTIONS, READER_RANKS,
   type EbookInfo, type EbookRental, type ReaderStats,
 } from '@/lib/api/ebook.store';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props { profile: StudentProfile; showToast: (m: string) => void }
 
@@ -29,7 +30,8 @@ function fmtRemain(ms: number): string {
   return h >= 1 ? `เหลือ ${h} ชม. ${m} นาที` : `เหลือ ${m} นาที`;
 }
 
-export default function EbookView({ profile, showToast }: Props) {
+export default function EbookView({ profile }: Props) {
+  const { confirm, notify } = useDialog();
   const student = { code: profile.studentId, name: `${profile.firstName} ${profile.lastName}`.trim() };
 
   const [tab, setTab]         = useState<Tab>('rent');
@@ -66,12 +68,13 @@ export default function EbookView({ profile, showToast }: Props) {
 
   function doRent() {
     if (!rentBook) return;
+    const title = rentBook.title;
     const r = rentEbook(rentBook.id, rentDays, student);
-    if (!r.ok) { showToast(`${r.error}`); setRentBook(null); return; }
-    showToast(`เช่า "${rentBook.title}" ${rentDays} วันแล้ว — เปิดอ่านได้เลย`);
     setRentBook(null);
+    if (!r.ok) { notify({ title: 'เช่าไม่สำเร็จ', message: r.error || '', variant: 'danger' }); return; }
     setTab('shelf');
     refresh();
+    notify({ title: 'เช่าหนังสือแล้ว', message: <>“{title}” · {rentDays} วัน — เปิดอ่านได้เลย</>, variant: 'success' });
   }
 
   function openReader(rental: EbookRental) {
@@ -86,16 +89,16 @@ export default function EbookView({ profile, showToast }: Props) {
     setReader({ ...reader, page, rental: reachedEnd ? { ...reader.rental, completed: true } : reader.rental });
     if (reachedEnd) {
       markCompleted(reader.rental.id);
-      showToast('อ่านจบแล้ว! ได้รับแต้มนักอ่าน +1');
       refresh();
+      notify({ title: 'อ่านจบแล้ว! 🎉', message: 'ได้รับแต้มนักอ่าน +1', variant: 'success' });
     }
   }
 
-  function handleReturn(rental: EbookRental) {
-    if (!window.confirm(`คืนหนังสือ "${rental.bookTitle}" ก่อนกำหนด? สิทธิ์อ่านจะถูกตัดทันที`)) return;
+  async function handleReturn(rental: EbookRental) {
+    if (!(await confirm({ title: 'คืนหนังสือก่อนกำหนด?', message: <><b>{rental.bookTitle}</b> — สิทธิ์อ่านจะถูกตัดทันที</>, variant: 'danger', confirmText: 'คืนหนังสือ' }))) return;
     returnEbook(rental.id);
-    showToast('↩️ คืนหนังสือแล้ว');
     refresh();
+    notify({ title: 'คืนหนังสือแล้ว', message: rental.bookTitle, variant: 'success' });
   }
 
   return (

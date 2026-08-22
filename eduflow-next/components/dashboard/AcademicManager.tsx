@@ -10,7 +10,7 @@ import {
 } from '@/lib/api/academic.store';
 import { logActivity } from '@/lib/api/activity.log';
 import type { TeacherStudent } from '@/lib/types';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   adminUsername: string;
@@ -35,7 +35,7 @@ const KIND_LABEL: Record<PendingItem['kind'], string> = {
  * ข้อมูลจะไปถึง ครู/นักเรียน/ผู้ปกครอง ก็ต่อเมื่อบันทึกขึ้นระบบแล้วเท่านั้น
  */
 export default function AcademicManager({ adminUsername }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
 
   const [years,       setYears]       = useState<AcademicYear[]>([]);
   const [gradeLevels, setGradeLevels] = useState<GradeLevel[]>([]);
@@ -81,31 +81,31 @@ export default function AcademicManager({ adminUsername }: Props) {
   // ── ขั้นที่ 1: กดเพิ่ม → เข้าคิวรอยืนยัน (ยังไม่ขึ้นระบบจริง) ──
   function queue(kind: PendingItem['kind'], label: string, payload: PendingItem['payload']) {
     setPending(p => [...p, { id: Date.now() + Math.random(), kind, label, payload, confirmed: false }]);
-    showToast(`⏳ "${label}" เข้าคิวแล้ว — กดยืนยัน และบันทึกขึ้นระบบ ข้อมูลจึงจะใช้งานจริง`);
+    notify({ title: 'เข้าคิวแล้ว', message: <>“{label}” — กดยืนยัน แล้วบันทึกขึ้นระบบ ข้อมูลจึงจะใช้งานจริง</>, variant: 'info', okText: 'เข้าใจแล้ว' });
   }
 
   function queueYear() {
     const y = newYear.trim();
-    if (!/^\d{4}$/.test(y)) { showToast('ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568'); return; }
-    if (years.some(x => x.year === y) || pending.some(p => p.kind === 'year' && p.payload.year === y)) { showToast('ปีการศึกษานี้มีอยู่แล้ว'); return; }
+    if (!/^\d{4}$/.test(y)) { notify({ title: 'รูปแบบปีไม่ถูกต้อง', message: 'ปีการศึกษาต้องเป็นตัวเลข 4 หลัก เช่น 2568', variant: 'warning' }); return; }
+    if (years.some(x => x.year === y) || pending.some(p => p.kind === 'year' && p.payload.year === y)) { notify({ title: 'ซ้ำ', message: 'ปีการศึกษานี้มีอยู่แล้ว', variant: 'warning' }); return; }
     queue('year', `ปีการศึกษา ${y}`, { year: y });
     setNewYear('');
   }
 
   function queueGrade() {
     const g = newGrade.trim();
-    if (!g) { showToast('กรอกชื่อระดับชั้น เช่น ม.4'); return; }
-    if (!selYear) { showToast('เลือกปีการศึกษาก่อน'); return; }
-    if (gradeLevels.some(x => x.name === g) || pending.some(p => p.kind === 'grade' && p.payload.gradeName === g && p.payload.yearId === selYear)) { showToast('ระดับชั้นนี้มีอยู่แล้วในปีนี้'); return; }
+    if (!g) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกชื่อระดับชั้น เช่น ม.4', variant: 'warning' }); return; }
+    if (!selYear) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกปีการศึกษาก่อน', variant: 'warning' }); return; }
+    if (gradeLevels.some(x => x.name === g) || pending.some(p => p.kind === 'grade' && p.payload.gradeName === g && p.payload.yearId === selYear)) { notify({ title: 'ซ้ำ', message: 'ระดับชั้นนี้มีอยู่แล้วในปีนี้', variant: 'warning' }); return; }
     queue('grade', `ระดับชั้น ${g} (ปี ${years.find(y => y.id === selYear)?.year})`, { gradeName: g, yearId: selYear });
     setNewGrade('');
   }
 
   function queueRoom() {
     const r = newRoom.trim();
-    if (!r) { showToast('กรอกเลขห้อง เช่น 3'); return; }
-    if (!selGrade) { showToast('เลือกระดับชั้นก่อน'); return; }
-    if (classrooms.some(x => x.room === r) || pending.some(p => p.kind === 'room' && p.payload.room === r && p.payload.gradeId === selGrade)) { showToast('ห้องนี้มีอยู่แล้วในระดับชั้นนี้'); return; }
+    if (!r) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกเลขห้อง เช่น 3', variant: 'warning' }); return; }
+    if (!selGrade) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกระดับชั้นก่อน', variant: 'warning' }); return; }
+    if (classrooms.some(x => x.room === r) || pending.some(p => p.kind === 'room' && p.payload.room === r && p.payload.gradeId === selGrade)) { notify({ title: 'ซ้ำ', message: 'ห้องนี้มีอยู่แล้วในระดับชั้นนี้', variant: 'warning' }); return; }
     const gradeName = gradeLevels.find(g => g.id === selGrade)?.name || '';
     queue('room', `ห้อง ${gradeName}/${r}`, { room: r, yearId: selYear, gradeId: selGrade });
     setNewRoom('');
@@ -114,9 +114,9 @@ export default function AcademicManager({ adminUsername }: Props) {
   function queueStudent() {
     const code = newStudentCode.trim();
     const name = newStudentName.trim();
-    if (!code || !name) { showToast('กรอกรหัสและชื่อนักเรียนให้ครบ'); return; }
-    if (!selRoom) { showToast('เลือกห้องเรียนก่อน'); return; }
-    if (roomStudents.some(s => s.code === code) || pending.some(p => p.kind === 'student' && p.payload.code === code && p.payload.roomId === selRoom)) { showToast('รหัสนักเรียนนี้อยู่ในห้องแล้ว'); return; }
+    if (!code || !name) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกรหัสและชื่อนักเรียนให้ครบ', variant: 'warning' }); return; }
+    if (!selRoom) { notify({ title: 'ยังทำรายการไม่ได้', message: 'เลือกห้องเรียนก่อน', variant: 'warning' }); return; }
+    if (roomStudents.some(s => s.code === code) || pending.some(p => p.kind === 'student' && p.payload.code === code && p.payload.roomId === selRoom)) { notify({ title: 'ซ้ำ', message: 'รหัสนักเรียนนี้อยู่ในห้องแล้ว', variant: 'warning' }); return; }
     const gradeName = gradeLevels.find(g => g.id === selGrade)?.name || '';
     const roomNo = classrooms.find(c => c.id === selRoom)?.room || '';
     queue('student', `${name} (${code}) → ห้อง ${gradeName}/${roomNo}`, { code, name, roomId: selRoom });
@@ -132,10 +132,10 @@ export default function AcademicManager({ adminUsername }: Props) {
   }
 
   // ── ขั้นที่ 3: บันทึกขึ้นระบบจริง (เฉพาะรายการที่ยืนยันแล้ว) ──
-  function commitConfirmed() {
+  async function commitConfirmed() {
     const confirmed = pending.filter(p => p.confirmed);
-    if (confirmed.length === 0) { showToast('ยังไม่มีรายการที่กดยืนยัน'); return; }
-    if (!window.confirm(`บันทึก ${confirmed.length} รายการขึ้นระบบจริง?\nข้อมูลจะแสดงให้ ครู นักเรียน และผู้ปกครอง ใช้งานทันที`)) return;
+    if (confirmed.length === 0) { notify({ title: 'ยังบันทึกไม่ได้', message: 'ยังไม่มีรายการที่กดยืนยัน', variant: 'warning' }); return; }
+    if (!(await confirm({ title: `บันทึก ${confirmed.length} รายการขึ้นระบบจริง?`, message: 'ข้อมูลจะแสดงให้ ครู นักเรียน และผู้ปกครอง ใช้งานทันที', confirmText: 'บันทึกขึ้นระบบ' }))) return;
 
     let ok = 0;
     for (const item of confirmed) {
@@ -155,15 +155,16 @@ export default function AcademicManager({ adminUsername }: Props) {
     if (selYear) setGradeLevels(getGradeLevels(selYear));
     if (selGrade) setClassrooms(getClassrooms(selGrade));
     if (selRoom) setRoomStudents(getClassroomStudents(selRoom));
-    showToast(`บันทึกขึ้นระบบแล้ว ${ok} รายการ — ครู/นักเรียน/ผู้ปกครอง ใช้งานได้ทันที`);
+    notify({ title: 'บันทึกขึ้นระบบแล้ว', message: `${ok} รายการ — ครู/นักเรียน/ผู้ปกครอง ใช้งานได้ทันที`, variant: 'success' });
   }
 
-  function handleRemoveStudent(code: string, name: string) {
-    if (!selRoom || !confirm(`ลบ "${name}" ออกจากห้อง?`)) return;
+  async function handleRemoveStudent(code: string, name: string) {
+    if (!selRoom) return;
+    if (!(await confirm({ title: 'ลบนักเรียนออกจากห้อง?', message: <><b>{name}</b> ({code})</>, variant: 'danger', confirmText: 'ลบ' }))) return;
     removeStudentFromClassroom(selRoom, code);
     logActivity('admin', 'ลบนักเรียนออกจากห้อง', `${name} (${code})`);
-    showToast(`ลบ ${name} ออกจากห้องแล้ว`);
     setRoomStudents(getClassroomStudents(selRoom));
+    notify({ title: 'ลบนักเรียนแล้ว', message: `${name} ออกจากห้องเรียบร้อย`, variant: 'success' });
   }
 
   const gradeName = gradeLevels.find(g => g.id === selGrade)?.name || '';

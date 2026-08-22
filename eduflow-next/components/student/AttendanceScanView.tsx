@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { validateQR, checkIn } from '@/lib/api/attendance.store';
 import type { AttendanceSession } from '@/lib/types';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import { useAuth } from '@/context/AuthContext';
 
 interface AttendanceScanViewProps {
@@ -18,27 +18,25 @@ export default function AttendanceScanView({ onClose }: AttendanceScanViewProps)
   const [qrInput, setQrInput] = useState('');
   const [session, setSession] = useState<AttendanceSession | null>(null);
   const [result, setResult] = useState<'on-time' | 'late' | null>(null);
-  const { showToast } = useToast();
+  const { notify } = useDialog();
   const { session: authSession } = useAuth();
 
   function handleValidateQR() {
-    if (!qrInput.trim()) { showToast('กรุณากรอกโค้ดจากหน้าจอครู'); return; }
+    if (!qrInput.trim()) { notify({ title: 'กรอกโค้ดก่อน', message: 'กรุณากรอกโค้ดจากหน้าจอครู', variant: 'warning' }); return; }
     const validated = validateQR(qrInput);
-    if (!validated) { showToast('โค้ดไม่ถูกต้องหรือหมดอายุแล้ว (15 นาที)'); return; }
+    if (!validated) { notify({ title: 'โค้ดไม่ถูกต้อง', message: 'โค้ดไม่ถูกต้องหรือหมดอายุแล้ว (15 นาที)', variant: 'danger' }); return; }
     setSession(validated);
-    showToast('พบคาบเรียน — ยืนยันเพื่อเช็คชื่อ');
   }
 
   function handleCheckIn() {
     if (!session || !authSession) return;
     const res = checkIn(session.id, authSession.code, authSession.name);
     if (!res.ok) {
-      if (res.reason === 'duplicate') showToast('คุณเช็คชื่อคาบนี้ไปแล้ว');
-      else showToast('QR หมดอายุแล้ว — แจ้งครูให้สร้างใหม่');
+      if (res.reason === 'duplicate') notify({ title: 'เช็คชื่อซ้ำ', message: 'คุณเช็คชื่อคาบนี้ไปแล้ว', variant: 'warning' });
+      else notify({ title: 'QR หมดอายุ', message: 'แจ้งครูให้สร้างโค้ดใหม่', variant: 'danger' });
       return;
     }
     setResult(res.record.status);
-    showToast(res.record.status === 'on-time' ? '✅ เช็คชื่อสำเร็จ — มาตรงเวลา' : '⚠️ เช็คชื่อสำเร็จ — มาสาย');
     setTimeout(() => { onClose(); }, 2200);
   }
 

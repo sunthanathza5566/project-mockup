@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { StudentProfile, LibraryBook } from '@/lib/types';
 import { getLibraryBooks, markBookRead, getReadBooksLocal } from '@/lib/api/student.api';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   profile: StudentProfile;
@@ -19,7 +20,8 @@ const BADGE_CLASS: Record<string, string> = {
   'การ์ตูน': 'lib-badge-การ์ตูน', 'ความรู้': 'lib-badge-ความรู้', 'นิทาน': 'lib-badge-นิทาน',
 };
 
-export default function LibraryView({ profile, showToast }: Props) {
+export default function LibraryView({ profile }: Props) {
+  const { notify } = useDialog();
   const [books,       setBooks]       = useState<LibraryBook[]>([]);
   const [typeFilter,  setTypeFilter]  = useState('ทั้งหมด');
   const [gradeFilter, setGradeFilter] = useState('auto');
@@ -58,7 +60,7 @@ export default function LibraryView({ profile, showToast }: Props) {
     await markBookRead(profile.studentId, book.id);
     setReadDone(prev => ({ ...prev, [book.id]: true }));
     setOpenBook(null);
-    showToast(`อ่าน "${book.title}" จบแล้ว! ได้คะแนนจิตพิสัย +1 ⭐`);
+    notify({ title: 'อ่านจบแล้ว! 🎉', message: <>“{book.title}” — ได้คะแนนจิตพิสัย +1 ⭐</>, variant: 'success' });
   }
 
   return (

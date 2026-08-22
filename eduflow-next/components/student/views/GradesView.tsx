@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { StudentProfile } from '@/lib/types';
 import { getStudentGrades, calcGPA, type StudentGradeRow } from '@/lib/api/academic.store';
 import { exportStudentGradeReport, exportTranscriptPP1 } from '@/lib/utils/excel-export';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   profile: StudentProfile;
@@ -14,7 +15,8 @@ interface Props {
  * ผลการเรียน — อ่านคะแนน/เกรดจริงที่ครูบันทึกผ่านระบบบันทึกคะแนน (ปพ.5)
  * ดาวน์โหลดใบรายงานผลการเรียน (แนว ปพ.6) ได้
  */
-export default function GradesView({ profile, showToast }: Props) {
+export default function GradesView({ profile }: Props) {
+  const { confirm, notify } = useDialog();
   const [rows, setRows] = useState<StudentGradeRow[]>([]);
 
   useEffect(() => {
@@ -24,15 +26,17 @@ export default function GradesView({ profile, showToast }: Props) {
   const gpa = calcGPA(rows);
 
   async function handleExport() {
-    if (rows.length === 0) { showToast('ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
+    if (rows.length === 0) { notify({ title: 'ยังไม่มีข้อมูล', message: 'ยังไม่มีคะแนนให้ดาวน์โหลด', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'ดาวน์โหลดรายงานผลการเรียน (ปพ.6)?', message: `ผลการเรียน ${rows.length} วิชา`, confirmText: 'ดาวน์โหลด' }))) return;
     await exportStudentGradeReport(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
-    showToast('ดาวน์โหลดรายงานผลการเรียน (ปพ.6) แล้ว');
+    notify({ title: 'ดาวน์โหลดแล้ว', message: 'รายงานผลการเรียน (ปพ.6)', variant: 'success' });
   }
 
   async function handleExportPP1() {
-    if (rows.length === 0) { showToast('ยังไม่มีคะแนนให้ดาวน์โหลด'); return; }
+    if (rows.length === 0) { notify({ title: 'ยังไม่มีข้อมูล', message: 'ยังไม่มีคะแนนให้ดาวน์โหลด', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'ดาวน์โหลดระเบียนแสดงผลการเรียน (ปพ.1)?', message: `ผลการเรียน ${rows.length} วิชา`, confirmText: 'ดาวน์โหลด' }))) return;
     await exportTranscriptPP1(`${profile.firstName} ${profile.lastName}`, profile.studentId, rows);
-    showToast('ดาวน์โหลดระเบียนแสดงผลการเรียน (ปพ.1) แล้ว');
+    notify({ title: 'ดาวน์โหลดแล้ว', message: 'ระเบียนแสดงผลการเรียน (ปพ.1)', variant: 'success' });
   }
 
   return (

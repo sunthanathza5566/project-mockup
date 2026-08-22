@@ -14,7 +14,7 @@ import {
 import { SUBJECT_KEYS, SUBJECT_TYPES, defaultGradingMode, suggestSubjectCode, type SubjectType } from '@/lib/api/schedule.store';
 import type { GradingMode } from '@/lib/api/academic.store';
 import { subjectColor } from '@/lib/ui/subject-colors';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props { onGoToPlan?: () => void }
 
@@ -28,7 +28,7 @@ const TYPE_BADGE: Record<SubjectType, string> = {
 };
 
 export default function SubjectCatalogView({ onGoToPlan }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const allowed = canManageSubjects();
 
   const [subjects, setSubjects] = useState<CatalogSubject[]>([]);
@@ -52,18 +52,21 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
     });
   }
 
-  function submit() {
+  async function submit() {
     setError('');
+    if (!form.code.trim() || !form.name.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกรหัสวิชาและชื่อวิชา (ไทย) ก่อน', variant: 'warning' }); return; }
     if (editingId) {
-      if (updateCatalogSubject(editingId, form)) { showToast('แก้ไขวิชาแล้ว'); setEditingId(null); setForm(emptyForm()); refresh(); }
-      else setError('บันทึกไม่สำเร็จ (รหัสวิชาอาจซ้ำ หรือไม่มีสิทธิ์)');
+      if (!(await confirm({ title: 'บันทึกการแก้ไขวิชา?', message: <><b>{form.name}</b> ({form.code})</>, confirmText: 'บันทึกการแก้ไข' }))) return;
+      if (updateCatalogSubject(editingId, form)) { setEditingId(null); setForm(emptyForm()); refresh(); notify({ title: 'แก้ไขวิชาแล้ว', message: `${form.name} (${form.code})`, variant: 'success' }); }
+      else { setError('บันทึกไม่สำเร็จ (รหัสวิชาอาจซ้ำ หรือไม่มีสิทธิ์)'); notify({ title: 'บันทึกไม่สำเร็จ', message: 'รหัสวิชาอาจซ้ำ หรือไม่มีสิทธิ์', variant: 'danger' }); }
       return;
     }
+    if (!(await confirm({ title: 'เพิ่มวิชาเข้าคลัง?', message: <><b>{form.name}</b> ({form.code}) · {form.subjectType}</>, confirmText: 'เพิ่มวิชา' }))) return;
     const r = createCatalogSubject(form);
-    if (!r.ok) { setError(r.error); return; }
-    showToast(`เพิ่มวิชา "${r.subject.name}" (${r.subject.code}) แล้ว`);
+    if (!r.ok) { setError(r.error); notify({ title: 'เพิ่มวิชาไม่สำเร็จ', message: r.error, variant: 'danger' }); return; }
     setForm(emptyForm());
     refresh();
+    notify({ title: 'เพิ่มวิชาแล้ว', message: <>{r.subject.name} ({r.subject.code}) เข้าคลังเรียบร้อย</>, variant: 'success' });
   }
 
   function startEdit(s: CatalogSubject) {
@@ -73,12 +76,12 @@ export default function SubjectCatalogView({ onGoToPlan }: Props) {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function remove(s: CatalogSubject) {
-    if (!window.confirm(`ลบวิชา "${s.name}" (${s.code}) ออกจากคลัง?\nวิชาที่จัดลงตารางสอนไว้แล้วจะไม่ถูกลบ`)) return;
+  async function remove(s: CatalogSubject) {
+    if (!(await confirm({ title: 'ลบวิชาออกจากคลัง?', message: <><b>{s.name}</b> ({s.code})<br /><span style={{ color: 'var(--text-muted)' }}>วิชาที่จัดลงตารางสอนไว้แล้วจะไม่ถูกลบ</span></>, variant: 'danger', confirmText: 'ลบวิชา' }))) return;
     deleteCatalogSubject(s.id);
-    showToast('ลบวิชาออกจากคลังแล้ว');
     if (editingId === s.id) { setEditingId(null); setForm(emptyForm()); }
     refresh();
+    notify({ title: 'ลบวิชาแล้ว', message: `${s.name} (${s.code})`, variant: 'success' });
   }
 
   if (!allowed) {

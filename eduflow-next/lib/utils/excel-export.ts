@@ -134,7 +134,7 @@ export async function exportScoreSheetToExcel(
   styleHeaderRow(headerRow);
 
   entries.forEach((e, idx) => {
-    const total = calcTotal(e);
+    const total = calcTotal(e, course);
     const row = ws.addRow([
       idx + 1, e.studentCode, e.studentName,
       ...components.map(c => (e.symbol ? '—' : e.scores[c.id] ?? '—')),
@@ -147,8 +147,8 @@ export async function exportScoreSheetToExcel(
   });
 
   // นับว่า "บันทึกแล้ว" ทั้งที่กรอกคะแนน และที่ให้ผลแบบสัญลักษณ์
-  const recorded = entries.filter(e => e.symbol || calcTotal(e) !== null).length;
-  const totals = entries.filter(e => !e.symbol).map(calcTotal).filter((t): t is number => t !== null);
+  const recorded = entries.filter(e => e.symbol || calcTotal(e, course) !== null).length;
+  const totals = entries.filter(e => !e.symbol).map(e => calcTotal(e, course)).filter((t): t is number => t !== null);
   ws.addRow([]);
   ws.addRow([`สรุป: บันทึกแล้ว ${recorded}/${entries.length} คน`,
     '', '',

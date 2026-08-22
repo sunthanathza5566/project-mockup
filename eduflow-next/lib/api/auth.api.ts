@@ -163,6 +163,12 @@ export function initAuth(): void {
   }
   if (!localStorage.getItem(PERMISSIONS_KEY))
     localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(DEFAULT_PERMISSIONS));
+  // migration: เปิดสิทธิ์ "จัดโครงสร้างวิชาการ" ให้ครู (นโยบายใหม่ — มีปุ่มเลื่อนระดับชั้น) รันครั้งเดียว
+  if (!localStorage.getItem('eduflow_perm_v2')) {
+    const perms = getPermissions();
+    if (perms.teacher && perms.teacher.manageAcademic !== true) { perms.teacher.manageAcademic = true; savePermissions(perms); }
+    localStorage.setItem('eduflow_perm_v2', '1');
+  }
   if (!localStorage.getItem(WEBADMIN_LOG_KEY))
     localStorage.setItem(WEBADMIN_LOG_KEY, JSON.stringify({
       admins: [{ username: 'webadmin', name: 'ผู้ดูแลระบบหลัก', addedAt: '2567-01-01', addedBy: 'SYSTEM' }],
@@ -233,6 +239,10 @@ export async function registerUser(
   username: string, password: string, confirm: string
 ): Promise<RegisterResult> {
   if (!role)      return { success: false, error: 'กรุณาเลือกประเภทบัญชี' };
+  // กันยกระดับสิทธิ์: ห้ามสมัครบัญชี web_admin เอง (และกันค่า role แปลกปลอมที่ยิงตรงเข้ามา)
+  // — เดิม registerUser cast role ตรง ๆ โดยไม่ตรวจ ทำให้ยิง role='web_admin' สร้าง super admin ได้
+  const ALLOWED_SELF_REGISTER = ['teacher', 'student', 'parent', 'school_admin'];
+  if (!ALLOWED_SELF_REGISTER.includes(role)) return { success: false, error: 'ไม่สามารถสมัครบัญชีประเภทนี้เองได้' };
   if (!firstName) return { success: false, error: 'กรุณากรอกชื่อ' };
   if (!lastName)  return { success: false, error: 'กรุณากรอกนามสกุล' };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, error: 'รูปแบบอีเมลไม่ถูกต้อง เช่น name@example.com' };

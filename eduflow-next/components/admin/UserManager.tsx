@@ -5,7 +5,7 @@ import { ROLE_LABELS, PEOPLE_DIRECTORY, STUDENT_CITIZEN_REGISTRY } from '@/lib/m
 import { getAllUsers, addUserAccount, deleteUserById } from '@/lib/api/admin.api';
 import { adminDirectTopup, getWalletBalance } from '@/lib/api/wallet.store';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import type { User, Role } from '@/lib/types';
 
 type ManagedRole = 'teacher' | 'student' | 'parent' | 'school_admin';
@@ -24,7 +24,7 @@ const DEFAULT_PASSWORD = 'Eduflow1';
  * เพิ่มรายชื่อ: dropdown จากทำเนียบในระบบ + ค้นหาด้วยชื่อ/รหัส → กดเพิ่ม → กดยืนยัน ถึงจะบันทึกจริง
  */
 export default function UserManager() {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const { session } = useAuth();
 
   const [users,   setUsers]   = useState<User[]>([]);
@@ -39,15 +39,17 @@ export default function UserManager() {
   const [tuName,    setTuName]    = useState('');
   const [tuAmount,  setTuAmount]  = useState(100);
 
-  function handleAdminTopup() {
+  async function handleAdminTopup() {
+    if (!(await confirm({ title: 'ยืนยันเติมเงินให้นักเรียน?', message: <>เติม <b>฿{tuAmount.toLocaleString('th-TH')}</b> ให้ {tuName.trim() || 'นักเรียน'} (รหัส {tuCode.trim() || '—'})<br /><span style={{ color: 'var(--text-muted)' }}>ระบบจะตรวจสอบเลขบัตรประชาชนก่อนเติม</span></>, variant: 'warning', confirmText: 'ยืนยันเติมเงิน' }))) return;
     const r = adminDirectTopup(
       { studentCode: tuCode.trim(), citizenId: tuCitizen.trim(), fullName: tuName.trim(), amount: tuAmount },
       STUDENT_CITIZEN_REGISTRY,
       session?.name || 'web admin',
     );
-    if (!r.ok) { showToast(`${r.error}`); return; }
-    showToast(`เติมเงิน ฿${tuAmount.toLocaleString('th-TH')} ให้ ${tuName.trim()} แล้ว — ยอดใหม่ ฿${r.balance!.toLocaleString('th-TH')}`);
+    if (!r.ok) { notify({ title: 'เติมเงินไม่สำเร็จ', message: r.error || '', variant: 'danger' }); return; }
+    const name = tuName.trim();
     setTuCode(''); setTuCitizen(''); setTuName(''); setTuAmount(100);
+    notify({ title: 'เติมเงินสำเร็จ', message: <>เติม ฿{tuAmount.toLocaleString('th-TH')} ให้ {name}<br />ยอดใหม่ ฿{r.balance!.toLocaleString('th-TH')}</>, variant: 'success' });
   }
 
   const refresh = useCallback(() => { getAllUsers().then(setUsers); }, []);
@@ -71,12 +73,13 @@ export default function UserManager() {
 
   function handleAdd() {
     const person = candidates.find(p => p.code === selCode);
-    if (!person) { showToast('เลือกรายชื่อจาก dropdown ก่อน'); return; }
+    if (!person) { notify({ title: 'ยังเพิ่มไม่ได้', message: 'เลือกรายชื่อจาก dropdown ก่อน', variant: 'warning' }); return; }
     setPending(person); // ขั้นที่ 1: เพิ่มเข้าคิว รอยืนยัน
   }
 
   async function handleConfirm() {
     if (!pending || !selRole) return;
+    if (!(await confirm({ title: 'ยืนยันสร้างบัญชีผู้ใช้?', message: <>เพิ่ม <b>{pending.name}</b> เป็น{ROLE_LABELS[selRole]}<br />username: {pending.code.toLowerCase()} · รหัสผ่านเริ่มต้น: {DEFAULT_PASSWORD}</>, confirmText: 'สร้างบัญชี' }))) return;
     const res = await addUserAccount({
       username: pending.code.toLowerCase(),
       password: DEFAULT_PASSWORD,
@@ -85,17 +88,19 @@ export default function UserManager() {
       code: pending.code,
       school: 'โรงเรียนทดสอบ EduFlow',
     });
-    if (!res.ok) { showToast(`${res.error}`); return; }
-    showToast(`เพิ่ม "${pending.name}" เป็น${ROLE_LABELS[selRole]}แล้ว (username: ${pending.code.toLowerCase()} รหัสผ่านเริ่มต้น: ${DEFAULT_PASSWORD})`);
+    if (!res.ok) { notify({ title: 'สร้างบัญชีไม่สำเร็จ', message: res.error || '', variant: 'danger' }); return; }
+    const name = pending.name, uname = pending.code.toLowerCase();
     setPending(null); setSelCode(''); setSearch('');
     refresh();
+    notify({ title: 'สร้างบัญชีแล้ว', message: <>{name} เป็น{ROLE_LABELS[selRole]}<br />username: {uname} · รหัสผ่าน: {DEFAULT_PASSWORD}</>, variant: 'success' });
   }
 
   async function handleDelete(u: User) {
-    if (!confirm(`ยืนยันการลบ "${u.name}" (${u.username}) ออกจากระบบ?`)) return;
-    await deleteUserById(u.username);
-    showToast(`ลบบัญชี ${u.username} แล้ว`);
+    if (!(await confirm({ title: 'ลบบัญชีผู้ใช้นี้?', message: <><b>{u.name}</b> ({u.username}) — ออกจากระบบถาวร</>, variant: 'danger', confirmText: 'ลบบัญชี' }))) return;
+    const res = await deleteUserById(u.username);
+    if (!res.ok) { notify({ title: 'ลบบัญชีไม่สำเร็จ', message: res.error || '', variant: 'danger' }); return; }
     refresh();
+    notify({ title: 'ลบบัญชีแล้ว', message: u.username, variant: 'success' });
   }
 
   // ── หน้าเลือกประเภทผู้ใช้ ──

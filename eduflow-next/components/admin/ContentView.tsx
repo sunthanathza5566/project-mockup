@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 import {
   getFeed, getRailItems, createFeed, updateFeed, deleteFeed, moveFeed, setPlacement, fileToDataUrl,
   FEED_META, type FeedItem, type FeedType, type RailSide,
@@ -20,7 +20,7 @@ const SIDES: { side: RailSide; label: string }[] = [
 ];
 
 export default function ContentView() {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [mode, setMode] = useState<'content' | 'arrange'>('content');
@@ -56,23 +56,24 @@ export default function ContentView() {
   async function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 2_500_000) { showToast('ไฟล์ใหญ่เกิน ~2.5MB — ย่อรูปก่อน'); return; }
+    if (f.size > 2_500_000) { notify({ title: 'ไฟล์ใหญ่เกินไป', message: 'ไฟล์ใหญ่เกิน ~2.5MB — ย่อรูปก่อน', variant: 'warning' }); return; }
     setImage(await fileToDataUrl(f));
   }
 
-  function submit() {
-    if (!title.trim() || !body.trim()) { showToast('กรอกหัวข้อและเนื้อหาก่อน'); return; }
+  async function submit() {
+    if (!title.trim() || !body.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกหัวข้อและเนื้อหาก่อน', variant: 'warning' }); return; }
+    const editing = editId !== null;
+    if (!(await confirm({ title: editing ? 'บันทึกการแก้ไขข่าวนี้?' : 'เผยแพร่ข่าว/ฟีดนี้?', message: <><b>{title.trim()}</b>{editing ? '' : <><br /><span style={{ color: 'var(--text-muted)' }}>จะแสดงบนแดชบอร์ดครู/นักเรียน + หน้าแรกทันที</span></>}</>, confirmText: editing ? 'บันทึก' : 'เผยแพร่' }))) return;
     const payload = { type: tab, title: title.trim(), body: body.trim(), date: date.trim() || 'อัปเดตล่าสุด', image, pinned, placement: place };
-    if (editId !== null) {
-      updateFeed(editId, payload);
+    if (editing) {
+      updateFeed(editId!, payload);
       logActivity('admin', 'แก้ไขข่าว/ฟีด', `${FEED_META[tab].label}: ${title.trim()}`);
-      showToast('แก้ไขแล้ว');
     } else {
       createFeed(payload);
       logActivity('admin', 'เพิ่มข่าว/ฟีด', `${FEED_META[tab].label}: ${title.trim()}`);
-      showToast('เพิ่มแล้ว — แสดงบนแดชบอร์ดครู/นักเรียนทันที');
     }
     reset(); refresh();
+    notify({ title: editing ? 'แก้ไขข่าวแล้ว' : 'เผยแพร่ข่าวแล้ว', message: editing ? title.trim() : 'แสดงบนแดชบอร์ดครู/นักเรียนแล้ว', variant: 'success' });
   }
 
   const input: React.CSSProperties = {
@@ -106,7 +107,7 @@ export default function ContentView() {
                       <div style={{ flex: 1, minWidth: 0, fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.pinned && '📌 '}{it.title}</div>
                       <button title="ขึ้น"  disabled={i === 0} onClick={() => { moveFeed(it.id, 'up'); refresh(); }}   style={{ border: '1px solid var(--border)', background: 'var(--warm-white)', borderRadius: 6, cursor: i === 0 ? 'default' : 'pointer', opacity: i === 0 ? 0.3 : 1, width: 26, height: 24 }}>▲</button>
                       <button title="ลง"    disabled={i === rails[side].length - 1} onClick={() => { moveFeed(it.id, 'down'); refresh(); }} style={{ border: '1px solid var(--border)', background: 'var(--warm-white)', borderRadius: 6, cursor: i === rails[side].length - 1 ? 'default' : 'pointer', opacity: i === rails[side].length - 1 ? 0.3 : 1, width: 26, height: 24 }}>▼</button>
-                      <button title="ย้ายอีกฝั่ง" onClick={() => { setPlacement(it.id, side === 'left' ? 'right' : 'left'); refresh(); showToast(`ย้ายไป${side === 'left' ? 'ขวา' : 'ซ้าย'}แล้ว`); }} style={{ border: '1px solid var(--border)', background: 'var(--warm-white)', borderRadius: 6, cursor: 'pointer', width: 30, height: 24 }}>{side === 'left' ? '▶' : '◀'}</button>
+                      <button title="ย้ายอีกฝั่ง" onClick={() => { setPlacement(it.id, side === 'left' ? 'right' : 'left'); refresh(); }} style={{ border: '1px solid var(--border)', background: 'var(--warm-white)', borderRadius: 6, cursor: 'pointer', width: 30, height: 24 }}>{side === 'left' ? '▶' : '◀'}</button>
                     </div>
                   ))}
                 </div>
@@ -187,7 +188,7 @@ export default function ContentView() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                 <button onClick={() => edit(it)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brown-deep)', fontSize: '0.78rem' }}>แก้ไข</button>
-                <button onClick={() => { if (confirm(`ลบ "${it.title}"?`)) { deleteFeed(it.id); refresh(); showToast('ลบแล้ว'); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--absent)', fontSize: '0.78rem' }}>ลบ</button>
+                <button onClick={async () => { if (await confirm({ title: 'ลบข่าว/ฟีดนี้?', message: <b>{it.title}</b>, variant: 'danger', confirmText: 'ลบ' })) { deleteFeed(it.id); refresh(); notify({ title: 'ลบแล้ว', message: it.title, variant: 'success' }); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--absent)', fontSize: '0.78rem' }}>ลบ</button>
               </div>
             </div>
           ))}

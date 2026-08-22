@@ -7,7 +7,7 @@ import {
   type Material, type Announcement, type MaterialType,
 } from '@/lib/api/materials.store';
 import { logActivity } from '@/lib/api/activity.log';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   teacherName: string;
@@ -26,7 +26,7 @@ const SORT_META: Record<SortKey, string> = { recent: '🕐 ล่าสุด', 
 const UNCATEGORIZED = 'ทั่วไป';
 
 export default function MaterialsView({ teacherName, selectedClass }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
   const [tab, setTab] = useState<'materials' | 'announcements'>('materials');
 
   const [materials,     setMaterials]     = useState<Material[]>([]);
@@ -80,17 +80,19 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
     setMatUrl(m.url); setMatCat(m.category); setMatPin(m.pinned); setShowMatForm(true);
   }
 
-  function handleSaveMaterial() {
-    if (!matTitle.trim()) { showToast('กรอกชื่อสื่อการสอนก่อน'); return; }
-    if ((matType === 'link' || matType === 'video') && !matUrl.trim()) { showToast('กรอก URL ก่อน'); return; }
+  async function handleSaveMaterial() {
+    if (!matTitle.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกชื่อสื่อการสอนก่อน', variant: 'warning' }); return; }
+    if ((matType === 'link' || matType === 'video') && !matUrl.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอก URL ก่อน', variant: 'warning' }); return; }
 
-    if (editId !== null) {
-      updateMaterial(editId, {
+    const editing = editId !== null;
+    if (!(await confirm({ title: editing ? 'บันทึกการแก้ไขสื่อ?' : 'เผยแพร่สื่อให้นักเรียน?', message: <><b>{matTitle.trim()}</b>{editing ? '' : <><br /><span style={{ color: 'var(--text-muted)' }}>จะแจ้งเตือนถึงนักเรียนในห้อง</span></>}</>, confirmText: editing ? 'บันทึกการแก้ไข' : 'เผยแพร่' }))) return;
+
+    if (editing) {
+      updateMaterial(editId!, {
         type: matType, title: matTitle.trim(), description: matDesc.trim(),
         url: matUrl.trim() || `${matTitle.trim()}.pdf`, category: matCat.trim(), pinned: matPin,
       });
       logActivity('teacher', 'แก้ไขสื่อการสอน', `${matTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-      showToast('แก้ไขสื่อการสอนแล้ว');
     } else {
       createMaterial({
         classId: selectedClass.id, type: matType,
@@ -99,23 +101,24 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
         category: matCat.trim(), pinned: matPin, teacherName,
       });
       logActivity('teacher', 'เพิ่มสื่อการสอน', `${matTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-      showToast('เพิ่มสื่อการสอนแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     }
     resetForm();
     refresh();
+    notify({ title: editing ? 'แก้ไขสื่อแล้ว' : 'เผยแพร่สื่อแล้ว', message: editing ? matTitle.trim() : 'แจ้งเตือนถึงนักเรียนในห้องแล้ว', variant: 'success' });
   }
 
-  function handleCreateAnnouncement() {
-    if (!annTitle.trim() || !annBody.trim()) { showToast('กรอกหัวข้อและเนื้อหาก่อน'); return; }
+  async function handleCreateAnnouncement() {
+    if (!annTitle.trim() || !annBody.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกหัวข้อและเนื้อหาก่อน', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'โพสต์ประกาศนี้?', message: <><b>{annTitle.trim()}</b><br /><span style={{ color: 'var(--text-muted)' }}>จะแจ้งเตือนถึงนักเรียนในห้อง</span></>, confirmText: 'โพสต์ประกาศ' }))) return;
     createAnnouncement({
       classId: selectedClass.id,
       title: annTitle.trim(), body: annBody.trim(), pinned: annPinned,
       teacherName,
     });
     logActivity('teacher', 'โพสต์ประกาศ', `${annTitle.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('โพสต์ประกาศแล้ว — แจ้งเตือนถึงนักเรียนในห้อง');
     setAnnTitle(''); setAnnBody(''); setAnnPinned(false); setShowAnnForm(false);
     refresh();
+    notify({ title: 'โพสต์ประกาศแล้ว', message: 'แจ้งเตือนถึงนักเรียนในห้องแล้ว', variant: 'success' });
   }
 
   // ── กรอง + เรียง + จัดกลุ่มตามหมวด ──
@@ -297,7 +300,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-end' }}>
                       <button
-                        onClick={() => { toggleMaterialPin(m.id); refresh(); showToast(m.pinned ? 'เอาหมุดออกแล้ว' : '📌 ปักหมุดแล้ว'); }}
+                        onClick={() => { toggleMaterialPin(m.id); refresh(); }}
                         title={m.pinned ? 'เอาหมุดออก' : 'ปักหมุด'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem', opacity: m.pinned ? 1 : 0.4 }}
                       >📌</button>
@@ -306,7 +309,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brown-deep)', fontSize: '0.75rem' }}
                       >แก้ไข</button>
                       <button
-                        onClick={() => { if (confirm(`ลบสื่อ "${m.title}"?`)) { deleteMaterial(m.id); refresh(); showToast('ลบสื่อแล้ว'); } }}
+                        onClick={async () => { if (await confirm({ title: 'ลบสื่อการสอนนี้?', message: <b>{m.title}</b>, variant: 'danger', confirmText: 'ลบสื่อ' })) { deleteMaterial(m.id); refresh(); notify({ title: 'ลบสื่อแล้ว', message: m.title, variant: 'success' }); } }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--absent)', fontSize: '0.75rem' }}
                       >ลบ</button>
                     </div>
@@ -349,7 +352,7 @@ export default function MaterialsView({ teacherName, selectedClass }: Props) {
                       {a.pinned && '📌 '}{a.title}
                     </div>
                     <button
-                      onClick={() => { deleteAnnouncement(a.id); refresh(); showToast('ลบประกาศแล้ว'); }}
+                      onClick={async () => { if (await confirm({ title: 'ลบประกาศนี้?', message: <b>{a.title}</b>, variant: 'danger', confirmText: 'ลบประกาศ' })) { deleteAnnouncement(a.id); refresh(); notify({ title: 'ลบประกาศแล้ว', message: a.title, variant: 'success' }); } }}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--absent)', fontSize: '0.78rem' }}
                     >
                       ลบ

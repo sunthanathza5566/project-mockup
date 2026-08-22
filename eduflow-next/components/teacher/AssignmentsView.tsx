@@ -5,7 +5,7 @@ import { getClassAssignments, createAssignment, gradeSubmission, getClassStudent
 import type { ClassInfo, TeacherStudent } from '@/lib/types';
 import { STU_COLORS } from '@/components/student/views/colors';
 import { logActivity } from '@/lib/api/activity.log';
-import { useToast } from '@/context/ToastContext';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   teacherName: string;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function AssignmentsView({ teacherName, teacherId, selectedClass }: Props) {
-  const { showToast } = useToast();
+  const { confirm, notify } = useDialog();
 
   const [assignments, setAssignments] = useState<StoredAssignment[]>([]);
   const [students,    setStudents]    = useState<TeacherStudent[]>([]);
@@ -44,29 +44,31 @@ export default function AssignmentsView({ teacherName, teacherId, selectedClass 
   useEffect(() => { refresh(); }, [refresh]);
 
   async function handleCreate() {
-    if (!title.trim() || !due.trim()) { showToast('กรอกชื่องานและกำหนดส่งก่อน'); return; }
+    if (!title.trim() || !due.trim()) { notify({ title: 'ข้อมูลไม่ครบ', message: 'กรอกชื่องานและกำหนดส่งก่อน', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'มอบหมายการบ้านนี้?', message: <><b>{title.trim()}</b> · กำหนดส่ง {due.trim()} · เต็ม {maxScore}<br /><span style={{ color: 'var(--text-muted)' }}>จะแจ้งเตือนถึงนักเรียนทุกคนในห้อง</span></>, confirmText: 'มอบหมายงาน' }))) return;
     await createAssignment({
       classId: selectedClass.id, key: selectedClass.key, subject: selectedClass.subject,
       title: title.trim(), details: details.trim(), due: due.trim(),
       maxScore, teacher: teacherName, teacherId, submitType,
     });
     logActivity('teacher', 'สั่งการบ้าน', `${title.trim()} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('มอบหมายการบ้านแล้ว — แจ้งเตือนถึงนักเรียนทุกคนในห้อง');
     setTitle(''); setDetails(''); setDue(''); setMaxScore(10); setSubmitType('pdf'); setShowForm(false);
     refresh();
+    notify({ title: 'มอบหมายการบ้านแล้ว', message: 'แจ้งเตือนถึงนักเรียนทุกคนในห้องแล้ว', variant: 'success' });
   }
 
   async function handleGrade(assignmentId: number, studentCode: string, maxScoreOfWork: number) {
     const key = `${assignmentId}:${studentCode}`;
     const score = parseFloat(gradeScores[key]);
     if (isNaN(score) || score < 0 || score > maxScoreOfWork) {
-      showToast(`คะแนนต้องอยู่ระหว่าง 0–${maxScoreOfWork}`);
+      notify({ title: 'คะแนนไม่ถูกต้อง', message: `คะแนนต้องอยู่ระหว่าง 0–${maxScoreOfWork}`, variant: 'warning' });
       return;
     }
+    if (!(await confirm({ title: 'ยืนยันให้คะแนน?', message: <>ให้ <b>{score}/{maxScoreOfWork}</b> คะแนน · นักเรียน {studentCode}</>, variant: 'success', confirmText: 'ให้คะแนน' }))) return;
     await gradeSubmission(assignmentId, studentCode, score, gradeNotes[key] || '');
     logActivity('teacher', 'ให้คะแนนการบ้าน', `นักเรียน ${studentCode} ได้ ${score}/${maxScoreOfWork} — ${selectedClass.grade}/${selectedClass.room} ${selectedClass.subject}`);
-    showToast('ให้คะแนนแล้ว — แจ้งเตือนถึงนักเรียน');
     refresh();
+    notify({ title: 'ให้คะแนนแล้ว', message: `${score}/${maxScoreOfWork} คะแนน — แจ้งเตือนถึงนักเรียนแล้ว`, variant: 'success' });
   }
 
   const c = STU_COLORS[selectedClass.key] || STU_COLORS.guidance;

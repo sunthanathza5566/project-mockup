@@ -20,6 +20,7 @@
 import { TEACHER_DATA_MOCK } from '../mock-data';
 import { getSession } from './auth.api';
 import { readJSON, writeJSON } from './storage-cache';
+import { getCatalogSubjects } from './subject-catalog.store';
 import type { TeacherStudent, ClassInfo } from '../types';
 
 const STORE_KEY = 'eduflow_academic';
@@ -51,6 +52,8 @@ export interface ScoreComponent {
   id: string;
   name: string;
   max: number;
+  /** หัวข้อประเมินแยก (สมรรถนะ / อ่านคิดวิเคราะห์) — กรอกคะแนนได้ แต่ไม่นับรวมในคะแนน/เกรดของวิชา */
+  excludeFromTotal?: boolean;
 }
 
 /**
@@ -117,18 +120,25 @@ interface AcademicData {
   courses: Course[];
   scores: Record<string, ScoreEntry[]>;           // keyed by courseId
   rosters?: Record<string, TeacherStudent[]>;     // นักเรียนที่แอดมินเพิ่มเข้าห้อง keyed by classroomId
+  excludedSeeded?: boolean;                        // เติมหัวข้อประเมินแยกให้วิชาเดิมแล้ว (รันครั้งเดียว)
+  demoV2?: boolean;                                // seed cohort ที่เลื่อนชั้นข้ามปีแล้ว (รันครั้งเดียว)
+  demoV3?: boolean;                                // seed ห้องครบทุกชั้น ป.1-6/ม.1-6 แล้ว (รันครั้งเดียว)
+  demoRosterGrades?: boolean;                      // seed คะแนนให้บัญชี demo ม.1/1 (10021-10025) แล้ว (รันครั้งเดียว)
 }
 
 export const DEFAULT_COMPONENTS: ScoreComponent[] = [
   { id: 'collected', name: 'คะแนนเก็บ',   max: 60 },
   { id: 'midterm',   name: 'สอบกลางภาค', max: 20 },
   { id: 'final',     name: 'สอบปลายภาค', max: 20 },
+  // หัวข้อประเมินแยก — มีทุกวิชาตั้งแต่แรก กรอกได้ แต่ไม่นับรวมในคะแนน/เกรด
+  { id: 'competency', name: 'คะแนนสมรรถนะ',          max: 10, excludeFromTotal: true },
+  { id: 'reading',    name: 'คะแนนอ่านคิดวิเคราะห์', max: 10, excludeFromTotal: true },
 ];
 
 /** หัวข้อสำเร็จรูปที่ครูกดเพิ่มได้ทันที */
 export const PRESET_COMPONENTS: Omit<ScoreComponent, 'id'>[] = [
-  { name: 'คะแนนสมรรถนะ',          max: 10 },
-  { name: 'คะแนนอ่านคิดวิเคราะห์', max: 10 },
+  { name: 'คะแนนสมรรถนะ',          max: 10, excludeFromTotal: true },
+  { name: 'คะแนนอ่านคิดวิเคราะห์', max: 10, excludeFromTotal: true },
 ];
 
 // ─── Internal ─────────────────────────────────────────────────────────────
@@ -173,6 +183,18 @@ function migrate(data: AcademicData): AcademicData {
       }
     });
   });
+  // เติมหัวข้อประเมินแยก (สมรรถนะ/อ่านคิดวิเคราะห์) ให้ทุกวิชาคิดเกรดที่มีอยู่เดิม — รันครั้งเดียว
+  if (!data.excludedSeeded) {
+    const extras = DEFAULT_COMPONENTS.filter(c => c.excludeFromTotal);
+    data.courses.forEach(c => {
+      if (c.gradingMode === 'symbol' || !c.components) return;
+      extras.forEach(ex => {
+        if (!c.components.some(x => x.name === ex.name)) c.components.push({ ...ex, id: `${ex.id}_${c.id}` });
+      });
+    });
+    data.excludedSeeded = true;
+    changed = true;
+  }
   if (changed) save(data);
   return data;
 }
@@ -192,6 +214,272 @@ function seed(): AcademicData {
     { id: 'r3', yearId: 'y2567', gradeLevelId: 'g3', room: '1' },
   ];
   return { years: [year], gradeLevels, classrooms, courses: [], scores: {} };
+}
+
+// ─── ข้อมูลจำลองสำหรับทดสอบเอกสาร ปพ. (ปี 2568/2569) ──────────────────────
+// idempotent: รันได้ปลอดภัยหลายครั้ง — ถ้ามีปี 2568 แล้วจะข้าม
+// สร้างนักเรียนห้องละ 10 คน · 8 วิชาหลัก (คิดเกรด) + 3 กิจกรรม/ชมรม (ผ/มผ)
+// คะแนนกระจายให้มีเกรด 0–4 และผลแบบสัญลักษณ์ (ร / มผ / ผ) ครบตามจริง
+const SEED_FIRST = ['ธนภัทร', 'ศิริพร', 'ณัฐวุฒิ', 'กัญญาณัฐ', 'พีรพล', 'อารยา', 'ชัยวัฒน์', 'มนัสนันท์', 'ธีรเดช', 'ปิยะดา', 'วรรณา', 'สุทธิพงษ์', 'ญาณิศา', 'กิตติศักดิ์', 'เบญจวรรณ'];
+const SEED_LAST = ['ใจงาม', 'สุขสวัสดิ์', 'มั่นคง', 'ดีเลิศ', 'พงษ์ไพบูลย์', 'ศรีสุข', 'วัฒนกุล', 'บุญมี', 'แสงทอง', 'รัตนพร'];
+const SEED_SUBJECTS = [
+  { code: 'ท', name: 'ภาษาไทย', key: 'thai' }, { code: 'ค', name: 'คณิตศาสตร์', key: 'math' },
+  { code: 'ว', name: 'วิทยาศาสตร์และเทคโนโลยี', key: 'science' }, { code: 'ส', name: 'สังคมศึกษา ศาสนาและวัฒนธรรม', key: 'social' },
+  { code: 'พ', name: 'สุขศึกษาและพลศึกษา', key: 'pe' }, { code: 'ศ', name: 'ศิลปะ', key: 'art' },
+  { code: 'ง', name: 'การงานอาชีพ', key: 'career' }, { code: 'อ', name: 'ภาษาอังกฤษ', key: 'english' },
+];
+const SEED_ACTIVITIES = [
+  { name: 'กิจกรรมชุมนุม (ชมรมคอมพิวเตอร์)', key: 'club' },
+  { name: 'ลูกเสือ–เนตรนารี', key: 'scout' },
+  { name: 'กิจกรรมแนะแนว', key: 'guidance' },
+];
+// เกรดเป้าหมายของนักเรียน 10 คน (หมุนตามวิชา) — มีครบ 4 ถึง 0 + 'ร' (รอตัดสิน)
+const SEED_GRADE_PLAN = ['4', '3.5', '3', '2.5', '2', '1.5', '1', '0', 'ร', '3.5'];
+const SEED_ACT_PLAN = ['ผ', 'ผ', 'ผ', 'ผ', 'ผ', 'ผ', 'มผ', 'ผ', 'ผ', 'ผ'];
+// เปอร์เซ็นต์กึ่งกลางของแต่ละเกรด (ใช้กระจายลงคะแนนเก็บ/กลางภาค/ปลายภาค)
+const GRADE_PCT: Record<string, number> = { '4': 86, '3.5': 78, '3': 73, '2.5': 68, '2': 63, '1.5': 58, '1': 53, '0': 42 };
+
+function pctToScores(pct: number): Record<string, number> {
+  const collected = Math.min(60, Math.round(pct * 0.6));
+  const midterm = Math.min(20, Math.round(pct * 0.2));
+  const final = Math.max(0, Math.min(20, pct - collected - midterm));
+  return { collected, midterm, final };
+}
+
+export function seedDemoAcademics(): boolean {
+  if (!isBrowser()) return false;
+  const data = load();
+  if (data.years.some(y => y.year === '2568')) return false; // seed แล้ว
+
+  const now = Date.now();
+  const GRADES = [{ n: 'ม.1', lv: '21', room: '1' }, { n: 'ม.2', lv: '22', room: '2' }, { n: 'ม.3', lv: '23', room: '1' }];
+
+  for (const yr of ['2568', '2569']) {
+    const short = yr.slice(2);                       // '68' / '69'
+    const yearId = `y${short}`;
+    data.years.push({ id: yearId, year: yr, createdBy: 'webadmin', createdAt: now, active: true });
+
+    GRADES.forEach((g, gi) => {
+      const gradeId = `g${short}${gi + 1}`;
+      const roomId = `r${short}${gi + 1}`;
+      data.gradeLevels.push({ id: gradeId, yearId, name: g.n });
+      data.classrooms.push({ id: roomId, yearId, gradeLevelId: gradeId, room: g.room });
+
+      // นักเรียน 10 คน
+      if (!data.rosters) data.rosters = {};
+      const students = Array.from({ length: 10 }, (_, i) => ({
+        id: `S${short}${gi + 1}${i}`,
+        code: `${short}${gi + 1}${String(i + 1).padStart(2, '0')}`,   // เช่น 68101
+        name: `${SEED_FIRST[(gi * 3 + i) % SEED_FIRST.length]} ${SEED_LAST[i % SEED_LAST.length]}`,
+        classId: roomId,
+      }));
+      data.rosters[roomId] = students;
+
+      // วิชาหลัก (คิดเกรด) + กิจกรรม/ชมรม (ผ/มผ)
+      SEED_SUBJECTS.forEach((subj, si) => {
+        const courseId = `c${short}${gi + 1}_${subj.key}`;
+        data.courses.push({
+          id: courseId, classroomId: roomId, code: `${subj.code}${g.lv}10${si + 1}`, name: subj.name,
+          key: subj.key, teacherId: 'T001', teacherName: 'ครูสมชาย ใจดี', ownerUsername: 'teacher1',
+          components: DEFAULT_COMPONENTS.map(c => ({ ...c })), gradingMode: 'numeric', createdAt: now,
+        });
+        data.scores[courseId] = students.map((s, i) => {
+          const target = SEED_GRADE_PLAN[(i + si) % 10];
+          if (target === 'ร') return { studentCode: s.code, studentName: s.name, scores: { collected: 30, midterm: null, final: null }, symbol: 'ร' };
+          return { studentCode: s.code, studentName: s.name, scores: pctToScores(GRADE_PCT[target]) };
+        });
+      });
+
+      SEED_ACTIVITIES.forEach((act, ai) => {
+        const courseId = `c${short}${gi + 1}_${act.key}`;
+        data.courses.push({
+          id: courseId, classroomId: roomId, code: `ก${g.lv}90${ai + 1}`, name: act.name,
+          key: act.key, teacherId: 'T001', teacherName: 'ครูสมชาย ใจดี', ownerUsername: 'teacher1',
+          components: DEFAULT_COMPONENTS.map(c => ({ ...c })), gradingMode: 'symbol', createdAt: now,
+        });
+        data.scores[courseId] = students.map((s, i) => ({
+          studentCode: s.code, studentName: s.name, scores: {}, symbol: SEED_ACT_PLAN[(i + ai) % 10],
+        }));
+      });
+    });
+  }
+
+  save(data);
+  return true;
+}
+
+// ── cohort ที่เลื่อนชั้น ม.1(2567) → ม.2(2568) → ม.3(2569) รหัสเดิม — ให้ ปพ.1 แสดงผลครบทุกปี ──
+const COHORT_NAMES: [string, string][] = [
+  ['ธนกร', 'วัฒนชัย'], ['ปาริชาต', 'ทองดี'], ['ศุภกร', 'ใจเพชร'], ['กมลชนก', 'พูนสุข'],
+  ['ณัฐพงษ์', 'อินทร์แก้ว'], ['พิมพ์ชนก', 'ศรีสมบัติ'], ['อภิสิทธิ์', 'คงทน'], ['สุชานาถ', 'บุญเรือง'],
+  ['ธนวัฒน์', 'มีสุข'], ['ชนัญชิดา', 'เพชรงาม'], ['ภูริพัฒน์', 'วงศ์ทอง'], ['อารดา', 'สินทรัพย์'],
+];
+const COHORT_PLAN = ['4', '3.5', '3', '2.5', '2', '1.5', '1', '0', 'ร', '3.5', '3', '2.5'];
+
+function seedCohortProgression(data: AcademicData) {
+  const now = Date.now();
+  if (!data.rosters) data.rosters = {};
+  const cohort = COHORT_NAMES.map(([f, l], i) => ({ id: `SC${i}`, code: `300${String(i + 1).padStart(2, '0')}`, name: `${f} ${l}` }));
+  // ห้องที่ cohort เรียนแต่ละปี (เลื่อนชั้นตามจริง): 2567 ม.1/1 → 2568 ม.2/2 → 2569 ม.3/1
+  const stops = [{ roomId: 'r1', lv: '21' }, { roomId: 'r682', lv: '22' }, { roomId: 'r693', lv: '23' }];
+
+  stops.forEach((stop, yi) => {
+    if (!data.classrooms.some(c => c.id === stop.roomId)) return;
+    const roster = data.rosters![stop.roomId] || [];
+    cohort.forEach(c => { if (!roster.some(r => r.code === c.code)) roster.push({ id: `${c.id}_${stop.roomId}`, code: c.code, name: c.name, classId: stop.roomId }); });
+    data.rosters![stop.roomId] = roster;
+
+    let roomCourses = data.courses.filter(c => c.classroomId === stop.roomId);
+    if (roomCourses.length === 0) {
+      SEED_SUBJECTS.forEach((subj, si) => data.courses.push({
+        id: `c${stop.roomId}_${subj.key}`, classroomId: stop.roomId, code: `${subj.code}${stop.lv}10${si + 1}`, name: subj.name,
+        key: subj.key, teacherId: 'T001', teacherName: 'ครูสมชาย ใจดี', ownerUsername: 'teacher1',
+        components: DEFAULT_COMPONENTS.map(c => ({ ...c })), gradingMode: 'numeric', createdAt: now,
+      }));
+      SEED_ACTIVITIES.forEach((act, ai) => data.courses.push({
+        id: `c${stop.roomId}_${act.key}`, classroomId: stop.roomId, code: `ก${stop.lv}90${ai + 1}`, name: act.name,
+        key: act.key, teacherId: 'T001', teacherName: 'ครูสมชาย ใจดี', ownerUsername: 'teacher1',
+        components: DEFAULT_COMPONENTS.map(c => ({ ...c })), gradingMode: 'symbol', createdAt: now,
+      }));
+      roomCourses = data.courses.filter(c => c.classroomId === stop.roomId);
+    }
+
+    roomCourses.forEach((course, ci) => {
+      const arr = data.scores[course.id] || (data.scores[course.id] = []);
+      cohort.forEach((cst, i) => {
+        if (arr.some(e => e.studentCode === cst.code)) return;
+        if (course.gradingMode === 'symbol') {
+          arr.push({ studentCode: cst.code, studentName: cst.name, scores: {}, symbol: (i + ci) % 8 === 6 ? 'มผ' : 'ผ' });
+        } else {
+          const target = COHORT_PLAN[(i + ci + yi) % COHORT_PLAN.length];
+          if (target === 'ร') arr.push({ studentCode: cst.code, studentName: cst.name, scores: { collected: 28 }, symbol: 'ร' });
+          else arr.push({ studentCode: cst.code, studentName: cst.name, scores: pctToScores(GRADE_PCT[target]) });
+        }
+      });
+    });
+  });
+}
+
+/** seed cohort ที่เลื่อนชั้น (รันครั้งเดียว หลัง seedDemoAcademics) */
+export function seedDemoCohort(): boolean {
+  if (!isBrowser()) return false;
+  const data = load();
+  if (data.demoV2) return false;
+  if (!data.years.some(y => y.year === '2568')) return false; // รอ seed หลักก่อน
+  seedCohortProgression(data);
+  data.demoV2 = true;
+  save(data);
+  return true;
+}
+
+// ── seed คะแนนให้บัญชี demo ในห้อง ม.1/1 (r691): 10021-10025 ──
+// เดิม seedDemoAcademics ให้คะแนนเฉพาะ roster 69xxx ทำให้ student1 (10021) ไม่มีเกรดในระบบ
+// → หน้า Dashboard (fallback mock 3.75) ไม่ตรงกับหน้าผลการเรียน (—) · เติมให้ครบเพื่อให้ตรงกัน
+const MOCK_ROSTER_ROOM = 'r691';
+const MOCK_ROSTER_PLAN: Record<string, string[]> = {
+  '10021': ['4', '3.5', '4', '3.5', '3.5', '4', '3', '3.5'],   // student1 (ธนาพร) — เก่ง
+  '10022': ['3', '3.5', '3', '2.5', '3', '3.5', '2.5', '3'],
+  '10023': ['2.5', '2', '2.5', '3', '2', '2.5', '3', '2.5'],
+  '10024': ['3.5', '3', '3.5', '3', '4', '3', '3.5', 'ร'],
+  '10025': ['2', '2.5', '2', '1.5', '2.5', '2', '1.5', '2'],
+};
+
+export function seedDemoRosterGrades(): boolean {
+  if (!isBrowser()) return false;
+  const data = load();
+  if (data.demoRosterGrades) return false;
+  if (!data.classrooms.some(c => c.id === MOCK_ROSTER_ROOM)) return false; // รอ seedDemoAcademics ก่อน
+
+  const students = getClassroomStudents(MOCK_ROSTER_ROOM).filter(s => MOCK_ROSTER_PLAN[s.code]);
+  if (students.length === 0) return false;
+
+  data.courses.filter(c => c.classroomId === MOCK_ROSTER_ROOM).forEach((course, ci) => {
+    const arr = data.scores[course.id] || (data.scores[course.id] = []);
+    students.forEach(s => {
+      if (arr.some(e => e.studentCode === s.code)) return; // มีคะแนนแล้ว ไม่ทับ
+      if (course.gradingMode === 'symbol') {
+        arr.push({ studentCode: s.code, studentName: s.name, scores: {}, symbol: 'ผ' });
+      } else {
+        const plan = MOCK_ROSTER_PLAN[s.code];
+        const target = plan[ci % plan.length];
+        if (target === 'ร') arr.push({ studentCode: s.code, studentName: s.name, scores: { collected: 30 }, symbol: 'ร' });
+        else arr.push({ studentCode: s.code, studentName: s.name, scores: pctToScores(GRADE_PCT[target]) });
+      }
+    });
+  });
+
+  data.demoRosterGrades = true;
+  save(data);
+  return true;
+}
+
+/** seed ห้องทดสอบให้ครบทุกชั้น ป.1-6 และ ม.1-6 ในปี 2569 (ห้องละ 6 คน) — ไว้ทดสอบเลื่อนชั้น */
+export function seedFullGrades(): boolean {
+  if (!isBrowser()) return false;
+  const data = load();
+  if (data.demoV3) return false;
+  const year = data.years.find(y => y.year === '2569');
+  if (!year) return false;
+  if (!data.rosters) data.rosters = {};
+  const GRADES = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
+  GRADES.forEach((gname, gi) => {
+    let g = data.gradeLevels.find(x => x.yearId === year.id && x.name === gname);
+    if (!g) { g = { id: `gfull${gi}`, yearId: year.id, name: gname }; data.gradeLevels.push(g); }
+    let room = data.classrooms.find(c => c.gradeLevelId === g!.id && c.room === '1');
+    if (!room) { room = { id: `rfull${gi}`, yearId: year.id, gradeLevelId: g.id, room: '1' }; data.classrooms.push(room); }
+    if (!data.rosters![room.id]?.length) {
+      data.rosters![room.id] = Array.from({ length: 6 }, (_, i) => ({
+        id: `SF${gi}${i}`, code: `5${String(gi + 1).padStart(2, '0')}${String(i + 1).padStart(2, '0')}`,
+        name: `${SEED_FIRST[(gi + i) % SEED_FIRST.length]} ${SEED_LAST[i % SEED_LAST.length]}`, classId: room!.id,
+      }));
+    }
+  });
+  data.demoV3 = true;
+  save(data);
+  return true;
+}
+
+// ─── เลื่อนระดับชั้น (แมนนวล) ──────────────────────────────────────────────
+/** ชั้นถัดไป: ป.1→…→ป.6→ม.1 · ม.1→ม.2→ม.3 — คืน null ถ้าเลื่อนต่อไม่ได้ */
+function nextGradeName(name: string): string | null {
+  const m = name.match(/^(ป|ม)\.(\d+)$/);
+  if (!m) return null;
+  const lvl = m[1]; const num = parseInt(m[2]);
+  if (lvl === 'ป') return num < 6 ? `ป.${num + 1}` : 'ม.1';   // ป.6 → ม.1
+  return num < 6 ? `ม.${num + 1}` : null;                      // ม.1→…→ม.6 (ม.6 = สูงสุด)
+}
+
+/**
+ * เลื่อนนักเรียนทั้งห้องขึ้นชั้นถัดไปในปีถัดไป (แมนนวล — ครู/แอดมินกดเอง)
+ * สร้างปี/ระดับชั้น/ห้องปลายทางให้อัตโนมัติถ้ายังไม่มี · คัดลอกรายชื่อ (รหัสเดิม)
+ * TODO(PostgreSQL): ทำเป็น transaction + บันทึกประวัติการเลื่อนชั้น
+ */
+export function promoteClassroom(sourceRoomId: string): { ok: boolean; error?: string; targetYear?: string; targetGrade?: string } {
+  const data = load();
+  const room = data.classrooms.find(c => c.id === sourceRoomId);
+  if (!room) return { ok: false, error: 'ไม่พบห้องต้นทาง' };
+  const grade = data.gradeLevels.find(g => g.id === room.gradeLevelId);
+  const year = data.years.find(y => y.id === room.yearId);
+  if (!grade || !year) return { ok: false, error: 'ข้อมูลห้องไม่สมบูรณ์' };
+  const ng = nextGradeName(grade.name);
+  if (!ng) return { ok: false, error: `${grade.name} เป็นชั้นสูงสุด เลื่อนต่อไม่ได้` };
+  const students = getClassroomStudents(sourceRoomId);
+  if (students.length === 0) return { ok: false, error: 'ห้องนี้ยังไม่มีนักเรียน' };
+
+  const targetYearStr = String(parseInt(year.year) + 1);
+  let ty = data.years.find(y => y.year === targetYearStr);
+  if (!ty) { ty = { id: `y${Date.now()}`, year: targetYearStr, createdBy: getSession()?.username || 'system', createdAt: Date.now(), active: true }; data.years.push(ty); }
+  let tg = data.gradeLevels.find(g => g.yearId === ty!.id && g.name === ng);
+  if (!tg) { tg = { id: `g${Date.now()}`, yearId: ty.id, name: ng }; data.gradeLevels.push(tg); }
+  let tr = data.classrooms.find(c => c.gradeLevelId === tg!.id && c.room === room.room);
+  if (!tr) { tr = { id: `r${Date.now()}`, yearId: ty.id, gradeLevelId: tg.id, room: room.room }; data.classrooms.push(tr); }
+
+  if (!data.rosters) data.rosters = {};
+  const troster = data.rosters[tr.id] || [];
+  students.forEach(st => { if (!troster.some(x => x.code === st.code)) troster.push({ id: `S${Date.now()}_${st.code}`, code: st.code, name: st.name, classId: tr!.id }); });
+  data.rosters[tr.id] = troster;
+  save(data);
+  return { ok: true, targetYear: targetYearStr, targetGrade: `${ng}/${room.room}` };
 }
 
 // ─── สิทธิ์การใช้งานคะแนน ─────────────────────────────────────────────────
@@ -427,6 +715,14 @@ export function getClassroomStudents(classroomId: string): TeacherStudent[] {
   return merged;
 }
 
+/** รหัสนักเรียนทั้งหมดที่มีอยู่จริงในทุกห้อง (mock + roster + cohort) — ใช้ seed ผลประเมินให้ครบทุกคน */
+export function allStudentCodes(): string[] {
+  const data = load();
+  const set = new Set<string>();
+  data.classrooms.forEach(c => getClassroomStudents(c.id).forEach(s => set.add(s.code)));
+  return [...set];
+}
+
 export function addStudentToClassroom(classroomId: string, code: string, name: string): boolean {
   const data = load();
   if (getClassroomStudents(classroomId).some(s => s.code === code)) return false;
@@ -473,21 +769,29 @@ export function saveScores(courseId: string, entries: ScoreEntry[]): boolean {
 }
 
 // ─── คำนวณคะแนน/เกรด (โปร่งใส ตรวจสอบได้) ───────────────────────────────
-/** คะแนนรวมของนักเรียน = ผลบวกทุกหัวข้อที่กรอกแล้ว (ยังไม่กรอกเลย = null) */
-export function calcTotal(e: ScoreEntry): number | null {
-  const vals = Object.values(e.scores).filter((v): v is number => v !== null && v !== undefined);
+/** id ของหัวข้อที่ "คิดรวม" ในคะแนนวิชา (ตัดหัวข้อประเมินแยก เช่น สมรรถนะ/อ่านคิดวิเคราะห์ ออก) */
+function countedIds(course: Course): Set<string> {
+  return new Set(course.components.filter(c => !c.excludeFromTotal).map(c => c.id));
+}
+
+/** คะแนนรวมของนักเรียน = ผลบวกเฉพาะหัวข้อที่คิดรวม (ยังไม่กรอกเลย = null) */
+export function calcTotal(e: ScoreEntry, course: Course): number | null {
+  const counted = countedIds(course);
+  const vals = Object.entries(e.scores)
+    .filter(([id, v]) => counted.has(id) && v !== null && v !== undefined)
+    .map(([, v]) => v as number);
   if (vals.length === 0) return null;
   return vals.reduce((s, v) => s + v, 0);
 }
 
-/** คะแนนเต็มรวมของวิชา = ผลบวก max ทุกหัวข้อ */
+/** คะแนนเต็มรวมของวิชา = ผลบวก max เฉพาะหัวข้อที่คิดรวม (ไม่รวมหัวข้อประเมินแยก) */
 export function maxTotal(course: Course): number {
-  return course.components.reduce((s, c) => s + c.max, 0);
+  return course.components.filter(c => !c.excludeFromTotal).reduce((s, c) => s + c.max, 0);
 }
 
 /** เปอร์เซ็นต์ = รวม ÷ เต็มรวม × 100 — ใช้คิดเกรด ไม่ว่าสัดส่วนจะรวมเป็นเท่าไร */
 export function calcPercent(e: ScoreEntry, course: Course): number | null {
-  const total = calcTotal(e);
+  const total = calcTotal(e, course);
   const max = maxTotal(course);
   if (total === null || max === 0) return null;
   return (total / max) * 100;
@@ -537,10 +841,37 @@ export interface StudentGradeRow {
   grade: string;
   gradingMode: GradingMode;  // 'symbol' = วิชากิจกรรม/ชุมนุม ไม่คิดเกรด
   isSpecial: boolean;        // เกรดเป็นสัญลักษณ์ (ไม่คิด GPA)
+  credit: number;            // หน่วยกิต (ดึงจากคลังวิชาตามรหัสวิชา) — ใช้ถ่วงน้ำหนัก GPA
+}
+
+/**
+ * หน่วยกิตมาตรฐานตามกลุ่มสาระ (เกณฑ์ สพฐ. ต่อภาคเรียน) — ใช้เมื่อรหัสวิชาไม่มีในคลัง
+ * เพื่อให้ GPA ถ่วงน้ำหนัก "ครบทุกวิชา" ไม่ใช่เฉพาะวิชาที่แอดมินเพิ่มในคลังเท่านั้น
+ * (รองรับ alias ของ key ที่ใช้กระจายในโปรเจกต์: sci/science, eng/english)
+ */
+const STANDARD_CREDIT_BY_KEY: Record<string, number> = {
+  thai: 1.5, math: 1.5, science: 1.5, sci: 1.5, social: 1.5, english: 1.5, eng: 1.5,
+  pe: 0.5, health: 0.5, art: 0.5, music: 0.5, career: 0.5, work: 0.5, com: 1.0,
+  guidance: 0, club: 0, scout: 0, activity: 0,
+};
+
+/** map รหัสวิชา → หน่วยกิต จากคลังวิชา (แหล่งความจริงหลักเมื่อแอดมินตั้งค่าไว้) */
+function creditByCode(): Record<string, number> {
+  const map: Record<string, number> = {};
+  for (const s of getCatalogSubjects()) map[s.code] = s.credit;
+  return map;
+}
+
+/** หน่วยกิตของรายวิชา: คลังวิชา (รหัสตรง) → มาตรฐานตามกลุ่มสาระ → 1.0 */
+function resolveCredit(course: Course, catalog: Record<string, number>): number {
+  if (catalog[course.code] !== undefined) return catalog[course.code];
+  if (STANDARD_CREDIT_BY_KEY[course.key] !== undefined) return STANDARD_CREDIT_BY_KEY[course.key];
+  return 1;
 }
 
 export function getStudentGrades(studentCode: string): StudentGradeRow[] {
   const data = load();
+  const credits = creditByCode();
   const rows: StudentGradeRow[] = [];
   for (const course of data.courses) {
     const entry = (data.scores[course.id] || []).find(e => e.studentCode === studentCode);
@@ -555,24 +886,33 @@ export function getStudentGrades(studentCode: string): StudentGradeRow[] {
       classroomLabel: grade && room ? `${grade.name}/${room.room}` : '—',
       academicYear: year?.year || '—',
       breakdown: course.components.map(c => ({ name: c.name, max: c.max, score: entry.scores[c.id] ?? null })),
-      total: calcTotal(entry), maxTotal: maxTotal(course),
+      total: calcTotal(entry, course), maxTotal: maxTotal(course),
       grade: finalGrade,
       gradingMode: course.gradingMode,
       isSpecial: isSpecialGrade(finalGrade),
+      credit: resolveCredit(course, credits),
     });
   }
   return rows;
 }
 
 /**
- * GPA เฉลี่ยจากวิชาที่คิดเกรดเท่านั้น (น้ำหนักเท่ากันทุกวิชา — TODO: ถ่วงด้วยหน่วยกิตเมื่อมีข้อมูลจริง)
+ * GPA (GPAX) ถ่วงน้ำหนักด้วยหน่วยกิต ตามระเบียบการวัดผล สพฐ.:
+ *   GPA = Σ(เกรด × หน่วยกิต) ÷ Σ(หน่วยกิต) เฉพาะวิชาที่คิดเกรด
  * วิชากิจกรรม/ชุมนุม และผลแบบสัญลักษณ์ (ผ/มผ/ร/มส/ขส/ขร) ไม่ถูกนำมาคิด
+ * (วิชาที่ไม่พบหน่วยกิตในคลัง ใช้ค่า 1.0 เท่ากันทุกวิชา = เทียบเท่าค่าเฉลี่ยแบบเดิม)
  */
 export function calcGPA(rows: StudentGradeRow[]): number | null {
-  const graded = rows
-    .filter(r => r.grade !== '—' && !r.isSpecial)
-    .map(r => parseFloat(r.grade))
-    .filter(g => !Number.isNaN(g));
-  if (graded.length === 0) return null;
-  return graded.reduce((s, g) => s + g, 0) / graded.length;
+  let weightedSum = 0;
+  let totalCredit = 0;
+  for (const r of rows) {
+    if (r.grade === '—' || r.isSpecial) continue;
+    const g = parseFloat(r.grade);
+    if (Number.isNaN(g)) continue;
+    const credit = r.credit > 0 ? r.credit : 1;
+    weightedSum += g * credit;
+    totalCredit += credit;
+  }
+  if (totalCredit === 0) return null;
+  return weightedSum / totalCredit;
 }

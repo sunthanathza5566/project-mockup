@@ -88,12 +88,13 @@ export default function TeacherOverview({
   }
 
   const kpis = [
-    { num: classes.length, label: t('ห้องที่สอน') },
-    { num: todayPeriods, label: t('คาบวันนี้') },
-    { num: weekPeriods, label: 'คาบต่อสัปดาห์' },
+    { num: classes.length, label: t('ห้องที่สอน'), accent: '#4A7BA6' },
+    { num: todayPeriods, label: t('คาบวันนี้'), accent: '#C4804A' },
+    { num: weekPeriods, label: 'คาบต่อสัปดาห์', accent: '#5C8A5C' },
     {
       num: ratingSummary.avg !== null ? `⭐ ${ratingSummary.avg.toFixed(1)}` : '⭐ —',
       label: `ผลประเมินการสอน (${ratingSummary.count} ครั้ง)`,
+      accent: '#B8863B',
     },
   ];
 
@@ -114,8 +115,8 @@ export default function TeacherOverview({
 
         <div className="dash-kpi-row">
           {kpis.map((k, i) => (
-            <div key={i} className="dash-kpi">
-              <div className="dash-kpi-num">{k.num}</div>
+            <div key={i} className="dash-kpi" style={{ borderTop: `3px solid ${k.accent}` }}>
+              <div className="dash-kpi-num" style={{ color: k.accent }}>{k.num}</div>
               <div className="dash-kpi-label">{k.label}</div>
             </div>
           ))}

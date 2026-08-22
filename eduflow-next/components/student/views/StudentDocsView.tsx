@@ -10,15 +10,17 @@
 import { useEffect, useState } from 'react';
 import type { StudentProfile } from '@/lib/types';
 import { getStudentGrades, calcGPA, type StudentGradeRow } from '@/lib/api/academic.store';
-import { exportStudentGradeReport, exportTranscriptPP1 } from '@/lib/utils/excel-export';
 import { PP_DOCS, isDocAllowedForGrade, allowedGradesLabel, type PPDoc } from '@/lib/report-docs';
+import ReportDocPreview from '@/components/teacher/ReportDocPreview';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props { profile: StudentProfile; showToast: (m: string) => void }
 
 /** เอกสารที่ออกให้นักเรียนได้จริงตอนนี้ (มีข้อมูลจากคะแนน) */
 const STUDENT_READY: Record<string, 'transcript' | 'report'> = { pp1: 'transcript', pp6: 'report' };
 
-export default function StudentDocsView({ profile, showToast }: Props) {
+export default function StudentDocsView({ profile }: Props) {
+  const { notify } = useDialog();
   const [rows, setRows] = useState<StudentGradeRow[]>([]);
   const [preview, setPreview] = useState<PPDoc | null>(null);
 
@@ -34,17 +36,10 @@ export default function StudentDocsView({ profile, showToast }: Props) {
     return { status: 'soon', note: 'กำลังพัฒนา' };
   }
 
-  async function download(doc: PPDoc) {
-    if (rows.length === 0) { showToast('ยังไม่มีผลการเรียนให้ออกเอกสาร'); return; }
-    if (STUDENT_READY[doc.id] === 'transcript') await exportTranscriptPP1(fullName, profile.studentId, rows);
-    else await exportStudentGradeReport(fullName, profile.studentId, rows);
-    showToast(`ดาวน์โหลด ${doc.name} (${doc.title}) แล้ว`);
-  }
-
   function handlePick(doc: PPDoc) {
     const st = docState(doc);
-    if (st.status === 'locked') { showToast(`${doc.name} ${st.note}`); return; }
-    if (st.status === 'soon') { showToast(`${doc.name} (${doc.title}) กำลังพัฒนา`); return; }
+    if (st.status === 'locked') { notify({ title: `${doc.name} ถูกล็อก`, message: st.note, variant: 'warning' }); return; }
+    if (st.status === 'soon') { notify({ title: `${doc.name} กำลังพัฒนา`, message: doc.title, variant: 'info' }); return; }
     setPreview(doc); // เปิดพรีวิวก่อนดาวน์โหลด
   }
 
@@ -79,45 +74,16 @@ export default function StudentDocsView({ profile, showToast }: Props) {
         })}
       </div>
 
-      {/* ── พรีวิวเอกสาร ── */}
+      {/* ── พรีวิวเอกสาร (ตัวเดียวกับฝั่งครู — พิมพ์/บันทึก PDF ได้) ── */}
       {preview && (
-        <div className="sched-modal-wrap" onClick={() => setPreview(null)}>
-          <div className="sched-modal" style={{ width: 'min(760px, 96vw)' }} onClick={e => e.stopPropagation()}>
-            <div className="sched-modal-title">📄 พรีวิว {preview.name} — {preview.title}</div>
-            <div className="sched-modal-sub">{fullName} · รหัส {profile.studentId} · {profile.grade}/{profile.room} · ปีการศึกษา {profile.academicYear}</div>
-
-            {rows.length === 0 ? (
-              <div className="stu-empty">ยังไม่มีผลการเรียนในระบบ</div>
-            ) : (
-              <div className="sched-scroll">
-                <table className="sched-course-table">
-                  <thead>
-                    <tr><th>รหัสวิชา</th><th style={{ textAlign: 'left' }}>รายวิชา</th><th>หน่วยกิต</th><th>ผลการเรียน</th></tr>
-                  </thead>
-                  <tbody>
-                    {rows.map(r => (
-                      <tr key={r.courseId}>
-                        <td style={{ textAlign: 'center', fontFamily: 'monospace' }}>{r.courseCode}</td>
-                        <td>{r.courseName}</td>
-                        <td style={{ textAlign: 'center' }}>{r.gradingMode === 'symbol' ? '—' : '1.0'}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--brown-dark)' }}>{r.grade}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <div className="ez-help-box" style={{ margin: '0.85rem 0' }}>
-              เกรดเฉลี่ยสะสม (GPA): <b>{gpa !== null ? gpa.toFixed(2) : '—'}</b> · เอกสารฉบับเต็มอยู่ในไฟล์ที่ดาวน์โหลด
-            </div>
-
-            <div className="sched-modal-actions">
-              <button className="ez-btn ez-btn-primary" onClick={() => { download(preview); setPreview(null); }}>📥 ดาวน์โหลด {preview.name} (Excel)</button>
-              <button className="ez-btn ez-btn-ghost" onClick={() => setPreview(null)}>ปิด</button>
-            </div>
-          </div>
-        </div>
+        <ReportDocPreview
+          doc={preview}
+          classroomLabel={`${profile.grade}/${profile.room}`}
+          academicYear={profile.academicYear}
+          classroomId=""
+          student={{ code: profile.studentId, name: fullName }}
+          onClose={() => setPreview(null)}
+        />
       )}
     </div>
   );

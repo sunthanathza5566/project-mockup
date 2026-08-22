@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { SchedulePeriod } from '@/lib/types';
 import { submitTeacherRating, hasRatedToday, markRatedToday } from '@/lib/api/ratings.store';
+import { useDialog } from '@/context/DialogContext';
 
 interface Props {
   todaySchedule: SchedulePeriod[];
@@ -15,18 +16,20 @@ interface Props {
  * - เลือกคาบจากตารางเรียนวันนี้ → ให้ดาว 1–5 + คอมเมนต์
  * - ส่งแบบ "นิรนาม" — ไม่แนบชื่อ/รหัสนักเรียน ครูไม่ทราบว่าใครประเมิน
  */
-export default function TeacherRatingModal({ todaySchedule, onClose, showToast }: Props) {
+export default function TeacherRatingModal({ todaySchedule, onClose }: Props) {
+  const { confirm, notify } = useDialog();
   const [selPeriod, setSelPeriod] = useState<SchedulePeriod | null>(null);
   const [stars,     setStars]     = useState(0);
   const [comment,   setComment]   = useState('');
 
-  function handleSubmit() {
-    if (!selPeriod) { showToast('เลือกคาบเรียนก่อน'); return; }
-    if (stars === 0) { showToast('ให้คะแนนดาวก่อน (1–5)'); return; }
+  async function handleSubmit() {
+    if (!selPeriod) { notify({ title: 'ยังส่งไม่ได้', message: 'เลือกคาบเรียนก่อน', variant: 'warning' }); return; }
+    if (stars === 0) { notify({ title: 'ยังส่งไม่ได้', message: 'ให้คะแนนดาวก่อน (1–5)', variant: 'warning' }); return; }
+    if (!(await confirm({ title: 'ส่งแบบประเมิน (นิรนาม)?', message: <>คาบ {selPeriod.period} · {selPeriod.subject} · {'⭐'.repeat(stars)}<br /><span style={{ color: 'var(--text-muted)' }}>ส่งแล้วแก้ไขไม่ได้</span></>, confirmText: 'ส่งแบบประเมิน' }))) return;
     submitTeacherRating(selPeriod.teacher, selPeriod.subject, stars, comment.trim());
     markRatedToday(selPeriod.teacher, selPeriod.subject);
-    showToast('ส่งแบบประเมินแบบนิรนามแล้ว — ขอบคุณครับ');
     onClose();
+    notify({ title: 'ส่งแบบประเมินแล้ว', message: 'ขอบคุณสำหรับความคิดเห็น 🙏', variant: 'success' });
   }
 
   return (

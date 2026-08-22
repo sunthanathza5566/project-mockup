@@ -256,6 +256,105 @@ export function getTeacherBookings(teacherUsername: string): TutorBooking[] {
   return loadBookings().filter(b => b.teacherUsername === teacherUsername).sort((a, b) => b.createdAt - a.createdAt);
 }
 
+// ─── ข้อมูลจำลอง (เดโม่) ────────────────────────────────────────────────────
+/**
+ * จำลองข้อมูลเปิดสอนพิเศษของครูเดโม่ (teacher1 / ครูสมชาย ใจดี) ให้สมจริง:
+ *   - เปิดสอน "คณิตศาสตร์" 2 รายการ (นอกเวลาที่โรงเรียน + ติวเข้มออนไลน์วันเสาร์)
+ *   - นักเรียนที่จอง = นักเรียน ม.1/1 ที่ครูสอนคณิตศาสตร์อยู่จริง (รหัส 10021–10025)
+ *   - สถานะจองหลากหลาย (ยืนยันแล้ว / รอยืนยัน / เรียนเสร็จสิ้น) + แจ้งเตือนถึงทั้งสองฝ่าย
+ *
+ * idempotent: ถ้าครูคนนี้มีรายการเปิดสอนอยู่แล้วจะไม่ทำซ้ำ
+ */
+export function seedDemoTutoring(teacherUsername: string, teacherId: string, teacherName: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const offers = loadOffers();
+  if (offers.some(o => o.teacherUsername === teacherUsername)) return false; // มีแล้ว ไม่ทับ
+
+  const day = 86_400_000;
+  const now = Date.now();
+  const yearBE = new Date().getFullYear() + 543;
+  const tUpper = teacherId.toUpperCase();
+
+  const offA: TutorOffer = {
+    id: `tof_demo_a_${teacherUsername}`,
+    teacherUsername, teacherId, teacherName,
+    subjectKey: 'math', subjectName: 'คณิตศาสตร์', subjectCode: 'ค21101',
+    gradeLevels: 'ม.1–ม.3', mode: 'school',
+    location: 'ห้อง 235 อาคารเรียน 2 (หลังเลิกเรียน)',
+    pricePerHour: 150, capacity: 8,
+    slots: [
+      { id: 'ts_demo_a1', day: 'mon', start: '16:30', end: '18:00' },
+      { id: 'ts_demo_a2', day: 'thu', start: '16:30', end: '18:00' },
+    ],
+    contact: 'LINE: kru.somchai.math',
+    note: 'ทบทวนเนื้อหาประจำสัปดาห์ + ตะลุยโจทย์ก่อนสอบเก็บคะแนน',
+    documentName: 'หนังสืออนุมัติสอนพิเศษ-สมชาย.pdf',
+    documentRef: `TR-${yearBE}-0001`,
+    verified: true, active: true,
+    createdAt: now - 18 * day,
+  };
+  const offB: TutorOffer = {
+    id: `tof_demo_b_${teacherUsername}`,
+    teacherUsername, teacherId, teacherName,
+    subjectKey: 'math', subjectName: 'คณิตศาสตร์ (ติวเข้มวันเสาร์)', subjectCode: 'ค21201',
+    gradeLevels: 'ม.1–ม.3', mode: 'online',
+    location: 'Google Meet: meet.google.com/kru-somchai-math',
+    pricePerHour: 120, capacity: 15,
+    slots: [{ id: 'ts_demo_b1', day: 'sat', start: '09:00', end: '11:00' }],
+    contact: 'LINE: kru.somchai.math',
+    note: 'ติวเข้มพิเศษวันเสาร์ เน้นโจทย์แข่งขันและข้อสอบเก่า',
+    documentName: 'หนังสืออนุมัติสอนพิเศษ-สมชาย.pdf',
+    documentRef: `TR-${yearBE}-0002`,
+    verified: false, active: true,
+    createdAt: now - 10 * day,
+  };
+  saveOffers([offB, offA, ...offers]);
+
+  // นักเรียน ม.1/1 ที่ครูสมชายสอนคณิตศาสตร์อยู่จริง
+  const CLASS = 'ม.1/1';
+  type Seed = { offer: TutorOffer; slotId: string; code: string; name: string; status: BookingStatus; note: string; daysAgo: number };
+  const seeds: Seed[] = [
+    { offer: offA, slotId: 'ts_demo_a1', code: '10021', name: 'ธนาพร สุขใจ',  status: 'confirmed', note: 'อยากแม่นเรื่องสมการเชิงเส้น', daysAgo: 15 },
+    { offer: offA, slotId: 'ts_demo_a1', code: '10023', name: 'มาลี วาดเก่ง', status: 'confirmed', note: '',                              daysAgo: 14 },
+    { offer: offA, slotId: 'ts_demo_a1', code: '10024', name: 'อนุชา ดีมาก',  status: 'pending',   note: 'ขอลองเรียนก่อน 1 ครั้ง',       daysAgo: 2 },
+    { offer: offA, slotId: 'ts_demo_a2', code: '10022', name: 'สมศักดิ์ มีสุข', status: 'confirmed', note: 'ตามเนื้อหาที่เรียนในคาบไม่ทัน', daysAgo: 12 },
+    { offer: offA, slotId: 'ts_demo_a2', code: '10025', name: 'สุภา ใจดี',    status: 'done',      note: '',                              daysAgo: 20 },
+    { offer: offB, slotId: 'ts_demo_b1', code: '10021', name: 'ธนาพร สุขใจ',  status: 'confirmed', note: 'ติวเพิ่มวันเสาร์',              daysAgo: 8 },
+    { offer: offB, slotId: 'ts_demo_b1', code: '10022', name: 'สมศักดิ์ มีสุข', status: 'pending',   note: '',                              daysAgo: 1 },
+  ];
+
+  const bookings = loadBookings();
+  seeds.forEach((s, i) => {
+    const slot = s.offer.slots.find(x => x.id === s.slotId)!;
+    const created = now - s.daysAgo * day;
+    bookings.push({
+      id: `tbk_demo_${i}_${teacherUsername}`,
+      refCode: `BK-${yearBE}-${String(i + 1).padStart(4, '0')}`,
+      offerId: s.offer.id,
+      teacherUsername, teacherId, teacherName,
+      subjectName: s.offer.subjectName, subjectCode: s.offer.subjectCode,
+      studentCode: s.code, studentName: s.name, studentClass: CLASS,
+      slotId: s.slotId, slotLabel: slotLabel(slot),
+      mode: s.offer.mode, pricePerHour: s.offer.pricePerHour,
+      note: s.note, status: s.status,
+      createdAt: created,
+      updatedAt: s.status === 'pending' ? undefined : created + 3600_000,
+    });
+  });
+  saveBookings(bookings);
+
+  // แจ้งเตือน: ครูเห็นคำขอที่ยังรอยืนยัน · นักเรียนเห็นการยืนยันของตัวเอง
+  seeds.filter(s => s.status === 'pending').forEach(s =>
+    pushSharedNotification(`teacher:${tUpper}`, 'info', '📘 มีนักเรียนจองเรียนพิเศษ',
+      `${s.name} (${CLASS}) จองวิชา ${s.offer.subjectName} รอบ ${slotLabel(s.offer.slots.find(x => x.id === s.slotId)!)} — รอท่านยืนยัน`));
+  pushSharedNotification('student:10021', 'info', '📘 การจองเรียนพิเศษ: ยืนยันแล้ว',
+    `คณิตศาสตร์ · ${slotLabel(offA.slots[0])} กับ ${teacherName} — พร้อมเรียนได้เลย`);
+
+  logActivity('teacher', 'ลงทะเบียนสอนพิเศษ (ข้อมูลจำลอง)',
+    `${teacherName} เปิดสอนคณิตศาสตร์ 2 รายการ · มีนักเรียนจอง ${seeds.length} รายการ`);
+  return true;
+}
+
 /** ครูยืนยัน/ยกเลิก · นักเรียนยกเลิกของตัวเองได้ */
 export function updateBookingStatus(id: string, status: BookingStatus, reason = ''): boolean {
   const session = getSession();
