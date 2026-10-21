@@ -20,7 +20,7 @@
 - Frontend: Next.js 14.2 (App Router), React 18, TypeScript 5, CSS ล้วน (`eduflow-next/app/globals.css`) — ไม่มี Tailwind
 - Backend: ยังไม่มี — logic อยู่ใน `eduflow-next/lib/api/*.ts` ทำงานบน browser
 - Database: ยังไม่มี — ใช้ `localStorage` (แผนอนาคต: PostgreSQL ผ่าน Prisma หรือ server action — TODO: ถามเจ้าของ)
-- อื่น ๆ: `exceljs` (export ปพ. เป็น Excel), `qrcode` (เช็คชื่อ QR), Google Fonts (Cormorant Garamond, DM Sans, Sarabun)
+- อื่น ๆ: `exceljs` (import/export Excel), `docx` (export SAR), Google Fonts (Sarabun 400/600/700 — ตาม ADR-UI-001)
 
 ## คำสั่งที่ใช้บ่อย
 - ติดตั้ง: `npm --prefix eduflow-next install`
@@ -56,7 +56,7 @@
 ## ข้อตกลงโค้ด
 - ภาษา UI: ไทยเป็นหลัก + อังกฤษผ่าน i18n (`lib/i18n/dict.ts` key = ข้อความไทย, ปุ่ม LangToggle)
 - comment ในโค้ด: ไทยปนอังกฤษได้
-- Theme: warm/cream (โทน `--cream`, `--brown-*` ใน globals.css) ฟอนต์ Cormorant Garamond (หัวเรื่อง) + DM Sans/Sarabun (เนื้อหา) — **ห้ามเปลี่ยนธีม**
+- Theme: **"Warm Academic Workspace" ตาม `.agents/decisions/ADR-UI-001-redesign.md`** (sand + indigo + amber accent, Sarabun ตระกูลเดียว) — เจ้าของอนุญาตออกแบบใหม่ 2026-10-22; เปลี่ยนธีมต่อจากนี้ต้องแก้ ADR ก่อน
 - โครงสร้างเดิม: ห้ามทำลาย ทำต่อหรือปรับปรุงเท่านั้น
 - store ใหม่ใช้ `readJSON/writeJSON` จาก `lib/api/storage-cache.ts` และตรวจสิทธิ์ด้วย `hasPermission()` (`lib/api/permissions.ts`)
 - รูปแบบ commit: Conventional Commits (`feat:`, `fix:`, `chore:` ...)
