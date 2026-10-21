@@ -1,7 +1,7 @@
 ---
-title: "TODO: ชื่อเรื่องภาษาไทย"
-subtitle: "TODO: Title in English"
-author: "TODO: ชื่อผู้วิจัย"
-date: "TODO: ปีการศึกษา"
+title: "ระบบผู้ช่วยจัดทำรายงานการประเมินตนเองระดับหลักสูตรตามเกณฑ์ AUN-QA ด้วยปัญญาประดิษฐ์ (AUN-QA Copilot) [ต้องตรวจสอบ: ชื่อเรื่องที่อาจารย์ที่ปรึกษาอนุมัติ]"
+subtitle: "AUN-QA Copilot: An AI-Assisted Web Application for Programme-Level Self-Assessment Report Preparation [ต้องตรวจสอบ: ชื่อเรื่องภาษาอังกฤษที่อนุมัติ]"
+author: "[ต้องการข้อมูล: ชื่อ-นามสกุลผู้วิจัย (ไม่ใส่คำนำหน้า) และรหัสนักศึกษา]"
+date: "[ต้องการข้อมูล: ภาควิชา คณะ มหาวิทยาลัย และปีการศึกษา]"
 lang: th-TH
 ---
