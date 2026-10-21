@@ -256,8 +256,10 @@ describe('Audit log', () => {
   });
   it('workflow transition เขียน audit (section.* / cycle.*)', async () => {
     const chair = user('chair1');
-    saveSection(chair, CYCLE, '2.1', { narrativeTh: 'เนื้อหา' }, 'manual');
-    api.submitSection(chair, CYCLE, '2.1');
+    const staff = user('staff1');
+    api.assignSections(chair, CYCLE, ['2.1'], staff.id);
+    saveSection(staff, CYCLE, '2.1', { narrativeTh: 'เนื้อหา' }, 'manual');
+    api.submitSection(staff, CYCLE, '2.1');
     api.approveSection(chair, CYCLE, '2.1');
     const a = actions();
     expect(a).toContain('section.ready_for_review');

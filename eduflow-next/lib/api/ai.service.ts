@@ -5,29 +5,36 @@
  *  - ข้อมูลที่ส่งเข้า provider ผ่าน redactDeep เสมอ
  *  - ผลลัพธ์เป็น "ข้อเสนอ" จนกว่า acceptAiRun โดยมนุษย์ที่มีสิทธิ์
  * เคารพ university.aiEnabled
- * TODO(PostgreSQL): ai_runs · Phase B: Claude provider ผ่าน Route Handler app/api/ai/**
+ * Provider: Claude (ผ่าน app/api/ai เมื่อ server มี ANTHROPIC_API_KEY) → ไม่มี/ล้มเหลว = offline เสมอ · post-check ทำที่นี่เหมือนกันทุก provider
+ * TODO(PostgreSQL): ai_runs
  */
 import type {
-  AiFeature, AiRun, AppUser, Evidence, EvidenceLink, Gap, MetricValue, PdcaStage, PostCheckResult, SarSection,
+  AiFeature, AiRun, AppUser, Evidence, EvidenceLink, Gap, MetricValue, PdcaStage, PostCheckResult, Rating, SarSection,
 } from '../types';
 import { newId, sha256Hex, stableStringify } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
-import { extractedTextOf as getExtractedText, linkEvidence, setAiSummary } from './evidence.store';
+import { extractedTextOf as getExtractedText } from './evidence-text.internal';
+import { linkEvidence, setAiSummary } from './evidence.store';
+import { loadCurriculumRaw } from './curriculum-data.internal';
+import { loadGapInput } from './dashboard';
 import { getMetricDefinition } from './metrics.store';
-import { getRequirement, listRequirements } from './framework';
+import { getRequirement, listCriteria, listRequirements } from './framework';
 import { computeGaps } from './gap';
-import { getUniversity, programmeScope } from './org.store';
+import { getProgramme, getUniversity, programmeScope } from './org.store';
 import { can } from './rbac';
 import { citableCodes, saveSection, sectionIdOf } from './sar.store';
 import { cycleScope, getCycleRaw } from './workflow';
 import { redactDeep } from './ai/redact';
 import { mergePostChecks, postCheckText } from './ai/postcheck';
+import { claudeProvider, shouldUseClaude } from './ai/claude';
 import { offlineProvider } from './ai/offline';
-import type { AiProvider, DraftOutput, EvidenceDigest, MetricDigest, ReviewOutput, TagOutput } from './ai/provider';
+import type {
+  AiProvider, DraftOutput, EvidenceDigest, MetricDigest, ReviewOutput, SummaryInput, SummaryOutput, TagOutput, VerbInput, VerbItem, VerbOutput,
+} from './ai/provider';
 
-/** Phase B: เลือก Claude provider เมื่อมี key (ฝั่ง server) — ตอนนี้ offline เสมอ */
-export function getProvider(): AiProvider { return offlineProvider; }
+/** browser จริง → claudeProvider (fallback offline ในตัวเมื่อ server ไม่มี key/ล้มเหลว) · test/SSR → offline */
+export function getProvider(): AiProvider { return shouldUseClaude() ? claudeProvider : offlineProvider; }
 
 function assertAiEnabled(universityId: string) {
   if (getUniversity(universityId)?.aiEnabled === false)
@@ -42,7 +49,8 @@ function saveRun(run: AiRun): AiRun {
 }
 
 /** programmeId ของ run (จาก cycle ก่อน ไม่งั้นจาก evidence) — ให้ audit.view ระดับหลักสูตรมองเห็น */
-function programmeOfRun(refs: { cycleId?: string; evidenceId?: string }): string | undefined {
+function programmeOfRun(refs: { cycleId?: string; evidenceId?: string; programmeId?: string }): string | undefined {
+  if (refs.programmeId) return refs.programmeId;
   if (refs.cycleId) return getCycleRaw(refs.cycleId).programmeId;
   if (refs.evidenceId) return load<Evidence>(KEYS.evidence).find(e => e.id === refs.evidenceId)?.programmeId;
   return undefined;
@@ -50,13 +58,13 @@ function programmeOfRun(refs: { cycleId?: string; evidenceId?: string }): string
 
 async function finalize(
   actor: AppUser, feature: AiFeature, universityId: string, ctx: Record<string, unknown>,
-  refs: { cycleId?: string; requirementId?: string; evidenceId?: string; codes: string[] },
+  refs: { cycleId?: string; requirementId?: string; evidenceId?: string; programmeId?: string; codes: string[] },
   redactionCount: number, output: unknown, postCheck: PostCheckResult, started: number,
 ): Promise<AiRun> {
   const p = getProvider();
   const run = saveRun({
     id: newId('air'), universityId, feature, promptVersion: p.promptVersion, model: p.model,
-    cycleId: refs.cycleId, requirementId: refs.requirementId, evidenceId: refs.evidenceId, inputRefs: refs.codes,
+    cycleId: refs.cycleId, requirementId: refs.requirementId, evidenceId: refs.evidenceId, programmeId: refs.programmeId, inputRefs: refs.codes,
     redactedInputHash: await sha256Hex(stableStringify(ctx)), redactionCount,
     output, postCheck, createdBy: actor.id, createdAt: Date.now(), accepted: false, latencyMs: Date.now() - started,
   });
@@ -174,6 +182,99 @@ export async function runSarReviewer(actor: AppUser, cycleId: string, requiremen
     mergePostChecks(checks.map(c => c.result)), started);
 }
 
+// ─── AI-7: PLO/CLO verb checker (M4) ─────────────────────────────────────
+const BLOOM_CONTEXT = '1 2 3 4 5 6'; // ระดับ Bloom ที่อนุญาตให้ปรากฏในข้อความผลลัพธ์
+
+/** ตรวจคำกริยา PLO/CLO ของหลักสูตรตามระดับ Bloom (ทั้งหมด หรือเฉพาะ ids ที่ระบุ) — ข้อเสนอเท่านั้น ไม่แก้ PLO/CLO เอง */
+export async function runVerbChecker(actor: AppUser, programmeId: string, ids?: string[]): Promise<AiRun> {
+  const started = Date.now();
+  const prog = getProgramme(programmeId);
+  if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
+  if (!can(actor, 'ai.use', programmeScope(programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ใช้ AI');
+  assertAiEnabled(prog.universityId);
+  const cur = loadCurriculumRaw(programmeId);
+  const want = ids ? new Set(ids) : null;
+  const redaction = { count: 0 };
+  const items: VerbItem[] = [
+    ...cur.plos.map(p => ({ id: p.id, code: p.code, kind: 'plo' as const, textTh: p.textTh, textEn: p.textEn, declaredLevel: p.bloomLevel })),
+    ...cur.clos.map(c => ({ id: c.id, code: c.code, kind: 'clo' as const, textTh: c.textTh, textEn: c.textEn ?? '', declaredLevel: c.bloomLevel })),
+  ].filter(it => !want || want.has(it.id)).map(it => {
+    const r = redactDeep({ textTh: it.textTh, textEn: it.textEn }); redaction.count += r.count;
+    return { ...it, textTh: r.value.textTh, textEn: r.value.textEn };
+  });
+  if (!items.length) throw new AunqaError('invalid', 'ไม่พบ PLO/CLO ให้ตรวจ');
+  const input: VerbInput = { items };
+  const out: VerbOutput = await getProvider().checkVerbs(input);
+
+  // ผลต้องอ้างอิงเฉพาะ item ที่ส่งเข้าไป · ข้อความอธิบายต้องไม่มีตัวเลขนอก input (ยกเว้นระดับ Bloom 1–6)
+  const known = new Map(items.map(i => [i.id, i]));
+  const inputContext = `${stableStringify(input)} ${BLOOM_CONTEXT}`;
+  const checks = out.results.map(r => postCheckText(`${r.note} ${r.suggestions.join(' ')}`, { allowedCodes: new Set(), inputContext }));
+  const cleaned: VerbOutput = { results: out.results.filter(r => known.has(r.id)) };
+  return finalize(actor, 'AI-7', prog.universityId, input as unknown as Record<string, unknown>,
+    { programmeId, codes: items.map(i => i.code) }, redaction.count, cleaned,
+    mergePostChecks(checks.map(c => c.result)), started);
+}
+
+// ─── AI-9: assessor summary + interview questions (M12) ──────────────────
+/** สรุป SAR รายเกณฑ์ + คำถามสัมภาษณ์ 5W1H แยกกลุ่ม — เฉพาะกรรมการของรอบ (ai.summarize) · ไม่ให้คะแนน */
+export async function runAssessorSummary(actor: AppUser, cycleId: string, criterionNo: number): Promise<AiRun> {
+  const started = Date.now();
+  const cycle = getCycleRaw(cycleId);
+  if (!can(actor, 'ai.summarize', cycleScope(cycle))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ใช้ AI สรุป');
+  assertAiEnabled(cycle.universityId);
+  const criterion = listCriteria().find(c => c.no === criterionNo);
+  if (!criterion) throw new AunqaError('invalid', 'ไม่พบเกณฑ์');
+
+  const redaction = { count: 0 };
+  const reqs = listRequirements(criterionNo);
+  const gapInput = loadGapInput(cycleId);
+  const gaps = computeGaps(gapInput);
+  const secs = gapInput.sections;
+  const selfRatings = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'self');
+  const input: SummaryInput = {
+    criterion: { no: criterion.no, nameTh: criterion.nameTh, nameEn: criterion.nameEn },
+    requirements: reqs.map(r => {
+      const sec = secs.find(s => s.requirementId === r.id);
+      const nr = redactDeep(sec?.narrativeTh.trim() ? sec.narrativeTh : sec?.narrativeEn ?? ''); redaction.count += nr.count;
+      return {
+        id: r.id, textTh: r.textTh, plainTh: r.plainTh, narrative: nr.value,
+        pdca: sec?.pdca ?? { plan: false, do: false, check: false, act: false },
+        selfScore: selfRatings.find(x => x.requirementId === r.id)?.score,
+        evidence: evidenceForRequirement(cycleId, r.id).map(e => digestOf(e, redaction)),
+        gaps: gaps.filter(g => g.requirementId === r.id).map(g => g.messageTh),
+        diagnosticQuestions: r.diagnosticQuestions,
+      };
+    }),
+  };
+  const out: SummaryOutput = await getProvider().summarizeCriterion(input);
+
+  const inputContext = `${stableStringify(input)} 1 2 3 4 5 6 7 8 9`;
+  const allowed = citableCodes(cycleId);
+  const reqIds = new Set(reqs.map(r => r.id));
+  const checks: PostCheckResult[] = [];
+  const clean = (t: string) => postCheckText(t, { allowedCodes: allowed, inputContext, dropUnsafe: true }).text;
+  const summaries = out.summaries.filter(s => reqIds.has(s.requirementId)).map(s => {
+    const pc = postCheckText(s.summary, { allowedCodes: allowed, inputContext, dropUnsafe: true });
+    checks.push(pc.result);
+    return {
+      ...s, summary: pc.text || '(ข้อความสรุปไม่ผ่านการตรวจ — ใช้ SAR ต้นฉบับ)',
+      strengths: s.strengths.map(clean).filter(Boolean), concerns: s.concerns.map(clean).filter(Boolean),
+    };
+  });
+  const questions = out.questions.map(g => ({
+    ...g, items: g.items.filter(it => reqIds.has(it.requirementId)).map(it => {
+      const pc = postCheckText(it.question, { allowedCodes: new Set<string>(), inputContext, dropUnsafe: true });
+      checks.push(pc.result);
+      return { ...it, question: pc.text };
+    }).filter(it => it.question),
+  }));
+  const cleaned: SummaryOutput = { summaries, questions };
+  return finalize(actor, 'AI-9', cycle.universityId, input as unknown as Record<string, unknown>,
+    { cycleId, codes: input.requirements.flatMap(r => r.evidence.map(e => e.code)) }, redaction.count, cleaned,
+    mergePostChecks(checks), started);
+}
+
 // ─── Accept / list ───────────────────────────────────────────────────────
 export interface AcceptOptions {
   /** AI-1: เลือกข้อที่ต้องการผูก (default = ทั้งหมดที่ AI เสนอ) */
@@ -211,7 +312,7 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
     const next = opts.mode === 'replace' || !cur.trim() ? out.draft : `${cur.trimEnd()}\n\n${out.draft}`;
     saveSection(actor, run.cycleId!, run.requirementId!, out.language === 'th' ? { narrativeTh: next } : { narrativeEn: next }, 'ai_accept');
   }
-  // AI-3: เป็นคำแนะนำล้วน — การยอมรับ = รับทราบ (ไม่แก้เอกสาร)
+  // AI-3 / AI-7 / AI-9: เป็นคำแนะนำล้วน — การยอมรับ = รับทราบ (ไม่แก้เอกสาร/PLO/ผลประเมิน ผู้ใช้นำไปแก้เองผ่านหน้าปกติ)
 
   run.accepted = true; run.acceptedBy = actor.id; run.acceptedAt = Date.now();
   save(KEYS.aiRuns, rows);
@@ -219,12 +320,13 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
   return run;
 }
 
-export function listAiRuns(user: AppUser, filter: { cycleId?: string; requirementId?: string; evidenceId?: string } = {}): AiRun[] {
+export function listAiRuns(user: AppUser, filter: { cycleId?: string; requirementId?: string; evidenceId?: string; programmeId?: string } = {}): AiRun[] {
   return load<AiRun>(KEYS.aiRuns)
     .filter(r => r.universityId === user.universityId
       && (!filter.cycleId || r.cycleId === filter.cycleId)
       && (!filter.requirementId || r.requirementId === filter.requirementId)
-      && (!filter.evidenceId || r.evidenceId === filter.evidenceId))
+      && (!filter.evidenceId || r.evidenceId === filter.evidenceId)
+      && (!filter.programmeId || r.programmeId === filter.programmeId))
     .sort((a, b) => b.createdAt - a.createdAt);
 }
 

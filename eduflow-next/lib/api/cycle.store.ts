@@ -4,6 +4,7 @@
  */
 import type { AppUser, AssessmentCycle, EvidenceLink, SarSection } from '../types';
 import { newId } from '../utils/hash';
+import { materializeActionEvidence } from './action.store';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { FRAMEWORK_CODE, compareReqId, listRequirements } from './framework';
@@ -65,7 +66,7 @@ export function createCycle(actor: AppUser, input: CreateCycleInput): Assessment
       id: sectionId(cycle.id, r.id), cycleId: cycle.id, requirementId: r.id,
       ownerUserId: p?.ownerUserId, due: undefined,
       status: hasText ? 'drafting' : 'not_started',
-      narrativeTh: p?.narrativeTh ?? '', narrativeEn: p?.narrativeEn ?? '',
+      narrativeTh: p?.narrativeTh ?? '', narrativeEn: p?.narrativeEn ?? '', lastAuthorId: p?.lastAuthorId,
       pdca: p ? { ...p.pdca } : { ...EMPTY_PDCA }, wordCount: p?.wordCount ?? 0, updatedAt: now,
     };
   });
@@ -78,9 +79,11 @@ export function createCycle(actor: AppUser, input: CreateCycleInput): Assessment
       .map(l => ({ ...l, id: newId('lnk'), cycleId: cycle.id, at: now }));
     save(KEYS.links, [...links, ...copied]);
   }
+  // M14: action ที่ done/verified ของหลักสูตร → หลักฐานขั้น Act ผูกกับข้อเดิมในรอบใหม่ (ไม่ว่าจะ copy จากรอบก่อนหรือไม่)
+  const actionEvidence = materializeActionEvidence(actor, cycle);
   appendAudit(actor, {
     action: 'cycle.create', targetType: 'cycle', targetId: cycle.id, programmeId: prog.id,
-    after: { academicYear: cycle.academicYear, copiedFrom: prev?.id ?? null, sections: sections.length },
+    after: { academicYear: cycle.academicYear, copiedFrom: prev?.id ?? null, sections: sections.length, actionEvidence: actionEvidence.length },
   });
   return cycle;
 }

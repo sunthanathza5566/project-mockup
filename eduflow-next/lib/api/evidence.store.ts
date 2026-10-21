@@ -11,6 +11,7 @@ import { newId, sha256Hex } from '../utils/hash';
 import { scanPii } from '../utils/pii';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
+import { extractedTextOf } from './evidence-text.internal';
 import { getRequirement } from './framework';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
@@ -74,7 +75,11 @@ function assertWrite(actor: AppUser, e: { programmeId: string }): void {
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการหลักฐานของหลักสูตรนี้');
 }
 
-/** หลักฐานที่ผูกกับรอบที่ lock แล้ว → แก้ไม่ได้ (รักษา snapshot) */
+/**
+ * เปลี่ยนไฟล์ของหลักฐานที่ผูกกับรอบที่ lock แล้ว → ไม่ได้ (เนื้อหาที่ยื่นต้องคงเดิม)
+ * metadata / verify / PII note / ผูกรอบอื่นที่ยังไม่ lock แก้ได้ (snapshot เก็บ metadata ตอน lock ไว้เทียบ — review #5)
+ * การผูก/ถอดลิงก์ของรอบที่ lock ถูกบล็อกที่ assertCycleWritable ของรอบนั้นอยู่แล้ว
+ */
 function assertNotInLockedCycle(evidenceId: string): void {
   const cycleIds = new Set(load<EvidenceLink>(KEYS.links).filter(l => l.evidenceId === evidenceId).map(l => l.cycleId));
   for (const cid of cycleIds) {
@@ -193,7 +198,6 @@ export interface UpdateEvidenceInput { title?: string; description?: string; kin
 export function updateEvidence(actor: AppUser, id: string, patch: UpdateEvidenceInput): Evidence {
   const e = getRaw(id);
   assertWrite(actor, e);
-  assertNotInLockedCycle(id);
   const next: Evidence = { ...e, ...Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)) } as Evidence;
   validateMeta(next);
   const ft = e.currentFileId ? load<EvidenceFile>(KEYS.files).find(f => f.id === e.currentFileId)?.extractedText : undefined;
@@ -290,7 +294,6 @@ export function unlinkEvidence(actor: AppUser, evidenceId: string, cycleId: stri
 export function verifyEvidence(actor: AppUser, id: string): Evidence {
   const e = getRaw(id);
   if (!can(actor, 'evidence.verify', programmeScope(e.programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ยืนยันหลักฐาน');
-  assertNotInLockedCycle(id);
   if (e.containsPii && !e.piiResolved) throw new AunqaError('invalid', 'หลักฐานนี้ติดธงข้อมูลส่วนบุคคล ต้องจัดการ (ปิดบัง/ยืนยัน) ก่อน verify');
   if (!load<EvidenceLink>(KEYS.links).some(l => l.evidenceId === id)) throw new AunqaError('invalid', 'ต้องผูกกับข้ออย่างน้อย 1 ข้อก่อน verify');
   const next: Evidence = { ...e, status: 'verified', verifiedBy: actor.id, verifiedAt: Date.now(), updatedAt: Date.now() };
@@ -303,7 +306,6 @@ export function verifyEvidence(actor: AppUser, id: string): Evidence {
 export function resolvePii(actor: AppUser, id: string, note: string): Evidence {
   const e = getRaw(id);
   assertWrite(actor, e);
-  assertNotInLockedCycle(id);
   if (!e.containsPii) throw new AunqaError('invalid', 'หลักฐานนี้ไม่มีธง PII');
   if (!note.trim()) throw new AunqaError('invalid', 'ต้องระบุวิธีจัดการ PII');
   const next: Evidence = { ...e, piiResolved: true, piiResolvedNote: note.trim(), updatedAt: Date.now() };
@@ -316,7 +318,6 @@ export function resolvePii(actor: AppUser, id: string, note: string): Evidence {
 export function setAiSummary(actor: AppUser, id: string, summary: string, pdcaStage?: PdcaStage): Evidence {
   const e = getRaw(id);
   assertWrite(actor, e);
-  assertNotInLockedCycle(id);
   const next: Evidence = { ...e, aiSummary: summary, pdcaStage: pdcaStage ?? e.pdcaStage, updatedAt: Date.now() };
   saveOne(next);
   appendAudit(actor, { action: 'evidence.ai_summary', targetType: 'evidence', targetId: id, programmeId: e.programmeId, after: { pdcaStage: next.pdcaStage } });
@@ -386,10 +387,4 @@ export function listLinks(user: AppUser, cycleId: string): EvidenceLink[] {
 export function getExtractedText(user: AppUser, evidenceId: string, cycleId?: string): string {
   assertCanView(user, getRaw(evidenceId), cycleId);
   return extractedTextOf(evidenceId);
-}
-
-/** internal: ไม่ตรวจสิทธิ์ — ผู้เรียก (ai.service) ต้องตรวจสิทธิ์เองก่อน และส่งเข้า AI หลัง redact เท่านั้น */
-export function extractedTextOf(evidenceId: string): string {
-  const e = getRaw(evidenceId);
-  return load<EvidenceFile>(KEYS.files).find(f => f.id === e.currentFileId)?.extractedText ?? '';
 }

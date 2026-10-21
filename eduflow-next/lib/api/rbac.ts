@@ -12,6 +12,7 @@ export type Action =
   | 'metric.write'
   | 'ai.use' | 'ai.check' | 'ai.summarize'
   | 'rating.self' | 'rating.committee' | 'finding.write'
+  | 'curriculum.write' | 'action.write' | 'action.verify'
   | 'comment'
   | 'approve.faculty' | 'approve.final' | 'cycle.close' | 'cycle.reopen'
   | 'audit.view' | 'read';
@@ -38,16 +39,17 @@ const POLICY: Record<RoleCode, Partial<Record<Action, true | 'own'>>> = {
     'sar.write': true, 'sar.review': true, 'sar.approve': true, 'sar.return': true,
     'evidence.write': true, 'evidence.verify': true,
     'metric.write': true, 'ai.use': true, 'ai.check': true, 'rating.self': true, comment: true,
+    'curriculum.write': true, 'action.write': true, 'action.verify': true,
     'audit.view': true, read: true,
   },
   programme_staff: {
     'sar.write': 'own', 'evidence.write': true, 'ai.use': true, 'ai.check': true,
-    'rating.self': 'own', read: true,
+    'rating.self': 'own', 'curriculum.write': true, 'action.write': 'own', read: true,
   },
   data_staff: { 'evidence.write': true, 'metric.write': true, 'ai.check': true, read: true },
   faculty_qa: {
     comment: true, 'sar.review': true, 'sar.return': true, 'approve.faculty': true, 'assessor.assign': true,
-    'evidence.verify': true, 'ai.use': true, 'ai.check': true, 'cycle.close': true,
+    'evidence.verify': true, 'ai.use': true, 'ai.check': true, 'cycle.close': true, 'action.verify': true,
     'audit.view': true, read: true,
   },
   dean: { comment: true, 'sar.review': true, 'sar.return': true, 'approve.final': true, 'cycle.reopen': true, 'audit.view': true, read: true },

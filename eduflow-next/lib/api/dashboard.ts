@@ -1,5 +1,6 @@
 /** Readiness dashboard (M9) — โหลดข้อมูลจาก storage แล้วส่งให้ pure functions ใน gap.ts */
 import type { AppUser, Evidence, EvidenceLink, Gap, MetricValue, Rating, Readiness, SarSection } from '../types';
+import { loadCurriculumRaw } from './curriculum-data.internal';
 import { AunqaError, KEYS, load } from './db';
 import { listRequirements } from './framework';
 import { computeGaps, readiness, type GapInput } from './gap';
@@ -16,6 +17,7 @@ export function loadGapInput(cycleId: string): GapInput {
     metrics: load<MetricValue>(KEYS.metrics).filter(m => m.programmeId === c.programmeId),
     ratings: load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId),
     academicYear: c.academicYear,
+    curriculum: loadCurriculumRaw(c.programmeId),
   };
 }
 

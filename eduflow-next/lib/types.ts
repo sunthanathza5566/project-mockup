@@ -83,6 +83,8 @@ export interface SarSection {
   wordCount: number;
   updatedAt: number;
   updatedBy?: string;
+  /** ผู้แก้เนื้อหา (narrative/PDCA) ล่าสุด — ใช้ segregation of duties: คนนี้อนุมัติข้อนี้ไม่ได้ */
+  lastAuthorId?: string;
 }
 
 export interface SarSectionVersion {
@@ -94,6 +96,8 @@ export type RaterType = 'self' | 'committee' | 'ai_suggestion';
 export interface Rating {
   id: string; cycleId: string; requirementId: string; raterType: RaterType;
   raterUserId: string; score: number; /* 1–7 */ rationale: string; at: number;
+  /** คะแนนกรรมการรายเกณฑ์: criterionNo = 1–8 และ requirementId = `C<no>` */
+  criterionNo?: number;
 }
 
 export interface Comment {
@@ -145,7 +149,7 @@ export interface EvidenceLink {
   evidenceId: string;
   requirementId: string;
   cycleId: string;
-  source: 'manual' | 'ai';
+  source: 'manual' | 'ai' | 'action';
   confidence?: number;
   confirmedBy?: string;
   at: number;
@@ -175,7 +179,7 @@ export interface AuditLog {
   before?: unknown; after?: unknown; ip: string; at: number;
 }
 
-export type AiFeature = 'AI-1' | 'AI-2' | 'AI-3';
+export type AiFeature = 'AI-1' | 'AI-2' | 'AI-3' | 'AI-7' | 'AI-9';
 export interface PostCheckResult {
   ok: boolean;
   removedCitations: string[];       // [E-…] ที่ไม่มีจริง (ถูกตัด)
@@ -185,6 +189,8 @@ export interface PostCheckResult {
 export interface AiRun {
   id: string; universityId: string; feature: AiFeature; promptVersion: string; model: string;
   cycleId?: string; requirementId?: string; evidenceId?: string;
+  /** AI-7 (ตรวจ PLO/CLO) ผูกกับหลักสูตร ไม่ผูกรอบ */
+  programmeId?: string;
   inputRefs: string[];              // code ของ evidence / id ที่ใช้
   redactedInputHash: string; redactionCount: number;
   output: unknown; postCheck: PostCheckResult;
@@ -199,6 +205,8 @@ export type GapSeverity = 'critical' | 'high' | 'medium' | 'low';
 export interface Gap {
   id: string; ruleId: GapRuleId; severity: GapSeverity; requirementId: string;
   messageTh: string; evidenceId?: string; metricCode?: string;
+  /** อ้างอิงเพิ่มเติม (เช่น id ของ PLO/วิชาที่ทำให้เกิด gap R7) — ใช้ทำ id ไม่ให้ซ้ำ */
+  refId?: string;
 }
 
 export type HeatLevel = 'empty' | 'critical' | 'warning' | 'ok' | 'ready' | 'approved';
@@ -220,4 +228,53 @@ export interface Readiness {
 export interface Session {
   userId: string; username: string; fullName: string; universityId: string;
   roles: RoleAssignment[]; loginAt: number;
+}
+
+// ═══════════════════════ Curriculum (M4) ═══════════════════════
+// TODO(PostgreSQL): plos / courses (+course_prerequisites) / clos / clo_plo_map / course_methods
+
+export type PloType = 'generic' | 'specific';
+export type MapLevel = 'I' | 'R' | 'M';
+export interface Plo {
+  id: string; programmeId: string; code: string; textTh: string; textEn: string; type: PloType; bloomLevel: number; /* 1–6 */
+}
+export interface Course {
+  id: string; programmeId: string; code: string; nameTh: string; nameEn: string; credits: number;
+  year: number; semester: number; category: string; isElective: boolean; track?: string;
+  /** id ของวิชาที่ต้องเรียนก่อน (course_prerequisites) */
+  prerequisiteIds: string[];
+}
+export interface Clo { id: string; courseId: string; code: string; textTh: string; textEn?: string; bloomLevel: number }
+export interface CloPloMap { cloId: string; ploId: string; level: MapLevel }
+export interface CourseMethod { id: string; courseId: string; kind: 'teaching' | 'assessment'; method: string; cloIds: string[] }
+
+export interface CurriculumData {
+  plos: Plo[]; courses: Course[]; clos: Clo[]; map: CloPloMap[]; methods: CourseMethod[];
+}
+export type CurriculumGapKind = 'plo_no_course' | 'course_no_plo' | 'plo_no_assessment' | 'prereq_cycle';
+export interface CurriculumGap { kind: CurriculumGapKind; refId: string; messageTh: string }
+
+// ═══════════════════════ Action plan (M14) ═══════════════════════
+// TODO(PostgreSQL): action_items
+
+export type ActionStatus = 'open' | 'in_progress' | 'done' | 'verified';
+export interface ActionItem {
+  id: string; universityId: string; programmeId: string; originCycleId?: string; requirementId: string;
+  description: string; ownerUserId?: string; due?: string; kpi?: string; status: ActionStatus;
+  /** evidence ขั้น A ที่สร้างอัตโนมัติจาก action ที่ done/verified (สร้างครั้งแรกตอนเปิดรอบใหม่) */
+  evidenceId?: string;
+  doneAt?: number; verifiedBy?: string; verifiedAt?: number;
+  createdAt: number; createdBy: string; updatedAt: number;
+}
+
+// ═══════════════════════ Assessor workspace (M12) ═══════════════════════
+// TODO(PostgreSQL): assessment_findings / assessment_verdicts
+
+export interface AssessmentFinding {
+  id: string; cycleId: string; requirementId: string; assessorUserId: string;
+  strengths: string; afi: string; interviewQuestions: string; sourcesOfEvidence: string; updatedAt: number;
+}
+/** verdict 1–7 ตามสเกลเดียวกับคะแนน — กรรมการเลือกเอง ระบบไม่คำนวณ */
+export interface AssessmentVerdict {
+  id: string; cycleId: string; assessorUserId: string; verdict: number; rationale: string; at: number;
 }

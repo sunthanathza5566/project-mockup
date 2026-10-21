@@ -26,6 +26,14 @@ export const KEYS = {
   aiRuns: 'aunqa_ai_runs',
   session: 'aunqa_session',
   attempts: 'aunqa_attempts',
+  plos: 'aunqa_plos',
+  courses: 'aunqa_courses',
+  clos: 'aunqa_clos',
+  cloPloMap: 'aunqa_clo_plo_map',
+  courseMethods: 'aunqa_course_methods',
+  actionItems: 'aunqa_action_items',
+  findings: 'aunqa_findings',
+  verdicts: 'aunqa_verdicts',
 } as const;
 
 export function load<T>(key: string): T[] { return readJSON<T[]>(key, []); }

@@ -2,7 +2,7 @@
  * Workflow state machine (M10, spec 4.1) + lock + snapshot hash
  *
  * Cycle  : draft → in_progress → under_review → revision_requested ↔ in_progress
- *          → faculty_approved → final_approved (LOCK) → under_assessment → assessed → closed
+ *          → faculty_approved (คณบดีส่งกลับ → revision_requested ได้) → final_approved (LOCK) → under_assessment → assessed → closed
  * Section: not_started → drafting → ready_for_review → changes_requested ↔ … → approved
  *
  * ทุก transition ผ่านตารางนี้เท่านั้น — transition ที่ไม่อยู่ในตารางถูกปฏิเสธ (AunqaError 'bad_transition')
@@ -10,12 +10,12 @@
  * TODO(PostgreSQL): trigger ห้าม UPDATE sar_sections เมื่อ cycle.locked_at IS NOT NULL
  */
 import type {
-  AppUser, AssessmentCycle, CycleStatus, Evidence, EvidenceLink, Rating, ReviewEvent, SarSection, SectionStatus,
+  AppUser, AssessmentCycle, AssessmentVerdict, CycleStatus, Evidence, EvidenceLink, Rating, ReviewEvent, SarSection, SectionStatus,
 } from '../types';
 import { newId, sha256Hex, stableStringify } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
-import { compareReqId } from './framework';
+import { compareReqId, listCriteria } from './framework';
 import { notify } from './notification.store';
 import { programmeScope } from './org.store';
 import { can, type Action, type Scope } from './rbac';
@@ -30,6 +30,7 @@ export const CYCLE_TRANSITIONS: TransitionRule<CycleStatus>[] = [
   { from: 'under_review',       to: 'revision_requested', action: 'approve.faculty', requireNote: true },
   { from: 'revision_requested', to: 'in_progress',        action: 'cycle.submit' },
   { from: 'under_review',       to: 'faculty_approved',   action: 'approve.faculty' },
+  { from: 'faculty_approved',   to: 'revision_requested', action: 'approve.final', requireNote: true },
   { from: 'faculty_approved',   to: 'final_approved',     action: 'approve.final' },
   { from: 'final_approved',     to: 'under_assessment',   action: 'assessor.assign' },
   { from: 'under_assessment',   to: 'assessed',           action: 'rating.committee' },
@@ -137,11 +138,29 @@ export async function computeSnapshotHash(cycleId: string): Promise<{ hash: stri
   return { hash: await sha256Hex(json), json };
 }
 
-/** ตรวจว่าเล่มหลัง lock ยังตรงกับ hash ตอน lock (integrity check) */
-export async function verifySnapshot(cycleId: string): Promise<{ ok: boolean; expected?: string; actual: string }> {
+/**
+ * ตรวจว่าเล่มหลัง lock ยังตรงกับ hash ตอน lock (integrity check)
+ * ส่วน "metadata หลักฐาน" เทียบกับ snapshot ที่เก็บตอน lock (หลักฐานแก้/verify ต่อได้หลัง lock — ดู review #5)
+ * ส่วน sections / ratings / links เทียบกับข้อมูลปัจจุบัน → แก้เล่มหลัง lock ถูกตรวจพบ
+ * evidenceChanged = metadata หลักฐานปัจจุบันต่างจากตอน lock (แจ้งเตือน ไม่ทำให้ ok เป็น false)
+ */
+export async function verifySnapshot(cycleId: string): Promise<{ ok: boolean; expected?: string; actual: string; evidenceChanged?: boolean }> {
   const c = getCycleRaw(cycleId);
-  const { hash } = await computeSnapshotHash(cycleId);
-  return { ok: !!c.snapshotHash && c.snapshotHash === hash, expected: c.snapshotHash, actual: hash };
+  const stored = getSnapshots(cycleId).find(x => x.id === `${cycleId}@r${c.revision}`);
+  const live = buildSnapshotObject(cycleId) as { evidence?: unknown };
+  let obj: unknown = live;
+  let storedOk = true;
+  let evidenceChanged: boolean | undefined;
+  if (stored) {
+    storedOk = (await sha256Hex(stored.json)) === c.snapshotHash;
+    try {
+      const st = JSON.parse(stored.json) as { evidence?: unknown };
+      obj = { ...live, evidence: st.evidence };
+      evidenceChanged = stableStringify(live.evidence) !== stableStringify(st.evidence);
+    } catch { storedOk = false; }
+  }
+  const actual = await sha256Hex(stableStringify(obj));
+  return { ok: !!c.snapshotHash && storedOk && c.snapshotHash === actual, expected: c.snapshotHash, actual, evidenceChanged };
 }
 export function getSnapshots(cycleId: string): Snapshot[] {
   return load<Snapshot>(KEYS.snapshots).filter(s => s.cycleId === cycleId);
@@ -170,6 +189,15 @@ export async function transitionCycle(actor: AppUser, cycleId: string, to: Cycle
     if (open.length) throw new AunqaError('invalid', `ยังมี ${open.length} ข้อที่ไม่ผ่านการอนุมัติ`, { open: open.map(s => s.requirementId) });
   }
 
+  if (to === 'assessed') {
+    // กรรมการต้องให้คะแนนรายเกณฑ์ครบ 8 เกณฑ์ และเลือก verdict เองก่อนปิดการประเมิน
+    const mine = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'committee' && r.raterUserId === actor.id);
+    const missing = listCriteria().map(c => c.no).filter(n => !mine.some(r => r.criterionNo === n));
+    const hasVerdict = load<AssessmentVerdict>(KEYS.verdicts).some(v => v.cycleId === cycleId && v.assessorUserId === actor.id);
+    if (missing.length || !hasVerdict)
+      throw new AunqaError('invalid', 'ต้องให้คะแนนรายเกณฑ์ครบทุกเกณฑ์และเลือก verdict ก่อนปิดการประเมิน', { missingCriteria: missing, hasVerdict });
+  }
+
   const before = { status: cycle.status, lockedAt: cycle.lockedAt, snapshotHash: cycle.snapshotHash };
   const next: AssessmentCycle = { ...cycle, status: to, updatedAt: Date.now() };
   if (to === 'final_approved') {
@@ -194,7 +222,7 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
   const msgs: Partial<Record<CycleStatus, { kind: 'cycle_status' | 'changes_requested' | 'approved'; text: string }>> = {
     in_progress:        { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} เริ่มดำเนินการ` },
     under_review:       { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} ส่งให้ QA คณะตรวจ` },
-    revision_requested: { kind: 'changes_requested', text: `QA คณะส่งกลับแก้รอบ ${cycle.academicYear}: ${note ?? ''}` },
+    revision_requested: { kind: 'changes_requested', text: `รอบ ${cycle.academicYear} ถูกส่งกลับแก้ (โดย ${actor.fullName}): ${note ?? ''}` },
     faculty_approved:   { kind: 'approved', text: `QA คณะอนุมัติรอบ ${cycle.academicYear} แล้ว รอคณบดี` },
     final_approved:     { kind: 'approved', text: `คณบดีอนุมัติสุดท้ายและล็อกรอบ ${cycle.academicYear} แล้ว` },
   };
@@ -244,6 +272,9 @@ export function transitionSection(actor: AppUser, sectionId: string, to: Section
   if (!can(actor, rule.action, cycleScope(cycle, { ownerUserId: sec.ownerUserId })))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์เปลี่ยนสถานะข้อนี้');
   if (rule.requireNote && !(note && note.trim())) throw new AunqaError('invalid', 'ต้องระบุเหตุผล/ข้อเสนอแนะ');
+  // segregation of duties: ผู้เขียนเนื้อหาล่าสุดอนุมัติข้อนี้เองไม่ได้ (review #11)
+  if (to === 'approved' && sec.lastAuthorId === actor.id)
+    throw new AunqaError('forbidden', 'ไม่สามารถอนุมัติข้อที่ตนเองเป็นผู้เขียนล่าสุดได้ ต้องให้ผู้อื่นตรวจอนุมัติ');
   if (to === 'ready_for_review' && !(sec.narrativeTh.trim() || sec.narrativeEn.trim()))
     throw new AunqaError('invalid', 'ต้องมีเนื้อหา narrative ก่อนส่งตรวจ');
 

@@ -4,8 +4,10 @@
  */
 import type { PdcaStage, Requirement } from '../../types';
 import { extractCitations, splitSentences, uncitedSentences } from '../../utils/text';
+import { BLOOM_NAME_EN, BLOOM_NAME_TH, analyzeVerbs, suggestVerbs } from './bloom';
 import type {
-  AiProvider, DraftInput, DraftOutput, EvidenceDigest, ReviewInput, ReviewOutput, TagInput, TagOutput,
+  AiProvider, DraftInput, DraftOutput, EvidenceDigest, FiveW1H, InterviewGroup, ReviewInput, ReviewOutput, SummaryInput,
+  SummaryOutput, TagInput, TagOutput, VerbInput, VerbOutput,
 } from './provider';
 
 // ─── tokenize ────────────────────────────────────────────────────────────
@@ -165,7 +167,99 @@ async function reviewSar(i: ReviewInput): Promise<ReviewOutput> {
   return { unanswered, uncitedSentences: unc, suggestions };
 }
 
+// ─── AI-7 verb checker ───────────────────────────────────────────────────
+async function checkVerbs(i: VerbInput): Promise<VerbOutput> {
+  return {
+    results: i.items.map(it => {
+      const a = analyzeVerbs(it.textTh, it.textEn);
+      const base = { id: it.id, code: it.code, kind: it.kind, verbs: a.hits.map(h => h.verb), detectedLevels: a.levels, declaredLevel: it.declaredLevel, measurable: a.measurable };
+      if (!a.measurable) {
+        return { ...base, levelMatch: null, suggestions: suggestVerbs(it.declaredLevel),
+          note: a.vague.length ? `พบคำที่วัดผลยาก (${a.vague.join(', ')}) และไม่พบคำกริยาตามระดับ Bloom` : 'ไม่พบคำกริยาตามระดับ Bloom ในข้อความ' };
+      }
+      const match = a.levels.includes(it.declaredLevel);
+      if (!match) {
+        return { ...base, levelMatch: false, suggestions: suggestVerbs(it.declaredLevel),
+          note: `ระดับที่ระบุ ${it.declaredLevel} (${BLOOM_NAME_TH[it.declaredLevel] ?? '-'}) แต่คำกริยาที่พบอยู่ระดับ ${a.levels.join(', ')}` };
+      }
+      if (a.vague.length) {
+        return { ...base, levelMatch: true, suggestions: suggestVerbs(it.declaredLevel),
+          note: `ระดับตรงกัน แต่มีคำที่วัดผลยาก (${a.vague.join(', ')}) ควรใช้คำกริยาที่วัดได้` };
+      }
+      return { ...base, levelMatch: true, suggestions: [], note: `คำกริยาตรงกับระดับ ${it.declaredLevel} (${BLOOM_NAME_EN[it.declaredLevel] ?? '-'})` };
+    }),
+  };
+}
+
+// ─── AI-9 assessor summary + interview questions ─────────────────────────
+const W_ORDER: FiveW1H[] = ['What', 'Why', 'Who', 'When', 'Where', 'How'];
+const GROUPS: InterviewGroup[] = ['lecturer', 'student', 'alumni', 'employer'];
+
+/** แม่แบบคำถามต่อกลุ่มผู้ให้ข้อมูล — {t} = ใจความของข้อ (plainTh ที่อยู่ใน input) */
+const Q_TEMPLATE: Record<InterviewGroup, Record<FiveW1H, string>> = {
+  lecturer: {
+    What: 'หลักสูตรมีนโยบายหรือแผนอะไรในเรื่อง "{t}" และอาจารย์นำไปปฏิบัติอย่างไร',
+    Why: 'เหตุใดหลักสูตรจึงเลือกแนวทางนี้ในเรื่อง "{t}" มีข้อมูลหรือข้อเสนอแนะใดรองรับ',
+    Who: 'ใครเป็นผู้รับผิดชอบเรื่อง "{t}" และมีส่วนร่วมของผู้เกี่ยวข้องอย่างไร',
+    When: 'เรื่อง "{t}" ทบทวนหรือปรับปรุงล่าสุดเมื่อใด และมีรอบการทบทวนอย่างไร',
+    Where: 'ขอดูหลักฐานของเรื่อง "{t}" ได้จากที่ใด และเก็บไว้ที่ใด',
+    How: 'ติดตามผลเรื่อง "{t}" อย่างไร และนำผลไปปรับปรุงอย่างไร (Check/Act)',
+  },
+  student: {
+    What: 'นักศึกษาได้รับรู้หรือได้รับสิ่งใดเกี่ยวกับเรื่อง "{t}" บ้าง',
+    Why: 'นักศึกษาเห็นว่าสิ่งที่หลักสูตรทำในเรื่อง "{t}" มีประโยชน์ต่อการเรียนอย่างไร',
+    Who: 'นักศึกษาติดต่อใครเมื่อมีปัญหาเกี่ยวกับเรื่อง "{t}"',
+    When: 'นักศึกษาได้รับข้อมูลหรือความช่วยเหลือเรื่อง "{t}" เมื่อใด ทันเวลาหรือไม่',
+    Where: 'นักศึกษาหาข้อมูลเรื่อง "{t}" ได้จากช่องทางใด',
+    How: 'เคยให้ข้อเสนอแนะเรื่อง "{t}" อย่างไร และเห็นการปรับปรุงหรือไม่',
+  },
+  alumni: {
+    What: 'สิ่งที่เรียนในหลักสูตรเกี่ยวกับเรื่อง "{t}" ช่วยการทำงานของศิษย์เก่าอย่างไร',
+    Why: 'เหตุใดศิษย์เก่าเห็นว่าเรื่อง "{t}" ควรคงไว้หรือปรับปรุง',
+    Who: 'หลักสูตรเคยสอบถามความเห็นศิษย์เก่าเรื่อง "{t}" จากใครบ้าง',
+    When: 'ศิษย์เก่าได้ให้ความเห็นเรื่อง "{t}" กับหลักสูตรครั้งล่าสุดเมื่อใด',
+    Where: 'ศิษย์เก่านำสิ่งที่เรียนเรื่อง "{t}" ไปใช้ในที่ทำงานตรงจุดใด',
+    How: 'ศิษย์เก่าเห็นว่าหลักสูตรควรปรับปรุงเรื่อง "{t}" อย่างไร',
+  },
+  employer: {
+    What: 'บัณฑิตที่ทำงานกับท่านมีความสามารถที่เกี่ยวกับเรื่อง "{t}" อย่างไร',
+    Why: 'เหตุใดท่านจึงเห็นว่าเรื่อง "{t}" สำคัญต่อสถานประกอบการ',
+    Who: 'ใครในองค์กรประเมินบัณฑิตในเรื่อง "{t}" และใช้เกณฑ์อะไร',
+    When: 'หลักสูตรสอบถามความเห็นของท่านเรื่อง "{t}" บ่อยแค่ไหน ครั้งล่าสุดเมื่อใด',
+    Where: 'ท่านพบช่องว่างของบัณฑิตเรื่อง "{t}" ในงานด้านใดบ้าง',
+    How: 'ท่านอยากให้หลักสูตรปรับปรุงเรื่อง "{t}" อย่างไร',
+  },
+};
+
+async function summarizeCriterion(i: SummaryInput): Promise<SummaryOutput> {
+  const summaries = i.requirements.map(r => {
+    const sents = splitSentences(r.narrative).filter(s => s.length >= 10);
+    const summary = sents.length ? sents.slice(0, 2).join(' ') : 'ยังไม่มี narrative ในข้อนี้';
+    const strengths: string[] = [];
+    const concerns: string[] = [];
+    const stages: [boolean, PdcaStage][] = [[r.pdca.plan, 'P'], [r.pdca.do, 'D'], [r.pdca.check, 'C'], [r.pdca.act, 'A']];
+    const covered = stages.filter(([f, st]) => f && r.evidence.some(e => e.pdca === st)).map(([, st]) => PDCA_LABEL_TH[st]);
+    if (covered.length) strengths.push(`มีทั้งเช็กลิสต์และหลักฐานรองรับขั้น ${covered.join(', ')}`);
+    if (r.evidence.length && extractCitations(r.narrative).length) strengths.push('narrative อ้างรหัสหลักฐานได้');
+    stages.filter(([f, st]) => !r.evidence.some(e => e.pdca === st) && f).forEach(([, st]) => concerns.push(`ติ๊ก ${PDCA_LABEL_TH[st]} แต่ไม่พบหลักฐานขั้นนี้`));
+    if (!r.evidence.length) concerns.push('ไม่มีหลักฐานผูกกับข้อนี้');
+    r.gaps.forEach(g => concerns.push(g));
+    return { requirementId: r.id, summary, strengths, concerns };
+  });
+  const questions = GROUPS.map((group, gi) => ({
+    group,
+    items: i.requirements.map((r, ri) => {
+      const w = W_ORDER[(ri + gi) % W_ORDER.length];
+      return { w, requirementId: r.id, question: `ข้อ ${r.id}: ${Q_TEMPLATE[group][w].replace('{t}', (r.plainTh || r.textTh).replace(/[".]+$/g, '').slice(0, 120))}` };
+    }),
+  }));
+  // ข้อที่มี gap ด้านหลักฐาน → ถามอาจารย์เพิ่มเรื่องหลักฐาน (ใช้ diagnostic question เดิมของข้อ)
+  i.requirements.filter(r => r.gaps.length && r.diagnosticQuestions.length).forEach(r =>
+    questions[0].items.push({ w: 'How', requirementId: r.id, question: `ข้อ ${r.id}: ${r.diagnosticQuestions[0]}` }));
+  return { summaries, questions };
+}
+
 export const offlineProvider: AiProvider = {
-  id: 'offline', model: 'offline-deterministic', promptVersion: 'offline-v1',
-  tagEvidence, draftSar, reviewSar,
+  id: 'offline', model: 'offline-deterministic', promptVersion: 'offline-v2',
+  tagEvidence, draftSar, reviewSar, checkVerbs, summarizeCriterion,
 };

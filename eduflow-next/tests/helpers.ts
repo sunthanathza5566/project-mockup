@@ -1,4 +1,5 @@
 import { getAllUsers } from '@/lib/api/org.store';
+import { KEYS, load, save } from '@/lib/api/db';
 import { resetDemo } from '@/lib/api/init';
 import { createEvidence, type CreateEvidenceInput } from '@/lib/api/evidence.store';
 import type { AppUser, Evidence, EvidenceLink, MetricValue, Requirement, SarSection, Rating } from '@/lib/types';
@@ -8,7 +9,19 @@ export const CYCLE = 'cycle-demo-2569';
 export const PROG = 'prog-demo-cs';
 
 const TEST_ADMIN: AppUser = { id: 'u-test-admin', username: 'tadmin', password: '', universityId: 'any', email: 't@t.t', fullName: 'T', roles: [{ role: 'super_admin', scopeType: 'university', scopeId: '*' }] };
-export async function freshDemo() { await resetDemo(TEST_ADMIN); }
+/**
+ * รีเซ็ตเดโม่แล้ว "ล้าง narrative/self-rating ที่ seed ไว้" ให้รอบเดโม่เริ่มว่างเหมือนก่อน Phase B
+ * (test ส่วนใหญ่ต้องการ section ว่าง) — ใช้ freshSeededDemo() เมื่อต้องการข้อมูลเดโม่เต็ม
+ */
+export async function freshDemo() {
+  await resetDemo(TEST_ADMIN);
+  const sections = load<SarSection>(KEYS.sections).map(s => (s.cycleId === CYCLE
+    ? { ...s, narrativeTh: '', narrativeEn: '', pdca: { plan: false, do: false, check: false, act: false }, wordCount: 0, status: 'not_started' as const, lastAuthorId: undefined }
+    : s));
+  save(KEYS.sections, sections);
+  save(KEYS.ratings, []);
+}
+export async function freshSeededDemo() { await resetDemo(TEST_ADMIN); }
 export function user(username: string): AppUser {
   const u = getAllUsers().find(x => x.username === username);
   if (!u) throw new Error('no user ' + username);

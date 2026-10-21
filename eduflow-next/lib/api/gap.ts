@@ -3,10 +3,11 @@
  * Pure functions: รับข้อมูลเข้ามา ไม่อ่าน storage เอง → unit test ง่าย
  */
 import type {
-  Evidence, EvidenceLink, Gap, GapRuleId, GapSeverity, HeatCell, HeatLevel, MetricValue, PendingWork, Rating,
+  CurriculumData, CurriculumGapKind, Evidence, EvidenceLink, Gap, GapRuleId, GapSeverity, HeatCell, HeatLevel, MetricValue, PendingWork, Rating,
   Readiness, Requirement, SarSection, SectionStatus,
 } from '../types';
 import { uncitedSentences } from '../utils/text';
+import { curriculumGaps } from './curriculum-gap';
 
 export interface GapInput {
   requirements: Requirement[];
@@ -25,6 +26,8 @@ export interface GapInput {
   minTrendYears?: number;
   /** R4: narrative ต้องมีอย่างน้อยกี่คำ (default 100) */
   minWords?: number;
+  /** R7: ข้อมูลหลักสูตร (M4) — ไม่ส่ง = ไม่ตรวจ */
+  curriculum?: CurriculumData;
 }
 
 export const SEVERITY_ORDER: GapSeverity[] = ['critical', 'high', 'medium', 'low'];
@@ -54,7 +57,7 @@ function mkCtx(inp: GapInput): Ctx {
 }
 
 const gap = (ruleId: GapRuleId, severity: GapSeverity, requirementId: string, messageTh: string, extra: Partial<Gap> = {}): Gap =>
-  ({ id: `${ruleId}:${requirementId}${extra.evidenceId ? ':' + extra.evidenceId : ''}${extra.metricCode ? ':' + extra.metricCode : ''}`, ruleId, severity, requirementId, messageTh, ...extra });
+  ({ id: `${ruleId}:${requirementId}${extra.evidenceId ? ':' + extra.evidenceId : ''}${extra.metricCode ? ':' + extra.metricCode : ''}${extra.refId ? ':' + extra.refId : ''}`, ruleId, severity, requirementId, messageTh, ...extra });
 
 // ─── Rules ───────────────────────────────────────────────────────────────
 /** R1 (Critical): ข้อนี้ไม่มี evidence ผูก */
@@ -126,11 +129,23 @@ export function ruleR6(inp: GapInput): Gap[] {
 }
 
 /**
- * R7 (High): PLO ไม่มีวิชารับผิดชอบ / ไม่มีวิธีวัด (C1, C2, C4)
- * Phase B: ต้องรอ M4 Curriculum Mapping (PLO/CLO/courses) — ตอนนี้ยังไม่มีข้อมูลจึงคืน []
+ * R7: curriculum mapping (M4) ใช้ข้อมูลหลักสูตรจริง
+ *  - PLO ไม่มีวิชา/CLO รับผิดชอบ → ข้อ 2.4 (High) · PLO ไม่มีวิธีวัดผลที่ผูก CLO → ข้อ 4.1 (High)
+ *  - วิชาไม่ผูก PLO → ข้อ 1.2 (Medium) · prerequisite วนซ้ำ → ข้อ 2.5 (High)
+ * ไม่ส่ง curriculum มาใน input = ไม่ตรวจ (คืน [])
  */
-export function ruleR7(_inp: GapInput): Gap[] {
-  return [];
+const R7_TARGET: Record<CurriculumGapKind, { req: string; severity: GapSeverity }> = {
+  plo_no_course: { req: '2.4', severity: 'high' },
+  plo_no_assessment: { req: '4.1', severity: 'high' },
+  course_no_plo: { req: '1.2', severity: 'medium' },
+  prereq_cycle: { req: '2.5', severity: 'high' },
+};
+export function ruleR7(inp: GapInput): Gap[] {
+  if (!inp.curriculum) return [];
+  const known = new Set(inp.requirements.map(r => r.id));
+  return curriculumGaps(inp.curriculum)
+    .filter(g => known.has(R7_TARGET[g.kind].req))
+    .map(g => gap('R7', R7_TARGET[g.kind].severity, R7_TARGET[g.kind].req, g.messageTh, { refId: g.refId }));
 }
 
 /** R8 (Medium): ข้อที่ต้อง benchmark แต่ไม่มีค่าเทียบเคียง (metric ที่เกี่ยวข้อง หรือหลักฐานที่พูดถึง benchmark) */

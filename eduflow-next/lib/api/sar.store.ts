@@ -73,7 +73,7 @@ export function saveSection(
 
   sec.narrativeTh = th; sec.narrativeEn = en; sec.pdca = nextPdca;
   sec.wordCount = Math.max(countWords(th), countWords(en));
-  sec.updatedAt = Date.now(); sec.updatedBy = actor.id;
+  sec.updatedAt = Date.now(); sec.updatedBy = actor.id; sec.lastAuthorId = actor.id;
   if (sec.status === 'not_started' && (th.trim() || en.trim() || changedPdca)) sec.status = 'drafting';
   save(KEYS.sections, rows);
 

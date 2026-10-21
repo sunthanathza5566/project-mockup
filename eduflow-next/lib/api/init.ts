@@ -3,10 +3,14 @@
  * ข้อมูลทั้งหมดสมมติ (lib/mock-data/aunqa/**) · เรียกได้ซ้ำปลอดภัย (idempotent + กัน race ด้วย promise)
  * TODO(PostgreSQL): แทนที่ด้วย migration + seed script ฝั่ง server
  */
-import type { AppUser, MetricValue } from '../types';
+import type {
+  ActionItem, AppUser, Clo, CloPloMap, Course, CourseMethod, MetricValue, Plo, Rating, SarSection,
+} from '../types';
 import {
-  DEMO_EVIDENCE, DEMO_FACULTY, DEMO_METRICS, DEMO_PROGRAMMES, DEMO_UNIVERSITY, DEMO_UNIVERSITY_2, DEMO_USERS,
+  DEMO_ACTION_ITEMS, DEMO_CLOS, DEMO_CLO_PLO_MAP, DEMO_COURSES, DEMO_COURSE_METHODS, DEMO_EVIDENCE, DEMO_FACULTY,
+  DEMO_METRICS, DEMO_NARRATIVES, DEMO_PLOS, DEMO_PROGRAMMES, DEMO_UNIVERSITY, DEMO_UNIVERSITY_2, DEMO_USERS,
 } from '../mock-data/aunqa';
+import { countWords } from '../utils/text';
 import { appendAudit } from './audit.store';
 import { hashPassword } from './auth.api';
 import { assignCriterion, createCycle } from './cycle.store';
@@ -19,6 +23,8 @@ export const DEMO_CYCLE_ID = 'cycle-demo-2569';
 const DEMO_PROGRAMME_ID = 'prog-demo-cs';
 const DEMO_CHAIR_ID = 'u-chair';
 const DEMO_OWNER_ID = 'u-staff1';
+/** ผู้เขียน narrative เดโม่ — ไม่ใช่ประธาน เพื่อให้ประธานอนุมัติได้ตาม segregation of duties */
+const DEMO_AUTHOR_ID = 'u-staff1';
 
 function isoPlusDays(days: number): string {
   return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
@@ -52,9 +58,47 @@ async function seed(): Promise<void> {
     });
   }
 
+  // narrative เดโม่ + self-rating — เขียนตรง ๆ (ไม่ผ่าน saveSection เพื่อไม่ให้ audit/version ท่วม) · ผู้เขียนล่าสุด = staff1
+  const secRows = load<SarSection>(KEYS.sections);
+  const ratingRows: Rating[] = [];
+  const now = Date.now();
+  for (const n of DEMO_NARRATIVES) {
+    const sec = secRows.find(x => x.id === `${cycle.id}::${n.requirementId}`);
+    if (!sec) continue;
+    sec.narrativeTh = n.narrativeTh; sec.pdca = { ...n.pdca }; sec.wordCount = countWords(n.narrativeTh);
+    sec.status = n.status; sec.updatedAt = now; sec.updatedBy = DEMO_AUTHOR_ID; sec.lastAuthorId = DEMO_AUTHOR_ID;
+    if (n.selfRating) {
+      ratingRows.push({
+        id: `rat_seed_${n.requirementId}`, cycleId: cycle.id, requirementId: n.requirementId, raterType: 'self',
+        raterUserId: DEMO_CHAIR_ID, score: n.selfRating, rationale: '', at: now,
+      });
+    }
+  }
+  save(KEYS.sections, secRows);
+  save(KEYS.ratings, ratingRows);
+
+  // curriculum เดโม่ (M4)
+  save<Plo>(KEYS.plos, DEMO_PLOS.map(p => ({ ...p })));
+  save<Course>(KEYS.courses, DEMO_COURSES.map(c => ({ ...c, prerequisiteIds: [...c.prerequisiteIds] })));
+  save<Clo>(KEYS.clos, DEMO_CLOS.map(c => ({ ...c })));
+  save<CloPloMap>(KEYS.cloPloMap, DEMO_CLO_PLO_MAP.map(m => ({ ...m })));
+  save<CourseMethod>(KEYS.courseMethods, DEMO_COURSE_METHODS.map(m => ({ ...m, cloIds: [...m.cloIds] })));
+
+  // action plan เดโม่ (M14) — done/verified จะกลายเป็นหลักฐานขั้น Act เมื่อเปิดรอบใหม่
+  save<ActionItem>(KEYS.actionItems, DEMO_ACTION_ITEMS.map(a => {
+    const done = a.status === 'done' || a.status === 'verified';
+    return {
+      id: a.id, universityId: DEMO_UNIVERSITY.id, programmeId: a.programmeId, requirementId: a.requirementId,
+      description: a.description, ownerUserId: users.find(u => u.username === a.ownerUsername)?.id, due: a.due, kpi: a.kpi,
+      status: a.status, doneAt: done ? now : undefined,
+      verifiedBy: a.status === 'verified' ? 'u-fqa' : undefined, verifiedAt: a.status === 'verified' ? now : undefined,
+      createdAt: now, createdBy: DEMO_CHAIR_ID, updatedAt: now,
+    };
+  }));
+
   // metrics — เก็บตรง ๆ (ผ่าน validate ตอนออกแบบ seed แล้ว) เพื่อไม่ให้ audit ท่วม
   save<MetricValue>(KEYS.metrics, DEMO_METRICS.map(m => ({ ...m })));
-  appendAudit(null, { action: 'system.seed', targetType: 'system', targetId: 'demo', after: { metrics: DEMO_METRICS.length, evidence: DEMO_EVIDENCE.length } }, DEMO_UNIVERSITY.id);
+  appendAudit(null, { action: 'system.seed', targetType: 'system', targetId: 'demo', after: { metrics: DEMO_METRICS.length, evidence: DEMO_EVIDENCE.length, narratives: DEMO_NARRATIVES.length, plos: DEMO_PLOS.length, courses: DEMO_COURSES.length, actions: DEMO_ACTION_ITEMS.length } }, DEMO_UNIVERSITY.id);
 
   localStorage.setItem(KEYS.seeded, '1');
 }

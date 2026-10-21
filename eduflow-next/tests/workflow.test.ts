@@ -4,6 +4,7 @@ import {
   verifySnapshot, getSnapshots, openRevision, computeSnapshotHash, getCycleRaw,
 } from '@/lib/api/workflow';
 import { saveSection, submitSection, approveSection, returnSection, setSelfRating } from '@/lib/api/sar.store';
+import { assignSections } from '@/lib/api/cycle.store';
 import { listRequirements } from '@/lib/api/framework';
 import { listSections } from '@/lib/api/cycle.store';
 import { createEvidence, linkEvidence } from '@/lib/api/evidence.store';
@@ -17,6 +18,7 @@ const ALLOWED_CYCLE: [CycleStatus, CycleStatus][] = [
   ['draft', 'in_progress'], ['in_progress', 'under_review'], ['under_review', 'revision_requested'], ['revision_requested', 'in_progress'],
   ['under_review', 'faculty_approved'], ['faculty_approved', 'final_approved'], ['final_approved', 'under_assessment'],
   ['under_assessment', 'assessed'], ['assessed', 'closed'],
+  ['faculty_approved', 'revision_requested'], // คณบดีส่งกลับ (review #4)
 ];
 const ALLOWED_SECTION: [SectionStatus, SectionStatus][] = [
   ['not_started', 'drafting'], ['drafting', 'ready_for_review'], ['ready_for_review', 'approved'], ['ready_for_review', 'changes_requested'],
@@ -91,9 +93,12 @@ describe('transition ผ่าน store (สิทธิ์ + เงื่อน
 /** พารอบเดโม่จนถึง final_approved (lock) */
 async function lockCycle() {
   const chair = user('chair1');
+  const staff = user('staff1');
+  // segregation of duties: ผู้เขียนล่าสุด (staff1) ≠ ผู้อนุมัติ (ประธาน)
+  assignSections(chair, CYCLE, listRequirements().map(r => r.id), staff.id);
   for (const r of listRequirements()) {
-    saveSection(chair, CYCLE, r.id, { narrativeTh: `เนื้อหาข้อ ${r.id}` }, 'manual');
-    submitSection(chair, CYCLE, r.id);
+    saveSection(staff, CYCLE, r.id, { narrativeTh: `เนื้อหาข้อ ${r.id}` }, 'manual');
+    submitSection(staff, CYCLE, r.id);
     approveSection(chair, CYCLE, r.id);
   }
   await transitionCycle(chair, CYCLE, 'under_review');
@@ -134,11 +139,13 @@ describe('lock + snapshot hash', () => {
     });
     expect(() => linkEvidence(user('chair1'), e.id, CYCLE, ['1.1'])).toThrowError(expect.objectContaining({ code: 'locked' }));
   });
-  it('หลักฐานที่อยู่ในรอบ lock แก้ metadata ไม่ได้', async () => {
+  it('หลักฐานที่อยู่ในรอบ lock แก้ metadata / verify ได้ (review #5) และ snapshot ยัง verify ผ่าน (เทียบ metadata ตอน lock)', async () => {
     const ev = await addEvidence(user('chair1'), { requirementIds: ['1.1'] });
     await lockCycle();
-    const { updateEvidence } = await import('@/lib/api/evidence.store');
-    expect(() => updateEvidence(user('chair1'), ev.id, { title: 'เปลี่ยนชื่อ' })).toThrowError(expect.objectContaining({ code: 'locked' }));
+    const { updateEvidence, verifyEvidence } = await import('@/lib/api/evidence.store');
+    expect(updateEvidence(user('chair1'), ev.id, { title: 'เปลี่ยนชื่อ' }).title).toBe('เปลี่ยนชื่อ');
+    expect(verifyEvidence(user('chair1'), ev.id).status).toBe('verified');
+    expect(await verifySnapshot(CYCLE)).toMatchObject({ ok: true, evidenceChanged: true });
   });
   it('lock แล้วแก้ข้อมูลดิบให้ hash เปลี่ยน -> verifySnapshot ตรวจพบ', async () => {
     await lockCycle();
