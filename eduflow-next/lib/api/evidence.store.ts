@@ -21,11 +21,24 @@ const MAX_TEXT = 200_000;
 const KINDS: EvidenceKind[] = ['policy', 'plan', 'minutes', 'survey', 'statistics', 'photo', 'publication', 'other'];
 const STAGES: PdcaStage[] = ['P', 'D', 'C', 'A'];
 
+/** spec 12: ไฟล์ ≤ 50MB · PDF/DOCX/XLSX/PNG/JPG/TXT/CSV เท่านั้น */
+export const MAX_FILE_BYTES = 50 * 1024 * 1024;
+const ALLOWED_EXT = ['pdf', 'docx', 'xlsx', 'png', 'jpg', 'jpeg', 'txt', 'csv'];
+const TEXT_EXT = ['txt', 'csv'];
+const extOf = (name: string) => (name.split('.').length > 1 ? name.split('.').pop()!.toLowerCase() : '');
+
 export interface FileInput { name: string; mime: string; size: number; bytes?: ArrayBuffer; text?: string }
 
-/** อ่าน File ของ browser → FileInput (text สำหรับ .txt/.csv/.md/.json, ที่เหลือเก็บ bytes) */
+/** ตรวจขนาด/ชนิดไฟล์ (ใช้ทั้งก่อนอ่านไฟล์เข้า memory และตอนบันทึก) */
+export function validateFileMeta(f: { name: string; size: number }): void {
+  if (!ALLOWED_EXT.includes(extOf(f.name))) throw new AunqaError('invalid', 'รองรับเฉพาะไฟล์ PDF, DOCX, XLSX, PNG, JPG, TXT, CSV');
+  if (f.size > MAX_FILE_BYTES) throw new AunqaError('invalid', 'ไฟล์ใหญ่เกิน 50MB');
+}
+
+/** อ่าน File ของ browser → FileInput (text สำหรับ .txt/.csv, ที่เหลือเก็บ bytes) */
 export async function readFileInput(file: File): Promise<FileInput> {
-  const isText = /\.(txt|csv|md|json)$/i.test(file.name) || file.type.startsWith('text/');
+  validateFileMeta(file);
+  const isText = TEXT_EXT.includes(extOf(file.name));
   if (isText) return { name: file.name, mime: file.type || 'text/plain', size: file.size, text: await file.text(), bytes: await file.arrayBuffer() };
   return { name: file.name, mime: file.type || 'application/octet-stream', size: file.size, bytes: await file.arrayBuffer() };
 }
@@ -107,12 +120,14 @@ function validateMeta(i: { title: string; kind: EvidenceKind; pdcaStage: PdcaSta
 }
 
 async function storeFile(actor: AppUser, evidenceId: string, file: FileInput, extracted: string | undefined): Promise<EvidenceFile> {
+  validateFileMeta({ name: file.name, size: Math.max(file.size, file.bytes?.byteLength ?? 0) });
   const sha = await sha256Hex(file.bytes ?? file.text ?? '');
   const files = load<EvidenceFile>(KEYS.files);
   const version = files.filter(f => f.evidenceId === evidenceId).length + 1;
   const rec: EvidenceFile = {
     id: newId('fil'), evidenceId, version, name: file.name.slice(0, 200), mime: file.mime, size: file.size, sha256: sha,
-    extractedText: extracted ? extracted.slice(0, MAX_TEXT) : undefined, uploadedBy: actor.id, uploadedAt: Date.now(),
+    extractedText: extracted ? extracted.slice(0, MAX_TEXT) : undefined,
+    piiScan: extracted !== undefined ? 'scanned' : 'not_scanned', uploadedBy: actor.id, uploadedAt: Date.now(),
   };
   if (file.bytes && file.bytes.byteLength <= MAX_DATAURL_BYTES) {
     try { rec.dataUrl = toDataUrl(file.bytes, file.mime); } catch { /* เก็บ metadata อย่างเดียว */ }
@@ -228,7 +243,7 @@ export function listFileVersions(user: AppUser, evidenceId: string): EvidenceFil
 // ─── Links ───────────────────────────────────────────────────────────────
 export function linkEvidence(
   actor: AppUser, evidenceId: string, cycleId: string, requirementIds: string[],
-  source: 'manual' | 'ai' = 'manual', confidence?: number,
+  source: 'manual' | 'ai' = 'manual', confidence?: number, confirmedBy?: string,
 ): EvidenceLink[] {
   const e = getRaw(evidenceId);
   assertWrite(actor, e);
@@ -236,12 +251,14 @@ export function linkEvidence(
   if (cycle.programmeId !== e.programmeId) throw new AunqaError('invalid', 'หลักฐานกับรอบประเมินต้องเป็นหลักสูตรเดียวกัน');
   if (!can(actor, 'evidence.write', cycleScope(cycle))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ผูกหลักฐานในรอบนี้');
   assertCycleWritable(cycle);
+  const rids = Array.from(new Set(requirementIds));
+  // validate ทั้งหมดก่อนแตะข้อมูล (cache คืน reference ร่วม — ห้าม throw กลางลูปหลัง mutate)
+  for (const rid of rids) if (!getRequirement(rid)) throw new AunqaError('invalid', `ไม่พบข้อ ${rid}`);
   const links = load<EvidenceLink>(KEYS.links);
   const added: EvidenceLink[] = [];
-  for (const rid of Array.from(new Set(requirementIds))) {
-    if (!getRequirement(rid)) throw new AunqaError('invalid', `ไม่พบข้อ ${rid}`);
+  for (const rid of rids) {
     if (links.some(l => l.evidenceId === evidenceId && l.cycleId === cycleId && l.requirementId === rid)) continue;
-    const l: EvidenceLink = { id: newId('lnk'), evidenceId, requirementId: rid, cycleId, source, confidence, confirmedBy: source === 'manual' ? actor.id : undefined, at: Date.now() };
+    const l: EvidenceLink = { id: newId('lnk'), evidenceId, requirementId: rid, cycleId, source, confidence, confirmedBy: confirmedBy ?? (source === 'manual' ? actor.id : undefined), at: Date.now() };
     links.push(l); added.push(l);
   }
   if (added.length) {
@@ -343,9 +360,18 @@ export function listEvidence(user: AppUser, query: EvidenceQuery): EvidenceView[
     .sort((a, b) => a.code.localeCompare(b.code));
 }
 
+/** สิทธิ์ดูหลักฐาน: cycleId ต้องเป็นหลักสูตรเดียวกัน · assessor-only ต้องมี link ของหลักฐานนี้ในรอบนั้น */
+function assertCanView(user: AppUser, e: Evidence, cycleId?: string): void {
+  const deny = () => new AunqaError('forbidden', 'ไม่มีสิทธิ์ดูหลักฐานนี้');
+  if (cycleId && getCycleRaw(cycleId).programmeId !== e.programmeId) throw deny();
+  if (!can(user, 'read', programmeScope(e.programmeId, { cycleId }))) throw deny();
+  if (user.roles.every(r => r.role === 'assessor')
+    && !(cycleId && load<EvidenceLink>(KEYS.links).some(l => l.evidenceId === e.id && l.cycleId === cycleId))) throw deny();
+}
+
 export function getEvidence(user: AppUser, id: string, cycleId?: string): EvidenceView {
   const e = getRaw(id);
-  if (!can(user, 'read', programmeScope(e.programmeId, { cycleId }))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ดูหลักฐานนี้');
+  assertCanView(user, e, cycleId);
   return viewOf(e, load<EvidenceLink>(KEYS.links), cycleId);
 }
 
@@ -356,8 +382,14 @@ export function listLinks(user: AppUser, cycleId: string): EvidenceLink[] {
   return load<EvidenceLink>(KEYS.links).filter(l => l.cycleId === cycleId);
 }
 
-/** ข้อความที่ extract จากไฟล์ปัจจุบัน (ส่งเข้า AI หลัง redact เท่านั้น) */
-export function getExtractedText(evidenceId: string): string {
+/** ข้อความที่ extract จากไฟล์ปัจจุบัน — ตรวจสิทธิ์เหมือน getEvidence (สำหรับ UI) */
+export function getExtractedText(user: AppUser, evidenceId: string, cycleId?: string): string {
+  assertCanView(user, getRaw(evidenceId), cycleId);
+  return extractedTextOf(evidenceId);
+}
+
+/** internal: ไม่ตรวจสิทธิ์ — ผู้เรียก (ai.service) ต้องตรวจสิทธิ์เองก่อน และส่งเข้า AI หลัง redact เท่านั้น */
+export function extractedTextOf(evidenceId: string): string {
   const e = getRaw(evidenceId);
   return load<EvidenceFile>(KEYS.files).find(f => f.id === e.currentFileId)?.extractedText ?? '';
 }

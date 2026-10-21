@@ -38,7 +38,7 @@ export default function AdminPage() {
       </div>
       {active === 'users' && <UsersTab user={user} />}
       {active === 'audit' && <AuditTab user={user} />}
-      {active === 'demo' && <DemoTab />}
+      {active === 'demo' && <DemoTab user={user} />}
     </>
   );
 }
@@ -174,7 +174,7 @@ function AuditTab({ user }: { user: AppUser }) {
 
 // ───────────────────────── demo ─────────────────────────
 
-function DemoTab() {
+function DemoTab({ user }: { user: AppUser }) {
   const { confirm, notify } = useDialog();
   const { refresh } = useAuth();
   const router = useRouter();
@@ -186,7 +186,7 @@ function DemoTab() {
         const ok = await confirm({ title: 'รีเซ็ตข้อมูลเดโม่?', message: 'ข้อมูลที่แก้ไขทั้งหมดจะหาย และย้อนกลับไม่ได้', variant: 'danger', confirmText: 'รีเซ็ต' });
         if (!ok) return;
         try {
-          await resetDemo();
+          await resetDemo(user);
           await notify({ title: 'รีเซ็ตเรียบร้อย', message: 'กรุณาเข้าสู่ระบบใหม่' });
           refresh();
           router.push('/login');

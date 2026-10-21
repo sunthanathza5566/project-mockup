@@ -28,7 +28,7 @@ function Inner() {
     return {
       ev,
       files: listFileVersions(user, id),
-      text: ev.containsPii && !ev.piiResolved ? '' : getExtractedText(id),
+      text: ev.containsPii && !ev.piiResolved ? '' : getExtractedText(user, id, cycleParam || undefined),
       cycles: listCycles(user, ev.programmeId),
       canWrite: !assessor && can(user, 'evidence.write', programmeScope(ev.programmeId)),
       canVerify: can(user, 'evidence.verify', programmeScope(ev.programmeId)),

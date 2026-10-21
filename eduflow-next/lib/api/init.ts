@@ -10,8 +10,9 @@ import {
 import { appendAudit } from './audit.store';
 import { hashPassword } from './auth.api';
 import { assignCriterion, createCycle } from './cycle.store';
-import { KEYS, clearAllAunqa, load, save } from './db';
+import { AunqaError, KEYS, clearAllAunqa, load, save } from './db';
 import { createEvidence } from './evidence.store';
+import { can } from './rbac';
 import { transitionCycle } from './workflow';
 
 export const DEMO_CYCLE_ID = 'cycle-demo-2569';
@@ -73,8 +74,10 @@ export function initAunqa(): Promise<void> {
 }
 
 /** ล้างข้อมูล aunqa_* ทั้งหมดแล้ว seed ใหม่ (เฉพาะเดโม่ — ล้าง audit ด้วย) */
-export async function resetDemo(): Promise<void> {
+export async function resetDemo(actor: AppUser): Promise<void> {
   if (typeof window === 'undefined') return;
+  if (!can(actor, 'user.manage', { universityId: actor.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์รีเซ็ตข้อมูลเดโม่');
+  // TODO(Phase B): ปิดฟังก์ชันนี้เมื่อไม่ใช่โหมดเดโม่ (env flag)
   if (seeding) await seeding.catch(() => undefined);
   clearAllAunqa();
   await initAunqa();

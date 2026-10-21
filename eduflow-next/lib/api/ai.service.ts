@@ -13,7 +13,7 @@ import type {
 import { newId, sha256Hex, stableStringify } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
-import { getExtractedText, linkEvidence, setAiSummary } from './evidence.store';
+import { extractedTextOf as getExtractedText, linkEvidence, setAiSummary } from './evidence.store';
 import { getMetricDefinition } from './metrics.store';
 import { getRequirement, listRequirements } from './framework';
 import { computeGaps } from './gap';
@@ -41,6 +41,13 @@ function saveRun(run: AiRun): AiRun {
   return run;
 }
 
+/** programmeId ของ run (จาก cycle ก่อน ไม่งั้นจาก evidence) — ให้ audit.view ระดับหลักสูตรมองเห็น */
+function programmeOfRun(refs: { cycleId?: string; evidenceId?: string }): string | undefined {
+  if (refs.cycleId) return getCycleRaw(refs.cycleId).programmeId;
+  if (refs.evidenceId) return load<Evidence>(KEYS.evidence).find(e => e.id === refs.evidenceId)?.programmeId;
+  return undefined;
+}
+
 async function finalize(
   actor: AppUser, feature: AiFeature, universityId: string, ctx: Record<string, unknown>,
   refs: { cycleId?: string; requirementId?: string; evidenceId?: string; codes: string[] },
@@ -55,7 +62,7 @@ async function finalize(
   });
   appendAudit(actor, {
     action: `ai.run.${feature}`, targetType: 'ai_run', targetId: run.id,
-    programmeId: refs.cycleId ? getCycleRaw(refs.cycleId).programmeId : undefined,
+    programmeId: programmeOfRun(refs),
     after: { feature, redactionCount, ok: postCheck.ok },
   });
   return run;
@@ -193,7 +200,7 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
     if (run.cycleId) {
       const wanted = new Set(opts.requirementIds ?? out.suggestions.map(s => s.requirementId));
       out.suggestions.filter(s => wanted.has(s.requirementId)).forEach(s =>
-        linkEvidence(actor, ev.id, run.cycleId!, [s.requirementId], 'ai', s.confidence));
+        linkEvidence(actor, ev.id, run.cycleId!, [s.requirementId], 'ai', s.confidence, actor.id));
     }
   } else if (run.feature === 'AI-2') {
     const out = run.output as DraftOutput & { language: 'th' | 'en' };
@@ -208,7 +215,7 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
 
   run.accepted = true; run.acceptedBy = actor.id; run.acceptedAt = Date.now();
   save(KEYS.aiRuns, rows);
-  appendAudit(actor, { action: 'ai.accept', targetType: 'ai_run', targetId: run.id, after: { feature: run.feature } });
+  appendAudit(actor, { action: 'ai.accept', targetType: 'ai_run', targetId: run.id, after: { feature: run.feature }, programmeId: programmeOfRun(run) });
   return run;
 }
 

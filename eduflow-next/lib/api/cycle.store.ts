@@ -140,20 +140,26 @@ export function assignSections(
   }
   const rows = load<SarSection>(KEYS.sections);
   const changed: SarSection[] = [];
-  for (const rid of requirementIds) {
+  const audits: Array<Parameters<typeof appendAudit>[1]> = [];
+  // validate ทุกข้อก่อน mutate (cache คืน reference ร่วม) และ audit หลัง save สำเร็จ
+  const targets = requirementIds.map(rid => {
     const s = rows.find(x => x.id === sectionId(cycleId, rid));
     if (!s) throw new AunqaError('not_found', `ไม่พบข้อ ${rid}`);
+    return s;
+  });
+  for (const s of targets) {
     const before = { ownerUserId: s.ownerUserId, due: s.due };
     s.ownerUserId = ownerUserId ?? undefined;
     if (due !== undefined) s.due = due || undefined;
     s.updatedAt = Date.now();
     changed.push(s);
-    appendAudit(actor, {
+    audits.push({
       action: 'section.assign', targetType: 'section', targetId: s.id, programmeId: c.programmeId,
       before, after: { ownerUserId: s.ownerUserId, due: s.due },
     });
   }
   save(KEYS.sections, rows);
+  audits.forEach(a => appendAudit(actor, a));
   if (owner && owner.id !== actor.id && changed.length) {
     notify({
       userId: owner.id, kind: 'assigned', cycleId,

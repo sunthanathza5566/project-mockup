@@ -63,7 +63,12 @@ export function listAudit(user: AppUser, filter: AuditFilter = {}): AuditLog[] {
 }
 
 export function auditToCsv(rows: AuditLog[]): string {
-  const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  // กัน CSV/formula injection: ค่าที่ขึ้นต้น = + - @ tab CR → นำหน้าด้วย '
+  const esc = (v: unknown) => {
+    let s = String(v ?? '');
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    return `"${s.replace(/"/g, '""')}"`;
+  };
   const head = ['at', 'actor', 'action', 'targetType', 'targetId', 'before', 'after'];
   const lines = rows.map(r => [
     new Date(r.at).toISOString(), r.actorName, r.action, r.targetType, r.targetId,

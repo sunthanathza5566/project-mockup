@@ -7,7 +7,8 @@ import type { GapInput } from '@/lib/api/gap';
 export const CYCLE = 'cycle-demo-2569';
 export const PROG = 'prog-demo-cs';
 
-export async function freshDemo() { await resetDemo(); }
+const TEST_ADMIN: AppUser = { id: 'u-test-admin', username: 'tadmin', password: '', universityId: 'any', email: 't@t.t', fullName: 'T', roles: [{ role: 'super_admin', scopeType: 'university', scopeId: '*' }] };
+export async function freshDemo() { await resetDemo(TEST_ADMIN); }
 export function user(username: string): AppUser {
   const u = getAllUsers().find(x => x.username === username);
   if (!u) throw new Error('no user ' + username);

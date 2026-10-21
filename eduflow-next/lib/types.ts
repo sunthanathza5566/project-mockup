@@ -155,6 +155,8 @@ export interface EvidenceLink {
 export interface EvidenceFile {
   id: string; evidenceId: string; version: number; name: string; mime: string; size: number;
   sha256: string; extractedText?: string; dataUrl?: string; uploadedBy: string; uploadedAt: number;
+  /** 'not_scanned' = ไฟล์ binary (PDF/DOCX/XLSX/รูป) ยังไม่ได้สแกน PII (Phase B: text extraction) */
+  piiScan?: 'scanned' | 'not_scanned';
 }
 
 // ═══════════════════════ Notifications / Audit / AI ═══════════════════════

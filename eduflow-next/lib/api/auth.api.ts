@@ -148,6 +148,8 @@ export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignme
   if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   const isSuper = actor.roles.some(r => r.role === 'super_admin');
   if (!isSuper && roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ให้บทบาท super_admin');
+  if (!isSuper && target.id === actor.id) throw new AunqaError('forbidden', 'แก้บทบาทของตัวเองไม่ได้');
+  if (!isSuper && target.roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้บัญชี super_admin');
   const before = target.roles;
   target.roles = roles;
   saveUsers(users);
@@ -161,6 +163,8 @@ export function deleteUser(actor: AppUser, userId: string): void {
   if (!target) return;
   if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   if (target.id === actor.id) throw new AunqaError('invalid', 'ลบบัญชีตัวเองไม่ได้');
+  if (!actor.roles.some(r => r.role === 'super_admin') && target.roles.some(r => r.role === 'super_admin'))
+    throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ลบบัญชี super_admin');
   saveUsers(users.filter(u => u.id !== userId));
   appendAudit(actor, { action: 'user.delete', targetType: 'user', targetId: userId, before: { username: target.username, roles: target.roles } });
 }
