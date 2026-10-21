@@ -31,16 +31,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <PrefsInit />
-        <AuthProvider>
-          <LangProvider>
-            <ToastProvider>
-              <DialogProvider>
+        {/* Dialog ครอบ Auth — AuthContext ใช้ dialog เตือนหมดอายุ/บันทึกไม่ได้ (ADR 6.4) */}
+        <ToastProvider>
+          <DialogProvider>
+            <AuthProvider>
+              <LangProvider>
                 {children}
                 <Toast />
-              </DialogProvider>
-            </ToastProvider>
-          </LangProvider>
-        </AuthProvider>
+              </LangProvider>
+            </AuthProvider>
+          </DialogProvider>
+        </ToastProvider>
       </body>
     </html>
   );

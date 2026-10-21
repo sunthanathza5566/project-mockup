@@ -32,6 +32,8 @@ interface ConfirmOptions extends BaseOptions {
   cancelText?: string;
   /** บังคับปุ่มที่ได้ focus เริ่มต้น (ค่าเริ่มต้นตามกฎ C15) */
   initialFocus?: 'confirm' | 'cancel';
+  /** false = Esc / คลิกฉากหลังไม่ปิด (ใช้เมื่อปุ่มยกเลิกเป็นการกระทำที่มีผล เช่น ออกจากระบบ) */
+  dismissible?: boolean;
 }
 interface NotifyOptions extends BaseOptions {
   okText?: string;
@@ -55,6 +57,7 @@ interface DialogState {
   placeholder?: string;
   required?: boolean;
   initialFocus: 'confirm' | 'cancel' | 'input';
+  dismissible: boolean;
   resolve: (v: boolean | string | null) => void;
 }
 
@@ -107,7 +110,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
       kind: 'confirm', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
-      initialFocus: defaultFocus(v, o.initialFocus),
+      initialFocus: defaultFocus(v, o.initialFocus), dismissible: o.dismissible !== false,
       resolve: r => resolve(r === true),
     });
   }), [open]);
@@ -117,7 +120,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     open({
       kind: 'notify', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
-      confirmText: o.okText || 'รับทราบ', cancelText: '', initialFocus: 'confirm',
+      confirmText: o.okText || 'รับทราบ', cancelText: '', initialFocus: 'confirm', dismissible: true,
       resolve: () => resolve(),
     });
   }), [open]);
@@ -128,7 +131,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
       kind: 'prompt', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
-      placeholder: o.placeholder, required: o.required, initialFocus: 'input',
+      placeholder: o.placeholder, required: o.required, initialFocus: 'input', dismissible: o.dismissible !== false,
       resolve: r => resolve(typeof r === 'string' ? r : null),
     });
     if (o.defaultValue) setText(o.defaultValue);
@@ -163,7 +166,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
 
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (!state) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(cancelValue(state)); return; }
+    if (e.key === 'Escape') { e.preventDefault(); if (state.dismissible) close(cancelValue(state)); return; }
     if (e.key !== 'Tab' || !panel.current) return;
     const items = Array.from(panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(n => n.offsetParent !== null);
     if (!items.length) return;
@@ -184,7 +187,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         <div
           className="aq-dialog-backdrop"
           onMouseDown={e => {
-            if (e.target !== e.currentTarget) return;
+            if (e.target !== e.currentTarget || !state.dismissible) return;
             if (state.kind === 'prompt' && text.trim()) return; // พิมพ์แล้ว = ไม่ปิด
             close(cancelValue(state));
           }}

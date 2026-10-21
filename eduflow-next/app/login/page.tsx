@@ -1,13 +1,14 @@
 'use client';
 
+import { Suspense } from 'react';
+import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
-import AuthNav from '@/components/auth/AuthNav';
 
 export default function LoginPage() {
   return (
-    <>
-      <AuthNav />
-      <LoginForm />
-    </>
+    <AuthLayout>
+      {/* useSearchParams (?reason=) ต้องอยู่ใน Suspense สำหรับ static build */}
+      <Suspense fallback={null}><LoginForm /></Suspense>
+    </AuthLayout>
   );
 }

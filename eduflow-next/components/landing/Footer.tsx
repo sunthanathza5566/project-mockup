@@ -1,8 +1,13 @@
+/** footer พื้นเข้มต่อเนื่องจาก CTA (pages.md P1) */
+import { Brand } from '@/components/ui/BrandMark';
+
 export default function Footer() {
   return (
-    <footer>
-      <div className="logo">AUN-QA <span style={{ color: 'var(--brown-light)' }}>Copilot</span></div>
-      <p>ต้นแบบเพื่อการวิจัย · ข้อมูลทั้งหมดเป็นข้อมูลสมมติ · AI เป็นผู้ช่วย ไม่ใช่ผู้ประเมิน</p>
+    <footer className="aq-footer aq-on-dark">
+      <div className="aq-footer__inner">
+        <Brand size={20} />
+        <p className="aq-on-dark-muted">ข้อมูลทั้งหมดเป็นข้อมูลสมมติเพื่อการสาธิต</p>
+      </div>
     </footer>
   );
 }

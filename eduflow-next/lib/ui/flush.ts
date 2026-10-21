@@ -12,6 +12,8 @@ export interface FlushResult {
   label: string;
   /** ข้อความ error ภาษาไทย (errMsg) เมื่อ ok = false */
   error?: string;
+  /** ข้อความที่ผู้ใช้พิมพ์ค้าง (ภาษาปัจจุบัน) — ใช้กับปุ่ม "คัดลอกข้อความ" เมื่อบันทึกไม่ได้ (6.4) */
+  text?: string;
 }
 
 /** null = ไม่มีอะไรค้าง */
