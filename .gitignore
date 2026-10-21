@@ -1,0 +1,4 @@
+.env
+.env.*
+!.env.example
+thesis/export/_assembled.md
