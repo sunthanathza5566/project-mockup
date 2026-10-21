@@ -56,3 +56,24 @@ export const rating = (requirementId: string, score: number, raterType: 'self' |
 export const gi = (over: Partial<GapInput> = {}): GapInput => ({
   requirements: [], sections: [], links: [], evidence: [], metrics: [], ratings: [], academicYear: 2569, ...over,
 });
+
+// ── Phase B flow helpers ──
+import * as _api from '@/lib/api';
+/** เดินเดโม่ที่ seed แล้วไปจนถึง final_approved (lock) — ประธานมอบข้อที่ยังไม่อนุมัติให้ staff1 */
+export async function driveToLocked() {
+  await freshSeededDemo();
+  const chair = user('chair1'); const staff = user('staff1');
+  for (const s of _api.listSections(chair, CYCLE)) {
+    if (s.status === 'approved') continue;
+    if (s.status === 'drafting') { _api.assignSections(chair, CYCLE, [s.requirementId], staff.id); _api.submitSection(staff, CYCLE, s.requirementId); }
+    _api.approveSection(chair, CYCLE, s.requirementId);
+  }
+  await _api.transitionCycle(chair, CYCLE, 'under_review');
+  await _api.transitionCycle(user('fqa1'), CYCLE, 'faculty_approved');
+  return _api.transitionCycle(user('dean1'), CYCLE, 'final_approved');
+}
+export async function driveToAssessment() {
+  const locked = await driveToLocked();
+  await _api.transitionCycle(user('fqa1'), CYCLE, 'under_assessment');
+  return locked;
+}

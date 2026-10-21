@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   acceptAiRun, addComment, approveSection, can, cycleScope, linkEvidence, programmeScope, resolveComment,
-  restoreVersion, returnSection, runSarDrafter, runSarReviewer, saveSection, setCommitteeRating, setSelfRating,
+  restoreVersion, returnSection, runSarDrafter, runSarReviewer, saveSection, setSelfRating,
   submitSection, unlinkEvidence, validateCitations,
 } from '@/lib/api';
 import type {
@@ -13,7 +13,7 @@ import type {
 import type { EvidenceView } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
-import { AsyncButton, Badge, Empty, SectionStatusBadge } from './common';
+import { AsyncButton, Badge, Empty, ModelBadge, SectionStatusBadge } from './common';
 import RequirementCard from './RequirementCard';
 import { PDCA_TH, errMsg, fmtDate, fmtDateTime } from '@/lib/ui/aunqa';
 
@@ -124,7 +124,9 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     catch (e) { showToast(errMsg(e), 'error'); }
   }
 
-  const canApprove = section.status === 'ready_for_review' && can(user, 'sar.approve', scope);
+  const approverRole = section.status === 'ready_for_review' && can(user, 'sar.approve', scope);
+  const selfAuthored = approverRole && !!section.lastAuthorId && section.lastAuthorId === user.id;
+  const canApprove = approverRole && !selfAuthored;
   const canReturn = (section.status === 'ready_for_review' || section.status === 'approved') && can(user, 'sar.return', scope);
   const canSubmit = editable && (section.status === 'drafting' || section.status === 'changes_requested' || section.status === 'not_started');
 
@@ -240,7 +242,12 @@ export default function SarWorkspace({ data, user, reload, remount }: {
           {canSubmit && <AsyncButton className="aq-btn aq-btn-primary" testId="section-submit" onClick={doSubmit}>ส่งตรวจ</AsyncButton>}
           {canApprove && <AsyncButton className="aq-btn aq-btn-primary" testId="section-approve" onClick={doApprove}>อนุมัติข้อนี้</AsyncButton>}
           {canReturn && <AsyncButton className="aq-btn aq-btn-danger" testId="section-return" onClick={doReturn}>ส่งกลับแก้ไข</AsyncButton>}
-          {!canSubmit && !canApprove && !canReturn && <span className="aq-muted">ไม่มีการดำเนินการที่ทำได้ในสถานะนี้</span>}
+          {selfAuthored && (
+            <div className="auth-alert auth-alert-warn" style={{ flex: '1 1 100%' }} data-testid="segregation-note">
+              คุณเป็นผู้เขียนเนื้อหาล่าสุดของข้อนี้ จึงอนุมัติเองไม่ได้ (หลักการแยกหน้าที่ผู้เขียนกับผู้อนุมัติ) — ให้มอบหมายข้อนี้ให้ผู้อื่นปรับหรือส่งตรวจ แล้วคุณค่อยอนุมัติ หรือกด “ส่งกลับแก้ไข” หากต้องการให้แก้เพิ่ม
+            </div>
+          )}
+          {!canSubmit && !canApprove && !canReturn && !selfAuthored && <span className="aq-muted">ไม่มีการดำเนินการที่ทำได้ในสถานะนี้</span>}
         </div>
 
         <details className="aq-card" data-testid="versions">
@@ -351,6 +358,7 @@ function AiResult({ run, aiMode, setAiMode, onAccept, onDiscard, canAccept }: {
     <div className="aq-ai-result" data-testid="ai-result">
       <div className="aq-chips">
         <Badge tone="info">{run.feature === 'AI-2' ? 'ร่างเนื้อหา' : 'ตรวจเนื้อหา'}</Badge>
+        <ModelBadge run={run} />
         <Badge title="จำนวนข้อมูลส่วนบุคคลที่ถูกปกปิดก่อนส่ง">ปกปิด {run.redactionCount} จุด</Badge>
         <Badge tone={pc.ok ? 'ok' : 'warn'} testId="postcheck">{pc.ok ? 'ผ่านการตรวจอ้างอิง/ตัวเลข' : 'พบข้อควรระวัง'}</Badge>
       </div>
@@ -398,22 +406,14 @@ function RatingPanel({ user, cycle, section, ratings, scope, cycleWritable, relo
   const self = mine('self');
   const committee = mine('committee');
   const canSelf = can(user, 'rating.self', scope) && cycleWritable;
-  const canCommittee = can(user, 'rating.committee', scope) && cycle.status === 'under_assessment';
 
   const [score, setScore] = useState(String(self?.score ?? ''));
   const [why, setWhy] = useState(self?.rationale ?? '');
-  const [cScore, setCScore] = useState(String(committee?.score ?? ''));
-  const [cWhy, setCWhy] = useState(committee?.rationale ?? '');
 
   function saveSelf() {
     try { setSelfRating(user, cycle.id, section.requirementId, Number(score), why); showToast('บันทึกคะแนนประเมินตนเองแล้ว', 'success'); reload(); }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
-  function saveCommittee() {
-    try { setCommitteeRating(user, cycle.id, section.requirementId, Number(cScore), cWhy); showToast('บันทึกคะแนนกรรมการแล้ว', 'success'); reload(); }
-    catch (e) { showToast(errMsg(e), 'error'); }
-  }
-
   return (
     <section className="aq-card" aria-labelledby="rate-h" data-testid="rating-panel">
       <h2 id="rate-h" className="aq-h3">คะแนนประเมินตนเอง (1–7)</h2>
@@ -426,20 +426,10 @@ function RatingPanel({ user, cycle, section, ratings, scope, cycleWritable, relo
         {canSelf && <button className="aq-btn aq-btn-sm" disabled={!score} onClick={saveSelf} data-testid="self-save">บันทึกคะแนน</button>}
       </div>
       {self && <p className="aq-muted">ล่าสุด: {self.score} คะแนน ({fmtDateTime(self.at)})</p>}
-      {(committee || canCommittee) && (
+      {committee && (
         <div style={{ marginTop: '0.8rem' }}>
-          <h3 className="aq-h3">คะแนนกรรมการประเมิน</h3>
-          {committee && <p>คะแนน {committee.score} — {committee.rationale || 'ไม่มีเหตุผล'}</p>}
-          {canCommittee && (
-            <div className="aq-form-inline">
-              <select className="aq-input aq-input-sm" value={cScore} onChange={e => setCScore(e.target.value)} aria-label="คะแนนกรรมการ" data-testid="committee-score">
-                <option value="">—</option>
-                {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{n}</option>)}
-              </select>
-              <input className="aq-input" style={{ flex: 1 }} placeholder="เหตุผล" value={cWhy} onChange={e => setCWhy(e.target.value)} aria-label="เหตุผลกรรมการ" />
-              <button className="aq-btn aq-btn-sm" disabled={!cScore} onClick={saveCommittee} data-testid="committee-save">บันทึก</button>
-            </div>
-          )}
+          <h3 className="aq-h3">คะแนนกรรมการประเมิน (รายข้อเดิม)</h3>
+          <p>คะแนน {committee.score} — {committee.rationale || 'ไม่มีเหตุผล'}</p>
         </div>
       )}
     </section>

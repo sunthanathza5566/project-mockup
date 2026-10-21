@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import {
-  downloadBlob, exportAppendixAXlsx, exportEvidenceAndAppendixXlsx, exportEvidenceIndexXlsx, exportSarDoc,
+  downloadBlob, exportAppendixAXlsx, exportAppendixBDoc, exportAppendixDDoc, exportEvidenceAndAppendixXlsx, exportEvidenceIndexXlsx, exportSarDoc,
   getProgramme,
 } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import { AsyncButton, CycleStatusBadge, Empty, PageHeader } from '@/components/aunqa/common';
+import { isAssessorOf } from '@/lib/api';
 import { useScope } from '@/components/aunqa/useScope';
 import { errMsg } from '@/lib/ui/aunqa';
 
@@ -60,6 +61,20 @@ export default function ExportPage() {
             </div>
           </section>
         </div>
+      )}
+      {cycle && (
+        <section className="aq-card" data-testid="export-assessor-section">
+          <h2 className="aq-h2">ผลการประเมินโดยกรรมการ</h2>
+          {isAssessorOf(user, cycle.id) || cycle.status === 'assessed' || cycle.status === 'closed' ? (
+            <>
+              <p className="aq-muted">Appendix B = ข้อค้นพบรายข้อและคะแนนรายเกณฑ์ · Appendix D = สรุปผล/verdict ของกรรมการ (.doc)</p>
+              <div className="aq-actions">
+                <AsyncButton className="aq-btn aq-btn-primary" testId="export-appendix-b" onClick={() => run('Appendix B', `AppendixB_${base}.doc`, () => exportAppendixBDoc(user, cycle.id))}>Appendix B (.doc)</AsyncButton>
+                <AsyncButton className="aq-btn aq-btn-primary" testId="export-appendix-d" onClick={() => run('Appendix D', `AppendixD_${base}.doc`, () => exportAppendixDDoc(user, cycle.id))}>Appendix D (.doc)</AsyncButton>
+              </div>
+            </>
+          ) : <p className="aq-muted" data-testid="export-assessor-locked">Appendix B / D จะดาวน์โหลดได้เมื่อกรรมการส่งผลประเมินแล้ว (สถานะ “ประเมินแล้ว”)</p>}
+        </section>
       )}
       {last && <div className="auth-alert auth-alert-ok" role="status" data-testid="export-status">{last}</div>}
       {cycle && !cycle.lockedAt && <p className="aq-muted">หมายเหตุ: รอบนี้ยังไม่ล็อก เนื้อหาในไฟล์เป็นฉบับร่างล่าสุด</p>}

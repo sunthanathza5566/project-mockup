@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { AppUser, CycleStatus, EvidenceStatus, HeatLevel, SectionStatus } from '@/lib/types';
+import type { AiRun, AppUser, CycleStatus, EvidenceStatus, HeatLevel, SectionStatus } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
-import { CYCLE_STATUS_TH, HEAT_TH, SECTION_STATUS_TH, errMsg } from '@/lib/ui/aunqa';
+import { CYCLE_STATUS_TH, HEAT_TH, SECTION_STATUS_TH, aiModelLabel, errMsg } from '@/lib/ui/aunqa';
 
 /** user ปัจจุบัน (AppShell การันตีว่าไม่ null เมื่อ render children) */
 export function useMe(): AppUser {
@@ -121,4 +121,10 @@ export function AsyncButton({ onClick, children, className = 'aq-btn', disabled,
       {busy ? 'กำลังทำ…' : children}
     </button>
   );
+}
+
+/** แสดงว่า AI run ตอบจาก Claude หรือ offline */
+export function ModelBadge({ run }: { run: Pick<AiRun, 'model'> }) {
+  const offline = run.model.startsWith('offline');
+  return <Badge tone={offline ? 'neutral' : 'info'} title={aiModelLabel(run.model)} testId="ai-model">{offline ? 'Offline' : 'Claude'}</Badge>;
 }

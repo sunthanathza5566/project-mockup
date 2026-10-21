@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
-  CYCLE_TRANSITIONS, can, cycleScope, getCycle, getProgramme, getReadiness, listReviewEvents, listSections,
+  CYCLE_TRANSITIONS, can, cycleScope, getCycle, isAssessorOf, getProgramme, getReadiness, listReviewEvents, listSections,
   listUsers, openRevision, transitionCycle, verifySnapshot,
 } from '@/lib/api';
 import type { CycleStatus, GapSeverity } from '@/lib/types';
@@ -69,7 +69,10 @@ export default function CycleDashboardPage() {
     <Async q={q}>{({ cycle, readiness, sections, names, events, verify }) => {
       const scope = cycleScope(cycle);
       const prog = getProgramme(cycle.programmeId);
-      const transitions = CYCLE_TRANSITIONS.filter(t => t.from === cycle.status && can(user, t.action, scope));
+      const isAssessor = isAssessorOf(user, cycle.id);
+      // การส่งผลประเมิน (→ assessed) ทำจากหน้ากรรมการ เพราะต้องให้คะแนนครบก่อน
+      const transitions = CYCLE_TRANSITIONS.filter(t => t.from === cycle.status && t.to !== 'assessed' && can(user, t.action, scope));
+      const showAssess = isAssessor || cycle.status === 'assessed' || cycle.status === 'closed';
       const canAssign = can(user, 'cycle.assign', scope);
       const canReopen = cycle.status === 'final_approved' && can(user, 'cycle.reopen', scope);
       const openCount = sections.filter(s => s.status !== 'approved').length;
@@ -85,11 +88,15 @@ export default function CycleDashboardPage() {
             title={<>รอบประเมิน {cycle.academicYear} <span className="aq-muted aq-h1-sub">{prog?.nameTh}</span></>}
             sub={<>สถานะ <CycleStatusBadge status={cycle.status} /> · revision {cycle.revision} · กำหนดส่ง {fmtDate(cycle.submissionDue)} · วันประเมิน {fmtDate(cycle.assessmentDate)}</>}
             actions={<>
+              {showAssess && <Link className="aq-btn aq-btn-primary" href={`/app/cycles/${id}/assess`} data-testid="go-assess">{isAssessor ? 'พื้นที่ทำงานกรรมการ' : 'ดูผลประเมินของกรรมการ'}</Link>}
               {canAssign && <Link className="aq-btn" href={`/app/cycles/${id}/assign`} data-testid="go-assign">มอบหมายงาน</Link>}
               <Link className="aq-btn" href="/app/export" data-testid="go-export">ส่งออก</Link>
             </>}
           />
 
+          {cycle.status === 'faculty_approved' && transitions.some(t => t.to === 'revision_requested') && (
+            <div className="auth-alert auth-alert-warn" data-testid="dean-return-hint">คณบดีพิจารณาแล้วพบว่ายังไม่พร้อม สามารถ “ส่งกลับแก้ไข” ได้ โดยต้องระบุเหตุผลให้ประธานหลักสูตรทราบ</div>
+          )}
           {(transitions.length > 0 || canReopen) && (
             <div className="aq-card aq-actions" data-testid="cycle-actions">
               <strong>ขั้นตอนถัดไป:</strong>
@@ -111,8 +118,12 @@ export default function CycleDashboardPage() {
             <div className={`auth-alert ${verify?.ok ? 'auth-alert-ok' : 'auth-alert-warn'}`} data-testid="lock-banner">
               <div>
                 🔒 รอบนี้ถูกล็อกเมื่อ {fmtDateTime(cycle.lockedAt)} โดย {names.get(cycle.lockedBy || '') || '—'} · hash <code>{(cycle.snapshotHash || '').slice(0, 16)}…</code>
-                {' '}{verify ? (verify.ok ? '— ตรวจแล้ว เนื้อหาตรงกับที่ล็อก' : '— เนื้อหาไม่ตรงกับที่ล็อก!') : ''}
+                {' '}{verify ? (verify.ok ? '— ตรวจแล้ว เนื้อหา SAR ตรงกับที่ล็อก' : '— เนื้อหาไม่ตรงกับที่ล็อก!') : ''}
               </div>
+              {verify?.evidenceChanged && (
+                <div data-testid="evidence-changed">⚠ ข้อมูลหลักฐาน (ชื่อ คำอธิบาย สถานะตรวจสอบ ฯลฯ) มีการเปลี่ยนแปลงหลังล็อก — ตัวเอกสาร SAR ยังตรงกับที่ล็อก แต่ควรตรวจประวัติใน audit log</div>
+              )}
+              {verify && verify.evidenceChanged === false && <div className="aq-muted" data-testid="evidence-unchanged">ข้อมูลหลักฐานยังตรงกับตอนล็อก</div>}
             </div>
           )}
 

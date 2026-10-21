@@ -9,6 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { Async, Empty, PageHeader, useLoad } from '@/components/aunqa/common';
 import { useScope } from '@/components/aunqa/useScope';
+import TrendChart from '@/components/aunqa/TrendChart';
 import { errMsg } from '@/lib/ui/aunqa';
 
 const num = (s: string): number | undefined => (s.trim() === '' ? undefined : Number(s));
@@ -34,6 +35,16 @@ export default function MetricsPage() {
       {canWrite && <AddForm user={user} programmeId={programmeId} onDone={q.reload} />}
 
       <Async q={q}>{rows => rows.length === 0 ? <Empty text="ยังไม่มีข้อมูลตัวชี้วัด" /> : (
+        <>
+        <section aria-label="กราฟแนวโน้ม" data-testid="trend-section">
+          <h2 className="aq-h2">แนวโน้ม 3–5 ปี</h2>
+          <div className="aq-grid-2">
+            {Array.from(new Set(rows.map(r => r.code))).map(code => {
+              const d = getMetricDefinition(code);
+              return <TrendChart key={code} code={code} name={d?.nameTh} unit={d?.unit} rows={rows.filter(r => r.code === code)} />;
+            })}
+          </div>
+        </section>
         <div className="aq-card aq-table-wrap">
           <table className="aq-table" data-testid="metric-table">
             <thead><tr><th>ตัวชี้วัด</th><th>ปี</th><th>ค่า</th><th>เป้าหมาย</th><th>benchmark</th><th>แหล่ง benchmark</th>{canWrite && <th />}</tr></thead>
@@ -42,6 +53,7 @@ export default function MetricsPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}</Async>
       <p className="aq-muted">ตัวชี้วัดที่ระบบรู้จัก: {defs.map(d => d.code).join(', ')}</p>
     </>

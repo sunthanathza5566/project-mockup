@@ -219,7 +219,7 @@ function Inner() {
                       <tr key={fl.id}>
                         <td>{fl.version}</td>
                         <td>{fl.dataUrl ? <a href={fl.dataUrl} download={fl.name}>{fl.name}</a> : <>{fl.name} <span className="aq-muted">(เก็บเฉพาะข้อมูลไฟล์)</span></>}</td>
-                        <td>{(fl.size / 1024).toFixed(1)} KB</td>
+                        <td>{(fl.size / 1024).toFixed(1)} KB{fl.piiScan === 'not_scanned' && <div><Badge tone="warn" title="ไฟล์ประเภทนี้ระบบยังอ่านข้อความไม่ได้ จึงยังตรวจข้อมูลส่วนบุคคลไม่ได้ — โปรดตรวจเองก่อนใช้" testId="pii-not-scanned">ยังไม่ได้สแกน PII</Badge></div>}</td>
                         <td><code>{fl.sha256.slice(0, 12)}…</code></td>
                         <td>{fmtDateTime(fl.uploadedAt)}</td>
                       </tr>

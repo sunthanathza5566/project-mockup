@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { can, createCycle, getProgramme, getProgrammes, listCycles, programmeScope } from '@/lib/api';
+import { can, createCycle, isAssessorOf, getProgramme, getProgrammes, listCycles, programmeScope } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import { Async, CycleStatusBadge, Empty, PageHeader, useLoad, useMe } from '@/components/aunqa/common';
 import { errMsg, fmtDate } from '@/lib/ui/aunqa';
@@ -97,7 +97,7 @@ export default function CyclesPage() {
                       <td><CycleStatusBadge status={c.status} /></td>
                       <td>{fmtDate(c.submissionDue)}</td>
                       <td>{c.revision}</td>
-                      <td><Link className="aq-btn aq-btn-sm" href={`/app/cycles/${c.id}`}>เปิดแดชบอร์ด</Link></td>
+                      <td><Link className="aq-btn aq-btn-sm" href={`/app/cycles/${c.id}`}>เปิดแดชบอร์ด</Link>{(isAssessorOf(user, c.id) || c.status === 'assessed' || c.status === 'closed') && <> <Link className="aq-btn aq-btn-sm" href={`/app/cycles/${c.id}/assess`} data-testid={`assess-link-${c.id}`}>ผลประเมิน</Link></>}</td>
                     </tr>
                   ))}
                 </tbody>

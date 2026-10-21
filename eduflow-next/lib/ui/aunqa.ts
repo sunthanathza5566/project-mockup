@@ -98,3 +98,20 @@ export function canAny(user: AppUser, action: Action): boolean {
 export function isAssessorOnly(user: AppUser): boolean {
   return user.roles.length > 0 && user.roles.every(r => r.role === 'assessor');
 }
+
+// ─── Phase B ───
+
+export const ACTION_STATUS_TH: Record<'open' | 'in_progress' | 'done' | 'verified', string> = {
+  open: 'ยังไม่เริ่ม', in_progress: 'กำลังทำ', done: 'ทำเสร็จแล้ว (รอตรวจ)', verified: 'ตรวจรับแล้ว',
+};
+export const ACTION_BTN_TH: Record<'open' | 'in_progress' | 'done' | 'verified', string> = {
+  open: 'เปิดใหม่', in_progress: 'เริ่มทำ / เปิดซ้ำ', done: 'ทำเสร็จแล้ว', verified: 'ตรวจรับ',
+};
+export const BLOOM_TH = ['', '1 จำ', '2 เข้าใจ', '3 ประยุกต์', '4 วิเคราะห์', '5 ประเมินค่า', '6 สร้างสรรค์'];
+export const MAP_LEVEL_TH = { I: 'I แนะนำ', R: 'R ฝึกซ้ำ', M: 'M เชี่ยวชาญ' } as const;
+export const GROUP_TH = { lecturer: 'อาจารย์', student: 'นักศึกษา', alumni: 'ศิษย์เก่า', employer: 'ผู้ใช้บัณฑิต' } as const;
+
+/** ผู้ตอบของ AI run: Claude หรือโหมด offline (ไม่เรียกบริการภายนอก) */
+export function aiModelLabel(model: string): string {
+  return model.startsWith('offline') ? 'ตอบโดยโหมด offline (กฎในเครื่อง)' : `ตอบโดย Claude (${model})`;
+}

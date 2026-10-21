@@ -104,7 +104,7 @@ describe('R6 PII ที่ยังไม่จัดการ (high)', () => {
 });
 
 describe('R7 curriculum (Phase B)', () => {
-  it('ยังคืน [] (รอ M4) — เปลี่ยน test นี้เมื่อทำ M4', () => {
+  it('ไม่ส่ง curriculum มา = ไม่ตรวจ (คืน []) · เคสจริงดู curriculum.test.ts', () => {
     expect(ruleR7(gi({ requirements: [R11] }))).toEqual([]);
   });
 });

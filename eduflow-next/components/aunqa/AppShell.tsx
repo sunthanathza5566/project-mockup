@@ -30,6 +30,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { path: '/app/cycles',       label: 'รอบประเมิน',  show: true, testId: 'nav-cycles' },
     { path: '/app/requirements', label: 'คลังเกณฑ์',   show: true, testId: 'nav-requirements' },
     { path: '/app/evidence',     label: 'หลักฐาน',     show: true, testId: 'nav-evidence' },
+    { path: '/app/curriculum',    label: 'หลักสูตร',     show: !assessor, testId: 'nav-curriculum' },
+    { path: '/app/actions',       label: 'แผนปรับปรุง',  show: !assessor, testId: 'nav-actions' },
     { path: '/app/metrics',      label: 'ตัวชี้วัด',    show: !assessor, testId: 'nav-metrics' },
     { path: '/app/review',       label: 'รอตรวจ',      show: canReview, testId: 'nav-review' },
     { path: '/app/export',       label: 'ส่งออก',      show: true, testId: 'nav-export' },
