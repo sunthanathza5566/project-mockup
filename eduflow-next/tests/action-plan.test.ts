@@ -99,10 +99,13 @@ describe('Action plan -> หลักฐานขั้น A ในรอบใ�
     const mat = load<Evidence>(KEYS.evidence).filter(e => e.title.startsWith('ผลดำเนินการตามแผนปรับปรุง'));
     expect(mat).toHaveLength(2);
     expect(mat.every(e => e.pdcaStage === 'A')).toBe(true);
-    // รอบที่ 3: ผูก evidence เดิม ไม่สร้างใหม่
+    // รอบที่ 3 (B6): ไม่ผูก action เก่าอัตโนมัติ ไม่สร้าง evidence ใหม่ · ถ้า copy จากรอบก่อน หลักฐานเดิมถูกยกมาตามปกติ
     const c3 = api.createCycle(chair, { programmeId: PROG, academicYear: 2571 });
     expect(load<Evidence>(KEYS.evidence).filter(e => e.title.startsWith('ผลดำเนินการตามแผนปรับปรุง'))).toHaveLength(2);
-    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(2);
+    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(0);
+    expect(load<ActionItem>(KEYS.actionItems).filter(a => !!a.evidenceId).every(a => a.materializedCycleId === c2.id)).toBe(true);
+    const c4 = api.createCycle(chair, { programmeId: PROG, academicYear: 2572, copyFromCycleId: c2.id });
+    expect(api.listLinks(chair, c4.id).filter(l => l.source === 'action')).toHaveLength(2);
     // action ที่ยังไม่ done ไม่ถูกสร้าง
     expect(acts.length).toBe(load<ActionItem>(KEYS.actionItems).filter(a => !!a.evidenceId).length);
     // gap R1 ของข้อนั้นในรอบใหม่ไม่ขึ้นแล้ว (มีหลักฐานผูก)
@@ -127,7 +130,7 @@ describe('Action plan -> หลักฐานขั้น A ในรอบใ�
     api.setActionStatus(chair, a.id, 'done');
     const c3 = api.createCycle(chair, { programmeId: PROG, academicYear: 2571 });
     expect(api.listLinks(chair, c2.id).filter(l => l.source === 'action')).toHaveLength(2);
-    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(3);
+    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(1); // เฉพาะ action ที่เพิ่งเสร็จ (B6)
     expect(CYCLE).toBeTruthy();
   });
 });

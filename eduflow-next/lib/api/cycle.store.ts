@@ -66,7 +66,7 @@ export function createCycle(actor: AppUser, input: CreateCycleInput): Assessment
       id: sectionId(cycle.id, r.id), cycleId: cycle.id, requirementId: r.id,
       ownerUserId: p?.ownerUserId, due: undefined,
       status: hasText ? 'drafting' : 'not_started',
-      narrativeTh: p?.narrativeTh ?? '', narrativeEn: p?.narrativeEn ?? '', lastAuthorId: p?.lastAuthorId,
+      narrativeTh: p?.narrativeTh ?? '', narrativeEn: p?.narrativeEn ?? '', // ไม่ copy lastAuthorId ข้ามรอบ (B9): ข้อความยกมาจากรอบก่อน ไม่ใช่งานเขียนของรอบนี้
       pdca: p ? { ...p.pdca } : { ...EMPTY_PDCA }, wordCount: p?.wordCount ?? 0, updatedAt: now,
     };
   });

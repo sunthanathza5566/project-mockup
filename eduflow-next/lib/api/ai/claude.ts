@@ -4,8 +4,9 @@
  * ไม่มี key / 503 / error / output รูปแบบผิด → fallback ไปใช้ offlineProvider อัตโนมัติ (ทำงานได้เสมอ)
  * ไม่มีเมธอดให้คะแนน/อนุมัติ (กฎ 7.3)
  */
-import { CLAUDE_MODEL, CLAUDE_PROMPT_VERSION, type AiTask } from './prompts';
+import { DEFAULT_CLAUDE_MODEL, CLAUDE_PROMPT_VERSION, type AiTask } from './prompts';
 import { offlineProvider } from './offline';
+import { outputGuards } from './guards';
 import type {
   AiProvider, DraftOutput, ReviewOutput, SummaryOutput, TagOutput, VerbOutput,
 } from './provider';
@@ -26,30 +27,6 @@ async function serverHasKey(): Promise<boolean> {
   return ok;
 }
 
-// ─── type guards ─────────────────────────────────────────────────────────
-const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const isStrArr = (x: unknown): x is string[] => Array.isArray(x) && x.every(s => typeof s === 'string');
-const isNumArr = (x: unknown): x is number[] => Array.isArray(x) && x.every(n => typeof n === 'number');
-const PDCA = ['P', 'D', 'C', 'A'];
-const GROUPS = ['lecturer', 'student', 'alumni', 'employer'];
-const W = ['What', 'Why', 'Who', 'When', 'Where', 'How'];
-
-const guards: Record<AiTask, (o: unknown) => boolean> = {
-  tag: o => isObj(o) && typeof o.summary === 'string' && PDCA.includes(o.pdcaStage as string) && typeof o.pdcaReason === 'string'
-    && Array.isArray(o.suggestions) && o.suggestions.every(s => isObj(s) && typeof s.requirementId === 'string'
-      && typeof s.confidence === 'number' && isStrArr(s.reasons)),
-  draft: o => isObj(o) && typeof o.draft === 'string' && isStrArr(o.missing) && isStrArr(o.usedEvidence),
-  review: o => isObj(o) && isStrArr(o.unanswered) && isStrArr(o.uncitedSentences) && isStrArr(o.suggestions),
-  verbs: o => isObj(o) && Array.isArray(o.results) && o.results.every(r => isObj(r) && typeof r.id === 'string' && typeof r.code === 'string'
-    && (r.kind === 'plo' || r.kind === 'clo') && isStrArr(r.verbs) && isNumArr(r.detectedLevels) && typeof r.declaredLevel === 'number'
-    && typeof r.measurable === 'boolean' && (r.levelMatch === null || typeof r.levelMatch === 'boolean')
-    && typeof r.note === 'string' && isStrArr(r.suggestions)),
-  summarize: o => isObj(o) && Array.isArray(o.summaries) && o.summaries.every(s => isObj(s) && typeof s.requirementId === 'string'
-    && typeof s.summary === 'string' && isStrArr(s.strengths) && isStrArr(s.concerns))
-    && Array.isArray(o.questions) && o.questions.every(g => isObj(g) && GROUPS.includes(g.group as string) && Array.isArray(g.items)
-      && g.items.every(it => isObj(it) && W.includes(it.w as string) && typeof it.requirementId === 'string' && typeof it.question === 'string')),
-};
-
 async function viaClaude<T>(task: AiTask, input: unknown, fallback: () => Promise<T>): Promise<T> {
   try {
     if (!(await serverHasKey())) throw new Error('no key');
@@ -59,8 +36,8 @@ async function viaClaude<T>(task: AiTask, input: unknown, fallback: () => Promis
     });
     if (!res.ok) throw new Error(`status ${res.status}`);
     const data = (await res.json()) as { output?: unknown; model?: string };
-    if (!guards[task](data.output)) throw new Error('bad output');
-    last = { model: data.model ?? CLAUDE_MODEL, promptVersion: CLAUDE_PROMPT_VERSION };
+    if (!outputGuards[task](data.output)) throw new Error('bad output');
+    last = { model: data.model ?? DEFAULT_CLAUDE_MODEL, promptVersion: CLAUDE_PROMPT_VERSION };
     return data.output as T;
   } catch {
     if (availability) availability = { ok: false, at: Date.now() }; // พักการลองซ้ำช่วงหนึ่ง

@@ -263,6 +263,8 @@ export interface ActionItem {
   description: string; ownerUserId?: string; due?: string; kpi?: string; status: ActionStatus;
   /** evidence ขั้น A ที่สร้างอัตโนมัติจาก action ที่ done/verified (สร้างครั้งแรกตอนเปิดรอบใหม่) */
   evidenceId?: string;
+  /** รอบแรกที่ถูกสร้างหลัง action เสร็จ ซึ่งผูก evidence ขั้น A แล้ว — รอบถัดไปไม่ผูกอัตโนมัติ (B6) */
+  materializedCycleId?: string;
   doneAt?: number; verifiedBy?: string; verifiedAt?: number;
   createdAt: number; createdBy: string; updatedAt: number;
 }

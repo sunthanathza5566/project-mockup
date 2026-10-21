@@ -95,7 +95,7 @@ describe('Phase B2 smoke (end-to-end)', () => {
     expect(ev2.filter(e => e.pdcaStage === 'A').length).toBe(2);
     const c3 = api.createCycle(chair, { programmeId: PROG, academicYear: 2571 });
     const ev3 = api.listEvidence(chair, { programmeId: PROG, cycleId: c3.id, onlyLinked: true });
-    expect(ev3.filter(e => e.pdcaStage === 'A').length).toBe(2);
+    expect(ev3.filter(e => e.pdcaStage === 'A').length).toBe(0); // B6: รอบที่ 3 ไม่ผูกอัตโนมัติ
     expect(api.listEvidence(chair, { programmeId: PROG }).filter(e => e.title.startsWith('ผลดำเนินการ')).length).toBe(2);
   });
 });

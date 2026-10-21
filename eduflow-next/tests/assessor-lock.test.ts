@@ -262,7 +262,7 @@ describe('AFI -> action plan', () => {
     const aLinks = api.listLinks(chair, c2.id).filter(l => l.source === 'action');
     expect(aLinks).toHaveLength(3); // act-5, act-6 (seed) + AFI item
     const c3 = api.createCycle(chair, { programmeId: PROG, academicYear: 2571 });
-    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(3);
+    expect(api.listLinks(chair, c3.id).filter(l => l.source === 'action')).toHaveLength(0); // B6: ไม่ผูกซ้ำอัตโนมัติ
     const titles = api.listEvidence(chair, { programmeId: PROG }).filter(e => e.title.startsWith('ผลดำเนินการตามแผนปรับปรุง'));
     expect(titles).toHaveLength(3);
     expect(titles.every(e => e.pdcaStage === 'A')).toBe(true);

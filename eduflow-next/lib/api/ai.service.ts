@@ -26,7 +26,7 @@ import { can } from './rbac';
 import { citableCodes, saveSection, sectionIdOf } from './sar.store';
 import { cycleScope, getCycleRaw } from './workflow';
 import { redactDeep } from './ai/redact';
-import { mergePostChecks, postCheckText } from './ai/postcheck';
+import { mergePostChecks, postCheckText, stripJudgement } from './ai/postcheck';
 import { claudeProvider, shouldUseClaude } from './ai/claude';
 import { offlineProvider } from './ai/offline';
 import type {
@@ -76,6 +76,17 @@ async function finalize(
   return run;
 }
 
+/** กฎ 7.3 ในโค้ด: ตัดประโยคที่เข้ารูปให้คะแนน/ตัดสิน แล้วรวมเป็นธงใน postCheck (B4) */
+function judgementFilter() {
+  const removed: string[] = [];
+  return {
+    clean(t: string): string { const r = stripJudgement(t); removed.push(...r.removed); return r.text; },
+    apply(pc: PostCheckResult): PostCheckResult {
+      return removed.length ? { ...pc, ok: false, flaggedSentences: [...pc.flaggedSentences, ...removed] } : pc;
+    },
+  };
+}
+
 function digestOf(e: Evidence, redact: { count: number }): EvidenceDigest {
   const r = redactDeep({ title: e.title, summary: e.aiSummary || e.description || getExtractedText(e.id).slice(0, 400) });
   redact.count += r.count;
@@ -117,7 +128,8 @@ export async function runEvidenceTagger(actor: AppUser, evidenceId: string, cycl
   const reasonChecks = out.suggestions.map(s => postCheckText(s.reasons.join(' '), { allowedCodes: new Set(), inputContext }));
   const cleaned: TagOutput = {
     ...out, summary: pc.text || `หลักฐาน: ${r.value.title}`,
-    suggestions: out.suggestions.filter(s => !!getRequirement(s.requirementId)),
+    suggestions: out.suggestions.filter(s => !!getRequirement(s.requirementId))
+      .map(s => ({ ...s, confidence: Number.isFinite(s.confidence) ? Math.min(1, Math.max(0, s.confidence)) : 0 })), // B5: clamp 0–1
   };
   return finalize(actor, 'AI-1', ev.universityId, { t: r.value, ids: reqs.length }, { evidenceId, cycleId, codes: [ev.code] },
     redaction.count, cleaned, mergePostChecks([pc.result, ...reasonChecks.map(c => c.result)]), started);
@@ -176,10 +188,15 @@ export async function runSarReviewer(actor: AppUser, cycleId: string, requiremen
     ...out.unanswered.map(t => postCheckText(t, { allowedCodes: new Set(), inputContext })),
     ...out.suggestions.map(t => postCheckText(t, { allowedCodes: new Set(), inputContext })),
   ];
-  const cleaned: ReviewOutput = out;
+  const jf = judgementFilter();
+  const cleaned: ReviewOutput = {
+    ...out,
+    unanswered: out.unanswered.map(jf.clean).filter(Boolean),
+    suggestions: out.suggestions.map(jf.clean).filter(Boolean),
+  };
   return finalize(actor, 'AI-3', cycle.universityId, input as unknown as Record<string, unknown>,
     { cycleId, requirementId, codes: input.evidence.map(e => e.code) }, redaction.count, cleaned,
-    mergePostChecks(checks.map(c => c.result)), started);
+    jf.apply(mergePostChecks(checks.map(c => c.result))), started);
 }
 
 // ─── AI-7: PLO/CLO verb checker (M4) ─────────────────────────────────────
@@ -210,7 +227,16 @@ export async function runVerbChecker(actor: AppUser, programmeId: string, ids?: 
   const known = new Map(items.map(i => [i.id, i]));
   const inputContext = `${stableStringify(input)} ${BLOOM_CONTEXT}`;
   const checks = out.results.map(r => postCheckText(`${r.note} ${r.suggestions.join(' ')}`, { allowedCodes: new Set(), inputContext }));
-  const cleaned: VerbOutput = { results: out.results.filter(r => known.has(r.id)) };
+  // B5: ค่าที่ระบบรู้อยู่แล้ว (code/kind/declaredLevel) ใช้จาก input เสมอ ไม่เชื่อ Claude · detectedLevels ต้องอยู่ 1–6
+  const cleaned: VerbOutput = {
+    results: out.results.filter(r => known.has(r.id)).map(r => {
+      const k = known.get(r.id)!;
+      return {
+        ...r, code: k.code, kind: k.kind, declaredLevel: k.declaredLevel,
+        detectedLevels: Array.from(new Set(r.detectedLevels.filter(n => Number.isInteger(n) && n >= 1 && n <= 6))).sort((a, b) => a - b),
+      };
+    }),
+  };
   return finalize(actor, 'AI-7', prog.universityId, input as unknown as Record<string, unknown>,
     { programmeId, codes: items.map(i => i.code) }, redaction.count, cleaned,
     mergePostChecks(checks.map(c => c.result)), started);
@@ -253,12 +279,13 @@ export async function runAssessorSummary(actor: AppUser, cycleId: string, criter
   const allowed = citableCodes(cycleId);
   const reqIds = new Set(reqs.map(r => r.id));
   const checks: PostCheckResult[] = [];
-  const clean = (t: string) => postCheckText(t, { allowedCodes: allowed, inputContext, dropUnsafe: true }).text;
+  const jf = judgementFilter();
+  const clean = (t: string) => jf.clean(postCheckText(t, { allowedCodes: allowed, inputContext, dropUnsafe: true }).text);
   const summaries = out.summaries.filter(s => reqIds.has(s.requirementId)).map(s => {
     const pc = postCheckText(s.summary, { allowedCodes: allowed, inputContext, dropUnsafe: true });
     checks.push(pc.result);
     return {
-      ...s, summary: pc.text || '(ข้อความสรุปไม่ผ่านการตรวจ — ใช้ SAR ต้นฉบับ)',
+      ...s, summary: jf.clean(pc.text) || '(ข้อความสรุปไม่ผ่านการตรวจ — ใช้ SAR ต้นฉบับ)',
       strengths: s.strengths.map(clean).filter(Boolean), concerns: s.concerns.map(clean).filter(Boolean),
     };
   });
@@ -266,13 +293,13 @@ export async function runAssessorSummary(actor: AppUser, cycleId: string, criter
     ...g, items: g.items.filter(it => reqIds.has(it.requirementId)).map(it => {
       const pc = postCheckText(it.question, { allowedCodes: new Set<string>(), inputContext, dropUnsafe: true });
       checks.push(pc.result);
-      return { ...it, question: pc.text };
+      return { ...it, question: jf.clean(pc.text) };
     }).filter(it => it.question),
   }));
   const cleaned: SummaryOutput = { summaries, questions };
   return finalize(actor, 'AI-9', cycle.universityId, input as unknown as Record<string, unknown>,
     { cycleId, codes: input.requirements.flatMap(r => r.evidence.map(e => e.code)) }, redaction.count, cleaned,
-    mergePostChecks(checks), started);
+    jf.apply(mergePostChecks(checks)), started);
 }
 
 // ─── Accept / list ───────────────────────────────────────────────────────

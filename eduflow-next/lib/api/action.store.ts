@@ -180,12 +180,15 @@ function piiKindsOf(text: string) { return Array.from(new Set(scanPii(text).map(
 
 /**
  * เรียกจาก createCycle หลังสร้างรอบ+sections แล้ว: action ที่ done/verified ของหลักสูตร →
- * evidence ขั้น A (สร้างครั้งแรกครั้งเดียวต่อ action เก็บ evidenceId) แล้วผูก (source 'action') กับข้อเดิมในรอบใหม่
+ * evidence ขั้น A (สร้างครั้งเดียวต่อ action เก็บ evidenceId + materializedCycleId) แล้วผูก (source 'action') กับข้อเดิมในรอบใหม่
+ * เฉพาะ "รอบแรกที่ถูกสร้างหลัง action เสร็จ" — รอบถัด ๆ ไปไม่ผูกอัตโนมัติ (ยัง copy link ต่อจากรอบก่อนตามปกติ)
  * ไม่ตรวจสิทธิ์ซ้ำ: เป็นผลข้างเคียงของ createCycle ที่ตรวจสิทธิ์แล้ว · คืนรหัสหลักฐานที่ผูก
  */
 export function materializeActionEvidence(actor: AppUser, cycle: AssessmentCycle): string[] {
   const items = load<ActionItem>(KEYS.actionItems)
-    .filter(a => a.programmeId === cycle.programmeId && (a.status === 'done' || a.status === 'verified') && !!getRequirement(a.requirementId));
+    .filter(a => a.programmeId === cycle.programmeId && (a.status === 'done' || a.status === 'verified') && !!getRequirement(a.requirementId)
+      // B6: ผูกเฉพาะรอบแรกที่สร้างหลัง action เสร็จ — ถ้าเคยผูกรอบอื่นแล้ว (หรือข้อมูลเก่าที่มี evidenceId แต่ไม่มีบันทึกรอบ) ไม่ผูกซ้ำ
+      && (a.materializedCycleId ? a.materializedCycleId === cycle.id : !a.evidenceId));
   if (!items.length) return [];
   const prog = getProgramme(cycle.programmeId);
   const linked: string[] = [];
@@ -209,7 +212,7 @@ export function materializeActionEvidence(actor: AppUser, cycle: AssessmentCycle
       };
       save(KEYS.evidence, [...load<Evidence>(KEYS.evidence), ev]);
       const rows = load<ActionItem>(KEYS.actionItems);
-      save(KEYS.actionItems, rows.map(a => (a.id === item.id ? { ...a, evidenceId: ev!.id, updatedAt: now } : a)));
+      save(KEYS.actionItems, rows.map(a => (a.id === item.id ? { ...a, evidenceId: ev!.id, materializedCycleId: cycle.id, updatedAt: now } : a)));
       appendAudit(actor, { action: 'evidence.create', targetType: 'evidence', targetId: ev.id, programmeId: cycle.programmeId, after: { code: ev.code, source: 'action_plan', actionId: item.id } });
     }
     const links = load<EvidenceLink>(KEYS.links);

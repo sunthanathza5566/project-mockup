@@ -6,7 +6,14 @@
 
 export type AiTask = 'tag' | 'draft' | 'review' | 'verbs' | 'summarize';
 export const AI_TASKS: AiTask[] = ['tag', 'draft', 'review', 'verbs', 'summarize'];
-export const CLAUDE_MODEL = 'claude-sonnet-5-5';
+export const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-5-5';
+/** อ่านจาก env CLAUDE_MODEL ฝั่ง server (ไม่มี/ว่าง → default) · ฝั่ง client ค่านี้คือ default เท่านั้น (ชื่อจริงมากับ response ของ /api/ai) */
+export function getClaudeModel(): string {
+  const m = (typeof process !== 'undefined' ? process.env.CLAUDE_MODEL : undefined)?.trim();
+  return m && /^[\w.\-:]{1,100}$/.test(m) ? m : DEFAULT_CLAUDE_MODEL;
+}
+/** @deprecated ใช้ getClaudeModel() — คงไว้เป็นค่า default */
+export const CLAUDE_MODEL = DEFAULT_CLAUDE_MODEL;
 export const CLAUDE_PROMPT_VERSION = 'claude-v1';
 
 const COMMON = `คุณเป็นผู้ช่วยของระบบ AUN-QA Copilot (เกณฑ์ AUN-QA ระดับหลักสูตร v4.0) ช่วยเขียน/ตรวจ/สรุปเท่านั้น ไม่ใช่ผู้ประเมิน

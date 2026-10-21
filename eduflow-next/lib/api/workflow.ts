@@ -190,12 +190,22 @@ export async function transitionCycle(actor: AppUser, cycleId: string, to: Cycle
   }
 
   if (to === 'assessed') {
-    // กรรมการต้องให้คะแนนรายเกณฑ์ครบ 8 เกณฑ์ และเลือก verdict เองก่อนปิดการประเมิน
-    const mine = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'committee' && r.raterUserId === actor.id);
-    const missing = listCriteria().map(c => c.no).filter(n => !mine.some(r => r.criterionNo === n));
-    const hasVerdict = load<AssessmentVerdict>(KEYS.verdicts).some(v => v.cycleId === cycleId && v.assessorUserId === actor.id);
-    if (missing.length || !hasVerdict)
-      throw new AunqaError('invalid', 'ต้องให้คะแนนรายเกณฑ์ครบทุกเกณฑ์และเลือก verdict ก่อนปิดการประเมิน', { missingCriteria: missing, hasVerdict });
+    // B8: กรรมการ "ทุกคน" ที่ได้รับมอบหมายในรอบต้องให้คะแนนครบทุกเกณฑ์ และต้องมี verdict อย่างน้อย 1 รายการ
+    const criteriaNos = listCriteria().map(c => c.no);
+    const assessors = load<AppUser>(KEYS.users).filter(u => u.roles.some(r => r.role === 'assessor' && r.scopeType === 'cycle' && r.scopeId === cycleId));
+    const committee = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'committee');
+    const waiting = assessors
+      .map(u => ({ name: u.fullName, missing: criteriaNos.filter(n => !committee.some(r => r.raterUserId === u.id && r.criterionNo === n)) }))
+      .filter(w => w.missing.length);
+    const hasVerdict = load<AssessmentVerdict>(KEYS.verdicts).some(v => v.cycleId === cycleId);
+    if (waiting.length || !hasVerdict) {
+      const parts: string[] = [];
+      if (waiting.length) parts.push(`ยังรอกรรมการให้คะแนนรายเกณฑ์ให้ครบ: ${waiting.map(w => `${w.name} (ขาด ${w.missing.length} เกณฑ์)`).join(', ')}`);
+      if (!hasVerdict) parts.push('ยังไม่มีกรรมการเลือก verdict');
+      throw new AunqaError('invalid', `ปิดการประเมินไม่ได้ — ${parts.join(' · ')}`, {
+        waitingFor: waiting.map(w => ({ name: w.name, missingCriteria: w.missing })), hasVerdict,
+      });
+    }
   }
 
   const before = { status: cycle.status, lockedAt: cycle.lockedAt, snapshotHash: cycle.snapshotHash };

@@ -24,6 +24,11 @@ export * from './export';
 export * from './export-assessment'; // Appendix B / D (M12)
 export * from './curriculum.store';  // PLO/course/CLO/map/methods (M4) + getCurriculumGaps/Matrix
 export { curriculumGaps, curriculumMatrix, findPrereqCycles } from './curriculum-gap';
-export * from './action.store';      // action plan (M14)
+// action plan (M14) — export เป็นรายชื่อ: materializeActionEvidence ไม่ตรวจสิทธิ์ ห้ามหลุดออก facade (B7)
+export {
+  ACTION_TRANSITIONS, nextActionStatuses, listActionItems, createActionItem, updateActionItem, deleteActionItem,
+  setActionStatus, createActionsFromAfi,
+} from './action.store';
+export type { ActionTransition, ActionItemInput } from './action.store';
 export * from './assessor.store';     // findings / committee rating / verdict (M12)
 // หมายเหตุ: evidence-text.internal / curriculum-data.internal ไม่ถูก export ผ่าน facade โดยเจตนา (ไม่มี guard)
