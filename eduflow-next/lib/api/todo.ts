@@ -110,7 +110,8 @@ export function listMyTodos(user: AppUser, opts: { now?: number } = {}): TodoIte
 
     // ── มอบหมายผู้เขียน ──
     if (can(user, 'cycle.assign', scope) && (c.status === 'draft' || c.status === 'in_progress')) {
-      const unowned = sections.filter(s => !s.ownerUserId);
+      // ข้อที่อนุมัติแล้วไม่ต้องมีผู้เขียน (orchestrator 2026-10-22)
+      const unowned = sections.filter(s => !s.ownerUserId && s.status !== 'approved');
       if (unowned.length) {
         out.push(makeTodo({
           ...base, kind: 'assign_sections', urgent: false,

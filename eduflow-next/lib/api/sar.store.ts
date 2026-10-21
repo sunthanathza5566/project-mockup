@@ -151,7 +151,18 @@ export function restoreVersion(actor: AppUser, versionId: string): SarSection {
 export function submitSection(actor: AppUser, cycleId: string, requirementId: string): SarSection {
   const sec = getSectionRaw(sectionIdOf(cycleId, requirementId));
   // not_started → drafting → ready_for_review ต้องเดินทีละขั้นตามตาราง
-  if (sec.status === 'not_started') transitionSection(actor, sec.id, 'drafting');
+  if (sec.status === 'not_started') {
+    // validate ก่อน mutate: ข้อว่างต้องถูกปฏิเสธโดยไม่บันทึกขั้น drafting/audit — ลำดับ error เดียวกับ transitionSection
+    if (!(sec.narrativeTh.trim() || sec.narrativeEn.trim())) {
+      const cycle = getCycleRaw(sec.cycleId);
+      if (cycle.lockedAt) throw new AunqaError('locked', 'รอบประเมินถูกล็อกแล้ว');
+      assertCycleWritable(cycle);
+      if (!can(actor, 'sar.write', cycleScope(cycle, { ownerUserId: sec.ownerUserId })))
+        throw new AunqaError('forbidden', 'ไม่มีสิทธิ์เปลี่ยนสถานะข้อนี้');
+      throw new AunqaError('invalid', 'ต้องมีเนื้อหา narrative ก่อนส่งตรวจ');
+    }
+    transitionSection(actor, sec.id, 'drafting');
+  }
   return transitionSection(actor, sec.id, 'ready_for_review');
 }
 export function approveSection(actor: AppUser, cycleId: string, requirementId: string): SarSection {
