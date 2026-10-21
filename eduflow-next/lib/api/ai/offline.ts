@@ -7,8 +7,9 @@ import { extractCitations, splitSentences, uncitedSentences } from '../../utils/
 import { BLOOM_NAME_EN, BLOOM_NAME_TH, analyzeVerbs, suggestVerbs } from './bloom';
 import type {
   AiProvider, DraftInput, DraftOutput, EvidenceDigest, FiveW1H, InterviewGroup, ReviewInput, ReviewOutput, SummaryInput,
-  SummaryOutput, TagInput, TagOutput, VerbInput, VerbOutput,
+  SummaryOutput, TagInput, TagOutput, TranslateInput, TranslateOutput, VerbInput, VerbOutput,
 } from './provider';
+import { applyGlossary } from './glossary';
 
 // ─── tokenize ────────────────────────────────────────────────────────────
 type Segmenter = new (l: string, o: object) => { segment(s: string): Iterable<{ segment: string; isWordLike?: boolean }> };
@@ -259,7 +260,16 @@ async function summarizeCriterion(i: SummaryInput): Promise<SummaryOutput> {
   return { summaries, questions };
 }
 
+// ─── AI-4 translate (offline: แทนศัพท์ glossary เท่านั้น ไม่แต่งเนื้อหา) ───
+export const OFFLINE_TRANSLATE_LABEL = '[ต้องแปลต่อโดยผู้ใช้ — แทนเฉพาะศัพท์ AUN-QA / needs human translation; glossary terms only]';
+
+async function translate(i: TranslateInput): Promise<TranslateOutput> {
+  const r = applyGlossary(i.text, i.from);
+  return { translation: `${OFFLINE_TRANSLATE_LABEL}
+${r.text}`, needsHumanTranslation: true };
+}
+
 export const offlineProvider: AiProvider = {
   id: 'offline', model: 'offline-deterministic', promptVersion: 'offline-v2',
-  tagEvidence, draftSar, reviewSar, checkVerbs, summarizeCriterion,
+  tagEvidence, draftSar, reviewSar, checkVerbs, summarizeCriterion, translate,
 };

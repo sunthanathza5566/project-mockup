@@ -21,6 +21,8 @@ export * from './notification.store';
 export * from './audit.store';
 export * from './ai.service';
 export * from './export';
+export * from './export-docx';      // exportSarDocx (DOCX จริง)
+export * from './metrics-import';   // template / preview+commit metrics / cohort (M6)
 export * from './export-assessment'; // Appendix B / D (M12)
 export * from './curriculum.store';  // PLO/course/CLO/map/methods (M4) + getCurriculumGaps/Matrix
 export { curriculumGaps, curriculumMatrix, findPrereqCycles } from './curriculum-gap';

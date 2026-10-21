@@ -50,6 +50,14 @@ export interface SummaryOutput {
   questions: { group: InterviewGroup; items: { w: FiveW1H; requirementId: string; question: string }[] }[];
 }
 
+// ─── AI-4: translator TH↔EN ───
+export interface TranslateInput { text: string; from: 'th' | 'en'; to: 'th' | 'en'; glossary: { th: string; en: string }[] }
+export interface TranslateOutput {
+  translation: string;
+  /** true = offline: แทนศัพท์ glossary เท่านั้น ผู้ใช้ต้องแปลต่อเอง */
+  needsHumanTranslation?: boolean;
+}
+
 export interface AiProvider {
   id: string; model: string; promptVersion: string;
   tagEvidence(input: TagInput): Promise<TagOutput>;
@@ -57,4 +65,5 @@ export interface AiProvider {
   reviewSar(input: ReviewInput): Promise<ReviewOutput>;
   checkVerbs(input: VerbInput): Promise<VerbOutput>;
   summarizeCriterion(input: SummaryInput): Promise<SummaryOutput>;
+  translate(input: TranslateInput): Promise<TranslateOutput>;
 }

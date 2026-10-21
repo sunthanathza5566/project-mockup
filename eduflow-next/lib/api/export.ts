@@ -12,7 +12,8 @@ import { getFaculties, getProgramme, getUniversity, getUserById } from './org.st
 import { can } from './rbac';
 import { loadGapInput } from './dashboard';
 import { readiness } from './gap';
-import { cycleScope, getCycleRaw } from './workflow';
+import { getCycleRaw } from './workflow';
+import { loadBundle, type Bundle } from './export-bundle.internal';
 
 const BROWN_DARK = 'FF6B4F2F';
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -21,33 +22,6 @@ const nl2br = (s: string) => esc(s).replace(/\n/g, '<br/>');
 /** แปลง [E-…] ในข้อความเป็นลิงก์ไปภาคผนวก evidence index */
 function linkCitations(text: string): string {
   return nl2br(text).replace(/\[(E-\d+\.\d+-\d{2,})\]/g, '<a href="#ev-$1">[$1]</a>');
-}
-
-interface Bundle {
-  cycleId: string;
-  programmeName: string; programmeCode: string; facultyName: string; universityName: string; academicYear: number; revision: number; status: string; snapshotHash?: string;
-  sections: Map<string, SarSection>;
-  ratings: Map<string, Rating>;
-  evidence: Evidence[];
-  links: EvidenceLink[];
-}
-
-function loadBundle(user: AppUser, cycleId: string): Bundle {
-  const c = getCycleRaw(cycleId);
-  if (!can(user, 'read', cycleScope(c))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ส่งออกรอบนี้');
-  const prog = getProgramme(c.programmeId);
-  const uni = getUniversity(c.universityId);
-  const fac = getFaculties(c.universityId).find(f => f.id === prog?.facultyId);
-  const links = load<EvidenceLink>(KEYS.links).filter(l => l.cycleId === cycleId);
-  const evIds = new Set(links.map(l => l.evidenceId));
-  return {
-    cycleId, programmeName: prog?.nameTh ?? '', programmeCode: prog?.code ?? '', facultyName: fac?.nameTh ?? '', universityName: uni?.nameTh ?? '',
-    academicYear: c.academicYear, revision: c.revision, status: c.status, snapshotHash: c.snapshotHash,
-    sections: new Map(load<SarSection>(KEYS.sections).filter(s => s.cycleId === cycleId).map(s => [s.requirementId, s])),
-    ratings: new Map(load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'self').map(r => [r.requirementId, r])),
-    evidence: load<Evidence>(KEYS.evidence).filter(e => evIds.has(e.id)).sort((a, b) => a.code.localeCompare(b.code)),
-    links,
-  };
 }
 
 const KIND_TH: Record<string, string> = {

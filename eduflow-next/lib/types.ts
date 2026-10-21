@@ -179,7 +179,7 @@ export interface AuditLog {
   before?: unknown; after?: unknown; ip: string; at: number;
 }
 
-export type AiFeature = 'AI-1' | 'AI-2' | 'AI-3' | 'AI-7' | 'AI-9';
+export type AiFeature = 'AI-1' | 'AI-2' | 'AI-3' | 'AI-4' | 'AI-7' | 'AI-9';
 export interface PostCheckResult {
   ok: boolean;
   removedCitations: string[];       // [E-…] ที่ไม่มีจริง (ถูกตัด)

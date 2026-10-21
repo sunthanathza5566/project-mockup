@@ -8,7 +8,7 @@ import { DEFAULT_CLAUDE_MODEL, CLAUDE_PROMPT_VERSION, type AiTask } from './prom
 import { offlineProvider } from './offline';
 import { outputGuards } from './guards';
 import type {
-  AiProvider, DraftOutput, ReviewOutput, SummaryOutput, TagOutput, VerbOutput,
+  AiProvider, DraftOutput, ReviewOutput, SummaryOutput, TagOutput, TranslateOutput, VerbOutput,
 } from './provider';
 
 const AVAIL_TTL_MS = 5 * 60_000;
@@ -56,6 +56,7 @@ export const claudeProvider: AiProvider = {
   reviewSar: i => viaClaude<ReviewOutput>('review', i, () => offlineProvider.reviewSar(i)),
   checkVerbs: i => viaClaude<VerbOutput>('verbs', i, () => offlineProvider.checkVerbs(i)),
   summarizeCriterion: i => viaClaude<SummaryOutput>('summarize', i, () => offlineProvider.summarizeCriterion(i)),
+  translate: i => viaClaude<TranslateOutput>('translate', i, () => offlineProvider.translate(i)),
 };
 
 /** ใช้ Claude เฉพาะบน browser จริง (ไม่ใช่ test) และไม่ได้ปิดด้วย NEXT_PUBLIC_AI_PROVIDER=offline */

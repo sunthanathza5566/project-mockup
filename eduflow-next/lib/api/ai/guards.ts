@@ -18,7 +18,7 @@ const W = ['What', 'Why', 'Who', 'When', 'Where', 'How'];
 const LANG = ['th', 'en'];
 
 export const MAX_TOKENS: Record<AiTask, number> = {
-  tag: 1024, draft: 2048, review: 1536, verbs: 3072, summarize: 4096,
+  tag: 1024, draft: 2048, review: 1536, verbs: 3072, summarize: 4096, translate: 4096,
 };
 
 export const outputGuards: Record<AiTask, (o: unknown) => boolean> = {
@@ -35,6 +35,7 @@ export const outputGuards: Record<AiTask, (o: unknown) => boolean> = {
     && isStr(s.summary) && isStrArr(s.strengths) && isStrArr(s.concerns))
     && Array.isArray(o.questions) && o.questions.every(g => isObj(g) && GROUPS.includes(g.group as string) && Array.isArray(g.items)
       && g.items.every(it => isObj(it) && W.includes(it.w as string) && isStr(it.requirementId) && isStr(it.question))),
+  translate: o => isObj(o) && isStr(o.translation),
 };
 
 export const inputGuards: Record<AiTask, (i: unknown) => boolean> = {
@@ -44,5 +45,7 @@ export const inputGuards: Record<AiTask, (i: unknown) => boolean> = {
     && Array.isArray(i.gaps) && i.gaps.length <= 200 && LANG.includes(i.language as string),
   verbs: i => isObj(i) && arrOfObj(i.items, 500)
     && i.items.every(it => isStr(it.id) && isStr(it.code) && (it.kind === 'plo' || it.kind === 'clo') && isStr(it.textTh) && typeof it.declaredLevel === 'number'),
+  translate: i => isObj(i) && isStr(i.text) && i.text.length <= 20000 && LANG.includes(i.from as string) && LANG.includes(i.to as string)
+    && i.from !== i.to && arrOfObj(i.glossary, 200),
   summarize: i => isObj(i) && isObj(i.criterion) && typeof i.criterion.no === 'number' && arrOfObj(i.requirements, 100),
 };

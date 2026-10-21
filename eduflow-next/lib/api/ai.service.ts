@@ -26,11 +26,13 @@ import { can } from './rbac';
 import { citableCodes, saveSection, sectionIdOf } from './sar.store';
 import { cycleScope, getCycleRaw } from './workflow';
 import { redactDeep } from './ai/redact';
+import { findGlossaryHits } from './ai/glossary';
+import { extractCitations, extractNumbers } from '../utils/text';
 import { mergePostChecks, postCheckText, stripJudgement } from './ai/postcheck';
 import { claudeProvider, shouldUseClaude } from './ai/claude';
 import { offlineProvider } from './ai/offline';
 import type {
-  AiProvider, DraftOutput, EvidenceDigest, MetricDigest, ReviewOutput, SummaryInput, SummaryOutput, TagOutput, VerbInput, VerbItem, VerbOutput,
+  AiProvider, DraftOutput, EvidenceDigest, TranslateInput, TranslateOutput, MetricDigest, ReviewOutput, SummaryInput, SummaryOutput, TagOutput, VerbInput, VerbItem, VerbOutput,
 } from './ai/provider';
 
 /** browser จริง → claudeProvider (fallback offline ในตัวเมื่อ server ไม่มี key/ล้มเหลว) · test/SSR → offline */
@@ -199,6 +201,68 @@ export async function runSarReviewer(actor: AppUser, cycleId: string, requiremen
     jf.apply(mergePostChecks(checks.map(c => c.result))), started);
 }
 
+// ─── AI-4: translator TH↔EN (M8) ─────────────────────────────────────────
+export interface TranslateRunOutput {
+  translation: string; from: 'th' | 'en'; to: 'th' | 'en'; sectionId: string;
+  /** offline: แทนศัพท์ glossary เท่านั้น ต้องแปลต่อโดยผู้ใช้ */
+  needsHumanTranslation: boolean;
+  glossaryHits: string[];
+}
+
+/** นับซ้ำ (multiset) ของรายการ → ที่ขาดไปใน b เมื่อเทียบกับ a */
+function missingFrom(a: string[], b: string[]): string[] {
+  const left = new Map<string, number>();
+  b.forEach(x => left.set(x, (left.get(x) ?? 0) + 1));
+  const miss: string[] = [];
+  for (const x of a) {
+    const n = left.get(x) ?? 0;
+    if (n > 0) left.set(x, n - 1); else miss.push(x);
+  }
+  return miss;
+}
+
+/**
+ * แปลบทความของข้อ (sectionId = `cycleId::reqId`) ไปภาษา `to` จากอีกภาษา · ผลเป็นข้อเสนอจนกว่า acceptAiRun (เขียนลง narrativeEn/narrativeTh)
+ * post-check: [E-…] และตัวเลขต้องคงครบเท่าต้นฉบับ (ขาด/เกิน = ติดธง ok=false)
+ */
+export async function runTranslate(actor: AppUser, sectionId: string, to: 'en' | 'th'): Promise<AiRun> {
+  const started = Date.now();
+  if (to !== 'en' && to !== 'th') throw new AunqaError('invalid', 'ภาษาปลายทางไม่ถูกต้อง');
+  const sec = load<SarSection>(KEYS.sections).find(s => s.id === sectionId);
+  if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
+  const cycle = getCycleRaw(sec.cycleId);
+  if (!can(actor, 'ai.use', cycleScope(cycle, { ownerUserId: sec.ownerUserId }))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ใช้ AI');
+  assertAiEnabled(cycle.universityId);
+  const from: 'th' | 'en' = to === 'en' ? 'th' : 'en';
+  const source = from === 'th' ? sec.narrativeTh : sec.narrativeEn;
+  if (!source.trim()) throw new AunqaError('invalid', from === 'th' ? 'ยังไม่มีเนื้อหาภาษาไทยให้แปล' : 'ยังไม่มีเนื้อหาภาษาอังกฤษให้แปล');
+  if (source.length > 20000) throw new AunqaError('invalid', 'ข้อความยาวเกินไปสำหรับการแปลครั้งเดียว');
+
+  const redaction = { count: 0 };
+  const sr = redactDeep(source); redaction.count += sr.count;
+  const hits = findGlossaryHits(sr.value, from);
+  const input: TranslateInput = { text: sr.value, from, to, glossary: hits.map(h => ({ th: h.th, en: h.en })) };
+  const out: TranslateOutput = await getProvider().translate(input);
+  const offline = getProvider().model === offlineProvider.model;
+
+  const srcCodes = extractCitations(sr.value);
+  const pc = postCheckText(out.translation, { allowedCodes: new Set(srcCodes), inputContext: sr.value });
+  // ความครบถ้วน: [E-…] และตัวเลขของต้นฉบับต้องอยู่ในคำแปลครบ (ตรวจจาก output ก่อนถูก post-check ตัดรหัสปลอม)
+  const lostCodes = missingFrom(srcCodes, extractCitations(pc.text));
+  const lostNums = missingFrom(extractNumbers(sr.value), extractNumbers(pc.text));
+  const completeness: PostCheckResult = {
+    ok: !lostCodes.length && !lostNums.length, removedCitations: [], unknownNumbers: [],
+    flaggedSentences: [...lostCodes.map(c => `คำแปลขาดรหัสอ้างอิง [${c}]`), ...lostNums.map(n => `คำแปลขาดตัวเลข ${n}`)],
+  };
+  const cleaned: TranslateRunOutput = {
+    translation: pc.text, from, to, sectionId, needsHumanTranslation: offline && out.needsHumanTranslation === true,
+    glossaryHits: hits.map(h => (to === 'en' ? h.en : h.th)),
+  };
+  return finalize(actor, 'AI-4', cycle.universityId, input as unknown as Record<string, unknown>,
+    { cycleId: sec.cycleId, requirementId: sec.requirementId, codes: Array.from(new Set(srcCodes)) }, redaction.count, cleaned,
+    mergePostChecks([pc.result, completeness]), started);
+}
+
 // ─── AI-7: PLO/CLO verb checker (M4) ─────────────────────────────────────
 const BLOOM_CONTEXT = '1 2 3 4 5 6'; // ระดับ Bloom ที่อนุญาตให้ปรากฏในข้อความผลลัพธ์
 
@@ -338,6 +402,16 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
     const cur = out.language === 'th' ? sec.narrativeTh : sec.narrativeEn;
     const next = opts.mode === 'replace' || !cur.trim() ? out.draft : `${cur.trimEnd()}\n\n${out.draft}`;
     saveSection(actor, run.cycleId!, run.requirementId!, out.language === 'th' ? { narrativeTh: next } : { narrativeEn: next }, 'ai_accept');
+  } else if (run.feature === 'AI-4') {
+    const out = run.output as TranslateRunOutput;
+    if (!out.translation.trim()) throw new AunqaError('invalid', 'คำแปลว่าง ไม่มีอะไรให้ใส่');
+    const sec = load<SarSection>(KEYS.sections).find(s => s.id === out.sectionId);
+    if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
+    const cur = out.to === 'th' ? sec.narrativeTh : sec.narrativeEn;
+    const next = opts.mode === 'replace' || !cur.trim() ? out.translation : `${cur.trimEnd()}
+
+${out.translation}`;
+    saveSection(actor, sec.cycleId, sec.requirementId, out.to === 'th' ? { narrativeTh: next } : { narrativeEn: next }, 'ai_accept');
   }
   // AI-3 / AI-7 / AI-9: เป็นคำแนะนำล้วน — การยอมรับ = รับทราบ (ไม่แก้เอกสาร/PLO/ผลประเมิน ผู้ใช้นำไปแก้เองผ่านหน้าปกติ)
 

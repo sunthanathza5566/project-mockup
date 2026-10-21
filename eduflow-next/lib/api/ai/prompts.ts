@@ -4,8 +4,8 @@
  * (กฎเหล่านี้ถูกบังคับซ้ำในโค้ดด้วย post-check ฝั่ง lib — prompt เป็นแค่ชั้นแรก)
  */
 
-export type AiTask = 'tag' | 'draft' | 'review' | 'verbs' | 'summarize';
-export const AI_TASKS: AiTask[] = ['tag', 'draft', 'review', 'verbs', 'summarize'];
+export type AiTask = 'tag' | 'draft' | 'review' | 'verbs' | 'summarize' | 'translate';
+export const AI_TASKS: AiTask[] = ['tag', 'draft', 'review', 'verbs', 'summarize', 'translate'];
 export const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-5-5';
 /** อ่านจาก env CLAUDE_MODEL ฝั่ง server (ไม่มี/ว่าง → default) · ฝั่ง client ค่านี้คือ default เท่านั้น (ชื่อจริงมากับ response ของ /api/ai) */
 export function getClaudeModel(): string {
@@ -44,6 +44,10 @@ const SCHEMA: Record<AiTask, { task: string; schema: string }> = {
   summarize: {
     task: 'สรุป SAR รายข้อของเกณฑ์นี้สำหรับกรรมการ (จุดแข็ง/ข้อกังวลจากข้อมูลใน INPUT เท่านั้น) และเสนอคำถามสัมภาษณ์แบบ 5W1H แยกกลุ่ม lecturer, student, alumni, employer โดยอ้างอิง requirementId จริง',
     schema: '{"summaries":[{"requirementId":string,"summary":string,"strengths":[string],"concerns":[string]}],"questions":[{"group":"lecturer"|"student"|"alumni"|"employer","items":[{"w":"What"|"Why"|"Who"|"When"|"Where"|"How","requirementId":string,"question":string}]}]}',
+  },
+  translate: {
+    task: 'แปลข้อความ INPUT.text จากภาษา INPUT.from เป็น INPUT.to ให้ตรงต้นฉบับทุกประโยค ห้ามเพิ่ม/ตัด/ตีความเนื้อหา · คงรหัส [E-x.x-nn] และตัวเลขทุกตัวไว้เหมือนต้นฉบับเป๊ะ · ใช้ศัพท์ตาม INPUT.glossary (คู่ th/en) เมื่อพบศัพท์นั้น',
+    schema: '{"translation":string}',
   },
 };
 
