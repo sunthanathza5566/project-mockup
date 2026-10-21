@@ -61,7 +61,7 @@ export function postCheckText(text: string, opt: PostCheckOptions): { text: stri
  * กฎ 7.3 (AI ห้ามให้คะแนน/ตัดสิน) บังคับในโค้ด: ประโยคที่เข้ารูปให้คะแนน/ตัดสินผ่าน-ไม่ผ่าน ถูกตัดทิ้ง
  * รูปแบบ: คะแนน, ระดับ <1-7>, score, rating, verdict, ผ่าน/ไม่ผ่านเกณฑ์, adequate/inadequate
  */
-const JUDGEMENT_RE = /คะแนน|ระดับ\s*[1-7]\b|\b(?:score|scored|rating|verdict|adequate|inadequate|pass|fail)\b|(?:ไม่)?ผ่าน(?:เกณฑ์|การประเมิน|มาตรฐาน)?(?![\p{L}])|ควรได้ระดับ|ได้ระดับ/iu;
+const JUDGEMENT_RE = /คะแนน|ระดับ\s*[1-7]\b|\b(?:score|scored|rating|verdict|adequate|inadequate|pass|fail)\b|(?:ไม่)?ผ่าน(?:เกณฑ์|การประเมิน|มาตรฐาน)|ไม่ผ่าน\s*$|ควรได้ระดับ|ได้ระดับ/iu;
 
 export function stripJudgement(text: string): { text: string; removed: string[] } {
   const removed: string[] = [];
