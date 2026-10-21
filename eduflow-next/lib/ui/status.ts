@@ -79,3 +79,10 @@ export function aiModelView(model: string): StatusView {
     ? { label: 'โหมดในเครื่อง (offline)', tone: 'neutral', icon: 'settings' }
     : { label: 'Claude', tone: 'info', icon: 'sparkle' };
 }
+
+/** ขั้นถัดไปของรอบเป็นหน้าที่ของใคร (pages.md P6 / P7 "ตอนนี้รอ") */
+export const NEXT_ACTOR_TH: Record<CycleStatus, string> = {
+  draft: 'ประธานหลักสูตร', in_progress: 'ประธานหลักสูตร', revision_requested: 'ประธานหลักสูตร',
+  under_review: 'QA คณะ', faculty_approved: 'คณบดี', final_approved: 'QA คณะ/ผู้ดูแล (เริ่มประเมิน)',
+  under_assessment: 'กรรมการ', assessed: 'ผู้ดูแล (ปิดรอบ)', closed: '—',
+};

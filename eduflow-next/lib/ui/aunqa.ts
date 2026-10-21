@@ -60,6 +60,19 @@ export function fmtDate(iso?: string | number): string {
   if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
+/** คำทักทายตามช่วงเวลา (ADR ข้อ 4 L12): 05–11:59 เช้า · 12–16:59 บ่าย · 17–04:59 เย็น */
+export function greetingTh(d: Date = new Date()): string {
+  const h = d.getHours();
+  return h >= 5 && h < 12 ? 'สวัสดีตอนเช้า' : h >= 12 && h < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น';
+}
+
+/** วันที่ไทยแบบเต็ม เช่น "วันพุธที่ 22 ตุลาคม 2569" */
+export function fmtDateLongTh(d: Date = new Date()): string {
+  const wd = d.toLocaleDateString('th-TH', { weekday: 'long' });
+  const rest = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }).replace('พ.ศ. ', '');
+  return `${wd.startsWith('วัน') ? wd : `วัน${wd}`}ที่ ${rest}`;
+}
+
 export function fmtDateTime(ts: number): string {
   return new Date(ts).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
 }

@@ -96,8 +96,8 @@ const MSG_ICON: Record<MsgTone, IconName> = {
   success: 'check-circle', warn: 'alert-triangle', danger: 'x-circle', info: 'info', neutral: 'circle-dashed',
 };
 
-export function InlineMessage({ tone = 'info', title, children, actions, onClose, testId, id, className, large }: {
-  tone?: MsgTone; title?: ReactNode; children?: ReactNode; actions?: ReactNode; onClose?: () => void;
+export function InlineMessage({ tone = 'info', title, children, actions, onClose, testId, id, className, large, icon }: {
+  tone?: MsgTone; icon?: IconName; title?: ReactNode; children?: ReactNode; actions?: ReactNode; onClose?: () => void;
   testId?: string; id?: string; className?: string; large?: boolean;
 }) {
   return (
@@ -107,7 +107,7 @@ export function InlineMessage({ tone = 'info', title, children, actions, onClose
       role={tone === 'danger' ? 'alert' : 'status'}
       data-testid={testId}
     >
-      <Icon name={MSG_ICON[tone]} size={20} className="aq-msg__icon" />
+      <Icon name={icon ?? MSG_ICON[tone]} size={20} className="aq-msg__icon" />
       <div className="aq-msg__body">
         {title && <p className="aq-msg__title">{title}</p>}
         {children && <div className="aq-msg__text">{children}</div>}

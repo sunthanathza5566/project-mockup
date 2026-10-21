@@ -12,7 +12,7 @@ import Link from 'next/link';
 import type { AppUser } from '@/lib/types';
 import { unreadCount } from '@/lib/api';
 import { initials, primaryRoleTh } from '@/lib/ui/aunqa';
-import { countLabel } from '@/lib/ui/todo';
+import { TODOS_CHANGED_EVENT, countLabel } from '@/lib/ui/todo';
 import Icon from '@/components/ui/Icon';
 import { Brand } from '@/components/ui/BrandMark';
 import LangToggle from '@/components/ui/LangToggle';
@@ -32,6 +32,14 @@ const AppTopbar = forwardRef<HTMLButtonElement, {
     return () => window.removeEventListener('scroll', on);
   }, []);
 
+  // หน้าที่เปลี่ยนสถานะงาน/อ่านแจ้งเตือน dispatch aunqa:todos-changed → นับใหม่ทันที
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const on = () => setTick(t => t + 1);
+    window.addEventListener(TODOS_CHANGED_EVENT, on);
+    return () => window.removeEventListener(TODOS_CHANGED_EVENT, on);
+  }, []);
+
   useEffect(() => {
     const n = unreadCount(user);
     setUnread(n);
@@ -42,7 +50,7 @@ const AppTopbar = forwardRef<HTMLButtonElement, {
       return () => clearTimeout(t);
     }
     prev.current = n;
-  }, [user, pathname]);
+  }, [user, pathname, tick]);
 
   const n = countLabel(unread);
   return (

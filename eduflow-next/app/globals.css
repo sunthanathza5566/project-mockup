@@ -1043,6 +1043,44 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 }
 .aq-cta-band .aq-on-dark-muted, .aq-footer .aq-on-dark-muted { color: var(--c-on-dark-muted); }
 
+/* F3 — หน้าทำงาน (หน้าหลัก / รอบ / แดชบอร์ด / มอบหมาย / รอตรวจ / ประเมิน) */
+.aq-flex-1 { flex: 1 1 0; min-width: 0; }
+.aq-span-all { grid-column: 1 / -1; }
+.aq-form-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+@media (min-width: 480px) { .aq-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.aq-form-inline .aq-field { min-width: min(220px, 100%); }
+.aq-todo-list li > .aq-icon { color: var(--c-primary); }
+.aq-noti-list { list-style: none; display: grid; gap: var(--sp-2); }
+.aq-noti { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3); border-radius: var(--r-md); background: var(--c-surface-2); }
+.aq-noti.is-new { background: var(--c-primary-tint); }
+.aq-noti.is-new .aq-noti__msg { font-weight: 600; }
+.aq-noti .aq-noti-dot { margin-top: 10px; }
+.aq-noti__body { flex: 1; min-width: 0; display: grid; gap: var(--sp-1); }
+.aq-noti__msg { overflow-wrap: anywhere; }
+.aq-cycle-cards { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
+@media (min-width: 768px) { .aq-cycle-cards { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
+.aq-cycle-cards > .aq-card { margin-bottom: 0; }
+.aq-cycle-card__title { font-weight: 600; }
+.aq-next-actions { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); margin-top: var(--sp-4); }
+.aq-btn-with-reason { display: inline-flex; flex-direction: column; align-items: flex-start; gap: var(--sp-1); max-width: 100%; }
+.aq-popover--down { top: calc(100% + var(--sp-2)); right: 0; left: auto; }
+.aq-popover--wide { width: min(420px, calc(100vw - 32px)); max-height: 60vh; overflow-y: auto; }
+.aq-rule-list { list-style: none; display: grid; gap: var(--sp-2); }
+.aq-rule-list li { display: grid; }
+.aq-gap-items { list-style: none; padding: 0 0 var(--sp-2) var(--sp-2); }
+.aq-gap-row { border-top: 1px dashed var(--c-border-subtle); }
+.aq-kpi--ring { align-items: center; justify-content: center; }
+.aq-celebrate .aq-celebrate-spark { margin: -4px 0 0 -4px; }
+.aq-assign-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3) var(--sp-6); }
+.aq-assign-summary .aq-progress { flex: 1 1 260px; }
+.aq-assign-crit > summary { align-items: flex-start; padding: 0; }
+.aq-assign-crit > summary .aq-h3 { display: block; margin-bottom: var(--sp-2); }
+.aq-assign-crit[open] > summary { margin-bottom: var(--sp-4); }
+.aq-row-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-4); }
+.aq-progress-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.aq-progress-head .aq-checklist { margin-bottom: 0; }
+.aq-tabs [role="tab"] .aq-check-draw { color: var(--c-success); }
+
 /* ── ส่วนของหน้าเดิมที่ยังใช้ชื่อ class เดิม (restyle ด้วย token — คงไว้) ── */
 .aq-muted { color: var(--c-muted); }
 .aq-meta { font-size: var(--fs-sm); line-height: 1.6; color: var(--c-muted); }
@@ -1322,7 +1360,7 @@ footer p { color: var(--c-on-dark-muted); }
 @keyframes aq-bump { from { transform: scale(.9); } to { transform: none; } }
 @keyframes aq-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes aq-pop-circle { from { transform: scale(.9); } to { transform: none; } }
-@keyframes aq-spark { 0% { opacity: 1; transform: rotate(var(--a, 0deg)) translateY(0); } 100% { opacity: 0; transform: rotate(var(--a, 0deg)) translateY(-28px); } }
+@keyframes aq-spark { 0% { opacity: 1; transform: rotate(var(--a, 0deg)) translateY(-60px); } 100% { opacity: 0; transform: rotate(var(--a, 0deg)) translateY(-88px); } }
 
 /* ─────────────────────────── 7. REDUCED MOTION (T8 — บังคับทั้งระบบ) ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
