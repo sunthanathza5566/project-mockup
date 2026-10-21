@@ -9,3 +9,36 @@
 {"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน validate ก่อน mutate + audit หลัง save รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
 {"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน getter ดิบต้องผ่าน guard เดียวกัน รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
 {"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน AI กฎด้วยโครงสร้าง import รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "db-engineer", "points": 20, "reason": "B1 seed narrative 53 + curriculum + actions เสร็จ (M), citation ตรวจ 0 ผิด", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "db-engineer", "points": 10, "reason": "ผ่าน review รอบ 1 โดยไม่มี finding ในไฟล์ seed ของตัวเอง", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 40, "reason": "B2 backend Phase B เสร็จ (L): M4/M12/M14/Claude route/segregation", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": -3, "reason": "ต้องแก้หลัง review รอบ 1 (CHANGES_REQUESTED, B1 major)", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "frontend-dev", "points": 40, "reason": "B3 UI Phase B เสร็จ (L): S9/S10/S14/S15, smoke ไม่มี console error", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "frontend-dev", "points": 10, "reason": "ผ่าน review รอบ 1 โดยไม่มี finding ในโค้ด frontend", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "qa-tester", "points": 20, "reason": "B4 tests เสร็จ (M): 204/204 เพิ่ม 54 เทสต์ 4 ไฟล์", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "qa-tester", "points": 8, "reason": "เจอ BUG-0001-B4-1 major (stripJudgement) ด้วยเทสต์", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 20, "reason": "Phase B review รอบ 1 (M): ไล่ diff 54 ไฟล์ รัน tsc/test/build", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 8, "reason": "เจอ major B1 (rate limit spoofable + output ไม่ตรวจ)", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 10, "reason": "Phase B review รอบ 2 (S): probe JUDGEMENT_RE 17 ประโยค ปิด B1-B10", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 20, "reason": "B5s คลังมาตรฐาน standards (M): 4 คู่มือเล่ม + mmdc render จริง", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 10, "reason": "thesis-th.md มีแหล่งอ้างอิงตรวจได้", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 10, "reason": "uml.md มีแหล่งอ้างอิงตรวจได้ (ทดสอบ render)", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 10, "reason": "Coverage assessment (S) ระบุข้อจำกัดและความมั่นใจชัด", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 3, "reason": "thesis-th.md ถูกอ้างใน Study ของ B6 และผ่าน build verify", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 3, "reason": "uml.md ถูกอ้างใน Study ของ B6a และผ่าน build render 12/12", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "diagram-designer", "points": 20, "reason": "B6a diagram set 12 รูป (M) render ผ่าน, INDEX อัปเดต", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "thesis-writer", "points": 40, "reason": "B6 เล่มใหม่ทุกบท + build tools (L)", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "thesis-writer", "points": 5, "reason": "export thesis.docx สำเร็จ และ build verify ไม่มีรูปหาย (12/12)", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "thesis-writer", "points": 3, "reason": "บทเรียนตัวเลขผลทดสอบต้องรันซ้ำและระบุ source รับเข้า playbook", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "thesis-writer", "points": 3, "reason": "บทเรียนห้ามเติมผู้แต่งจากความจำ รับเข้า playbook", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "thesis-writer", "points": 3, "reason": "บทเรียนตรวจความสูงรูปใน docx รับเข้า playbook", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 3, "reason": "บทเรียนรูปแบบเล่มไทยต่างกันต้องติดป้ายสาขา รับเข้า playbook", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 3, "reason": "บทเรียน mmdc ไม่ error ไม่พอ ต้องเปิด PNG รับเข้า diagram-designer", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "researcher", "points": 3, "reason": "บทเรียนเช็ก runtime ก่อนเสนอเครื่องมือ รับเข้า playbook", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 3, "reason": "RULE regex ตัดคำไทยต้องมีเทสต์สองฝั่ง (incident BUG-0001-B4-1) รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน endpoint ค่าใช้จ่าย: cap ไม่พึ่ง client และตรวจ output รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน ใช้ตาราง transition เดียวทั้ง lib และ UI รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน AI accept เดินผ่าน store ปกติ รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียน seed เปลี่ยน helper freshDemo/freshSeededDemo รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียน lastAuthorId แยกจาก updatedBy รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียนค่าหลังล็อกเก็บใน snapshot รับเข้า backend-dev", "task": "TASK-0001"}
