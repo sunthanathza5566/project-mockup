@@ -61,12 +61,33 @@ export function postCheckText(text: string, opt: PostCheckOptions): { text: stri
  * กฎ 7.3 (AI ห้ามให้คะแนน/ตัดสิน) บังคับในโค้ด: ประโยคที่เข้ารูปให้คะแนน/ตัดสินผ่าน-ไม่ผ่าน ถูกตัดทิ้ง
  * รูปแบบ: คะแนน, ระดับ <1-7>, score, rating, verdict, ผ่าน/ไม่ผ่านเกณฑ์, adequate/inadequate
  */
-const JUDGEMENT_RE = /คะแนน|ระดับ\s*[1-7]\b|\b(?:score|scored|rating|verdict|adequate|inadequate|pass|fail)\b|(?:ไม่)?ผ่าน(?:เกณฑ์|การประเมิน|มาตรฐาน)|ไม่ผ่าน\s*$|ควรได้ระดับ|ได้ระดับ/iu;
+// ตัวเลขที่เป็นข้อเท็จจริง (ทศนิยม / "จาก 5") ไม่ใช่การตัดสิน — ใช้ lookahead กันตัดเกิน (R2-2)
+const NOT_FACT = String.raw`(?![\d๐-๙]|\.\d|\s*(?:จาก|out of|of)\s*\d)`;
+const JUDGEMENT_RE = new RegExp([
+  String.raw`(?:ให้|ควรได้|สมควรได้)\s*คะแนน`,
+  String.raw`ได้คะแนน(?!\s*(?:เฉลี่ย|ความ|\d+\.\d))`,
+  String.raw`คะแนน(?:ของ)?(?:เกณฑ์|ข้อ)(?:นี้|ย่อย)`,
+  String.raw`คะแนน\s*[1-7๑-๗]${NOT_FACT}`,
+  String.raw`ระดับ(?:ที่)?\s*[1-7๑-๗]${NOT_FACT}`,
+  String.raw`(?:ควร)?ได้ระดับ(?!\s*\d+\.\d)`,
+  String.raw`(?<!\d\s)\b(?:score[sd]?|rating|verdict|adequate|inadequate|pass|fail)\b(?!\s*(?:of|is|was|:)?\s*\d+\.\d)`,
+  String.raw`(?:ไม่)?ผ่าน(?:เกณฑ์|ตามเกณฑ์|การประเมิน|มาตรฐาน)`,
+  String.raw`(?:ถือว่า|ควร|สมควร)(?:จะ)?(?:ไม่)?ผ่าน`,
+  String.raw`(?:ไม่)?เป็นไปตามเกณฑ์`,
+  String.raw`ไม่ผ่าน[\s.!?]*$`,
+  String.raw`ไม่เพียงพอ`,
+  String.raw`เพียงพอ(?:ตามที่คาดหวัง|ตามเกณฑ์|ต่อเกณฑ์|แล้ว|ในระดับ|[\s.!?]*$)`,
+].join('|'), 'iu');
+
+/** ประโยคไทยมักไม่มีจุด: แยกต่อเป็นอนุประโยคที่ช่องว่างระหว่างอักษรไทย เพื่อตัดเท่าที่จำเป็น ไม่ใช่ทั้งย่อหน้า */
+function splitClauses(sentence: string): string[] {
+  return sentence.split(/(?<=[ก-๙])(?<![๐-๙])\s+(?=[ก-๙])(?![๐-๙])/).map(s => s.trim()).filter(Boolean);
+}
 
 export function stripJudgement(text: string): { text: string; removed: string[] } {
   const removed: string[] = [];
   const lines = (text || '').split('\n').map(line => {
-    const kept = splitSentences(line).filter(s => {
+    const kept = splitSentences(line).flatMap(splitClauses).filter(s => {
       if (JUDGEMENT_RE.test(s)) { removed.push(s); return false; }
       return true;
     });
