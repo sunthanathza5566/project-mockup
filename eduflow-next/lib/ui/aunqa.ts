@@ -25,7 +25,7 @@ export const CYCLE_ACTION_TH: Record<CycleStatus, string> = {
 
 export const SECTION_STATUS_TH: Record<SectionStatus, string> = {
   not_started: 'ยังไม่เริ่ม', drafting: 'กำลังเขียน', ready_for_review: 'รอตรวจ',
-  changes_requested: 'ส่งกลับแก้', approved: 'อนุมัติแล้ว',
+  changes_requested: 'ส่งกลับแก้ไข', approved: 'อนุมัติแล้ว',
 };
 
 export const HEAT_TH: Record<HeatLevel, string> = {
@@ -62,6 +62,23 @@ export function fmtDate(iso?: string | number): string {
 }
 export function fmtDateTime(ts: number): string {
   return new Date(ts).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+/**
+ * ตัดข้อความไทยให้สั้นลงโดยไม่ตัดกลางพยางค์ (tokens.md T2.2 U1b F5 — ใช้แทน CSS ellipsis กับ h1–h3/pill)
+ * ตัดที่ n ตัวอักษร แล้วถอยไปจนตัวถัดไปไม่ใช่สระบน/ล่าง/วรรณยุกต์ (U+0E31, U+0E34–U+0E3A, U+0E47–U+0E4E) แล้วต่อ "…"
+ */
+export function truncateTh(s: string, n: number): string {
+  const chars = Array.from(s);
+  if (chars.length <= n) return s;
+  const isMark = (c: string | undefined) => {
+    if (!c) return false;
+    const cp = c.codePointAt(0)!;
+    return cp === 0x0e31 || (cp >= 0x0e34 && cp <= 0x0e3a) || (cp >= 0x0e47 && cp <= 0x0e4e);
+  };
+  let cut = Math.max(0, n);
+  while (cut > 0 && isMark(chars[cut])) cut--;
+  return chars.slice(0, cut).join('').trimEnd() + '…';
 }
 
 export function initials(name: string): string {

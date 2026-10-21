@@ -1,29 +1,37 @@
 'use client';
 
 /**
- * Dialog กลางจอ — ป๊อปอัปแจ้งเตือน/ยืนยันที่ผู้ใช้ต้องเห็นและกดรับทราบ (ไม่ใช่ toast มุมจอ)
+ * Dialog กลางจอ — confirm / notify / prompt (API เดิม) · restyle ตาม ADR-UI-001 components.md C15 (ลูกเล่น L14)
  *
- * ใช้แทน window.confirm / window.prompt / (success toast สำคัญ) ทั้งระบบ
- *   - confirm(opts) → Promise<boolean>   ยืนยันก่อนทำรายการ (เพิ่ม/ลบ/ยกเลิก/ยืนยัน ฯลฯ)
- *   - notify(opts)  → Promise<void>      แจ้งผลสำเร็จ/ผิดพลาด กลางจอ ปุ่มเดียว
- *   - prompt(opts)  → Promise<string|null>  ขอเหตุผล/ข้อความก่อนทำรายการ
+ *   - confirm(opts) → Promise<boolean>
+ *   - notify(opts)  → Promise<void>          ปุ่มเดียว "รับทราบ"
+ *   - prompt(opts)  → Promise<string|null>   textarea · ปุ่มยืนยัน disabled เมื่อ required ว่าง + ข้อความช่วย
  *
- * ทุกอย่างเป็น Promise → เขียน handler เป็น async ได้ตรงไปตรงมา
+ * เพิ่ม: `details` (กล่องรายการเตือน/checklist ใต้ message) · `initialFocus` ('confirm' | 'cancel')
+ * focus เริ่มต้น: ปุ่มยกเลิกเมื่อ variant danger/warning หรือ initialFocus='cancel' · textarea สำหรับ prompt · อื่น = ปุ่มยืนยัน
+ * ARIA: role="dialog" aria-modal aria-labelledby aria-describedby · focus trap · Esc = ยกเลิก · คลิก backdrop = ยกเลิก
+ *       (ยกเว้น prompt ที่พิมพ์แล้ว) · ปิดแล้วคืน focus ให้ element ที่เปิด
+ * ชื่อปุ่มยืนยันต้องขึ้นต้นด้วย "ยืนยัน" (E2E) — ผู้เรียกส่ง confirmText เช่น "ยืนยันส่งตรวจ"
  */
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import Icon, { type IconName } from '@/components/ui/Icon';
 
 export type DialogVariant = 'primary' | 'danger' | 'success' | 'warning' | 'info';
 
 interface BaseOptions {
   title: string;
   message?: ReactNode;
+  /** รายการเตือน / checklist ใต้ message */
+  details?: ReactNode;
   variant?: DialogVariant;
-  icon?: string;
+  icon?: IconName;
 }
 interface ConfirmOptions extends BaseOptions {
   confirmText?: string;
   cancelText?: string;
+  /** บังคับปุ่มที่ได้ focus เริ่มต้น (ค่าเริ่มต้นตามกฎ C15) */
+  initialFocus?: 'confirm' | 'cancel';
 }
 interface NotifyOptions extends BaseOptions {
   okText?: string;
@@ -39,12 +47,14 @@ interface DialogState {
   kind: Kind;
   title: string;
   message?: ReactNode;
+  details?: ReactNode;
   variant: DialogVariant;
-  icon: string;
+  icon: IconName;
   confirmText: string;
   cancelText: string;
   placeholder?: string;
   required?: boolean;
+  initialFocus: 'confirm' | 'cancel' | 'input';
   resolve: (v: boolean | string | null) => void;
 }
 
@@ -59,19 +69,34 @@ const DialogContext = createContext<DialogContextValue>({
   confirm: async () => false, notify: noop, prompt: async () => null,
 });
 
-const VARIANT_ICON: Record<DialogVariant, string> = {
-  primary: '❓', danger: '⚠️', success: '✅', warning: '⚠️', info: 'ℹ️',
+const VARIANT_ICON: Record<DialogVariant, IconName> = {
+  primary: 'help-circle', danger: 'alert-triangle', success: 'check-circle', warning: 'alert-triangle', info: 'info',
 };
-const VARIANT_COLOR: Record<DialogVariant, string> = {
-  primary: 'var(--brown-dark)', danger: 'var(--absent)', success: 'var(--success)',
-  warning: 'var(--late)', info: 'var(--brown-dark)',
+const VARIANT_TONE: Record<DialogVariant, string> = {
+  primary: 'primary', danger: 'bad', success: 'ok', warning: 'warn', info: 'info',
 };
+
+function defaultFocus(v: DialogVariant, f?: 'confirm' | 'cancel'): 'confirm' | 'cancel' {
+  if (f) return f;
+  return v === 'danger' || v === 'warning' ? 'cancel' : 'confirm';
+}
+
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export function DialogProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DialogState | null>(null);
   const [text, setText]   = useState('');
+  const opener = useRef<HTMLElement | null>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const okBtn = useRef<HTMLButtonElement>(null);
+  const cancelBtn = useRef<HTMLButtonElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const uid = useId();
+  const titleId = `${uid}-title`;
+  const descId = `${uid}-desc`;
 
-  const open = useCallback((s: Omit<DialogState, 'resolve'> & { resolve: DialogState['resolve'] }) => {
+  const open = useCallback((s: DialogState) => {
+    opener.current = (typeof document !== 'undefined' ? document.activeElement : null) as HTMLElement | null;
     setText('');
     setState(s);
   }, []);
@@ -79,9 +104,10 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const confirm = useCallback((o: ConfirmOptions) => new Promise<boolean>(resolve => {
     const v = o.variant || 'primary';
     open({
-      kind: 'confirm', title: o.title, message: o.message, variant: v,
+      kind: 'confirm', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
+      initialFocus: defaultFocus(v, o.initialFocus),
       resolve: r => resolve(r === true),
     });
   }), [open]);
@@ -89,9 +115,9 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((o: NotifyOptions) => new Promise<void>(resolve => {
     const v = o.variant || 'success';
     open({
-      kind: 'notify', title: o.title, message: o.message, variant: v,
+      kind: 'notify', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
-      confirmText: o.okText || 'รับทราบ', cancelText: '',
+      confirmText: o.okText || 'รับทราบ', cancelText: '', initialFocus: 'confirm',
       resolve: () => resolve(),
     });
   }), [open]);
@@ -99,93 +125,118 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const prompt = useCallback((o: PromptOptions) => new Promise<string | null>(resolve => {
     const v = o.variant || 'primary';
     open({
-      kind: 'prompt', title: o.title, message: o.message, variant: v,
+      kind: 'prompt', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
-      placeholder: o.placeholder, required: o.required,
+      placeholder: o.placeholder, required: o.required, initialFocus: 'input',
       resolve: r => resolve(typeof r === 'string' ? r : null),
     });
     if (o.defaultValue) setText(o.defaultValue);
   }), [open]);
 
-  function close(result: boolean | string | null) {
-    if (!state) return;
-    state.resolve(result);
+  const stateRef = useRef<DialogState | null>(null);
+  stateRef.current = state;
+
+  const close = useCallback((result: boolean | string | null) => {
+    const cur = stateRef.current;
+    if (!cur) return;
+    stateRef.current = null;
+    cur.resolve(result);
     setState(null);
+    const back = opener.current;
+    opener.current = null;
+    if (back && typeof back.focus === 'function') setTimeout(() => { if (document.contains(back)) back.focus(); }, 0);
+  }, []);
+
+  const cancelValue = (s: DialogState) => (s.kind === 'prompt' ? null : s.kind === 'confirm' ? false : null);
+
+  // focus เริ่มต้น
+  useEffect(() => {
+    if (!state) return;
+    const el = state.initialFocus === 'input' ? input.current
+      : state.initialFocus === 'cancel' && cancelBtn.current ? cancelBtn.current
+      : okBtn.current;
+    el?.focus();
+    // เปิด dialog ใหม่เท่านั้น (ไม่ทำซ้ำเมื่อพิมพ์)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (!state) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(cancelValue(state)); return; }
+    if (e.key !== 'Tab' || !panel.current) return;
+    const items = Array.from(panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(n => n.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
 
-  const color = state ? VARIANT_COLOR[state.variant] : 'var(--brown-dark)';
-  const promptInvalid = state?.kind === 'prompt' && state.required && !text.trim();
+  const promptInvalid = state?.kind === 'prompt' && !!state.required && !text.trim();
+  const okClass = state?.variant === 'danger' ? 'aq-btn aq-btn-danger-solid' : 'aq-btn aq-btn-primary';
+  const tone = state ? VARIANT_TONE[state.variant] : 'primary';
 
   return (
     <DialogContext.Provider value={{ confirm, notify, prompt }}>
       {children}
       {state && (
         <div
-          role="dialog" aria-modal="true"
-          onClick={() => close(state.kind === 'notify' ? null : (state.kind === 'confirm' ? false : null))}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(18,10,4,0.6)',
-            backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+          className="aq-dialog-backdrop"
+          onMouseDown={e => {
+            if (e.target !== e.currentTarget) return;
+            if (state.kind === 'prompt' && text.trim()) return; // พิมพ์แล้ว = ไม่ปิด
+            close(cancelValue(state));
           }}
         >
           <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: 'min(400px, 94vw)', background: 'var(--warm-white)', borderRadius: 16,
-              padding: '1.6rem 1.5rem', textAlign: 'center', boxShadow: '0 24px 70px rgba(0,0,0,0.45)',
-              border: '1px solid var(--border)',
-            }}
+            ref={panel}
+            className={`aq-dialog aq-dialog--${tone}`}
+            role="dialog" aria-modal="true" aria-labelledby={titleId}
+            aria-describedby={state.message || state.details ? descId : undefined}
+            onKeyDown={onKeyDown}
           >
-            <div style={{ fontSize: '2.6rem', marginBottom: '0.5rem', lineHeight: 1 }}>{state.icon}</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, color, marginBottom: state.message ? '0.5rem' : '1rem', fontFamily: "'Cormorant Garamond', serif" }}>
-              {state.title}
+            <div className="aq-dialog__head">
+              <Icon name={state.icon} size={24} className="aq-dialog__icon" />
+              <h2 className="aq-dialog__title" id={titleId}>{state.title}</h2>
             </div>
-            {state.message && (
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-body)', marginBottom: '1.1rem', lineHeight: 1.6 }}>
-                {state.message}
+            {(state.message || state.details) && (
+              <div id={descId} className="aq-dialog__body">
+                {state.message && <div className="aq-dialog__msg">{state.message}</div>}
+                {state.details && <div className="aq-dialog__details">{state.details}</div>}
               </div>
             )}
 
             {state.kind === 'prompt' && (
-              <textarea
-                autoFocus
-                value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder={state.placeholder || ''}
-                rows={2}
-                style={{
-                  width: '100%', padding: '0.6rem 0.75rem', border: '1px solid var(--border)', borderRadius: 10,
-                  background: 'var(--cream)', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem',
-                  color: 'var(--text-body)', outline: 'none', resize: 'vertical', marginBottom: '1rem',
-                }}
-              />
+              <div className="aq-field aq-dialog__field">
+                <textarea
+                  ref={input}
+                  className="aq-textarea"
+                  rows={3}
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  placeholder={state.placeholder || ''}
+                  aria-label={state.placeholder || state.title}
+                  aria-required={state.required || undefined}
+                  aria-describedby={promptInvalid ? `${uid}-req` : undefined}
+                />
+                {promptInvalid && <p className="aq-help" id={`${uid}-req`}>ต้องระบุเหตุผล</p>}
+              </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
-              <button
-                onClick={() => close(state.kind === 'prompt' ? text.trim() : true)}
-                disabled={promptInvalid}
-                style={{
-                  flex: 1, minHeight: 46, border: 'none', borderRadius: 10, cursor: promptInvalid ? 'not-allowed' : 'pointer',
-                  fontWeight: 700, fontSize: '0.92rem', color: 'var(--cream)', opacity: promptInvalid ? 0.5 : 1,
-                  background: color, fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                {state.confirmText}
-              </button>
+            <div className="aq-dialog__actions">
               {state.cancelText && (
-                <button
-                  onClick={() => close(state.kind === 'prompt' ? null : false)}
-                  style={{
-                    flex: 1, minHeight: 46, borderRadius: 10, cursor: 'pointer', fontWeight: 600, fontSize: '0.92rem',
-                    color: 'var(--brown-deep)', background: 'transparent', border: '1px solid var(--border)',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
+                <button ref={cancelBtn} type="button" className="aq-btn" onClick={() => close(cancelValue(state))}>
                   {state.cancelText}
                 </button>
               )}
+              <button
+                ref={okBtn} type="button" className={okClass}
+                onClick={() => close(state.kind === 'prompt' ? text.trim() : true)}
+                disabled={promptInvalid}
+              >
+                {state.confirmText}
+              </button>
             </div>
           </div>
         </div>
