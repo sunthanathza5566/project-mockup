@@ -265,8 +265,8 @@ export const OFFLINE_TRANSLATE_LABEL = '[ต้องแปลต่อโดย
 
 async function translate(i: TranslateInput): Promise<TranslateOutput> {
   const r = applyGlossary(i.text, i.from);
-  return { translation: `${OFFLINE_TRANSLATE_LABEL}
-${r.text}`, needsHumanTranslation: true };
+  // ไม่ใส่ป้ายใน translation (กันหลุดเข้า narrative/DOCX) — UI อ่านจาก needsHumanTranslation แล้วโชว์คำเตือนเอง
+  return { translation: r.text, needsHumanTranslation: true };
 }
 
 export const offlineProvider: AiProvider = {

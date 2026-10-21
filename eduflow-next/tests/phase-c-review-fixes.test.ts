@@ -8,6 +8,7 @@ import ExcelJS from 'exceljs';
 import * as api from '@/lib/api';
 import { freshDemo, driveToLocked, user, CYCLE, PROG } from '@/tests/helpers';
 import { applyGlossary } from '@/lib/api/ai/glossary';
+import { OFFLINE_TRANSLATE_LABEL } from '@/lib/api/ai/offline';
 import { KEYS, load, save } from '@/lib/api/db';
 import { resetAiLimits } from '@/lib/api/ai/ratelimit';
 import { POST } from '@/app/api/ai/route';
@@ -207,7 +208,7 @@ describe('C-8 ธง needsTranslationReview + gap R11', () => {
     expect(sectionOf('chair1', '1.1').needsTranslationReview).toBeUndefined();
     expect(r11()).toEqual([]);
   });
-  it('รับคำแปล offline → ตั้งธงภาษา en และขึ้น gap R11 (medium) · ป้ายไม่ถูกลบจาก narrative', async () => {
+  it('รับคำแปล offline → ตั้งธงภาษา en และขึ้น gap R11 (medium) · ป้ายไม่ถูกเขียนลง narrative', async () => {
     await acceptOffline();
     const s = sectionOf('chair1', '1.1');
     expect(s.needsTranslationReview).toEqual({ en: true });
@@ -250,6 +251,48 @@ describe('C-8 ธง needsTranslationReview + gap R11', () => {
     const chair = await acceptOffline();
     api.saveSection(chair, CYCLE, '1.1', { narrativeEn: 'x', needsTranslationReview: { th: undefined } as never });
     expect(sectionOf('chair1', '1.1').needsTranslationReview).toEqual({ en: true });
+  });
+});
+
+describe('C2-1 ป้ายคำแปล offline ไม่หลุดเข้า narrative / DOCX', () => {
+  const LABEL_PART = 'needs human translation';
+  it('accept แบบ append และ replace → narrativeEn ไม่มีป้าย, DOCX document.xml ไม่มีข้อความป้าย, ธง+R11 ยังอยู่', async () => {
+    const chair = user('chair1');
+    api.saveSection(chair, CYCLE, '1.1', { narrativeTh: 'หลักสูตรมี 5 ราย', narrativeEn: 'Existing.' });
+    api.acceptAiRun(chair, (await api.runTranslate(chair, SEC, 'en')).id); // append
+    let s = sectionOf('chair1', '1.1');
+    expect(s.narrativeEn.startsWith('Existing.')).toBe(true);
+    expect(s.narrativeEn).not.toContain(OFFLINE_TRANSLATE_LABEL);
+    expect(s.narrativeEn).not.toContain(LABEL_PART);
+    api.acceptAiRun(chair, (await api.runTranslate(chair, SEC, 'en')).id, { mode: 'replace' });
+    s = sectionOf('chair1', '1.1');
+    expect(s.narrativeEn).not.toContain(LABEL_PART);
+    expect(s.narrativeEn).toContain('programme');
+    expect(s.needsTranslationReview).toEqual({ en: true });
+    const JSZip = (await import('jszip')).default;
+    const zip = await JSZip.loadAsync(await (await api.exportSarDocx(chair, CYCLE)).arrayBuffer());
+    const xml = await zip.file('word/document.xml')!.async('string');
+    expect(xml).not.toContain(LABEL_PART);
+    expect(xml).not.toContain('ต้องแปลต่อโดยผู้ใช้');
+    expect(api.getGaps(chair, CYCLE, '1.1').some(g => g.ruleId === 'R11')).toBe(true);
+  });
+  it('ai_run เก่าที่ translation มีป้ายนำหน้า → acceptAiRun ตัดป้ายออกก่อนเขียน', async () => {
+    const chair = user('chair1');
+    api.saveSection(chair, CYCLE, '1.1', { narrativeTh: 'หลักสูตรมี 5 ราย' });
+    const run = await api.runTranslate(chair, SEC, 'en');
+    const rows = load<{ id: string; output: { translation: string } }>(KEYS.aiRuns);
+    const row = rows.find(r => r.id === run.id)!;
+    row.output.translation = `${OFFLINE_TRANSLATE_LABEL}
+${row.output.translation}`;
+    save(KEYS.aiRuns, rows);
+    api.acceptAiRun(chair, run.id);
+    expect(sectionOf('chair1', '1.1').narrativeEn).not.toContain(LABEL_PART);
+  });
+  it('C3-1 accept EN→TH offline ที่ขึ้นต้นด้วย "students" → ไม่ถูกตัดตัวอักษรแรก', async () => {
+    const chair = user('chair1');
+    api.saveSection(chair, CYCLE, '1.1', { narrativeEn: 'students meet the advisor each term.', narrativeTh: '' });
+    api.acceptAiRun(chair, (await api.runTranslate(chair, SEC, 'th')).id, { mode: 'replace' });
+    expect(sectionOf('chair1', '1.1').narrativeTh.startsWith('students')).toBe(true);
   });
 });
 

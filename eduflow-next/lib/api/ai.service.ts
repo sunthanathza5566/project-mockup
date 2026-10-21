@@ -30,7 +30,7 @@ import { findGlossaryHits } from './ai/glossary';
 import { extractCitations, extractNumbers } from '../utils/text';
 import { mergePostChecks, postCheckText, stripJudgement } from './ai/postcheck';
 import { claudeProvider, shouldUseClaude } from './ai/claude';
-import { offlineProvider } from './ai/offline';
+import { offlineProvider, OFFLINE_TRANSLATE_LABEL } from './ai/offline';
 import type {
   AiProvider, DraftOutput, EvidenceDigest, TranslateInput, TranslateOutput, MetricDigest, ReviewOutput, SummaryInput, SummaryOutput, TagOutput, VerbInput, VerbItem, VerbOutput,
 } from './ai/provider';
@@ -408,13 +408,15 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
     saveSection(actor, run.cycleId!, run.requirementId!, out.language === 'th' ? { narrativeTh: next } : { narrativeEn: next }, 'ai_accept');
   } else if (run.feature === 'AI-4') {
     const out = run.output as TranslateRunOutput;
-    if (!out.translation.trim()) throw new AunqaError('invalid', 'คำแปลว่าง ไม่มีอะไรให้ใส่');
+    // กันไว้อีกชั้น: ผลเก่าที่เคยมีป้าย offline ติดมา ต้องไม่ถูกเขียนลง narrative
+    const translation = out.translation.split(OFFLINE_TRANSLATE_LABEL).join('').replace(/^\s+/, '');
+    if (!translation.trim()) throw new AunqaError('invalid', 'คำแปลว่าง ไม่มีอะไรให้ใส่');
     const sec = load<SarSection>(KEYS.sections).find(s => s.id === out.sectionId);
     if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
     const cur = out.to === 'th' ? sec.narrativeTh : sec.narrativeEn;
-    const next = opts.mode === 'replace' || !cur.trim() ? out.translation : `${cur.trimEnd()}
+    const next = opts.mode === 'replace' || !cur.trim() ? translation : `${cur.trimEnd()}
 
-${out.translation}`;
+${translation}`;
     // คำแปล offline (แทนศัพท์อย่างเดียว) → ตั้งธง needsTranslationReview ให้ gap R11 เตือนจนผู้ใช้ยืนยัน (C-8)
     saveSection(actor, sec.cycleId, sec.requirementId, {
       ...(out.to === 'th' ? { narrativeTh: next } : { narrativeEn: next }),

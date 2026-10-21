@@ -103,7 +103,7 @@ describe('glossary: applyGlossary', () => {
 describe('AI-4 runTranslate (offline)', () => {
   const TH = 'หลักสูตรมี ผู้มีส่วนได้ส่วนเสีย 25 ราย [E-1.1-01] และ [E-1.1-02] ตาม การเทียบเคียง';
 
-  it('offline: ติดป้าย needsHumanTranslation + แทนเฉพาะศัพท์ + ตัวเลข/รหัสครบ → postCheck.ok', async () => {
+  it('offline: needsHumanTranslation=true (ไม่มีป้ายใน translation) + แทนเฉพาะศัพท์ + ตัวเลข/รหัสครบ → postCheck.ok', async () => {
     const chair = user('chair1');
     api.saveSection(chair, CYCLE, '1.1', { narrativeTh: TH });
     const run = await api.runTranslate(chair, SEC, 'en');
@@ -111,7 +111,7 @@ describe('AI-4 runTranslate (offline)', () => {
     expect(run.feature).toBe('AI-4');
     expect(run.model).toBe('offline-deterministic');
     expect(out.needsHumanTranslation).toBe(true);
-    expect(out.translation.startsWith(OFFLINE_TRANSLATE_LABEL)).toBe(true);
+    expect(out.translation).not.toContain(OFFLINE_TRANSLATE_LABEL); // ป้ายไม่อยู่ใน translation — UI ใช้ needsHumanTranslation
     expect(out.translation).toContain('stakeholders');
     expect(out.translation).toContain('benchmarking');
     expect(out.translation).toContain('25');
@@ -203,7 +203,8 @@ describe('AI-4 accept / lock / RBAC', () => {
     api.acceptAiRun(chair, run2.id, { mode: 'replace' });
     s = sectionOf('chair1', '1.1');
     expect(s.narrativeEn.startsWith('Existing.')).toBe(false);
-    expect(s.narrativeEn.startsWith(OFFLINE_TRANSLATE_LABEL)).toBe(true);
+    expect(s.narrativeEn).not.toContain(OFFLINE_TRANSLATE_LABEL);
+    expect(s.narrativeEn).toContain('stakeholders');
   });
 
   it('accept (TH) เขียนลง narrativeTh ไม่แตะ narrativeEn', async () => {

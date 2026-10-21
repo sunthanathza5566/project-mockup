@@ -258,3 +258,19 @@ Study: PROTOCOL ข้อ 5 — ไม่มีมาตรฐานใหม่
 - ตามรอยป้าย C-8: `offline.ts:268` ใส่ป้ายใน `translation` → `postCheckText` ตัดแค่ `[E-…]` ที่ไม่มีในต้นฉบับ (ป้ายผ่าน) → `acceptAiRun` เขียน `out.translation` ลง narrative → `exportSarDocx` render narrative → ป้ายหลุดลง DOCX · ยืนยันด้วยเทสต์ที่มีอยู่ `phase-c1.test.ts:206`
 - รันเอง: `npx tsc --noEmit` → 0 error · `npm test` → 18 ไฟล์ 406/406 ผ่าน
 - ผล: **CHANGES_REQUESTED** — แก้ C2-1 (major) + C2-2 แล้วรีวิวสั้นอีกรอบ (เฉพาะ C2-1)
+
+## Phase C — round 3 (diff `git diff HEAD -- eduflow-next .agents/board`, ยังไม่ commit)
+
+Verdict: **CHANGES_REQUESTED** — C2-1 ปิดในเชิงพฤติกรรมป้าย แต่ fix ใหม่สร้าง bug ทำข้อมูลเพี้ยน (C3-1 major) · C2-2 ปิด
+
+| # | severity | file:line | ปัญหา | ข้อเสนอแก้ |
+|---|---|---|---|---|
+| C3-1 | **major** | `eduflow-next/lib/api/ai.service.ts:412` | `.replace(/^s+/, '')` ตั้งใจเขียน `\s+` แต่ backslash หาย จึงตัด**ตัวอักษร `s` ตัวเล็ก**ที่ขึ้นต้นคำแปลทุกครั้งที่ accept (ไม่ใช่แค่ตอนมีป้าย) — probe: `'students meet [E-1.1-01]'.replace(/^s+/,'')` → `"tudents meet …"` · เกิดจริงกับ EN→TH แบบ offline (ประโยคอังกฤษเดิมยังอยู่ แค่แทนศัพท์) และกับ Claude ถ้าคำแปลขึ้นต้นด้วยตัวเล็ก · เทสต์ไม่จับได้เพราะข้อความทดสอบขึ้นต้นด้วย "หลักสูตร"/"Existing." | แก้เป็น `.replace(/^\s+/, '')` (หรือตัดเฉพาะป้าย + บรรทัดใหม่ที่ตามมา: `.replace(new RegExp('^' + escape(LABEL) + '\r?\n?'), '')`) · เพิ่มเทสต์: accept EN→TH offline ที่ต้นฉบับอังกฤษขึ้นต้นด้วย "students …" → narrativeTh ยังขึ้นต้นด้วย "students" · ตรวจว่า escape อื่นในไฟล์ที่แก้รอบนี้ไม่หายแบบเดียวกัน |
+| C3-2 | nit | `.agents/board/TASK-0001.md` (Log backend-dev บรรทัด "split …") | backslash หายเหมือนกัน — `\r\n|\r|\n` กลายเป็นขึ้นบรรทัดใหม่จริง Log อ่านไม่รู้เรื่อง (น่าจะเป็นสาเหตุเดียวกับ C3-1: เครื่องมือเขียนไฟล์กิน `\`) | เขียนเป็น `` `/\r\n|\r|\n/` `` ใหม่ · บทเรียน: หลังแก้ไฟล์ที่มี regex ให้ grep `\` ยืนยัน |
+
+ผ่าน: offline `translate` คืน `r.text` ไม่มีป้าย, `acceptAiRun` ตัดป้ายของ ai_run เก่าอีกชั้น, เทสต์ append/replace + `word/document.xml` ไม่มีป้าย, ธง+R11 ยังอยู่, สัญญาบรรทัด 178 อัปเดตแล้ว · C2-2 Log ครบและยอมรับเรื่องที่ทำผิดคำสั่ง · C2-3 orchestrator บันทึกแล้ว
+
+### Log (reviewer) — Phase C round 3
+- 2026-10-22: อ่าน diff ของ ai.service.ts, offline.ts, 2 ไฟล์เทสต์, TASK file · probe regex บรรทัด 412 ด้วย node (ยืนยัน C3-1)
+- รันเอง: `npx tsc --noEmit` → 0 error · `npm test` → 18 ไฟล์ 408/408 ผ่าน · `npx next build` → ผ่าน
+- ผล: **CHANGES_REQUESTED** — แก้ C3-1 (1 ตัวอักษร + 1 เทสต์) แล้วเช็กสั้น ๆ ได้เลย
