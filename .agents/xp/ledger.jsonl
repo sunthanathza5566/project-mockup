@@ -1,0 +1,11 @@
+{"ts": "2026-10-21T08:32:09+00:00", "agent": "db-engineer", "points": 20, "reason": "A1 seed เสร็จ (M): criteria 8, requirements 53, metric defs, demo org+users, evidence seed 16 ชิ้น, tsc ไม่มี error ในโฟลเดอร์", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:09+00:00", "agent": "db-engineer", "points": 10, "reason": "ผ่าน review รอบแรก APPROVE โดยไม่มีการแก้โค้ดของตัวเองตามรายการ", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:09+00:00", "agent": "backend-dev", "points": 40, "reason": "A2 lib core เสร็จ (L): stores/rbac/workflow/gap/AI offline/export, review APPROVE", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "frontend-dev", "points": 40, "reason": "A3 UI เสร็จ (L): 13 routes, tsc 0 error, next build ผ่าน, smoke Playwright", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "frontend-dev", "points": 10, "reason": "ผ่าน review รอบแรก APPROVE ไม่มีรายการบังคับแก้ในโค้ดของตัวเอง", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "qa-tester", "points": 20, "reason": "A4 tests เสร็จ (M): vitest 5 ไฟล์ 140 เทสต์ ครอบ gap/state machine/postcheck/evidence/PII", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "qa-tester", "points": 5, "reason": "เทสต์ผ่านครบ 140/140 ตั้งแต่รอบแรก", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 20, "reason": "A5 review เสร็จ (M): ไล่ diff 102 ไฟล์, รัน tsc/test/build เอง, 12 finding มี file:line", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน validate ก่อน mutate + audit หลัง save รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน getter ดิบต้องผ่าน guard เดียวกัน รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
+{"ts": "2026-10-21T08:32:10+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียน AI กฎด้วยโครงสร้าง import รับเข้า backend-dev LESSONS", "task": "TASK-0001"}
