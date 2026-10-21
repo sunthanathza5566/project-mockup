@@ -24,7 +24,7 @@ import { computeGaps } from './gap';
 import { getProgramme, getUniversity, programmeScope } from './org.store';
 import { can } from './rbac';
 import { citableCodes, saveSection, sectionIdOf } from './sar.store';
-import { cycleScope, getCycleRaw } from './workflow';
+import { assertCycleWritable, cycleScope, getCycleRaw } from './workflow';
 import { redactDeep } from './ai/redact';
 import { findGlossaryHits } from './ai/glossary';
 import { extractCitations, extractNumbers } from '../utils/text';
@@ -209,6 +209,8 @@ export interface TranslateRunOutput {
   glossaryHits: string[];
 }
 
+const TRANSLATE_MAX_CHARS = 8000;
+
 /** นับซ้ำ (multiset) ของรายการ → ที่ขาดไปใน b เมื่อเทียบกับ a */
 function missingFrom(a: string[], b: string[]): string[] {
   const left = new Map<string, number>();
@@ -233,13 +235,15 @@ export async function runTranslate(actor: AppUser, sectionId: string, to: 'en' |
   const cycle = getCycleRaw(sec.cycleId);
   if (!can(actor, 'ai.use', cycleScope(cycle, { ownerUserId: sec.ownerUserId }))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ใช้ AI');
   assertAiEnabled(cycle.universityId);
+  assertCycleWritable(cycle); // รอบ lock/อยู่ระหว่างตรวจ → ไม่ต้องเปลืองงบ AI (C-2)
   const from: 'th' | 'en' = to === 'en' ? 'th' : 'en';
   const source = from === 'th' ? sec.narrativeTh : sec.narrativeEn;
   if (!source.trim()) throw new AunqaError('invalid', from === 'th' ? 'ยังไม่มีเนื้อหาภาษาไทยให้แปล' : 'ยังไม่มีเนื้อหาภาษาอังกฤษให้แปล');
-  if (source.length > 20000) throw new AunqaError('invalid', 'ข้อความยาวเกินไปสำหรับการแปลครั้งเดียว');
 
   const redaction = { count: 0 };
   const sr = redactDeep(source); redaction.count += sr.count;
+  // เช็กความยาวหลัง redact (ข้อความหลัง redact ยาวขึ้นได้) · เพดาน 8,000 ให้ output ไม่เกิน MAX_TOKENS.translate (C-4)
+  if (sr.value.length > TRANSLATE_MAX_CHARS) throw new AunqaError('invalid', `ข้อความยาวเกินไปสำหรับการแปลครั้งเดียว (ไม่เกิน ${TRANSLATE_MAX_CHARS} ตัวอักษร) — แบ่งแปลทีละส่วน`);
   const hits = findGlossaryHits(sr.value, from);
   const input: TranslateInput = { text: sr.value, from, to, glossary: hits.map(h => ({ th: h.th, en: h.en })) };
   const out: TranslateOutput = await getProvider().translate(input);
@@ -411,7 +415,11 @@ export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions =
     const next = opts.mode === 'replace' || !cur.trim() ? out.translation : `${cur.trimEnd()}
 
 ${out.translation}`;
-    saveSection(actor, sec.cycleId, sec.requirementId, out.to === 'th' ? { narrativeTh: next } : { narrativeEn: next }, 'ai_accept');
+    // คำแปล offline (แทนศัพท์อย่างเดียว) → ตั้งธง needsTranslationReview ให้ gap R11 เตือนจนผู้ใช้ยืนยัน (C-8)
+    saveSection(actor, sec.cycleId, sec.requirementId, {
+      ...(out.to === 'th' ? { narrativeTh: next } : { narrativeEn: next }),
+      ...(out.needsHumanTranslation ? { needsTranslationReview: out.to === 'th' ? { th: true as const } : { en: true as const } } : {}),
+    }, 'ai_accept');
   }
   // AI-3 / AI-7 / AI-9: เป็นคำแนะนำล้วน — การยอมรับ = รับทราบ (ไม่แก้เอกสาร/PLO/ผลประเมิน ผู้ใช้นำไปแก้เองผ่านหน้าปกติ)
 

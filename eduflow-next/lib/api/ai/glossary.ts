@@ -123,12 +123,24 @@ export function applyGlossary(text: string, from: 'th' | 'en'): { text: string; 
   const { forms, re } = from === 'th' ? rulesTh() : rulesEn();
   const hits: GlossaryEntry[] = [];
   let replaced = 0;
-  const out = (text || '').replace(re, m => {
+  // TH→EN: คำไทยไม่มีช่องว่างคั่น ศัพท์อังกฤษที่แทนจึงต้องเติมช่องว่างรอบตัวเองเมื่อติดกับตัวอักษร (C-3)
+  const NO_SPACE_BEFORE = /[\s([{<"'“‘/\-–—]/; // ตัวก่อนหน้าเป็นช่องว่าง/วงเล็บเปิด → ไม่ต้องเติม
+  const NO_SPACE_AFTER = /[\s)\]}>"'”’.,;:!?/\-–—ฯๆ]/;
+  let lastEnd = -1;
+  const src = text || '';
+  const out = src.replace(re, (m: string, offset: number) => {
     const e = lookup(forms, m, from);
     if (!e) return m;
     if (!hits.includes(e)) hits.push(e);
     replaced++;
-    return from === 'th' ? e.en : e.th;
+    if (from !== 'th') return e.th;
+    const prev = offset > 0 ? src[offset - 1] : '';
+    const next = src[offset + m.length] ?? '';
+    // ถ้าติดกับศัพท์ก่อนหน้า ศัพท์นั้นเติมช่องว่างท้ายให้แล้ว
+    const lead = prev && offset !== lastEnd && !NO_SPACE_BEFORE.test(prev) ? ' ' : '';
+    const trail = next && !NO_SPACE_AFTER.test(next) ? ' ' : '';
+    lastEnd = offset + m.length;
+    return `${lead}${e.en}${trail}`;
   });
   return { text: out, hits, replaced };
 }

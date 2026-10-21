@@ -117,7 +117,7 @@ describe('AI-4 runTranslate (offline)', () => {
     expect(out.translation).toContain('25');
     expect(out.translation).toContain('[E-1.1-01]');
     expect(out.translation).toContain('[E-1.1-02]');
-    expect(out.translation).toContain('programmeมี'); // "หลักสูตร" อยู่ใน glossary → แทนเป็น programme, ส่วนที่เหลือของประโยคคงเดิมไม่ถูกแต่งเอง
+    expect(out.translation).toContain('programme มี'); // "หลักสูตร" อยู่ใน glossary → แทนเป็น programme, ส่วนที่เหลือของประโยคคงเดิมไม่ถูกแต่งเอง
     expect(out.translation).toContain('ราย');
     expect(out.glossaryHits).toEqual(['programme', 'stakeholders', 'benchmarking']);
     expect([out.from, out.to, out.sectionId]).toEqual(['th', 'en', SEC]);

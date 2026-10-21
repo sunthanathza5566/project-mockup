@@ -185,8 +185,21 @@ export function ruleR10(inp: GapInput): Gap[] {
   return out;
 }
 
+/** R11 (Medium): narrative ที่ได้จากคำแปล offline (แทนเฉพาะศัพท์) ยังไม่ถูกผู้ใช้ยืนยันว่าแก้เป็นฉบับสมบูรณ์ — ไม่บล็อก export */
+export function ruleR11(inp: GapInput): Gap[] {
+  const known = new Set(inp.requirements.map(r => r.id));
+  const out: Gap[] = [];
+  for (const s of inp.sections) {
+    if (!known.has(s.requirementId) || !s.needsTranslationReview) continue;
+    (['th', 'en'] as const).filter(l => s.needsTranslationReview?.[l]).forEach(l =>
+      out.push(gap('R11', 'medium', s.requirementId,
+        `ข้อ ${s.requirementId} ข้อความภาษา${l === 'en' ? 'อังกฤษ' : 'ไทย'}มาจากคำแปลอัตโนมัติแบบแทนศัพท์ ยังต้องแปลต่อและกดยืนยัน`, { refId: l })));
+  }
+  return out;
+}
+
 export const ALL_RULES: Record<GapRuleId, (i: GapInput) => Gap[]> = {
-  R1: ruleR1, R2: ruleR2, R3: ruleR3, R4: ruleR4, R5: ruleR5, R6: ruleR6, R7: ruleR7, R8: ruleR8, R9: ruleR9, R10: ruleR10,
+  R1: ruleR1, R2: ruleR2, R3: ruleR3, R4: ruleR4, R5: ruleR5, R6: ruleR6, R7: ruleR7, R8: ruleR8, R9: ruleR9, R10: ruleR10, R11: ruleR11,
 };
 
 export function computeGaps(inp: GapInput): Gap[] {

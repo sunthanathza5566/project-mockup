@@ -85,6 +85,8 @@ export interface SarSection {
   updatedBy?: string;
   /** ผู้แก้เนื้อหา (narrative/PDCA) ล่าสุด — ใช้ segregation of duties: คนนี้อนุมัติข้อนี้ไม่ได้ */
   lastAuthorId?: string;
+  /** ภาษาที่ได้จากคำแปล offline (แทนเฉพาะศัพท์) และผู้ใช้ยังไม่กดยืนยันว่าแก้เป็นฉบับสมบูรณ์ — gap R11 จนกว่าจะยืนยัน */
+  needsTranslationReview?: { th?: boolean; en?: boolean };
 }
 
 export interface SarSectionVersion {
@@ -200,7 +202,7 @@ export interface AiRun {
 
 // ═══════════════════════ Gap / Readiness ═══════════════════════
 
-export type GapRuleId = 'R1'|'R2'|'R3'|'R4'|'R5'|'R6'|'R7'|'R8'|'R9'|'R10';
+export type GapRuleId = 'R1'|'R2'|'R3'|'R4'|'R5'|'R6'|'R7'|'R8'|'R9'|'R10'|'R11';
 export type GapSeverity = 'critical' | 'high' | 'medium' | 'low';
 export interface Gap {
   id: string; ruleId: GapRuleId; severity: GapSeverity; requirementId: string;

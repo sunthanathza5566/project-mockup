@@ -42,7 +42,11 @@ export function validateCitations(cycleId: string, text: string): { valid: strin
 }
 
 // ─── Save narrative ──────────────────────────────────────────────────────
-export interface SaveSectionInput { narrativeTh?: string; narrativeEn?: string; pdca?: Partial<PdcaFlags> }
+export interface SaveSectionInput {
+  narrativeTh?: string; narrativeEn?: string; pdca?: Partial<PdcaFlags>;
+  /** ตั้งธง "ต้องแปลต่อ" (ใช้เมื่อรับคำแปล offline) — ตั้งได้อย่างเดียว ล้างผ่าน confirmTranslationReviewed เท่านั้น */
+  needsTranslationReview?: { th?: true; en?: true };
+}
 export type SaveReason = 'autosave' | 'manual' | 'ai_accept';
 
 export function saveSection(
@@ -69,8 +73,11 @@ export function saveSection(
   const changedText = th !== sec.narrativeTh || en !== sec.narrativeEn;
   const nextPdca: PdcaFlags = { ...sec.pdca, ...input.pdca };
   const changedPdca = (['plan', 'do', 'check', 'act'] as const).some(k => nextPdca[k] !== sec.pdca[k]);
-  if (!changedText && !changedPdca) return sec;
+  const flagReq = input.needsTranslationReview;
+  const changedFlag = (['th', 'en'] as const).some(l => flagReq?.[l] === true && !sec.needsTranslationReview?.[l]);
+  if (!changedText && !changedPdca && !changedFlag) return sec;
 
+  if (changedFlag) sec.needsTranslationReview = { ...sec.needsTranslationReview, ...(flagReq?.th === true ? { th: true } : {}), ...(flagReq?.en === true ? { en: true } : {}) };
   sec.narrativeTh = th; sec.narrativeEn = en; sec.pdca = nextPdca;
   sec.wordCount = Math.max(countWords(th), countWords(en));
   sec.updatedAt = Date.now(); sec.updatedBy = actor.id; sec.lastAuthorId = actor.id;
@@ -98,6 +105,30 @@ export function saveSection(
     before, after: { wordCount: sec.wordCount, status: sec.status, reason },
   };
   if (reason === 'autosave') appendAuditThrottled(actor, auditInput); else appendAudit(actor, auditInput);
+  return sec;
+}
+
+/**
+ * ผู้ใช้ยืนยันว่าแก้คำแปล (ที่ได้จาก offline แทนศัพท์) เป็นฉบับสมบูรณ์แล้ว → ล้างธง needsTranslationReview ของภาษานั้น (gap R11 หาย)
+ * สิทธิ์/lock เดียวกับ saveSection · บันทึก audit
+ */
+export function confirmTranslationReviewed(actor: AppUser, cycleId: string, requirementId: string, lang: 'th' | 'en'): SarSection {
+  if (lang !== 'th' && lang !== 'en') throw new AunqaError('invalid', 'ภาษาไม่ถูกต้อง');
+  const rows = load<SarSection>(KEYS.sections);
+  const sec = rows.find(s => s.id === sectionIdOf(cycleId, requirementId));
+  if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
+  const cycle = getCycleRaw(cycleId);
+  if (!can(actor, 'sar.write', cycleScope(cycle, { ownerUserId: sec.ownerUserId })))
+    throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้ไขข้อนี้ (เฉพาะเจ้าของข้อหรือประธานหลักสูตร)');
+  assertCycleWritable(cycle);
+  assertSectionEditable(sec);
+  if (!sec.needsTranslationReview?.[lang]) return sec;
+  const rest = { ...sec.needsTranslationReview };
+  delete rest[lang];
+  if (rest.th || rest.en) sec.needsTranslationReview = rest; else delete sec.needsTranslationReview;
+  sec.updatedAt = Date.now(); sec.updatedBy = actor.id;
+  save(KEYS.sections, rows);
+  appendAudit(actor, { action: 'sar.translation_confirmed', targetType: 'section', targetId: sec.id, programmeId: cycle.programmeId, after: { lang } });
   return sec;
 }
 

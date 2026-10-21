@@ -180,12 +180,22 @@ export async function previewMetricImport(actor: AppUser, programmeId: string, f
 
   for (let n = 2; n <= ws.rowCount; n++) {
     const r = ws.getRow(n);
-    const codeV = get(r, 'code'), periodV = get(r, 'period'), valueV = get(r, 'value');
-    const targetV = get(r, 'target'), benchV = get(r, 'benchmark'), srcV = get(r, 'benchmark_source');
-    if ([codeV, periodV, valueV, targetV, benchV, srcV].every(x => x === null)) continue; // แถวว่าง
+    const codeV = get(r, 'code'), periodV = get(r, 'period'), rawValueV = get(r, 'value');
+    const rawTargetV = get(r, 'target'), rawBenchV = get(r, 'benchmark'), srcV = get(r, 'benchmark_source');
+    if ([codeV, periodV, rawValueV, rawTargetV, rawBenchV, srcV].every(x => x === null)) continue; // แถวว่าง
     const errors: string[] = [];
     const code = typeof codeV === 'string' ? codeV : '';
     const def = code ? getMetricDefinition(code) : undefined;
+    // C-5: เซลล์ตัวเลขที่ตั้งรูปแบบ % ใน Excel เก็บเป็นเศษส่วน (85% = 0.85) → คูณ 100 เมื่อหน่วย metric เป็น % · หน่วยอื่น = ปฏิเสธ
+    const pctAdjust = (name: string, v: ReturnType<typeof cellValue>, label: string): ReturnType<typeof cellValue> => {
+      const c = col(name);
+      if (typeof v !== 'number' || !c || !String(r.getCell(c).numFmt ?? '').includes('%')) return v;
+      if (!def) return v;
+      if (def.unit.trim() === '%') return Math.round(v * 100 * 1e8) / 1e8;
+      errors.push(`${label}ตั้งรูปแบบเซลล์เป็น % แต่หน่วยของ metric นี้ไม่ใช่ % — ใช้รูปแบบตัวเลขทั่วไป`);
+      return v;
+    };
+    const valueV = pctAdjust('value', rawValueV, 'value'), targetV = pctAdjust('target', rawTargetV, 'target'), benchV = pctAdjust('benchmark', rawBenchV, 'benchmark');
     if (!code) errors.push('ไม่ระบุ code'); else if (!def) errors.push(`ไม่รู้จักรหัส "${code.slice(0, 40)}"`);
     const period = toNumber(periodV);
     if (period === null || !Number.isInteger(period) || period < 1900 || period > 2700) errors.push('ปี/รุ่น (period) ต้องเป็นจำนวนเต็มช่วง 1900–2700');
@@ -249,15 +259,23 @@ export function commitMetricImport(actor: AppUser, previewId: string): { inserte
 
   const rows = load<MetricValue>(KEYS.metrics);
   let inserted = 0, updated = 0;
+  const replaced: { code: string; period: number; value: number; targetValue?: number; benchmarkValue?: number; benchmarkSource?: string }[] = [];
   for (const r of p.rows) {
     const cur = rows.find(x => x.programmeId === p.programmeId && x.code === r.code && x.period === r.period);
-    const patch = { value: r.value as number, targetValue: r.targetValue, benchmarkValue: r.benchmarkValue, benchmarkSource: r.benchmarkSource };
-    if (cur) { Object.assign(cur, patch); updated++; }
-    else { rows.push({ id: newId('met'), programmeId: p.programmeId, code: r.code, period: r.period as number, ...patch }); inserted++; }
+    // C-6: คอลัมน์ว่าง = คงค่าเดิม (ไม่ล้าง target/benchmark ที่มีอยู่) · เก็บค่าเก่าของแถวที่ถูกทับลง audit
+    const patch: Partial<MetricValue> = { value: r.value as number };
+    if (r.targetValue !== undefined) patch.targetValue = r.targetValue;
+    if (r.benchmarkValue !== undefined) patch.benchmarkValue = r.benchmarkValue;
+    if (r.benchmarkSource !== undefined) patch.benchmarkSource = r.benchmarkSource;
+    if (cur) {
+      replaced.push({ code: cur.code, period: cur.period, value: cur.value, targetValue: cur.targetValue, benchmarkValue: cur.benchmarkValue, benchmarkSource: cur.benchmarkSource });
+      Object.assign(cur, patch); updated++;
+    }
+    else { rows.push({ id: newId('met'), programmeId: p.programmeId, code: r.code, period: r.period as number, value: r.value as number, ...patch }); inserted++; }
   }
   save(KEYS.metrics, rows);
   previews.delete(previewId);
-  appendAudit(actor, { action: 'metric.import', targetType: 'programme', targetId: p.programmeId, programmeId: p.programmeId, after: { inserted, updated } });
+  appendAudit(actor, { action: 'metric.import', targetType: 'programme', targetId: p.programmeId, programmeId: p.programmeId, before: { replaced: replaced.slice(0, 500), replacedTotal: replaced.length }, after: { inserted, updated } });
   return { inserted, updated, skipped: 0 };
 }
 
@@ -315,7 +333,7 @@ export async function importCohortFile(actor: AppUser, programmeId: string, file
     let years = 0;
     if (status === 'graduated') {
       const y = toNumber(yv);
-      if (y === null || y <= 0 || y > 20) { rowErrors.push({ rowNo: n, reason: 'status=graduated ต้องมี years_to_graduate เป็นตัวเลข 0–20' }); continue; }
+      if (y === null || y <= 0 || y > 20) { rowErrors.push({ rowNo: n, reason: 'status=graduated ต้องมี years_to_graduate เป็นตัวเลขมากกว่า 0 และไม่เกิน 20' }); continue; }
       years = y;
     }
     const a = acc.get(cohort) ?? { total: 0, grad: 0, onTime: 0, drop: 0, enr: 0, yearsSum: 0 };

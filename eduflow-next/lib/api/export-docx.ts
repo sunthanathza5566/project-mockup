@@ -32,8 +32,12 @@ const STATUS_TH: Record<string, string> = {
 /** ชื่อ bookmark ที่ Word รับได้ (ตัวอักษร/ตัวเลข/_) */
 const bm = (code: string) => `ev_${code.replace(/[^A-Za-z0-9]/g, '_')}`;
 
+/** XML 1.0 ห้ามอักขระควบคุมบางช่วง + surrogate เดี่ยว — ไลบรารี docx escape แค่ & < > จึงต้องตัดเองก่อนลงไฟล์ (C-1) */
+const XML_FORBIDDEN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+const xmlSafe = (t: string): string => String(t ?? '').replace(XML_FORBIDDEN, '');
+
 const run = (text: string, o: { bold?: boolean; italics?: boolean; color?: string; size?: number } = {}) =>
-  new TextRun({ text, font: FONT, bold: o.bold, italics: o.italics, color: o.color, size: o.size, sizeComplexScript: o.size });
+  new TextRun({ text: xmlSafe(text), font: FONT, bold: o.bold, italics: o.italics, color: o.color, size: o.size, sizeComplexScript: o.size });
 
 function para(text: string, o: { bold?: boolean; italics?: boolean; color?: string; size?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType]; after?: number } = {}) {
   return new Paragraph({ alignment: o.align, spacing: { after: o.after ?? 120 }, children: [run(text, o)] });
@@ -41,7 +45,7 @@ function para(text: string, o: { bold?: boolean; italics?: boolean; color?: stri
 
 /** ข้อความที่มี [E-…] → TextRun + ลิงก์ภายใน (เฉพาะรหัสที่อยู่ใน evidence index ของรอบนี้) */
 function richParas(text: string, known: Set<string>, o: { italics?: boolean } = {}): Paragraph[] {
-  return text.split('\n').map(line => new Paragraph({
+  return xmlSafe(text).split(/\r\n|\r|\n/).map(line => new Paragraph({
     spacing: { after: 100 },
     children: line.split(CITE_SPLIT).filter(Boolean).map(part => {
       const m = /^\[(E-\d+\.\d+-\d{2,})\]$/.exec(part);
@@ -173,7 +177,7 @@ export async function exportSarDocx(user: AppUser, cycleId: string): Promise<Blo
   }), [13, 30, 12, 7, 8, 15, 15]));
 
   const doc = new Document({
-    creator: 'AUN-QA Copilot', title: `SAR ${b.programmeName} ${b.academicYear}`,
+    creator: 'AUN-QA Copilot', title: xmlSafe(`SAR ${b.programmeName} ${b.academicYear}`),
     features: { updateFields: true },
     styles: {
       default: { document: { run: { font: FONT, size: 32, sizeComplexScript: 32 } } },
