@@ -1,0 +1,26 @@
+%% source: eduflow-next/lib/api/rbac.ts:50-55 (POLICY faculty_qa/dean), eduflow-next/lib/api/workflow.ts:27-38,181-264 | task: TASK-0001 | updated: 2026-10-21
+usecase-beta
+direction LR
+actor QA("QA คณะ")
+actor Dean("คณบดี")
+systemBoundary AUNQA_Copilot
+  UC1("ตรวจและส่งกลับ SAR รายข้อ")
+  UC2("ยืนยันหลักฐาน")
+  UC3("อนุมัติระดับคณะ")
+  UC4("อนุมัติสุดท้ายและล็อกรอบ")
+  UC5("สร้าง snapshot hash")
+  UC6("เปิด revision ใหม่")
+  UC7("มอบหมายกรรมการ")
+  UC8("ปิดรอบประเมิน")
+  UC9("ยืนยันผลแผนปรับปรุง")
+end
+QA --> UC1
+Dean --> UC1
+QA --> UC2
+QA --> UC3
+QA --> UC7
+QA --> UC8
+QA --> UC9
+Dean --> UC4
+Dean --> UC6
+UC4 ..> : include UC5

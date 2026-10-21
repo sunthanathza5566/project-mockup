@@ -1,0 +1,23 @@
+%% source: eduflow-next/app/api/ai/route.ts:1-15,54-109; lib/api/ai/claude.ts:19-47; lib/api/db.ts:7-52; lib/api/ai/ratelimit.ts | task: TASK-0001 | updated: 2026-10-21
+flowchart LR
+  subgraph Client["«device» เครื่องผู้ใช้ (Browser)"]
+    subgraph UIenv["«execution environment» JavaScript runtime"]
+      UI["«artifact» Next.js UI (app/**)"]
+      API["«artifact» lib/api/** (store, workflow, ai.service, rbac)"]
+    end
+    LS[("«datastore» localStorage / sessionStorage คีย์ aunqa_*")]
+  end
+  subgraph Server["«node» Next.js server (Node.js runtime)"]
+    ROUTE["«artifact» Route Handler /api/ai (GET, POST)"]
+    RL["«artifact» ratelimit + guards + redact"]
+    ENV["«config» ANTHROPIC_API_KEY, CLAUDE_MODEL"]
+  end
+  subgraph Ext["«external system» Anthropic"]
+    LLM["Messages API (Claude)"]
+  end
+  UI -- "เรียกฟังก์ชันในโปรเซสเดียวกัน" --> API
+  API -- "อ่าน/เขียน JSON" --> LS
+  API -- "HTTPS: GET/POST /api/ai (same-origin)" --> ROUTE
+  ROUTE --> RL
+  ROUTE -.-> ENV
+  ROUTE -- "HTTPS: POST /v1/messages" --> LLM

@@ -1,0 +1,28 @@
+%% source: eduflow-next/lib/api/rbac.ts:32-36,56-58 (POLICY uni_admin/super_admin/assessor), eduflow-next/lib/api/assessor.store.ts | task: TASK-0001 | updated: 2026-10-21
+usecase-beta
+direction LR
+actor Assessor("กรรมการประเมิน")
+actor UniAdmin("ผู้ดูแลมหาวิทยาลัย")
+actor Super("ผู้ดูแลระบบ")
+systemBoundary AUNQA_Copilot
+  UC1("ประเมินรายเกณฑ์และบันทึกข้อค้นพบ")
+  UC2("สรุปเกณฑ์ด้วย AI")
+  UC3("เลือก verdict")
+  UC4("สร้างรอบประเมิน")
+  UC5("มอบหมายกรรมการ")
+  UC6("ปิดรอบประเมิน")
+  UC7("จัดการผู้ใช้")
+  UC8("จัดการมหาวิทยาลัย")
+  UC9("ดูบันทึกตรวจสอบ")
+end
+Assessor --> UC1
+Assessor --> UC3
+UniAdmin --> UC4
+UniAdmin --> UC5
+UniAdmin --> UC6
+UniAdmin --> UC7
+UniAdmin --> UC9
+Super --> UC7
+Super --> UC8
+Super --> UC9
+UC2 ..> : extend UC1

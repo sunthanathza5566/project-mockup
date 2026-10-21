@@ -1,0 +1,42 @@
+%% source: eduflow-next/lib/api/evidence.store.ts:34-45,127-193,248-277 | task: TASK-0001 | updated: 2026-10-21
+sequenceDiagram
+  actor U as ผู้ใช้
+  participant UI as Frontend
+  participant E as evidence.store
+  participant D as localStorage (db.ts)
+  participant A as audit.store
+  U->>+UI: เลือกไฟล์และกรอก metadata
+  UI->>+E: readFileInput(file) / validateFileMeta
+  alt ชนิดไม่ใช่ PDF/DOCX/XLSX/PNG/JPG/TXT/CSV หรือเกิน 50MB
+    E-->>UI: AunqaError invalid
+    UI-->>U: แสดงข้อผิดพลาด
+  else ไฟล์ถูกต้อง
+    E-->>-UI: FileInput
+    UI->>+E: createEvidence(actor, input)
+    alt ไม่มีสิทธิ์ evidence.write / metadata ผิด / ไม่มีไฟล์ ลิงก์ หรือข้อความ
+      E-->>UI: AunqaError forbidden / invalid / not_found
+    else ผ่านการตรวจสิทธิ์และ metadata
+      E->>E: sha256Hex(bytes)
+      E->>D: load evidence ของหลักสูตร
+      D-->>E: รายการหลักฐาน
+      alt พบ sha256 ซ้ำและไม่ได้ตั้ง allowDuplicate
+        E-->>UI: AunqaError duplicate (duplicateOf, code)
+        opt ผู้ใช้ยืนยันว่าต้องการเก็บซ้ำ
+          UI->>E: createEvidence(..., allowDuplicate = true)
+        end
+      end
+      E->>E: scanPii(title, description, extractedText)
+      E->>E: nextEvidenceCode (E-ข้อ-nn ไม่ซ้ำในหลักสูตร)
+      E->>D: storeFile (EvidenceFile + sha256, piiScan, dataUrl เมื่อไม่เกิน 1MB)
+      E->>D: saveOne (Evidence status = uploaded, containsPii)
+      E->>A: appendAudit(evidence.create)
+      opt ระบุ requirementIds และ cycleId
+        E->>E: linkEvidence (ตรวจรอบแก้ไขได้ หลักสูตรเดียวกัน)
+        E->>D: save EvidenceLink (status uploaded เป็น tagged)
+        E->>A: appendAudit(evidence.link)
+      end
+      E-->>-UI: EvidenceView
+      UI-->>U: แสดงรหัสหลักฐาน และธง PII ถ้ามี
+    end
+  end
+  deactivate UI

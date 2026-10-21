@@ -1,0 +1,11 @@
+%% source: eduflow-next/lib/api/workflow.ts:40-48 (SECTION_TRANSITIONS), 267-314 (transitionSection) | task: TASK-0001 | updated: 2026-10-21
+stateDiagram-v2
+  direction TB
+  [*] --> not_started : createCycle (53 ข้อ)
+  not_started --> drafting : sar.write
+  drafting --> ready_for_review : sar.write [มี narrative]
+  ready_for_review --> approved : sar.approve [ผู้อนุมัติไม่ใช่ผู้เขียนล่าสุด]
+  ready_for_review --> changes_requested : sar.return [ต้องมีหมายเหตุ]
+  changes_requested --> drafting : sar.write
+  changes_requested --> ready_for_review : sar.write [มี narrative]
+  approved --> changes_requested : sar.return [ต้องมีหมายเหตุ]

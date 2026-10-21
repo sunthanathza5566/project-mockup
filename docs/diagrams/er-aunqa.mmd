@@ -1,0 +1,167 @@
+%% source: eduflow-next/lib/types.ts:21-31,52-164,176-199,257-282; lib/api/db.ts:7-37 (KEYS) | task: TASK-0001 | updated: 2026-10-21
+erDiagram
+  UNIVERSITY ||--o{ FACULTY : "มี"
+  UNIVERSITY ||--o{ APP_USER : "สังกัด"
+  FACULTY ||--o{ PROGRAMME : "มี"
+  APP_USER ||--o{ ROLE_ASSIGNMENT : "ได้รับ"
+  PROGRAMME ||--o{ ASSESSMENT_CYCLE : "มีรอบ"
+  PROGRAMME ||--o{ EVIDENCE : "เก็บ"
+  PROGRAMME ||--o{ ACTION_ITEM : "มีแผน"
+  ASSESSMENT_CYCLE ||--|{ SAR_SECTION : "ประกอบด้วย 53 ข้อ"
+  ASSESSMENT_CYCLE ||--o{ RATING : "มีคะแนน"
+  ASSESSMENT_CYCLE ||--o{ ASSESSMENT_FINDING : "มีข้อค้นพบ"
+  ASSESSMENT_CYCLE ||--o{ ASSESSMENT_VERDICT : "มี verdict"
+  ASSESSMENT_CYCLE ||--o{ REVIEW_EVENT : "บันทึกการอนุมัติ"
+  ASSESSMENT_CYCLE ||--o{ EVIDENCE_LINK : "ผูกหลักฐานในรอบ"
+  ASSESSMENT_CYCLE ||--o{ AI_RUN : "ถูกเรียก AI"
+  ASSESSMENT_CYCLE |o--o{ ACTION_ITEM : "ที่มาของแผน"
+  SAR_SECTION ||--o{ SAR_SECTION_VERSION : "มีเวอร์ชัน"
+  EVIDENCE ||--o{ EVIDENCE_LINK : "ถูกผูก"
+  EVIDENCE ||--o{ EVIDENCE_FILE : "มีไฟล์เวอร์ชัน"
+  EVIDENCE |o--o| ACTION_ITEM : "สร้างเป็นหลักฐานขั้น A"
+  PROGRAMME |o--o{ AUDIT_LOG : "ขอบเขตบันทึก"
+  APP_USER ||--o{ SAR_SECTION : "เป็นเจ้าของ"
+  APP_USER ||--o{ RATING : "ให้คะแนน"
+  APP_USER ||--o{ AUDIT_LOG : "เป็นผู้กระทำ"
+  APP_USER ||--o{ AI_RUN : "สร้าง"
+  UNIVERSITY {
+    string id PK
+    string nameTh
+    string emailDomain
+    boolean aiEnabled
+  }
+  FACULTY {
+    string id PK
+    string universityId FK
+    string nameTh
+  }
+  PROGRAMME {
+    string id PK
+    string universityId FK
+    string facultyId FK
+    string code
+    string degreeLevel
+    int curriculumYear
+  }
+  APP_USER {
+    string id PK
+    string universityId FK
+    string username UK
+    string email
+    string fullName
+  }
+  ROLE_ASSIGNMENT {
+    string userId "PK, FK"
+    string role PK
+    string scopeType PK
+    string scopeId PK
+  }
+  ASSESSMENT_CYCLE {
+    string id PK
+    string programmeId FK
+    string frameworkCode
+    int academicYear
+    string status
+    int revision
+    long lockedAt
+    string snapshotHash
+    string copiedFromCycleId FK
+  }
+  SAR_SECTION {
+    string id PK
+    string cycleId FK
+    string requirementId
+    string ownerUserId FK
+    string status
+    text narrativeTh
+    text narrativeEn
+    string lastAuthorId FK
+  }
+  SAR_SECTION_VERSION {
+    string id PK
+    string sectionId FK
+    string reason
+    long savedAt
+  }
+  RATING {
+    string id PK
+    string cycleId FK
+    string requirementId
+    string raterType
+    string raterUserId FK
+    int score
+    int criterionNo
+  }
+  EVIDENCE {
+    string id PK
+    string programmeId FK
+    string code UK
+    string kind
+    string pdcaStage
+    string sha256
+    boolean containsPii
+    string status
+  }
+  EVIDENCE_FILE {
+    string id PK
+    string evidenceId FK
+    int version
+    string sha256
+    string piiScan
+  }
+  EVIDENCE_LINK {
+    string id PK
+    string evidenceId FK
+    string cycleId FK
+    string requirementId
+    string source
+    float confidence
+  }
+  AI_RUN {
+    string id PK
+    string cycleId FK
+    string feature
+    string promptVersion
+    string model
+    string redactedInputHash
+    boolean accepted
+    string createdBy FK
+  }
+  AUDIT_LOG {
+    string id PK
+    string actorId FK
+    string programmeId FK
+    string action
+    string targetType
+    string targetId
+    long at
+  }
+  ACTION_ITEM {
+    string id PK
+    string programmeId FK
+    string originCycleId FK
+    string requirementId
+    string status
+    string evidenceId FK
+  }
+  ASSESSMENT_FINDING {
+    string id PK
+    string cycleId FK
+    string requirementId
+    string assessorUserId FK
+    text afi
+  }
+  ASSESSMENT_VERDICT {
+    string id PK
+    string cycleId FK
+    string assessorUserId FK
+    int verdict
+  }
+  REVIEW_EVENT {
+    string id PK
+    string cycleId FK
+    string targetType
+    string fromStatus
+    string toStatus
+    string actorId FK
+  }

@@ -1,0 +1,16 @@
+%% source: eduflow-next/lib/api/workflow.ts:27-38 (CYCLE_TRANSITIONS), 181-229 (transitionCycle), 248-264 (openRevision) | task: TASK-0001 | updated: 2026-10-21
+stateDiagram-v2
+  direction TB
+  [*] --> draft : createCycle
+  draft --> in_progress : cycle.create
+  in_progress --> under_review : cycle.submit [ทุกข้ออนุมัติแล้ว]
+  under_review --> revision_requested : approve.faculty [ต้องมีหมายเหตุ]
+  under_review --> faculty_approved : approve.faculty [ทุกข้ออนุมัติแล้ว]
+  revision_requested --> in_progress : cycle.submit
+  faculty_approved --> revision_requested : approve.final [ต้องมีหมายเหตุ]
+  faculty_approved --> final_approved : approve.final / lock + snapshotHash
+  final_approved --> in_progress : cycle.reopen / revision + 1 (คณบดี)
+  final_approved --> under_assessment : assessor.assign
+  under_assessment --> assessed : rating.committee [กรรมการครบทุกเกณฑ์ และมี verdict]
+  assessed --> closed : cycle.close
+  closed --> [*]

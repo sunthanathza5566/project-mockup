@@ -1,0 +1,39 @@
+%% source: eduflow-next/lib/api/rbac.ts:37-49 (POLICY programme_chair/programme_staff/data_staff), eduflow-next/lib/api/ai.service.ts:113-160 | task: TASK-0001 | updated: 2026-10-21
+usecase-beta
+direction LR
+actor Chair("ประธานหลักสูตร")
+actor Staff("อาจารย์ผู้รับผิดชอบข้อ")
+actor Data("เจ้าหน้าที่ข้อมูล")
+systemBoundary AUNQA_Copilot
+  UC1("จัดการรอบประเมินและมอบหมายข้อ")
+  UC2("เขียน SAR รายข้อ")
+  UC3("ร่าง SAR ด้วย AI")
+  UC4("แนบและจัดการหลักฐาน")
+  UC5("สแกน PII ในหลักฐาน")
+  UC6("ติดป้ายหลักฐานด้วย AI")
+  UC7("บันทึกตัวชี้วัด")
+  UC8("จัดการหลักสูตร PLO/CLO")
+  UC9("ตรวจคำกริยา Bloom ด้วย AI")
+  UC10("ให้คะแนนตนเอง")
+  UC11("ส่งรอบให้ตรวจ")
+  UC12("จัดการแผนปรับปรุง")
+end
+Chair --> UC1
+Chair --> UC11
+Chair --> UC2
+Staff --> UC2
+Chair --> UC4
+Staff --> UC4
+Data --> UC4
+Chair --> UC7
+Data --> UC7
+Chair --> UC8
+Staff --> UC8
+Chair --> UC10
+Staff --> UC10
+Chair --> UC12
+Staff --> UC12
+UC4 ..> : include UC5
+UC3 ..> : extend UC2
+UC6 ..> : extend UC4
+UC9 ..> : extend UC8

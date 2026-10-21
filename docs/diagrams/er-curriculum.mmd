@@ -1,0 +1,49 @@
+%% source: eduflow-next/lib/types.ts:233-255 (Plo, Course, Clo, CloPloMap, CourseMethod); lib/api/db.ts:29-33 | task: TASK-0001 | updated: 2026-10-21
+erDiagram
+  PROGRAMME ||--o{ PLO : "กำหนด"
+  PROGRAMME ||--o{ COURSE : "เปิดสอน"
+  COURSE ||--o{ CLO : "มี"
+  COURSE ||--o{ COURSE_METHOD : "ใช้วิธี"
+  COURSE ||--o{ COURSE_PREREQUISITE : "เป็นวิชาที่ต้องเรียนต่อ"
+  COURSE ||--o{ COURSE_PREREQUISITE : "เป็นวิชาที่ต้องเรียนก่อน"
+  CLO ||--o{ CLO_PLO_MAP : "แมป"
+  PLO ||--o{ CLO_PLO_MAP : "ถูกแมป"
+  PROGRAMME {
+    string id PK
+  }
+  PLO {
+    string id PK
+    string programmeId FK
+    string code
+    string type
+    int bloomLevel
+  }
+  COURSE {
+    string id PK
+    string programmeId FK
+    string code
+    int credits
+    int year
+    int semester
+  }
+  CLO {
+    string id PK
+    string courseId FK
+    string code
+    int bloomLevel
+  }
+  CLO_PLO_MAP {
+    string cloId "PK, FK"
+    string ploId "PK, FK"
+    string level
+  }
+  COURSE_METHOD {
+    string id PK
+    string courseId FK
+    string kind
+    string method
+  }
+  COURSE_PREREQUISITE {
+    string courseId "PK, FK"
+    string prerequisiteId "PK, FK"
+  }
