@@ -1,0 +1,20 @@
+import {session,txt,B} from './lib.mjs';
+const {p,as,done}=await session({fresh:true});
+await as('chair1');
+await p.goto(B+'/app/cycles');await p.getByTestId('cycle-new').click();
+await p.getByTestId('cycle-year').fill('2570');await p.getByTestId('cycle-submit').click();
+await p.waitForURL(/cycles\/(?!$)[^/]+$/);await p.waitForTimeout(800);
+const cid=decodeURIComponent(p.url().split('/').pop());console.log('cycle',cid);
+await p.goto(B+`/app/cycles/${encodeURIComponent(cid)}/assign`);
+await p.getByTestId('bulk-owner-3').selectOption({label:'อ.ธนา สอนดี'});await p.getByTestId('bulk-apply-3').click();await p.waitForTimeout(600);
+await p.getByTestId('bulk-owner-1').selectOption({label:'อ.ธนา สอนดี'});await p.getByTestId('bulk-apply-1').click();await p.waitForTimeout(600);
+await p.screenshot({path:'shots/bulk-assign.png'});
+await as('lect1');
+console.log('LECT HOME',(await txt(p,3000)).split('\n').slice(18,60).join('|'));
+await p.screenshot({path:'shots/lect-home-2.png'});
+await p.goto(B+`/app/sections/${encodeURIComponent(cid+'::3.1')}`);await p.waitForTimeout(1000);
+await p.screenshot({path:'shots/lect-3.1-draft.png',fullPage:true});
+console.log((await txt(p,3000)).split('\n').slice(14,50).join('|'));
+await done();
+
+import fs from 'fs';fs.writeFileSync('cid.txt',cid);

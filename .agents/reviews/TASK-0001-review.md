@@ -218,3 +218,43 @@ Study: อ่าน PROTOCOL ข้อ 5 + `standards/INDEX.md` — ไม่ม
 - probe: ส่ง `\u000b\u0001` เข้า `TextRun` ของ `docx` → หลุดลง `word/document.xml` ดิบ (ยืนยัน C-1)
 - สุ่มตรวจ diagram (diagram-designer ค้าง +10): `docs/diagrams/state-cycle.mmd` — **ตรง** กับ `CYCLE_TRANSITIONS` (`workflow.ts:27-38`) ครบ 10 transition + `openRevision` + guard "ทุกข้ออนุมัติแล้ว" และ "กรรมการครบ+มี verdict" (ขาดแค่ guard "ต้องมีหมายเหตุ" บนเส้น reopen — nit) · `docs/diagrams/seq-ai-pipeline.mmd` — **ตรง** กับลำดับ redact → provider → GET/POST `/api/ai` → guards → fallback → postCheck → finalize → accept ผ่าน saveSection (ไม่แสดงด่าน `dailyExhausted`/413/400 — ยอมรับได้ในระดับ abstraction นี้; ยังไม่มี AI-4 translate และ completeness check ในรูป → อัปเดตใน D1) · Study `uml.md` สอดคล้อง (stateDiagram-v2 มี [*] จุดเริ่ม/จบ, guard อยู่ในวงเล็บเหลี่ยม; sequence ใช้ alt/opt และ activation ถูกต้อง)
 - ผล: **CHANGES_REQUESTED** — ต้องแก้ C-1 (major) แล้วรีวิวรอบสั้นอีกครั้ง; C-2..C-8 (minor) แนะนำให้แก้ในรอบเดียวกัน (C-2, C-3, C-5 แก้ไม่กี่บรรทัด); C-9..C-12 เป็น nit
+
+## Phase C — round 2 (diff `e64af2f -- eduflow-next`, 11 ไฟล์ +430/-23)
+
+Verdict: **CHANGES_REQUESTED** (major 1 ข้อ — C2-1 = C-8 ไม่ตรงคำสั่ง orchestrator)
+
+Study: PROTOCOL ข้อ 5 — ไม่มีมาตรฐานใหม่ในโซน reviewer; ใช้ findings Phase C เดิมเป็นเกณฑ์
+
+### สถานะ finding เดิม
+| # | ผล | หลักฐาน |
+|---|---|---|
+| C-1 | ปิด | `export-docx.ts:36-40` `xmlSafe` ตัด `\u0000-\u0008\u000B\u000C\u000E-\u001F` + U+FFFE/U+FFFF + surrogate เดี่ยว ใช้ใน `run()`, `richParas` (split `\r\n|\r|\n`), `title` · เทสต์ unzip ทุก part ของ zip แล้วไม่เจออักขระต้องห้าม + เทสต์ว่าเนื้อหาปกติ/emoji/แท็บไม่ถูกตัด |
+| C-2 | ปิด | `ai.service.ts:238` `assertCycleWritable` ก่อนเรียก provider · เทสต์ว่ารอบ lock ไม่สร้าง ai_run |
+| C-3 | ปิด | `glossary.ts:126-143` เติมช่องว่างเฉพาะ TH→EN, ศัพท์ติดกันไม่เติมซ้ำ (`lastEnd`), `[`/`(` ข้างหน้าไม่เติม · เทสต์ตาราง + EN→TH ไม่เปลี่ยน |
+| C-4 | ปิด | เช็กความยาวหลัง redact ที่ 8,000 (`ai.service.ts:246`) + guard route 8000 + `MAX_TOKENS.translate` 8192 · เทสต์กรณี redact แล้วยาวขึ้นจนเกิน |
+| C-5 | ปิด | `metrics-import.ts:189-198` numFmt `%` + หน่วย `%` → ×100 (ปัดทศนิยมกันค่าเพี้ยน) · หน่วยอื่น = error ไม่เงียบ · เทสต์ commit ได้ 85 ไม่ใช่ 0.85 |
+| C-6 | ปิด | คอลัมน์ว่างคงค่าเดิม + audit `before.replaced` (สูงสุด 500 + `replacedTotal`) เป็นข้อมูลระดับหลักสูตรล้วน |
+| C-8 | **ไม่ปิด** → C2-1 | ดูด้านล่าง |
+| C-9 | ปิด | `phase-c-review-fixes.test.ts:257-308` route translate: 200, 400 ×5 แบบ (ไม่ยิง upstream), เส้นขอบ 8000/200, 502 bad_output |
+| C-11 | ปิด | `metrics-import.ts:336` ข้อความ "มากกว่า 0 และไม่เกิน 20" + เทสต์ปฏิเสธ 0 |
+
+### Findings รอบ 2
+| # | severity | file:line | ปัญหา | ข้อเสนอแก้ |
+|---|---|---|---|---|
+| C2-1 | **major** | `eduflow-next/lib/api/ai/offline.ts:268-269` + `lib/api/ai.service.ts:415-422` (`acceptAiRun` AI-4) | orchestrator สั่งชัดว่า "ป้าย 'ต้องแปลต่อ' ไม่เขียนลง narrative" แต่ offline `translate` ยังต่อ `OFFLINE_TRANSLATE_LABEL` ไว้หัว `translation` และ `acceptAiRun` เขียน `out.translation` ลง narrative ตรง ๆ → ป้าย `[ต้องแปลต่อโดยผู้ใช้ — … needs human translation; glossary terms only]` อยู่ใน `narrativeEn` แล้วไปออกใน DOCX (`richParas` render narrative ทุกบรรทัด) และ R11 ตั้งใจ "ไม่บล็อก export" → ป้ายหลุดเข้า SAR ฉบับส่งจริงได้ · เทสต์ยังล็อกพฤติกรรมผิดไว้: `tests/phase-c1.test.ts:206` คาด `narrativeEn.startsWith(OFFLINE_TRANSLATE_LABEL)` และชื่อเทสต์ `phase-c-review-fixes.test.ts:210` "ป้ายไม่ถูกลบจาก narrative" | ให้ text ที่ accept ไม่มีป้าย: (ทางเลือกที่แนะนำ) offline `translate` คืน `translation = r.text` (ไม่มีป้าย) และใช้ `needsHumanTranslation: true` บอก UI แทน — `TranslateResult.tsx:36` แสดงคำเตือนจาก flag นี้อยู่แล้ว · หรือถ้าจะให้ป้ายยังโชว์ใน preview ก็ตัดป้ายออกใน `acceptAiRun` ก่อน `saveSection` · flag `needsTranslationReview` + R11 + `confirmTranslationReviewed` คงไว้ตามเดิม · เทสต์: หลัง accept offline (append และ replace) `narrativeEn` ไม่มี `OFFLINE_TRANSLATE_LABEL` และ `word/document.xml` ไม่มีข้อความป้าย · แก้ `phase-c1.test.ts:114/206` ตามสัญญาใหม่ · อัปเดตสัญญาใน TASK file บรรทัด 178 ("translation ขึ้นต้นด้วยป้าย") |
+| C2-2 | minor | `.agents/board/TASK-0001.md` | ไม่มี Log ของ backend-dev สำหรับรอบแก้นี้ใน TASK file (commit มีแค่บรรทัดของ researcher) — orchestrator ต้องอ่านจากรายงานแทน ซึ่งผิด PROTOCOL เรื่องบันทึกงาน | เพิ่ม `### Log — backend-dev (C4 fix)` สรุปว่าแก้อะไร + เทสต์อะไร + ข้อที่ตัดสินใจเอง (R11, `confirmTranslationReviewed`, 8,000 ตัวอักษร) |
+| C2-3 | nit | `eduflow-next/tests/phase-c-review-fixes.test.ts` (ใหม่), `tests/phase-c1.test.ts:260` | backend-dev เขียน/แก้ไฟล์ในโซน Tests (OWNERSHIP = qa-tester) และ C-9 มอบให้ qa-tester · เทสต์คุณภาพดีและตรงกับ fix จึงไม่นับเป็นการผิดร้ายแรง | orchestrator บันทึกใน TASK file ว่าอนุญาตแล้ว (หรือให้ qa-tester รับรองในเฟส Test) |
+
+ข้อสังเกต (ไม่นับเป็น finding): `confirmTranslationReviewed` ยังไม่มี UI (อยู่ใน U2 แล้ว) · ระหว่างนี้ R11 ไม่มีทางล้างจากหน้าจอ แต่เป็น medium ไม่บล็อก จึงรับได้ · `saveSection` ตั้งธงได้อย่างเดียว ล้างผ่าน input ไม่ได้ (มีเทสต์) — ดี
+
+### ข้อดีที่ควรเก็บเป็นบทเรียน
+- regex `XML_FORBIDDEN` ครอบ surrogate เดี่ยวด้วย lookahead/lookbehind และเทสต์ฝั่ง "ต้องไม่ตัด" (emoji คู่ surrogate, แท็บ, ขึ้นบรรทัด) — ทำตาม RULE ตารางเทสต์สองฝั่งของ backend-dev
+- เช็กเพดานความยาว**หลัง** redact พร้อมเทสต์กรณีที่ redact ทำให้ยาวขึ้น
+- import ที่ทับค่าเดิม: เก็บ `before` แบบจำกัดจำนวน + `replacedTotal` ทำให้ audit ย้อนดูได้โดยไม่บวม
+- บทเรียนเชิงลบ (เสนอ LESSONS backend-dev): ถ้าคำสั่งแก้ระบุพฤติกรรมชัด ("ไม่เขียนลง narrative") แล้วเลือกทำต่างออกไป ต้องถาม orchestrator ก่อน ไม่ใช่ทำแบบอื่นแล้วเขียนเทสต์ล็อกพฤติกรรมเดิม
+
+### Log (reviewer) — Phase C round 2
+- 2026-10-22: อ่าน `git show e64af2f -- eduflow-next` ทั้งหมด (export-docx, ai.service, glossary, guards, gap, metrics-import, sar.store, types, tests) + offline.ts, TranslateResult.tsx, TASK file บรรทัด 117/125/178
+- ตามรอยป้าย C-8: `offline.ts:268` ใส่ป้ายใน `translation` → `postCheckText` ตัดแค่ `[E-…]` ที่ไม่มีในต้นฉบับ (ป้ายผ่าน) → `acceptAiRun` เขียน `out.translation` ลง narrative → `exportSarDocx` render narrative → ป้ายหลุดลง DOCX · ยืนยันด้วยเทสต์ที่มีอยู่ `phase-c1.test.ts:206`
+- รันเอง: `npx tsc --noEmit` → 0 error · `npm test` → 18 ไฟล์ 406/406 ผ่าน
+- ผล: **CHANGES_REQUESTED** — แก้ C2-1 (major) + C2-2 แล้วรีวิวสั้นอีกรอบ (เฉพาะ C2-1)

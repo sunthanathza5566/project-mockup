@@ -1,0 +1,13 @@
+import {start,login,txt,B} from './lib.mjs';
+const br=await start();
+let {p}=await login(br,'chair1');
+await p.getByRole('link',{name:'รอบประเมิน'}).click();await p.waitForTimeout(700);
+console.log('CYCLES',(await txt(p,1500)).split('\n').slice(14).join('|'));
+await p.screenshot({path:'shots/chair-cycles.png'});
+await p.goto(B+'/app/cycles/cycle-demo-2569');await p.waitForTimeout(1000);
+console.log('DASH',(await txt(p,6000)).split('\n').slice(14).join('|'));
+await p.screenshot({path:'shots/chair-dash.png',fullPage:true});
+await p.goto(B+'/app/cycles/cycle-demo-2569/assign');await p.waitForTimeout(1000);
+console.log('ASSIGN',(await txt(p,1800)).split('\n').slice(14).join('|'));
+await p.screenshot({path:'shots/chair-assign.png',fullPage:true});
+await br.close();

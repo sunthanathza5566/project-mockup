@@ -1,0 +1,23 @@
+import {session,txt,B} from './lib.mjs';
+import fs from 'fs';
+const cid=fs.readFileSync('cid.txt','utf8');
+const {p,as,done}=await session();
+await as('lect1');
+await p.goto(B+`/app/sections/${encodeURIComponent(cid+'::3.1')}`);await p.waitForTimeout(800);
+console.log('score select disabled?',await p.getByTestId('self-score').isDisabled(),'save disabled?',await p.getByTestId('self-save').isDisabled(),'why readonly?',await p.getByTestId('self-why').isDisabled());
+await as('chair1');
+console.log('CHAIR HOME',(await txt(p,2500)).split('\n').slice(18).join('|'));
+await p.screenshot({path:'shots/chair-home-after.png'});
+await p.getByRole('link',{name:'รอตรวจ'}).click();await p.waitForTimeout(800);
+console.log('REVIEW',(await txt(p,2500)).split('\n').slice(18).join('|'));
+await p.screenshot({path:'shots/review-queue.png'});
+await p.goto(B+`/app/sections/${encodeURIComponent(cid+'::3.1')}`);await p.waitForTimeout(800);
+await p.getByTestId('section-return').click();await p.waitForTimeout(400);
+await p.screenshot({path:'shots/return-dialog.png'});
+console.log('RETURN dlg:',(await p.getByRole('dialog').innerText()).replace(/\n/g,'|'));
+
+await p.getByRole('dialog').locator('textarea').fill('ขอเพิ่มหลักฐานขั้น Check');await p.getByRole('dialog').getByRole('button',{name:'ยืนยัน'}).click();await p.waitForTimeout(800);
+console.log('status',(await txt(p,3000)).match(/สถานะ: [^\n]*/)?.[0]);
+await as('lect1');
+console.log('LECT noti',(await txt(p,3500)).split('\n').filter(l=>/ส่งกลับ|แก้ไข|อ่านแล้ว|ข้อ 3\.1/.test(l)).join('|'));
+await done();

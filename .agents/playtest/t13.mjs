@@ -1,0 +1,15 @@
+import {session,txt,B} from './lib.mjs';
+import ExcelJS from '../../eduflow-next/node_modules/exceljs/lib/exceljs.nodejs.js';
+const {p,as,done}=await session();
+await as('data1');
+let clicks=0;const T0=Date.now();
+await p.getByRole('link',{name:'ตัวชี้วัด'}).click();clicks++;await p.waitForTimeout(1000);
+await p.screenshot({path:'shots/data-metrics.png',fullPage:true});
+console.log('METRICS',(await txt(p,3500)).split('\n').slice(15).join('|'));
+const [dl]=await Promise.all([p.waitForEvent('download'),p.getByTestId('metric-template').click()]);clicks++;
+await dl.saveAs('metrics-template.xlsx');
+const wb=new ExcelJS.Workbook();await wb.xlsx.readFile('metrics-template.xlsx');
+console.log('sheets',wb.worksheets.map(w=>w.name),'metrics cols',wb.worksheets[0].getRow(1).values);
+const ws=wb.getWorksheet('metrics')||wb.worksheets[0];
+const codes=wb.getWorksheet('codes');const c0=[];codes.eachRow((r,i)=>{if(i>1&&c0.length<3)c0.push(r.getCell(1).value+'/'+r.getCell(3).value)});console.log('codes sample',c0);
+await wb.xlsx.writeFile('x.tmp').catch(()=>{});

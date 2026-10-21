@@ -10,8 +10,8 @@ for(const u of users){
   await p.getByTestId('login-submit').click();await p.waitForURL('**/app');
   await p.waitForTimeout(1200);
   console.log('=====',u,Date.now()-t0,'ms');
-  const nav=await p.locator('nav a, aside a').allInnerTexts();console.log('NAV',nav.join(' | '));
-  console.log((await p.locator('main').innerText()).slice(0,1500));
+  const nav=await p.locator('a').allInnerTexts();console.log('NAV',nav.join(' | '));
+  console.log((await p.locator('body').innerText()).slice(0,1500));
   await p.screenshot({path:`shots/home-${u}.png`});
   await ctx.close();
 }
