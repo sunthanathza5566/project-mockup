@@ -1,0 +1,40 @@
+%% source: eduflow-next/lib/api/ai.service.ts; ai/{claude,offline,provider,postcheck,redact}.ts | task: TASK-0001 | updated: 2026-10-21
+classDiagram
+  direction TB
+  class AiService {
+    <<module>>
+    +runSarDrafter()
+    +runSarReviewer()
+    +runEvidenceTagger()
+    +acceptAiRun()
+  }
+  class AiProvider {
+    <<interface>>
+    +draftSar()
+    +reviewSar()
+    +tagEvidence()
+    +checkVerbs()
+  }
+  class PostCheck {
+    <<module>>
+    +postCheckText()
+    +stripJudgement()
+  }
+  class Redact {
+    <<module>>
+    +redactDeep()
+  }
+  class ClaudeProvider {
+    <<module>>
+  }
+  class OfflineProvider {
+    <<module>>
+  }
+  AiService --> AiProvider : getProvider()
+  AiService ..> PostCheck
+  AiService ..> Redact
+  AiService ..> SarStore : saveSection
+  AiService ..> EvidenceStore : linkEvidence
+  ClaudeProvider ..|> AiProvider
+  OfflineProvider ..|> AiProvider
+  ClaudeProvider ..> OfflineProvider : fallback

@@ -1,0 +1,39 @@
+%% source: eduflow-next/lib/api/{workflow,cycle.store,sar.store,action.store,notification.store}.ts | task: TASK-0001 | updated: 2026-10-21
+classDiagram
+  direction TB
+  class WorkflowService {
+    <<module>>
+    +transitionCycle()
+    +transitionSection()
+    +openRevision()
+    +verifySnapshot()
+  }
+  class SarStore {
+    <<module>>
+    +saveSection()
+    +submitSection()
+    +setSelfRating()
+  }
+  class CycleStore {
+    <<module>>
+    +createCycle()
+    +assignSections()
+    +assignAssessor()
+  }
+  class ActionStore {
+    <<module>>
+    +createActionsFromAfi()
+    +setActionStatus()
+  }
+  class NotificationStore {
+    <<module>>
+    +notify()
+  }
+  class AunqaError {
+    +code
+    +detail
+  }
+  SarStore ..> WorkflowService : transitionSection
+  CycleStore ..> ActionStore : materializeActionEvidence
+  WorkflowService ..> NotificationStore
+  WorkflowService ..> AunqaError : throws

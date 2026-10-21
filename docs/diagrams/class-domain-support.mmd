@@ -1,0 +1,39 @@
+%% source: eduflow-next/lib/api/{evidence.store,assessor.store,workflow,rbac,audit.store,db}.ts | task: TASK-0001 | updated: 2026-10-21
+classDiagram
+  direction TB
+  class WorkflowService {
+    <<module>>
+  }
+  class EvidenceStore {
+    <<module>>
+    +createEvidence()
+    +linkEvidence()
+    +verifyEvidence()
+    +resolvePii()
+  }
+  class AssessorStore {
+    <<module>>
+    +upsertFinding()
+    +setCriterionRating()
+    +setVerdict()
+  }
+  class Rbac {
+    <<module>>
+    +can()
+  }
+  class AuditStore {
+    <<module>>
+    +appendAudit()
+  }
+  class Db {
+    <<module>>
+    +load()
+    +save()
+  }
+  WorkflowService ..> Rbac
+  WorkflowService ..> AuditStore
+  WorkflowService ..> Db
+  EvidenceStore ..> Rbac
+  EvidenceStore ..> AuditStore
+  EvidenceStore ..> Db
+  AssessorStore ..> Rbac
