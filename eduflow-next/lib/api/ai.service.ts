@@ -209,7 +209,7 @@ export interface TranslateRunOutput {
   glossaryHits: string[];
 }
 
-const TRANSLATE_MAX_CHARS = 8000;
+export const TRANSLATE_MAX_CHARS = 8000;
 
 /** นับซ้ำ (multiset) ของรายการ → ที่ขาดไปใน b เมื่อเทียบกับ a */
 function missingFrom(a: string[], b: string[]): string[] {

@@ -73,7 +73,9 @@ export function listNotifications(user: AppUser, opts: { unreadOnly?: boolean } 
     .sort((a, b) => b.createdAt - a.createdAt);
 }
 
+/** จำนวนที่ยังไม่อ่าน — sync deadline ก่อนนับ ให้ตรงกับ listNotifications (ADR-UI-001 B3) */
 export function unreadCount(user: AppUser): number {
+  syncDeadlineNotifications(user);
   return load<AppNotification>(KEYS.notifications).filter(n => n.userId === user.id && !n.readAt).length;
 }
 

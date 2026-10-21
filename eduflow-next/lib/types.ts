@@ -230,6 +230,61 @@ export interface Readiness {
 export interface Session {
   userId: string; username: string; fullName: string; universityId: string;
   roles: RoleAssignment[]; loginAt: number;
+  /** ms — การใช้งานล่าสุด (หมดอายุเมื่อไม่มีการใช้งานเกิน SESSION_IDLE_MS) — ADR-UI-001 B1 */
+  lastActiveAt: number;
+  /** ms — loginAt + SESSION_ABSOLUTE_MS (ไม่ถูกขยาย) */
+  expiresAt: number;
+}
+
+// ═══════════════════════ Todo ต่อ role (Phase U, ADR-UI-001 B2) ═══════════════════════
+
+export type TodoKind =
+  | 'write_section' | 'fix_section' | 'translation_review'
+  | 'review_sections' | 'assign_sections' | 'submit_cycle' | 'revise_cycle'
+  | 'faculty_review' | 'final_approve' | 'start_assessment' | 'assess_cycle'
+  | 'resolve_pii' | 'verify_actions'
+  | 'start_cycle' | 'close_cycle';
+export interface TodoItem {
+  /** `${kind}:${cycleId ?? programmeId}:${requirementIds?.[0] ?? ''}` */
+  id: string;
+  kind: TodoKind;
+  urgent: boolean;
+  /** พร้อมแสดง (ไม่มีชื่อบุคคลอื่น) */
+  titleTh: string;
+  detailTh?: string;
+  programmeId: string;
+  cycleId?: string;
+  academicYear?: number;
+  /** เรียงด้วย compareReqId */
+  requirementIds?: string[];
+  evidenceIds?: string[];
+  actionIds?: string[];
+  /** YYYY-MM-DD ใกล้สุดของกลุ่ม */
+  due?: string;
+  daysLeft?: number;
+  /** ≥1 */
+  count: number;
+}
+
+// ═══════════════════════ Preflight ก่อนเปลี่ยนสถานะรอบ (Phase U, ADR-UI-001 B4) ═══════════════════════
+
+export interface PreflightWarning {
+  code: 'critical_gaps' | 'high_gaps' | 'pii_unresolved' | 'translation_review' | 'missing_self_rating' | 'no_assessor';
+  count: number;
+  messageTh: string;
+  /** unique, เรียง compareReqId */
+  requirementIds: string[];
+}
+export interface TransitionPreflight {
+  to: CycleStatus;
+  /** มี rule จากสถานะปัจจุบัน && can(user, rule.action, cycleScope) */
+  allowed: boolean;
+  /** ข้อความไทยของเงื่อนไขที่ transitionCycle จะ throw */
+  blockers: string[];
+  warnings: PreflightWarning[];
+  gapCounts: Record<GapSeverity, number>;
+  approvedCount: number;
+  totalSections: number;
 }
 
 // ═══════════════════════ Curriculum (M4) ═══════════════════════

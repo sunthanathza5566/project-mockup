@@ -1,6 +1,8 @@
 /**
- * Auth API (M1) — localStorage + sessionStorage, พร้อมเปลี่ยนเป็น PostgreSQL/Supabase Auth
- * reuse จาก EduFlow เดิม: SHA-256 hash, lockout 5 ครั้ง/5 นาที, session ใน sessionStorage
+ * Auth API (M1) — localStorage, พร้อมเปลี่ยนเป็น PostgreSQL/Supabase Auth
+ * reuse จาก EduFlow เดิม: SHA-256 hash, lockout 5 ครั้ง/5 นาที
+ * Phase U (ADR-UI-001 B1): session ย้ายจาก sessionStorage → localStorage (ข้ามแท็บ) + หมดอายุ idle/absolute
+ *   username เทียบแบบไม่แยกตัวพิมพ์ทั้ง login / lockout / createUser
  *
  * PostgreSQL (อนาคต): users(id, university_id, email, full_name, locale) + role_assignments
  *   รหัสผ่าน → Supabase Auth / bcrypt ฝั่ง server
@@ -33,11 +35,13 @@ export function getUsers(): AppUser[] { return load<AppUser>(KEYS.users); }
 export function saveUsers(users: AppUser[]): void { save(KEYS.users, users); }
 
 // ─── Lockout ─────────────────────────────────────────────────────────────
+// key ของ attempts/lockout = username ตัวพิมพ์เล็ก (P7: username ไม่แยกตัวพิมพ์ — กันเลี่ยง lockout ด้วยการสลับตัวพิมพ์)
 type Attempts = Record<string, { count: number; lockUntil: number }>;
-function getAttempts(u: string) { return readJSON<Attempts>(KEYS.attempts, {})[u] || { count: 0, lockUntil: 0 }; }
+const attemptKey = (u: string) => (u || '').trim().toLowerCase();
+function getAttempts(u: string) { return { ...(readJSON<Attempts>(KEYS.attempts, {})[attemptKey(u)] || { count: 0, lockUntil: 0 }) }; }
 function setAttempts(u: string, rec: { count: number; lockUntil: number } | null) {
   const all = { ...readJSON<Attempts>(KEYS.attempts, {}) };
-  if (rec) all[u] = rec; else delete all[u];
+  if (rec) all[attemptKey(u)] = rec; else delete all[attemptKey(u)];
   writeJSON(KEYS.attempts, all);
 }
 export function getLockUntil(username: string): number {
@@ -52,23 +56,102 @@ function recordFail(username: string) {
 }
 export function remainingAttempts(username: string): number { return MAX_ATTEMPTS - (getAttempts(username).count || 0); }
 
-// ─── Session ─────────────────────────────────────────────────────────────
-export function getSession(): Session | null {
-  if (typeof window === 'undefined') return null;
-  try { return JSON.parse(sessionStorage.getItem(KEYS.session) || 'null'); } catch { return null; }
-}
-function setSession(u: AppUser): void {
-  const s: Session = { userId: u.id, username: u.username, fullName: u.fullName, universityId: u.universityId, roles: u.roles, loginAt: Date.now() };
-  sessionStorage.setItem(KEYS.session, JSON.stringify(s));
-}
-export function clearSession(): void {
-  if (typeof window !== 'undefined') sessionStorage.removeItem(KEYS.session);
+// ─── Session (ADR-UI-001 B1) ─────────────────────────────────────────────
+// เก็บใน localStorage เพื่อให้แท็บใหม่ใช้ session เดียวกัน + หมดอายุ idle 4 ชม. / สูงสุด 12 ชม.
+// TODO(PostgreSQL): โหมดเดโม่เท่านั้น — session ใน localStorage อ่านได้จาก JS ทุกแท็บของ origin เดียวกัน
+//   ระบบจริงต้องใช้ httpOnly + Secure + SameSite cookie ที่ออกโดย server (Supabase Auth) และตรวจหมดอายุฝั่ง server
+export const SESSION_IDLE_MS = 4 * 60 * 60 * 1000;      // 4 ชม. ไม่มีการใช้งาน
+export const SESSION_ABSOLUTE_MS = 12 * 60 * 60 * 1000; // 12 ชม. นับจาก login
+const TOUCH_THROTTLE_MS = 60_000;
+
+const hasWindow = () => typeof window !== 'undefined';
+
+function isSessionShape(s: unknown): s is Session {
+  const x = s as Session | null;
+  return !!x && typeof x === 'object' && typeof x.userId === 'string'
+    && typeof x.loginAt === 'number' && typeof x.lastActiveAt === 'number' && typeof x.expiresAt === 'number';
 }
 
-/** user ปัจจุบัน (อ่านซ้ำจาก store เพื่อให้สิทธิ์ล่าสุดมีผลทันที) */
+/** อ่าน session ที่ยังไม่หมดอายุ ณ เวลา now · หมดอายุ/รูปแบบเสีย → clearSession() แล้วคืน null */
+function readSession(now: number): Session | null {
+  if (!hasWindow()) return null;
+  // session เดิมจาก sessionStorage (ก่อน Phase U) → ลบทิ้ง ไม่ย้าย (ผู้ใช้ล็อกอินใหม่ 1 ครั้ง)
+  try { if (sessionStorage.getItem(KEYS.session) !== null) sessionStorage.removeItem(KEYS.session); } catch { /* ignore */ }
+  let raw: string | null = null;
+  try { raw = localStorage.getItem(KEYS.session); } catch { return null; }
+  if (!raw) return null;
+  let s: unknown;
+  try { s = JSON.parse(raw); } catch { s = null; }
+  if (!isSessionShape(s) || now > s.expiresAt || now - s.lastActiveAt > SESSION_IDLE_MS) {
+    clearSession();
+    return null;
+  }
+  return s;
+}
+
+export function getSession(): Session | null { return readSession(Date.now()); }
+
+function setSession(u: AppUser): void {
+  const now = Date.now();
+  const s: Session = {
+    userId: u.id, username: u.username, fullName: u.fullName, universityId: u.universityId, roles: u.roles,
+    loginAt: now, lastActiveAt: now, expiresAt: now + SESSION_ABSOLUTE_MS,
+  };
+  localStorage.setItem(KEYS.session, JSON.stringify(s));
+}
+
+export function clearSession(): void {
+  if (!hasWindow()) return;
+  try { localStorage.removeItem(KEYS.session); } catch { /* ignore */ }
+  try { sessionStorage.removeItem(KEYS.session); } catch { /* ignore */ }
+}
+
+/**
+ * บันทึกการใช้งาน: อัปเดต lastActiveAt เมื่อห่างจากค่าเดิม > 60 วินาที (กันเขียนถี่) หรือ force
+ * ไม่มี session = no-op · ไม่ขยาย expiresAt (absolute)
+ */
+export function touchSession(now: number = Date.now(), opts: { force?: boolean } = {}): void {
+  const s = readSession(now);
+  if (!s) return;
+  if (!opts.force && now - s.lastActiveAt <= TOUCH_THROTTLE_MS) return;
+  const next: Session = { ...s, lastActiveAt: now };
+  localStorage.setItem(KEYS.session, JSON.stringify(next));
+}
+
+/** ms ที่เหลือก่อนหมดอายุ = min(expiresAt, lastActiveAt + SESSION_IDLE_MS) − now · ไม่มี session (รวมหมดอายุแล้ว) = null */
+export function sessionTimeLeft(now: number = Date.now()): number | null {
+  const s = readSession(now);
+  if (!s) return null;
+  return Math.min(s.expiresAt, s.lastActiveAt + SESSION_IDLE_MS) - now;
+}
+
+/** เกณฑ์ไหนจะหมดก่อน: 'idle' (ไม่มีการใช้งาน — ต่ออายุได้) / 'absolute' (ครบ 12 ชม. — ต่อไม่ได้) · ไม่มี session = null */
+export function sessionExpiryKind(now: number = Date.now()): 'idle' | 'absolute' | null {
+  const s = readSession(now);
+  if (!s) return null;
+  return s.expiresAt <= s.lastActiveAt + SESSION_IDLE_MS ? 'absolute' : 'idle';
+}
+
+/**
+ * ฟังการเปลี่ยน session จากแท็บอื่น (window 'storage' เฉพาะ key session) — cb ได้ session ปัจจุบันหรือ null (ออกจากระบบ/หมดอายุ)
+ * หมายเหตุ: อีเวนต์ 'storage' ไม่ยิงในแท็บที่เป็นคนเขียนเอง · touchSession ของแท็บอื่นก็ยิง (cb ได้ session ที่ไม่ใช่ null)
+ * คืน unsubscribe · SSR = no-op
+ */
+export function subscribeSession(cb: (s: Session | null) => void): () => void {
+  if (!hasWindow() || typeof window.addEventListener !== 'function') return () => {};
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== KEYS.session) return;
+    cb(getSession());
+  };
+  window.addEventListener('storage', onStorage);
+  return () => window.removeEventListener('storage', onStorage);
+}
+
+/** user ปัจจุบัน (อ่านซ้ำจาก store เพื่อให้สิทธิ์ล่าสุดมีผลทันที) · มี session = นับเป็นการใช้งาน (touchSession) */
 export function getCurrentUser(): AppUser | null {
   const s = getSession();
   if (!s) return null;
+  touchSession();
   return getUsers().find(u => u.id === s.userId) ?? null;
 }
 
@@ -89,7 +172,8 @@ export async function loginUser(username: string, password: string): Promise<Log
   if (lock) return { success: false, error: 'locked', lockUntil: lock };
 
   const users = getUsers();
-  const user = users.find(u => u.username === un);
+  const unLower = un.toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === unLower);
   const valid = user ? await verifyPassword(password, user.password) : false;
   if (!user || !valid) {
     recordFail(un);
@@ -125,7 +209,7 @@ export async function createUser(actor: AppUser, input: NewUserInput): Promise<A
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) throw new AunqaError('invalid', 'รูปแบบอีเมลไม่ถูกต้อง');
   if (!input.fullName.trim()) throw new AunqaError('invalid', 'กรุณากรอกชื่อ');
   const users = getUsers();
-  if (users.some(u => u.username === username)) throw new AunqaError('duplicate', 'Username นี้ถูกใช้แล้ว');
+  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) throw new AunqaError('duplicate', 'Username นี้ถูกใช้แล้ว');
   if (users.some(u => u.email === input.email)) throw new AunqaError('duplicate', 'อีเมลนี้ถูกใช้แล้ว');
   // ห้าม uni_admin สร้าง super_admin (ยกระดับสิทธิ์)
   const isSuper = actor.roles.some(r => r.role === 'super_admin');

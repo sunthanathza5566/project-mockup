@@ -17,8 +17,8 @@ import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { compareReqId, listCriteria } from './framework';
 import { notify } from './notification.store';
-import { programmeScope } from './org.store';
-import { can, type Action, type Scope } from './rbac';
+import { getProgramme, programmeScope } from './org.store';
+import { can, isAssessorOf, type Action, type Scope } from './rbac';
 
 // ─────────────────────────── transition tables ───────────────────────────
 
@@ -236,12 +236,63 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
     faculty_approved:   { kind: 'approved', text: `QA คณะอนุมัติรอบ ${cycle.academicYear} แล้ว รอคณบดี` },
     final_approved:     { kind: 'approved', text: `คณบดีอนุมัติสุดท้ายและล็อกรอบ ${cycle.academicYear} แล้ว` },
   };
+  const year = cycle.academicYear;
+  const code = getProgramme(cycle.programmeId)?.code ?? cycle.programmeId;
+  /** ผู้รับกลุ่มใหม่ (ADR-UI-001 B3) — userId → ข้อความ (kind 'cycle_status' เสมอ) */
+  const extra = new Map<string, string>();
+  const addByAction = (action: Action, text: string) => usersWhoCan(cycle, action).forEach(u => extra.set(u.id, text));
+  const ownersAndChairs = () => {
+    const ids = new Set<string>(sectionsOf(cycle.id).map(s => s.ownerUserId).filter((x): x is string => !!x));
+    chairsOf(cycle.programmeId).forEach(u => ids.add(u.id));
+    return ids;
+  };
+  switch (to) {
+    case 'under_review':
+      addByAction('approve.faculty', `รอบประเมิน ${year} (${code}) ส่งมาให้ QA คณะตรวจแล้ว — รอการพิจารณาของท่าน`);
+      break;
+    case 'faculty_approved':
+      addByAction('approve.final', `QA คณะอนุมัติรอบ ${year} (${code}) แล้ว — รอคณบดีพิจารณาอนุมัติสุดท้าย`);
+      break;
+    case 'final_approved':
+      addByAction('assessor.assign', `รอบ ${year} (${code}) อนุมัติสุดท้ายและล็อกแล้ว — เริ่มการประเมินและมอบหมายกรรมการได้`);
+      break;
+    case 'under_assessment': {
+      // เจ้าของข้อ/ประธาน (เดิมไม่มีข้อความ) ก่อน แล้วกรรมการทับ (คนที่อยู่ทั้งสองกลุ่มได้ข้อความของกรรมการ)
+      ownersAndChairs().forEach(id => extra.set(id, `รอบ ${year} เข้าสู่ขั้นการประเมินโดยกรรมการแล้ว`));
+      load<AppUser>(KEYS.users).filter(u => isAssessorOf(u, cycle.id))
+        .forEach(u => extra.set(u.id, `รอบ ${year} (${code}) เปิดให้ประเมินแล้ว — เริ่มให้คะแนนได้ที่พื้นที่ทำงานกรรมการ`));
+      break;
+    }
+    case 'assessed': {
+      const text = `กรรมการส่งผลประเมินรอบ ${year} (${code}) แล้ว — ดูผลได้ที่หน้าผลประเมิน`;
+      chairsOf(cycle.programmeId).forEach(u => extra.set(u.id, text));
+      addByAction('approve.faculty', text);
+      addByAction('cycle.close', text);
+      break;
+    }
+    default: break;
+  }
+  extra.delete(actor.id);
+  extra.forEach((text, uid) => notify({ userId: uid, kind: 'cycle_status', messageTh: text, cycleId: cycle.id }));
+
+  // ข้อความเดิมถึงเจ้าของข้อ + ประธาน — คงเดิม (ยกเว้นคนที่ได้ข้อความใหม่แล้ว: ได้ข้อความเดียว)
   const m = msgs[to];
   if (!m) return;
-  const recipients = new Set<string>(sectionsOf(cycle.id).map(s => s.ownerUserId).filter((x): x is string => !!x));
-  chairsOf(cycle.programmeId).forEach(u => recipients.add(u.id));
+  const recipients = ownersAndChairs();
   recipients.delete(actor.id);
-  recipients.forEach(uid => notify({ userId: uid, kind: m.kind, messageTh: m.text, cycleId: cycle.id }));
+  recipients.forEach(uid => { if (!extra.has(uid)) notify({ userId: uid, kind: m.kind, messageTh: m.text, cycleId: cycle.id }); });
+}
+
+/**
+ * ผู้รับ "ตามสิทธิ์": ผู้ใช้ใน university เดียวกับรอบที่ can(u, action, cycleScope) เป็นจริง
+ * ยกเว้นผู้ที่บทบาททั้งหมดเป็น super_admin (ผู้ดูแลระบบไม่ใช่ผู้ทำงานในรอบ) — ภายในเท่านั้น
+ */
+function usersWhoCan(cycle: AssessmentCycle, action: Action): AppUser[] {
+  const scope = cycleScope(cycle);
+  return load<AppUser>(KEYS.users).filter(u =>
+    u.universityId === cycle.universityId
+    && !(u.roles.length > 0 && u.roles.every(r => r.role === 'super_admin'))
+    && can(u, action, scope));
 }
 
 /** เปิด revision ใหม่หลัง lock — เฉพาะคณบดี (cycle.reopen) จาก final_approved → in_progress */
