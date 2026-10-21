@@ -1,296 +1,169 @@
 /**
- * Auth API — ตอนนี้ใช้ localStorage, พร้อมเปลี่ยนเป็น PostgreSQL
+ * Auth API (M1) — localStorage + sessionStorage, พร้อมเปลี่ยนเป็น PostgreSQL/Supabase Auth
+ * reuse จาก EduFlow เดิม: SHA-256 hash, lockout 5 ครั้ง/5 นาที, session ใน sessionStorage
  *
- * PostgreSQL schema (อนาคต):
- *   CREATE TABLE users (
- *     id          SERIAL PRIMARY KEY,
- *     username    VARCHAR(8)  UNIQUE NOT NULL,
- *     password    VARCHAR(255) NOT NULL,  -- bcrypt hash
- *     role        VARCHAR(20) NOT NULL,
- *     name        TEXT NOT NULL,
- *     school      TEXT,
- *     student_code VARCHAR(10),
- *     class       VARCHAR(10),
- *     child_code  VARCHAR(10),
- *     child_name  TEXT,
- *     created_at  TIMESTAMP DEFAULT NOW()
- *   );
+ * PostgreSQL (อนาคต): users(id, university_id, email, full_name, locale) + role_assignments
+ *   รหัสผ่าน → Supabase Auth / bcrypt ฝั่ง server
  */
-
-import type { User, Session, Permissions } from '../types';
-import { SEEDED_USERS, DEFAULT_PERMISSIONS } from '../mock-data';
-
-const AUTH_KEY        = 'eduflow_users';
-const SESSION_KEY     = 'eduflow_session';
-const ATTEMPTS_KEY    = 'eduflow_attempts';
-const PERMISSIONS_KEY = 'eduflow_permissions';
-const WEBADMIN_LOG_KEY = 'eduflow_webadmin_log';
+import type { AppUser, RoleAssignment, RoleCode, Session } from '../types';
+import { AunqaError, KEYS, load, save } from './db';
+import { readJSON, writeJSON } from './storage-cache';
+import { appendAudit } from './audit.store';
+import { sha256Hex } from '../utils/hash';
+import { can } from './rbac';
 
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS   = 5 * 60 * 1000;
-
-// ─── User Store (localStorage → PostgreSQL) ──────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM users
-export function getUsers(): User[] {
-  if (typeof window === 'undefined') return SEEDED_USERS;
-  return JSON.parse(localStorage.getItem(AUTH_KEY) || JSON.stringify(SEEDED_USERS));
-}
-
-// TODO(PostgreSQL): INSERT/UPDATE users
-export function saveUsers(users: User[]): void {
-  localStorage.setItem(AUTH_KEY, JSON.stringify(users));
-}
-
-// ─── Permissions ─────────────────────────────────────────────────────────
-// TODO(PostgreSQL): SELECT * FROM role_permissions
-export function getPermissions(): Permissions {
-  if (typeof window === 'undefined') return DEFAULT_PERMISSIONS;
-  return JSON.parse(localStorage.getItem(PERMISSIONS_KEY) || JSON.stringify(DEFAULT_PERMISSIONS));
-}
-
-// TODO(PostgreSQL): UPDATE role_permissions SET allowed = $1 WHERE role = $2 AND permission = $3
-export function savePermissions(perms: Permissions): void {
-  localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(perms));
-}
-
-// ─── Session ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): ใช้ JWT หรือ next-auth session แทน sessionStorage
-export function getSession(): Session | null {
-  if (typeof window === 'undefined') return null;
-  return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-}
-
-export function setSession(user: User): void {
-  const session: Session = {
-    username: user.username, role: user.role, name: user.name,
-    school: user.school || '', code: user.code || '',
-    childCode: user.childCode || '', childName: user.childName || '',
-    class: user.class || '',
-    loginAt: Date.now(),
-  };
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-export function clearSession(): void {
-  sessionStorage.removeItem(SESSION_KEY);
-}
-
-// ─── Validation ───────────────────────────────────────────────────────────
-export function isValidFormat(str: string): boolean {
-  return /^[a-zA-Z0-9]{1,8}$/.test(str);
-}
-
-// ─── Password Hashing ─────────────────────────────────────────────────────
-// รหัสผ่านเก็บเป็น SHA-256 hash — ไม่เก็บ plaintext
-// TODO(PostgreSQL): เปลี่ยนเป็น bcrypt ฝั่ง server (bcrypt.hash / bcrypt.compare)
+const LOCKOUT_MS = 5 * 60 * 1000;
 const HASH_PREFIX = 'sha256:';
 
+// ─── Password hashing ────────────────────────────────────────────────────
+// TODO(PostgreSQL): เปลี่ยนเป็น bcrypt/argon2 ฝั่ง server
 export async function hashPassword(pw: string): Promise<string> {
-  const data = new TextEncoder().encode(`eduflow::${pw}`);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return HASH_PREFIX + Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return HASH_PREFIX + await sha256Hex(`aunqa::${pw}`);
 }
 
-/** รองรับทั้ง hash ใหม่ และบัญชีเก่าที่ยังเป็น plaintext (จะถูก upgrade อัตโนมัติเมื่อ login สำเร็จ) */
+/** รองรับ hash และ plaintext จาก seed (upgrade เป็น hash อัตโนมัติเมื่อ login สำเร็จ) */
 async function verifyPassword(pw: string, stored: string): Promise<boolean> {
   if (stored.startsWith(HASH_PREFIX)) return (await hashPassword(pw)) === stored;
   return pw === stored;
 }
 
-// ─── Lockout ──────────────────────────────────────────────────────────────
-// TODO(PostgreSQL): บันทึก attempts ใน table: login_attempts
-function getAttempts(username: string): { count: number; lockUntil: number } {
-  const all = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{}');
-  return all[username] || { count: 0, lockUntil: 0 };
-}
+// ─── Users ───────────────────────────────────────────────────────────────
+export function getUsers(): AppUser[] { return load<AppUser>(KEYS.users); }
+export function saveUsers(users: AppUser[]): void { save(KEYS.users, users); }
 
-function saveAttempts(username: string, rec: { count: number; lockUntil: number }): void {
-  const all = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{}');
-  all[username] = rec;
-  localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(all));
+// ─── Lockout ─────────────────────────────────────────────────────────────
+type Attempts = Record<string, { count: number; lockUntil: number }>;
+function getAttempts(u: string) { return readJSON<Attempts>(KEYS.attempts, {})[u] || { count: 0, lockUntil: 0 }; }
+function setAttempts(u: string, rec: { count: number; lockUntil: number } | null) {
+  const all = { ...readJSON<Attempts>(KEYS.attempts, {}) };
+  if (rec) all[u] = rec; else delete all[u];
+  writeJSON(KEYS.attempts, all);
 }
-
 export function getLockUntil(username: string): number {
   const rec = getAttempts(username);
   return rec.lockUntil && Date.now() < rec.lockUntil ? rec.lockUntil : 0;
 }
-
-export function recordFail(username: string): { count: number; lockUntil: number } {
+function recordFail(username: string) {
   const rec = getAttempts(username);
   rec.count = (rec.count || 0) + 1;
   if (rec.count >= MAX_ATTEMPTS) { rec.lockUntil = Date.now() + LOCKOUT_MS; rec.count = 0; }
-  saveAttempts(username, rec);
-  return rec;
+  setAttempts(username, rec);
+}
+export function remainingAttempts(username: string): number { return MAX_ATTEMPTS - (getAttempts(username).count || 0); }
+
+// ─── Session ─────────────────────────────────────────────────────────────
+export function getSession(): Session | null {
+  if (typeof window === 'undefined') return null;
+  try { return JSON.parse(sessionStorage.getItem(KEYS.session) || 'null'); } catch { return null; }
+}
+function setSession(u: AppUser): void {
+  const s: Session = { userId: u.id, username: u.username, fullName: u.fullName, universityId: u.universityId, roles: u.roles, loginAt: Date.now() };
+  sessionStorage.setItem(KEYS.session, JSON.stringify(s));
+}
+export function clearSession(): void {
+  if (typeof window !== 'undefined') sessionStorage.removeItem(KEYS.session);
 }
 
-export function clearAttempts(username: string): void {
-  const all = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{}');
-  delete all[username];
-  localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(all));
+/** user ปัจจุบัน (อ่านซ้ำจาก store เพื่อให้สิทธิ์ล่าสุดมีผลทันที) */
+export function getCurrentUser(): AppUser | null {
+  const s = getSession();
+  if (!s) return null;
+  return getUsers().find(u => u.id === s.userId) ?? null;
 }
 
-export function remainingAttempts(username: string): number {
-  return MAX_ATTEMPTS - (getAttempts(username).count || 0);
-}
-
-// ─── Web Admin Log ────────────────────────────────────────────────────────
-// TODO(PostgreSQL): INSERT INTO admin_logs (username, action, timestamp)
-export function logWebAdminLogin(username: string): void {
-  const log = JSON.parse(localStorage.getItem(WEBADMIN_LOG_KEY) || '{"admins":[],"loginHistory":[]}');
-  log.loginHistory.push({ username, timestamp: new Date().toLocaleString('th-TH'), action: 'LOGIN' });
-  localStorage.setItem(WEBADMIN_LOG_KEY, JSON.stringify(log));
-}
-
-export function getWebAdminLog(): { admins: { username:string; name:string; addedAt:string; addedBy:string }[]; loginHistory: { username:string; timestamp:string; action:string }[] } {
-  return JSON.parse(localStorage.getItem(WEBADMIN_LOG_KEY) || '{"admins":[{"username":"webadmin","name":"ผู้ดูแลระบบหลัก","addedAt":"2567-01-01","addedBy":"SYSTEM"}],"loginHistory":[]}');
-}
-
-// ─── Init (seed localStorage on first load) ───────────────────────────────
-// TODO(PostgreSQL): ลบ initAuth() ออก — ข้อมูลจะอยู่ใน DB แล้ว
-export function initAuth(): void {
-  if (typeof window === 'undefined') return;
-
-  if (!localStorage.getItem(AUTH_KEY)) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(SEEDED_USERS));
-  } else {
-    // เติมบัญชี seed ที่ยังไม่มีใน storage เดิม (เช่น บัญชีทดสอบที่เพิ่มใหม่ภายหลัง)
-    const users = getUsers();
-    let changed = false;
-    SEEDED_USERS.forEach(su => {
-      if (!users.some(u => u.username === su.username)) { users.push({ ...su }); changed = true; }
-    });
-    if (changed) saveUsers(users);
-  }
-  if (!localStorage.getItem(PERMISSIONS_KEY))
-    localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(DEFAULT_PERMISSIONS));
-  // migration: เปิดสิทธิ์ "จัดโครงสร้างวิชาการ" ให้ครู (นโยบายใหม่ — มีปุ่มเลื่อนระดับชั้น) รันครั้งเดียว
-  if (!localStorage.getItem('eduflow_perm_v2')) {
-    const perms = getPermissions();
-    if (perms.teacher && perms.teacher.manageAcademic !== true) { perms.teacher.manageAcademic = true; savePermissions(perms); }
-    localStorage.setItem('eduflow_perm_v2', '1');
-  }
-  if (!localStorage.getItem(WEBADMIN_LOG_KEY))
-    localStorage.setItem(WEBADMIN_LOG_KEY, JSON.stringify({
-      admins: [{ username: 'webadmin', name: 'ผู้ดูแลระบบหลัก', addedAt: '2567-01-01', addedBy: 'SYSTEM' }],
-      loginHistory: [],
-    }));
-}
-
-// ─── Login ────────────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   const user = await db.query(
-//     'SELECT * FROM users WHERE username = $1', [username]
-//   );
-//   const valid = await bcrypt.compare(password, user.password_hash);
+// ─── Login ───────────────────────────────────────────────────────────────
 export interface LoginResult {
   success: boolean;
-  user?: User;
-  error?: 'format' | 'locked' | 'invalid' | 'unverified';
+  user?: AppUser;
+  error?: 'format' | 'locked' | 'invalid';
   lockUntil?: number;
   remaining?: number;
 }
 
 export async function loginUser(username: string, password: string): Promise<LoginResult> {
-  if (!isValidFormat(username) || !isValidFormat(password))
-    return { success: false, error: 'format' };
+  const un = (username || '').trim();
+  if (!un || !password || un.length > 64 || password.length > 128) return { success: false, error: 'format' };
 
-  const lockUntil = getLockUntil(username);
-  if (lockUntil) return { success: false, error: 'locked', lockUntil };
+  const lock = getLockUntil(un);
+  if (lock) return { success: false, error: 'locked', lockUntil: lock };
 
-  const user = getUsers().find(u => u.username === username);
+  const users = getUsers();
+  const user = users.find(u => u.username === un);
   const valid = user ? await verifyPassword(password, user.password) : false;
   if (!user || !valid) {
-    recordFail(username);
-    const nowLocked = getLockUntil(username);
+    recordFail(un);
+    const nowLocked = getLockUntil(un);
     if (nowLocked) return { success: false, error: 'locked', lockUntil: nowLocked };
-    return { success: false, error: 'invalid', remaining: remainingAttempts(username) };
+    return { success: false, error: 'invalid', remaining: remainingAttempts(un) };
   }
-
-  // บัญชีที่สมัครใหม่ต้องกดลิงก์ยืนยันอีเมลก่อน (บัญชีเก่า/seed ไม่มี field นี้ = ผ่าน)
-  if (user.emailVerified === false) return { success: false, error: 'unverified' };
-
-  // upgrade บัญชีเก่า plaintext → hash โดยอัตโนมัติเมื่อ login สำเร็จ
-  if (!user.password.startsWith('sha256:')) {
-    const users = getUsers();
-    const target = users.find(u => u.username === username);
-    if (target) { target.password = await hashPassword(password); saveUsers(users); }
+  if (!user.password.startsWith(HASH_PREFIX)) {
+    user.password = await hashPassword(password);
+    saveUsers(users);
   }
-
-  clearAttempts(username);
+  setAttempts(un, null);
   setSession(user);
-  if (user.role === 'web_admin') logWebAdminLogin(username);
+  appendAudit(user, { action: 'auth.login', targetType: 'user', targetId: user.id });
   return { success: true, user };
 }
 
-// ─── Register ─────────────────────────────────────────────────────────────
-// TODO(PostgreSQL):
-//   const hash = await bcrypt.hash(password, 12);
-//   await db.query(
-//     'INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)',
-//     [username, hash, role, name]
-//   );
-export interface RegisterResult {
-  success: boolean;
-  error?: string;
+export function logoutUser(): void {
+  const u = getCurrentUser();
+  if (u) appendAudit(u, { action: 'auth.logout', targetType: 'user', targetId: u.id });
+  clearSession();
 }
 
-export async function registerUser(
-  role: string, firstName: string, lastName: string, email: string,
-  username: string, password: string, confirm: string
-): Promise<RegisterResult> {
-  if (!role)      return { success: false, error: 'กรุณาเลือกประเภทบัญชี' };
-  // กันยกระดับสิทธิ์: ห้ามสมัครบัญชี web_admin เอง (และกันค่า role แปลกปลอมที่ยิงตรงเข้ามา)
-  // — เดิม registerUser cast role ตรง ๆ โดยไม่ตรวจ ทำให้ยิง role='web_admin' สร้าง super admin ได้
-  const ALLOWED_SELF_REGISTER = ['teacher', 'student', 'parent', 'school_admin'];
-  if (!ALLOWED_SELF_REGISTER.includes(role)) return { success: false, error: 'ไม่สามารถสมัครบัญชีประเภทนี้เองได้' };
-  if (!firstName) return { success: false, error: 'กรุณากรอกชื่อ' };
-  if (!lastName)  return { success: false, error: 'กรุณากรอกนามสกุล' };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, error: 'รูปแบบอีเมลไม่ถูกต้อง เช่น name@example.com' };
-  if (!isValidFormat(username)) return { success: false, error: `Username ต้องเป็นภาษาอังกฤษ/ตัวเลข 1–8 ตัว (ตอนนี้ ${username.length} ตัว)` };
-  if (!isValidFormat(password)) return { success: false, error: `รหัสผ่านต้องเป็นภาษาอังกฤษ/ตัวเลข 1–8 ตัว (ตอนนี้ ${password.length} ตัว)` };
-  if (password !== confirm) return { success: false, error: 'รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง' };
-  if (getUsers().some(u => u.username === username)) return { success: false, error: 'Username นี้ถูกใช้งานแล้ว กรุณาเลือก Username ใหม่' };
-  if (getUsers().some(u => u.email === email)) return { success: false, error: 'อีเมลนี้ถูกใช้สมัครไปแล้ว' };
+// ─── User management (super_admin / uni_admin) ───────────────────────────
+export interface NewUserInput { username: string; password: string; email: string; fullName: string; roles: RoleAssignment[] }
 
+export async function createUser(actor: AppUser, input: NewUserInput): Promise<AppUser> {
+  const scope = { universityId: actor.universityId };
+  if (!can(actor, 'user.manage', scope)) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
+  const username = input.username.trim();
+  if (!/^[A-Za-z0-9._-]{3,32}$/.test(username)) throw new AunqaError('invalid', 'Username ต้องเป็น a-z, 0-9, . _ - ยาว 3–32 ตัว');
+  if (input.password.length < 6) throw new AunqaError('invalid', 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัว');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) throw new AunqaError('invalid', 'รูปแบบอีเมลไม่ถูกต้อง');
+  if (!input.fullName.trim()) throw new AunqaError('invalid', 'กรุณากรอกชื่อ');
   const users = getUsers();
-  users.push({
-    username,
-    password: await hashPassword(password), // เก็บเป็น hash ไม่เก็บ plaintext
-    role: role as User['role'],
-    name: `${firstName} ${lastName}`,
-    email,
-    emailVerified: false, // ต้องกดลิงก์ยืนยันก่อนถึงจะ login ได้
-    createdAt: new Date().toLocaleString('th-TH'),
-  });
+  if (users.some(u => u.username === username)) throw new AunqaError('duplicate', 'Username นี้ถูกใช้แล้ว');
+  if (users.some(u => u.email === input.email)) throw new AunqaError('duplicate', 'อีเมลนี้ถูกใช้แล้ว');
+  // ห้าม uni_admin สร้าง super_admin (ยกระดับสิทธิ์)
+  const isSuper = actor.roles.some(r => r.role === 'super_admin');
+  if (!isSuper && input.roles.some(r => r.role === 'super_admin'))
+    throw new AunqaError('forbidden', 'ไม่มีสิทธิ์สร้างบัญชี super_admin');
+  const user: AppUser = {
+    id: `u-${username}`, username, password: await hashPassword(input.password),
+    universityId: actor.universityId, email: input.email, fullName: input.fullName.trim(), roles: input.roles,
+  };
+  users.push(user);
   saveUsers(users);
-  return { success: true };
+  appendAudit(actor, { action: 'user.create', targetType: 'user', targetId: user.id, after: { username, roles: user.roles } });
+  return user;
 }
 
-/**
- * ยืนยันอีเมล — ตอนนี้จำลองการกดลิงก์ในกล่องจดหมาย (ไม่มีค่าใช้จ่าย)
- * TODO(Production): ส่งอีเมลจริงด้วยบริการฟรี เช่น Resend free tier / Nodemailer + Gmail SMTP
- *   โดยแนบ token ใน URL: /verify?token=xxx แล้วตรวจ token ฝั่ง server
- */
-export function verifyEmail(username: string): boolean {
+export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignment[]): AppUser {
   const users = getUsers();
-  const user = users.find(u => u.username === username);
-  if (!user) return false;
-  user.emailVerified = true;
+  const target = users.find(u => u.id === userId);
+  if (!target) throw new AunqaError('not_found', 'ไม่พบผู้ใช้');
+  if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
+  const isSuper = actor.roles.some(r => r.role === 'super_admin');
+  if (!isSuper && roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ให้บทบาท super_admin');
+  const before = target.roles;
+  target.roles = roles;
   saveUsers(users);
-  return true;
+  appendAudit(actor, { action: 'user.set_roles', targetType: 'user', targetId: userId, before, after: roles });
+  return target;
 }
 
-// ─── Delete User ──────────────────────────────────────────────────────────
-// TODO(PostgreSQL): DELETE FROM users WHERE username = $1
-export function deleteUser(username: string): void {
-  saveUsers(getUsers().filter(u => u.username !== username));
+export function deleteUser(actor: AppUser, userId: string): void {
+  const users = getUsers();
+  const target = users.find(u => u.id === userId);
+  if (!target) return;
+  if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
+  if (target.id === actor.id) throw new AunqaError('invalid', 'ลบบัญชีตัวเองไม่ได้');
+  saveUsers(users.filter(u => u.id !== userId));
+  appendAudit(actor, { action: 'user.delete', targetType: 'user', targetId: userId, before: { username: target.username, roles: target.roles } });
 }
 
-// ─── Toggle Permission ────────────────────────────────────────────────────
-// TODO(PostgreSQL): UPDATE role_permissions SET allowed = $1 WHERE role = $2 AND permission_key = $3
-export function togglePermission(role: string, perm: string, val: boolean): void {
-  const perms = getPermissions();
-  if (!perms[role as keyof Permissions]) return;
-  (perms[role as keyof Permissions] as Record<string, boolean>)[perm] = val;
-  savePermissions(perms);
-}
+/** รายชื่อผู้ใช้สำหรับ dropdown มอบหมาย (ไม่มี password) */
+export function hasRoleCode(u: AppUser, role: RoleCode): boolean { return u.roles.some(r => r.role === role); }

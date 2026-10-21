@@ -3,178 +3,145 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { loginUser, getLockUntil, verifyEmail } from '@/lib/api/auth.api';
+import { loginUser, getLockUntil } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
 import LoginLoader from './LoginLoader';
+
+/** บัญชีเดโม่ (ข้อมูลสมมติ) — กดเพื่อเติมในฟอร์ม */
+const DEMO_ACCOUNTS: { username: string; label: string }[] = [
+  { username: 'chair1',  label: 'ประธานหลักสูตร (ดูแลรอบประเมิน/อนุมัติข้อ)' },
+  { username: 'staff1',  label: 'อาจารย์ผู้เขียน SAR (ได้รับมอบหมายเกณฑ์ที่ 1)' },
+  { username: 'lect1',   label: 'อาจารย์หลักสูตร วิทยาการคอมพิวเตอร์' },
+  { username: 'lect2',   label: 'อาจารย์หลักสูตร วิทยาการข้อมูล' },
+  { username: 'data1',   label: 'เจ้าหน้าที่ข้อมูล (หลักฐาน/ตัวชี้วัด)' },
+  { username: 'fqa1',    label: 'QA คณะ (ตรวจ/อนุมัติระดับคณะ)' },
+  { username: 'dean1',   label: 'คณบดี (อนุมัติสุดท้าย/เปิด revision)' },
+  { username: 'assess1', label: 'กรรมการประเมิน (อ่านอย่างเดียว)' },
+  { username: 'uadmin',  label: 'ผู้ดูแลมหาวิทยาลัย' },
+  { username: 'sadmin',  label: 'ผู้ดูแลระบบสูงสุด' },
+  { username: 'uadmin2', label: 'ผู้ดูแลอีกมหาวิทยาลัย (ทดสอบการแยกข้อมูล)' },
+];
 
 export default function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showUser, setShowUser] = useState(false);
   const [showPw,   setShowPw]   = useState(false);
   const [error,    setError]    = useState('');
   const [lockMsg,  setLockMsg]  = useState('');
   const [hint,     setHint]     = useState('');
-  const [showDemo, setShowDemo] = useState(false);
-  const [needVerify, setNeedVerify] = useState(false); // บัญชียังไม่ยืนยันอีเมล
-  const [loadingName, setLoadingName] = useState<string | null>(null); // แสดงหน้าโหลดมาสคอตตอนล็อกอินสำเร็จ
+  const [showDemo, setShowDemo] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [loadingName, setLoadingName] = useState<string | null>(null);
 
-  const { refresh } = useAuth();
-  const { showToast } = useToast();
+  const { refresh, isLoading, initError } = useAuth();
   const router = useRouter();
 
-  // countdown timer when locked
   useEffect(() => {
     if (!lockMsg) return;
     const timer = setInterval(() => {
-      const until = getLockUntil(username);
+      const until = getLockUntil(username.trim());
       if (!until) {
-        setLockMsg('บัญชีถูกปลดล็อคแล้ว — สามารถเข้าสู่ระบบได้อีกครั้ง');
+        setLockMsg('บัญชีถูกปลดล็อกแล้ว — เข้าสู่ระบบได้อีกครั้ง');
         clearInterval(timer);
         return;
       }
       const s = Math.ceil((until - Date.now()) / 1000);
-      setLockMsg(`บัญชีถูกล็อค — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`);
+      setLockMsg(`บัญชีถูกล็อก — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`);
     }, 1000);
     return () => clearInterval(timer);
   }, [lockMsg, username]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(''); setLockMsg(''); setHint(''); setNeedVerify(false);
-
-    const result = await loginUser(username.trim(), password);
-
-    if (result.success && result.user) {
-      // แสดงมาสคอตกำลังโหลด ~1.6 วิ ให้ล็อกอินมีลูกเล่นก่อนพาเข้าหน้าหลัก
-      setLoadingName(result.user.name);
-      const role = result.user.role;
-      const dest = role === 'student' ? '/student' : role === 'teacher' ? '/teacher' : '/dashboard';
-      await new Promise(r => setTimeout(r, 1600));
-      refresh();
-      router.push(dest);
-      return;
+    setError(''); setLockMsg(''); setHint('');
+    setBusy(true);
+    try {
+      const result = await loginUser(username.trim(), password);
+      if (result.success && result.user) {
+        setLoadingName(result.user.fullName);
+        await new Promise(r => setTimeout(r, 1200));
+        refresh();
+        router.push('/app');
+        return;
+      }
+      if (result.error === 'locked') {
+        const s = Math.ceil(((result.lockUntil || Date.now()) - Date.now()) / 1000);
+        setLockMsg(`บัญชีถูกล็อก — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`);
+        return;
+      }
+      setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง โปรดตรวจสอบแล้วลองอีกครั้ง');
+      if (result.error === 'invalid') setHint(`เหลืออีก ${result.remaining} ครั้งก่อนถูกล็อก 5 นาที`);
+    } finally {
+      setBusy(false);
     }
-
-    if (result.error === 'unverified') { setNeedVerify(true); return; }
-    if (result.error === 'format')  { setError('รูปแบบ Username หรือ รหัสผ่านผิด โปรดตรวจสอบแล้วทำการเข้าสู่ระบบอีกครั้ง'); return; }
-    if (result.error === 'locked')  { const until = result.lockUntil!; const s = Math.ceil((until - Date.now()) / 1000); setLockMsg(`บัญชีถูกล็อค — โปรดรอ ${Math.floor(s / 60)} นาที ${s % 60} วินาที`); return; }
-    if (result.error === 'invalid') { setError('รูปแบบ Username หรือ รหัสผ่านผิด โปรดตรวจสอบแล้วทำการเข้าสู่ระบบอีกครั้ง'); setHint(`เหลืออีก ${result.remaining} ครั้งก่อนถูกล็อค 5 นาที`); }
   }
 
   if (loadingName) return <LoginLoader name={loadingName} />;
 
   return (
     <div className="auth-wrap">
-      <div className="auth-card">
-        <div className="auth-logo">Edu<span>Flow</span></div>
+      <div className="auth-card" style={{ maxWidth: 480 }}>
+        <div className="auth-logo">AUN-QA <span>Copilot</span></div>
         <h1 className="auth-title">เข้าสู่ระบบ</h1>
-        <p className="auth-sub">ใส่ข้อมูลผู้ใช้เพื่อเข้าสู่ระบบ EduFlow</p>
+        <p className="auth-sub">ผู้ช่วยจัดทำรายงานประเมินตนเอง (SAR) ตามเกณฑ์ AUN-QA ระดับหลักสูตร</p>
 
-        {/* Demo Accounts Accordion */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <button
-            type="button"
-            onClick={() => setShowDemo(!showDemo)}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              background: 'var(--cream)',
-              border: '1px solid var(--border-light)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: 'var(--brown-dark)',
-            }}
-          >
-            <span>บัญชีทดสอบ</span>
-            <span style={{ fontSize: '1.2rem' }}>{showDemo ? '▼' : '▶'}</span>
-          </button>
-
-          {showDemo && (
-            <div className="auth-demo-hint" style={{ marginTop: '0.75rem', textAlign: 'left', lineHeight: 1.9 }}>
-              <strong>บัญชีทดสอบทั้งหมด:</strong><br />
-              ครู (มีตารางสอน): <code>teacher1 / Teacher1</code><br />
-              นักเรียน (มีข้อมูลครบ): <code>student1 / Student1</code><br />
-              ผู้ปกครองของ ธนาพร (10021): <code>parent1 / Parent01</code><br />
-              ผู้ปกครองของ สมศักดิ์ (10022): <code>parent2 / Parent02</code><br />
-              Admin โรงเรียน: <code>schadmin / Admin001</code><br />
-              Web Admin: <code>webadmin / Admin123</code><br />
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                * บัญชีที่แอดมินเพิ่มเอง ใช้รหัสผ่านเริ่มต้น Eduflow1 · บัญชีสมัครใหม่ = เริ่มจาก 0 ไม่มีข้อมูลจำลอง
-              </span>
-            </div>
-          )}
-        </div>
-
-        {error   && <div className="auth-alert auth-alert-err">{error}</div>}
-        {lockMsg && <div className="auth-alert auth-alert-warn">{lockMsg}</div>}
-        {needVerify && (
-          <div className="auth-alert auth-alert-warn">
-            บัญชีนี้ยังไม่ได้ยืนยันอีเมล
-            <button
-              type="button"
-              className="auth-btn-main"
-              style={{ width: '100%', marginTop: '0.6rem' }}
-              onClick={() => {
-                if (verifyEmail(username.trim())) { setNeedVerify(false); showToast('ยืนยันอีเมลแล้ว — เข้าสู่ระบบได้เลย'); }
-              }}
-            >
-              ✅ กดลิงก์ยืนยันในอีเมล (จำลอง)
-            </button>
-          </div>
-        )}
+        {initError && <div className="auth-alert auth-alert-err" role="alert">{initError}</div>}
+        {error   && <div className="auth-alert auth-alert-err" role="alert" data-testid="login-error">{error}</div>}
+        {lockMsg && <div className="auth-alert auth-alert-warn" role="alert">{lockMsg}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="auth-field">
-            <label className="auth-label" htmlFor="login-username">Username</label>
-            <div className="pw-wrap">
-              <input
-                id="login-username"
-                className="auth-input"
-                type={showUser ? 'text' : 'password'}
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                autoComplete="username"
-                required
-              />
-              <button type="button" className="pw-eye" onClick={() => setShowUser(s => !s)}>
-                {showUser ? '🙈' : '👁'}
-              </button>
-            </div>
+            <label className="auth-label" htmlFor="login-username">ชื่อผู้ใช้</label>
+            <input
+              id="login-username" data-testid="login-username" className="auth-input" type="text"
+              value={username} onChange={e => setUsername(e.target.value)}
+              autoComplete="username" required
+            />
           </div>
           {hint && <p className="auth-hint">{hint}</p>}
 
           <div className="auth-field">
-            <label className="auth-label" htmlFor="login-password">Password</label>
+            <label className="auth-label" htmlFor="login-password">รหัสผ่าน</label>
             <div className="pw-wrap">
               <input
-                id="login-password"
-                className="auth-input"
+                id="login-password" data-testid="login-password" className="auth-input"
                 type={showPw ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
+                value={password} onChange={e => setPassword(e.target.value)}
+                autoComplete="current-password" required
               />
-              <button type="button" className="pw-eye" onClick={() => setShowPw(s => !s)}>
+              <button type="button" className="pw-eye" onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}>
                 {showPw ? '🙈' : '👁'}
               </button>
             </div>
           </div>
 
-          <button type="submit" className="auth-btn-main">เข้าสู่ระบบ</button>
+          <button type="submit" data-testid="login-submit" className="auth-btn-main" disabled={busy || isLoading}>
+            {busy ? 'กำลังตรวจสอบ…' : isLoading ? 'กำลังเตรียมข้อมูล…' : 'เข้าสู่ระบบ'}
+          </button>
         </form>
 
-        <div className="auth-or">หรือ</div>
-        <Link href="/register">
-          <button type="button" className="auth-btn-outline">สมัครสมาชิกใหม่</button>
-        </Link>
+        <div style={{ marginTop: '1rem' }}>
+          <button type="button" className="aq-demo-toggle" onClick={() => setShowDemo(s => !s)} aria-expanded={showDemo}>
+            <span>บัญชีทดสอบ (ข้อมูลสมมติ)</span><span>{showDemo ? '▼' : '▶'}</span>
+          </button>
+          {showDemo && (
+            <div className="aq-demo-list" data-testid="demo-accounts">
+              <p className="aq-muted" style={{ fontSize: '0.75rem', marginBottom: '0.4rem' }}>
+                กดเพื่อเติมชื่อผู้ใช้และรหัสผ่านอัตโนมัติ · รหัสผ่านทุกบัญชี: <code>demo1234</code>
+              </p>
+              {DEMO_ACCOUNTS.map(a => (
+                <button
+                  key={a.username} type="button" className="aq-demo-item"
+                  data-testid={`demo-${a.username}`}
+                  onClick={() => { setUsername(a.username); setPassword('demo1234'); setError(''); setHint(''); }}
+                >
+                  <code>{a.username}</code><span>{a.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div style={{ textAlign: 'center', marginTop: '1rem' }}>
           <Link href="/" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textDecoration: 'underline' }}>
             ← กลับหน้าหลัก

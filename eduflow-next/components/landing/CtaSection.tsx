@@ -1,31 +1,21 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/context/ToastContext';
 
 export default function CtaSection() {
-  const router     = useRouter();
-  const { showToast } = useToast();
-
+  const router = useRouter();
   return (
     <section className="cta-section" id="contact">
       <div className="cta-inner">
         <div>
-          <div className="section-label">พร้อมเริ่มต้นแล้วหรือยัง?</div>
-          <h2 className="section-title">
-            เริ่มต้นใช้งาน<em>EduFlow</em><br />วันนี้ ฟรี 30 วัน
-          </h2>
+          <div className="section-label">พร้อมลองแล้วหรือยัง?</div>
+          <h2 className="section-title">ลองใช้ <em>AUN-QA Copilot</em><br />กับข้อมูลเดโม่</h2>
           <p className="section-desc">
-            ไม่ต้องใช้บัตรเครดิต · ติดตั้งง่าย · ทีมงานช่วยเหลือตลอด 24 ชั่วโมง
+            ข้อมูลทั้งหมดเป็นข้อมูลสมมติ เก็บในเบราว์เซอร์ของคุณเท่านั้น · มีบัญชีทดสอบทุกบทบาทให้กดเลือก
           </p>
         </div>
         <div className="cta-actions">
-          <button className="btn-cta-main" onClick={() => router.push('/register')}>
-            สมัครใช้งานฟรี →
-          </button>
-          <button className="btn-cta-outline" onClick={() => showToast('ติดต่อทีมงานเพื่อนัดสาธิต...')}>
-            นัดสาธิตระบบ
-          </button>
+          <button className="btn-cta-main" onClick={() => router.push('/login')}>เข้าสู่ระบบเดโม่ →</button>
         </div>
       </div>
     </section>

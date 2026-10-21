@@ -2,68 +2,65 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Session } from '@/lib/types';
-import { getSession, clearSession, initAuth } from '@/lib/api/auth.api';
-import { seedDemoAcademics, seedDemoCohort, seedFullGrades, seedDemoRosterGrades, allStudentCodes } from '@/lib/api/academic.store';
-import { seedDemoAssessments } from '@/lib/api/assessment.store';
+import type { AppUser } from '@/lib/types';
+import { initAunqa, getCurrentUser, logoutUser } from '@/lib/api';
 import LogoutLoader from '@/components/auth/LogoutLoader';
 
 interface AuthContextValue {
-  session: Session | null;
+  /** ผู้ใช้ปัจจุบัน (null = ยังไม่ล็อกอิน) — ใช้เป็น actor ของทุก write */
+  user: AppUser | null;
+  /** true จนกว่า seed ข้อมูลเดโม่ + อ่าน session เสร็จ */
   isLoading: boolean;
+  /** อ่าน session ใหม่ (หลัง login / แก้ role) */
   refresh: () => void;
-  /** ออกจากระบบ: แสดงอนิเมชั่นสั้น ๆ แล้วล้าง session + กลับหน้าแรก (จัดการครบในนี้ ผู้เรียกไม่ต้อง redirect เอง) */
+  /** ออกจากระบบ: แสดงอนิเมชั่นสั้น ๆ แล้วล้าง session + กลับหน้าแรก */
   logout: () => void;
+  /** error ตอนเริ่มข้อมูลเดโม่ (ถ้ามี) */
+  initError: string;
 }
 
 const AuthContext = createContext<AuthContextValue>({
-  session: null, isLoading: true, refresh: () => {}, logout: () => {},
+  user: null, isLoading: true, refresh: () => {}, logout: () => {}, initError: '',
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession]   = useState<Session | null>(null);
+  const [user, setUser]         = useState<AppUser | null>(null);
   const [isLoading, setLoading] = useState(true);
+  const [initError, setInitError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
   const router = useRouter();
   const loggingOutRef = useRef(false);
 
   const refresh = useCallback(() => {
-    setSession(getSession());
+    setUser(getCurrentUser());
     setLoading(false);
   }, []);
 
   const logout = useCallback(() => {
-    if (loggingOutRef.current) return;  // กันกดซ้ำ
+    if (loggingOutRef.current) return;
     loggingOutRef.current = true;
     setLoggingOut(true);
-    // แสดงมาสคอตโบกมือลา ~1.3 วิ แล้วไปหน้าแรกก่อน (layout ปัจจุบัน unmount)
-    // จากนั้นค่อยล้าง session — ถ้าล้างก่อนเปลี่ยน route หน้า guard จะเด้งไป /login แทนหน้าแรก
+    // ไปหน้าแรกก่อน แล้วค่อยล้าง session — ถ้าล้างก่อน guard จะเด้งไป /login แทน
     setTimeout(() => {
       router.push('/');
       setTimeout(() => {
-        clearSession();
-        setSession(null);
+        logoutUser();
+        setUser(null);
         setLoggingOut(false);
         loggingOutRef.current = false;
       }, 450);
-    }, 1300);
+    }, 1000);
   }, [router]);
 
   useEffect(() => {
-    // TODO(PostgreSQL): แทนที่ด้วย next-auth หรือ JWT verify
-    initAuth();
-    seedDemoAcademics();   // จำลองข้อมูลผลการเรียน ปี 2568/2569 (รันครั้งเดียว) สำหรับทดสอบเอกสาร ปพ.
-    seedDemoCohort();      // cohort ที่เลื่อนชั้นข้ามปี (รหัสเดิม) — ให้ ปพ.1 แสดงผลครบทุกปี
-    seedFullGrades();      // ห้องทดสอบครบทุกชั้น ป.1-6/ม.1-6 (ปี 2569) สำหรับทดสอบเลื่อนชั้น
-    seedDemoRosterGrades(); // คะแนนบัญชี demo ม.1/1 (10021-10025) — ให้ GPA Dashboard = หน้าผลการเรียน
-    // จำลองผลประเมินคุณลักษณะฯ ให้นักเรียน "ทุกคนที่มีอยู่จริงในห้อง" (mock + seed + cohort)
-    // — กันเอกสาร ปพ.1/4/6 ขึ้น '—' เพราะนักเรียนบางคนไม่อยู่ในชุดรหัสที่ generate เอง
-    seedDemoAssessments(allStudentCodes());
-    refresh();
+    // TODO(PostgreSQL): แทนที่ด้วย session จาก server (next-auth / JWT)
+    initAunqa()
+      .catch(e => setInitError(e instanceof Error ? e.message : 'เริ่มต้นข้อมูลไม่สำเร็จ'))
+      .finally(refresh);
   }, [refresh]);
 
   return (
-    <AuthContext.Provider value={{ session, isLoading, refresh, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, refresh, logout, initError }}>
       {children}
       {loggingOut && <LogoutLoader />}
     </AuthContext.Provider>

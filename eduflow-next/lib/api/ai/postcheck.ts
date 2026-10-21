@@ -1,0 +1,69 @@
+/**
+ * AI post-check (กฎ 7.3 — บังคับในโค้ด):
+ *  1) ทุก [E-…] ใน output ต้องมีจริงในรอบนั้น ไม่งั้นตัดทิ้ง
+ *  2) ตัวเลขทุกตัวใน output ต้องพบใน input context ไม่งั้นติดธง (และตัดประโยคนั้นถ้า dropUnsafe)
+ * pure function — ทดสอบง่าย
+ */
+import type { PostCheckResult } from '../../types';
+import { extractNumbers, splitSentences } from '../../utils/text';
+
+const CITE_RE = /\s*\[(E-\d+\.\d+-\d{2,})\]/g;
+
+/** ชุดตัวเลขที่ "อนุญาต" = ตัวเลขทั้งหมดที่ปรากฏใน input context */
+export function allowedNumbers(inputContext: string): Set<string> {
+  return new Set(extractNumbers(inputContext));
+}
+
+export interface PostCheckOptions {
+  allowedCodes: Set<string>;
+  inputContext: string;
+  /** true = ตัดประโยคที่มีตัวเลขไม่อยู่ใน input หรืออ้างรหัสปลอม ออกจากข้อความ */
+  dropUnsafe?: boolean;
+}
+
+export function postCheckText(text: string, opt: PostCheckOptions): { text: string; result: PostCheckResult } {
+  const nums = allowedNumbers(opt.inputContext);
+  const removedCitations = new Set<string>();
+  const unknownNumbers = new Set<string>();
+  const flagged: string[] = [];
+  const keptLines: string[] = [];
+
+  for (const line of (text || '').split('\n')) {
+    // แยกประโยคภายในบรรทัด แต่คงบรรทัดเดิมไว้
+    const parts = splitSentences(line);
+    const keptParts: string[] = [];
+    for (const part of parts) {
+      let bad = false;
+      let cleaned = part.replace(CITE_RE, (m, code: string) => {
+        if (opt.allowedCodes.has(code)) return m;
+        removedCitations.add(code); bad = true; return '';
+      });
+      const unk = extractNumbers(cleaned).filter(n => !nums.has(n));
+      if (unk.length) { unk.forEach(n => unknownNumbers.add(n)); bad = true; }
+      if (bad) {
+        flagged.push(part);
+        if (opt.dropUnsafe) continue;
+      }
+      cleaned = cleaned.trim();
+      if (cleaned) keptParts.push(cleaned);
+    }
+    if (keptParts.length) keptLines.push(keptParts.join(' '));
+    else if (!line.trim()) keptLines.push('');
+  }
+  const result: PostCheckResult = {
+    ok: removedCitations.size === 0 && unknownNumbers.size === 0,
+    removedCitations: Array.from(removedCitations), unknownNumbers: Array.from(unknownNumbers), flaggedSentences: flagged,
+  };
+  return { text: keptLines.join('\n').trim(), result };
+}
+
+/** รวมผลหลายข้อความ (เช่น review ที่มีหลายรายการ) */
+export function mergePostChecks(rs: PostCheckResult[]): PostCheckResult {
+  const u = (xs: string[][]) => Array.from(new Set(xs.flat()));
+  return {
+    ok: rs.every(r => r.ok),
+    removedCitations: u(rs.map(r => r.removedCitations)),
+    unknownNumbers: u(rs.map(r => r.unknownNumbers)),
+    flaggedSentences: rs.flatMap(r => r.flaggedSentences),
+  };
+}

@@ -1,329 +1,221 @@
-// ─── TYPES ─── (พร้อมสำหรับ PostgreSQL)
-
-export type Role = 'web_admin' | 'school_admin' | 'teacher' | 'student' | 'parent';
-
-export interface User {
-  username: string;
-  password: string;
-  role: Role;
-  name: string;
-  email?: string;
-  emailVerified?: boolean;  // false = สมัครแล้วยังไม่กดลิงก์ยืนยัน · undefined = บัญชีเก่า/seed ถือว่าผ่านแล้ว
-  school?: string;
-  code?: string;
-  class?: string;
-  childCode?: string;
-  childName?: string;
-  teacherId?: string;
-  createdAt?: string;
-  seeded?: boolean;
-}
-
-export interface Session {
-  username: string;
-  role: Role;
-  name: string;
-  school: string;
-  code: string;
-  childCode: string;   // สำหรับ parent — รหัสนักเรียนของลูก
-  childName: string;
-  class: string;
-  loginAt: number;
-}
-
-export interface Permissions {
-  teacher: Record<string, boolean>;
-  student: Record<string, boolean>;
-  parent: Record<string, boolean>;
-  school_admin: Record<string, boolean>;
-}
-
-// ─── Student ───────────────────────────────────────────
-export type AttendanceStatus = 'on-time' | 'late' | 'absent';
-export type AssignmentStatus = 'pending' | 'overdue' | 'submitted' | 'graded';
-
-export interface StudentProfile {
-  firstName: string;
-  lastName: string;
-  nickname: string;
-  gender: string;
-  dob: string;
-  bloodType: string;
-  studentId: string;
-  grade: string;
-  room: string;
-  academicYear: string;
-  school: string;
-  address: string;
-  phone: string;
-  email: string;
-  lineId: string;
-  religion: string;
-  nationality: string;
-  citizenId?: string;   // เลขบัตรประชาชน 13 หลัก — ใช้ยืนยันตัวตนตอน web admin เติมเงินตรง
-  father: { name: string; phone: string; occupation: string };
-  mother: { name: string; phone: string; occupation: string };
-  emergencyContact: string;
-}
-
-export interface StudentStats {
-  attendancePct: number;
-  homeworkPending: number;
-  balance: number;
-  gpa: number;
-}
-
-export interface SchedulePeriod {
-  period: number;
-  time: string;
-  subject: string;
-  teacher: string;
-  room: string;
-  key: string;
-}
-
-export interface Subject {
-  key: string;
-  name: string;
-  teacher: string;
-  icon: string;
-  attend: number;
-  midterm: number | null;
-  assign: number;
-  done: number;
-}
-
-/** ประเภทไฟล์ที่ครูกำหนดให้ส่ง: pdf = ใบงาน/เอกสาร, video = คลิปวิดีโอ, slides = สไลด์นำเสนอ */
-export type SubmitFileType = 'pdf' | 'video' | 'slides';
-
-export interface Assignment {
-  id: number;
-  key: string;
-  subject: string;
-  title: string;
-  due: string;
-  urgency: string;
-  status: AssignmentStatus;
-  maxScore: number;
-  myScore: number | null;
-  teacher: string;
-  details: string;
-  files: number;
-  submitType?: SubmitFileType; // default 'pdf'
-}
-
-export interface ShopItem {
-  id: number;
-  cat: string;
-  name: string;
-  price: number;
-  icon: string;
-  avail: boolean;
-  hot: boolean;
-}
-
-export interface LibraryBook {
-  id: number;
-  type: string;
-  title: string;
-  cover: string;
-  pages: number;
-  author: string;
-  desc: string;
-  gradeMin: number;
-  gradeMax: number;
-}
-
-export interface Notification {
-  id: number;
-  type: 'overdue' | 'grade' | 'info' | 'hw' | 'attendance_report' | 'assignment_submitted';
-  isNew: boolean;
-  title: string;
-  body: string;
-  time: number;
-  data?: any;
-}
-
-// ─── Teacher ───────────────────────────────────────────
-export interface EducationRecord {
-  level: string;       // เช่น ปริญญาตรี
-  major: string;       // วิชาเอก
-  institute: string;   // สถาบัน
-  year: string;        // ปีที่สำเร็จการศึกษา
-}
-
-export interface WorkRecord {
-  year: string;        // ช่วงปี เช่น 2560–2564
-  position: string;
-  place: string;
-}
-
 /**
- * ประวัติครูฉบับเต็ม — ฟิลด์เดิม 5 ตัวแรกเป็น required (ของเดิมไม่พัง)
- * ที่เหลือ optional เพราะบัญชีเก่า/บัญชีใหม่ยังไม่ได้กรอก
+ * Domain types — AUN-QA Copilot (spec หัวข้อ 4.1 / 8)
+ *
+ * ส่วน "Contract" ด้านบนต้องตรงกับที่ตกลงใน TASK-0001 (db-engineer ใช้ใน lib/mock-data/aunqa/**)
+ * TODO(PostgreSQL): แต่ละ interface = 1 ตารางในหัวข้อ 8 ของ spec (camelCase ↔ snake_case)
  */
-export interface TeacherProfile {
-  name: string;
-  teacherId: string;
-  school: string;
-  subject: string;
-  academicYear: string;
 
-  // ── ข้อมูลส่วนบุคคล ──
-  prefix?: string;          // คำนำหน้า
-  firstName?: string;
-  lastName?: string;
-  nickname?: string;
-  gender?: string;
-  dob?: string;             // วัน/เดือน/ปีเกิด
-  bloodType?: string;
-  citizenId?: string;       // เลขบัตรประชาชน 13 หลัก
-  nationality?: string;
-  ethnicity?: string;       // เชื้อชาติ
-  religion?: string;
-  maritalStatus?: string;
+// ═══════════════════════ Contract (ห้ามเปลี่ยนชื่อ) ═══════════════════════
 
-  // ── ที่อยู่ & ช่องทางติดต่อ ──
-  addressCurrent?: string;  // ที่อยู่ปัจจุบัน
-  addressRegistered?: string; // ที่อยู่ตามทะเบียนบ้าน
-  phone?: string;
-  email?: string;
-  lineId?: string;
-  emergencyName?: string;
-  emergencyRelation?: string;
-  emergencyPhone?: string;
+export type RoleCode = 'super_admin'|'uni_admin'|'programme_chair'|'programme_staff'|'data_staff'|'faculty_qa'|'dean'|'assessor';
+export type CriterionGroup = 'design'|'resource'|'output';
+export type PdcaStage = 'P'|'D'|'C'|'A';
+export type EvidenceKind = 'policy'|'plan'|'minutes'|'survey'|'statistics'|'photo'|'publication'|'other';
 
-  // ── ข้อมูลสุขภาพ ──
-  congenitalDisease?: string; // โรคประจำตัว
-  drugAllergy?: string;       // แพ้ยา
-  foodAllergy?: string;       // แพ้อาหาร
-  healthNote?: string;        // หมายเหตุด้านสุขภาพ
-
-  // ── ข้อมูลการปฏิบัติงาน ──
-  position?: string;          // ตำแหน่ง เช่น ครูผู้ช่วย
-  academicRank?: string;      // วิทยฐานะ
-  subjectGroup?: string;      // กลุ่มสาระการเรียนรู้
-  employmentType?: string;    // ประเภทการจ้าง
-  startDate?: string;         // วันที่เริ่มปฏิบัติงาน
-  teacherLicense?: string;    // เลขที่ใบประกอบวิชาชีพครู
-  licenseExpiry?: string;
-  homeroomClass?: string;     // ครูที่ปรึกษาประจำชั้น
-
-  // ── ประวัติ ──
-  education?: EducationRecord[];
-  workHistory?: WorkRecord[];
-  trainings?: string[];       // ประวัติการอบรม/พัฒนาตนเอง
-  awards?: string[];          // รางวัล/ผลงาน
+export interface Criterion { no: number; nameEn: string; nameTh: string; group: CriterionGroup }
+export interface Requirement {
+  id: string; /* '1.1' */ criterionNo: number; textEn: string; textTh: string; plainTh: string;
+  suggestedEvidence: string[]; diagnosticQuestions: string[]; tipTh: string; /* ทำอย่างไรให้ถึงระดับ 4 */
+  relatedMetrics: string[]; needsBenchmark: boolean; needsTrend: boolean;
+}
+export interface University { id: string; nameTh: string; nameEn: string; emailDomain: string; aiEnabled: boolean }
+export interface Faculty { id: string; universityId: string; nameTh: string; nameEn: string }
+export interface Programme {
+  id: string; universityId: string; facultyId: string; code: string; nameTh: string; nameEn: string;
+  degreeLevel: 'bachelor'|'master'|'doctoral'; curriculumYear: number;
+}
+export interface RoleAssignment { role: RoleCode; scopeType: 'university'|'faculty'|'programme'|'cycle'; scopeId: string }
+export interface AppUser {
+  id: string; username: string; password: string; /* plaintext (seed) หรือ 'sha256:…' */
+  universityId: string; email: string; fullName: string; roles: RoleAssignment[];
+}
+export interface MetricDefinition {
+  code: string; nameTh: string; nameEn: string; unit: string;
+  periodType: 'academic_year'|'fiscal_year'|'calendar_year'|'cohort'|'graduation_year';
+}
+export interface MetricValue {
+  id: string; programmeId: string; code: string; period: number; value: number;
+  targetValue?: number; benchmarkValue?: number; benchmarkSource?: string;
+}
+export interface DemoEvidenceSeed {
+  title: string; description: string; kind: EvidenceKind; pdcaStage: PdcaStage;
+  academicYear: number; requirementIds: string[]; extractedText: string; programmeId: string;
 }
 
-export interface ClassInfo {
+// ═══════════════════════ Cycle & SAR ═══════════════════════
+
+export type CycleStatus =
+  | 'draft' | 'in_progress' | 'under_review' | 'revision_requested'
+  | 'faculty_approved' | 'final_approved' | 'under_assessment' | 'assessed' | 'closed';
+export type SectionStatus = 'not_started' | 'drafting' | 'ready_for_review' | 'changes_requested' | 'approved';
+
+export interface AssessmentCycle {
   id: string;
-  grade: string;
-  room: string;
-  subject: string;
-  key: string;      // กลุ่มสาระ — ใช้เลือกสี/ไอคอน (ซ้ำกันได้หลายวิชา)
-  code?: string;    // รหัสวิชา เช่น ค21101 — ตัวระบุวิชาที่แท้จริง (ไม่ซ้ำในห้องเดียวกัน)
-  icon: string;
-  color: string;
-  /** วิธีตัดสินผล: 'numeric' = คิดเกรด · 'symbol' = ผ/มผ (กิจกรรม/ชุมนุม) — มาจากตารางสอน */
-  gradingMode?: 'numeric' | 'symbol';
+  universityId: string;
+  programmeId: string;
+  frameworkCode: string;            // 'AUNQA-P-v4'
+  academicYear: number;             // พ.ศ. (เช่น 2569)
+  status: CycleStatus;
+  submissionDue?: string;           // ISO date
+  assessmentDate?: string;
+  revision: number;                 // เริ่ม 1 · เปิด revision ใหม่หลัง lock → +1
+  lockedAt?: number;
+  lockedBy?: string;
+  snapshotHash?: string;            // sha256 ของ snapshot JSON ทั้งเล่ม
+  copiedFromCycleId?: string;
+  createdAt: number;
+  createdBy: string;
+  updatedAt: number;
 }
 
-export interface TeacherStudent {
+export interface PdcaFlags { plan: boolean; do: boolean; check: boolean; act: boolean }
+
+export interface SarSection {
+  id: string;                       // `${cycleId}::${requirementId}`
+  cycleId: string;
+  requirementId: string;
+  ownerUserId?: string;
+  due?: string;                     // ISO date
+  status: SectionStatus;
+  narrativeTh: string;
+  narrativeEn: string;
+  pdca: PdcaFlags;
+  wordCount: number;
+  updatedAt: number;
+  updatedBy?: string;
+}
+
+export interface SarSectionVersion {
+  id: string; sectionId: string; narrativeTh: string; narrativeEn: string; pdca: PdcaFlags;
+  savedBy: string; savedAt: number; reason: 'autosave' | 'manual' | 'ai_accept' | 'submit';
+}
+
+export type RaterType = 'self' | 'committee' | 'ai_suggestion';
+export interface Rating {
+  id: string; cycleId: string; requirementId: string; raterType: RaterType;
+  raterUserId: string; score: number; /* 1–7 */ rationale: string; at: number;
+}
+
+export interface Comment {
+  id: string; cycleId: string; targetType: 'section' | 'cycle'; targetId: string;
+  authorId: string; body: string; parentId?: string;
+  anchor?: { start: number; end: number; text: string };
+  at: number; resolvedAt?: number; resolvedBy?: string;
+}
+
+export interface ReviewEvent {
+  id: string; cycleId: string; targetType: 'cycle' | 'section'; targetId: string;
+  fromStatus: string; toStatus: string; actorId: string; note?: string; at: number;
+}
+
+// ═══════════════════════ Evidence ═══════════════════════
+
+export type EvidenceStatus = 'uploaded' | 'tagged' | 'verified';
+export type PiiKind = 'thai_id' | 'student_id' | 'email' | 'phone';
+export interface PiiFinding { kind: PiiKind; count: number; sample: string /* masked */ }
+
+export interface Evidence {
   id: string;
-  code: string;
-  name: string;
-  classId: string;
-}
-
-export interface Submission {
-  studentId: string;
-  submittedAt: string;
-  score: number | null;
-  status: string;
-  teacherNote: string;
-  studentNote: string;
-  files: string[];
-  fileCount: number;
-}
-
-export interface TeacherAssignment {
-  id: number;
-  classId: string;
-  subject: string;
-  key: string;
-  semester: number;
-  academicYear: string;
+  universityId: string;
+  programmeId: string;
+  code: string;                     // 'E-1.4-02' unique ต่อ programme
   title: string;
   description: string;
-  maxScore: number;
-  dueDate: string;
-  fileRequired: number;
-  submissions: Submission[];
-}
-
-// ─── Attendance (QR Code) ──────────────────────────────────
-export interface AttendanceSession {
-  id: string;
-  teacherId: string;
-  teacherName?: string;
-  classId: string;
-  classLabel?: string;   // เช่น 'ม.1/1'
-  subject: string;
-  period: number;
-  qrCode: string;
+  aiSummary?: string;
+  kind: EvidenceKind;
+  pdcaStage: PdcaStage;
+  academicYear: number;
+  currentFileId?: string;
+  url?: string;
+  sha256?: string;
+  containsPii: boolean;
+  piiKinds: PiiKind[];
+  piiResolved: boolean;
+  piiResolvedNote?: string;
+  status: EvidenceStatus;
+  verifiedBy?: string;
+  verifiedAt?: number;
   createdAt: number;
-  expiresAt: number;
-  status: 'active' | 'expired' | 'submitted';
+  createdBy: string;
+  updatedAt: number;
 }
 
-export interface AttendanceRecord {
+export interface EvidenceLink {
   id: string;
-  sessionId: string;
-  studentId: string;
-  studentName: string;
-  checkedAt: number;
-  status: 'on-time' | 'late';
+  evidenceId: string;
+  requirementId: string;
+  cycleId: string;
+  source: 'manual' | 'ai';
+  confidence?: number;
+  confirmedBy?: string;
+  at: number;
 }
 
-export interface AttendanceReport {
-  id: string;
-  sessionId: string;
-  teacherId: string;
-  classId: string;
-  classLabel?: string;   // เช่น 'ม.1/1'
-  subject: string;
-  period: number;
-  date: string;
-  time: string;
-  totalStudents: number;
-  presentCount: number;
-  lateCount: number;
-  absentCount: number;
-  records: AttendanceRecord[];
-  submittedAt: number;
+/** เวอร์ชันของไฟล์หลักฐาน — เก็บ metadata + text ที่ extract เสมอ, dataUrl เฉพาะไฟล์ ≤ 1MB */
+export interface EvidenceFile {
+  id: string; evidenceId: string; version: number; name: string; mime: string; size: number;
+  sha256: string; extractedText?: string; dataUrl?: string; uploadedBy: string; uploadedAt: number;
 }
 
-// ─── School ────────────────────────────────────────────
-export interface SchoolReview {
-  reviewer: string;
-  role: string;
-  rating: number;
-  text: string;
-  date: string;
-  product: string;
+// ═══════════════════════ Notifications / Audit / AI ═══════════════════════
+
+export type NotificationKind =
+  | 'assigned' | 'comment' | 'changes_requested' | 'approved' | 'cycle_status' | 'deadline';
+export interface AppNotification {
+  id: string; universityId: string; userId: string; kind: NotificationKind;
+  cycleId?: string; requirementId?: string; messageTh: string;
+  dedupeKey?: string; createdAt: number; readAt?: number;
 }
 
-export interface School {
-  id: number;
-  name: string;
-  district: string;
-  province: string;
-  logo: string;
-  level: string;
-  rating: number;
-  students: number;
-  teachers: number;
-  tags: string[];
-  reviews: SchoolReview[];
+export interface AuditLog {
+  id: string; universityId: string; programmeId?: string; actorId: string; actorName: string;
+  action: string; targetType: string; targetId: string;
+  before?: unknown; after?: unknown; ip: string; at: number;
+}
+
+export type AiFeature = 'AI-1' | 'AI-2' | 'AI-3';
+export interface PostCheckResult {
+  ok: boolean;
+  removedCitations: string[];       // [E-…] ที่ไม่มีจริง (ถูกตัด)
+  unknownNumbers: string[];         // ตัวเลขที่ไม่พบใน input (ติดธง)
+  flaggedSentences: string[];
+}
+export interface AiRun {
+  id: string; universityId: string; feature: AiFeature; promptVersion: string; model: string;
+  cycleId?: string; requirementId?: string; evidenceId?: string;
+  inputRefs: string[];              // code ของ evidence / id ที่ใช้
+  redactedInputHash: string; redactionCount: number;
+  output: unknown; postCheck: PostCheckResult;
+  createdBy: string; createdAt: number;
+  accepted: boolean; acceptedBy?: string; acceptedAt?: number; latencyMs: number;
+}
+
+// ═══════════════════════ Gap / Readiness ═══════════════════════
+
+export type GapRuleId = 'R1'|'R2'|'R3'|'R4'|'R5'|'R6'|'R7'|'R8'|'R9'|'R10';
+export type GapSeverity = 'critical' | 'high' | 'medium' | 'low';
+export interface Gap {
+  id: string; ruleId: GapRuleId; severity: GapSeverity; requirementId: string;
+  messageTh: string; evidenceId?: string; metricCode?: string;
+}
+
+export type HeatLevel = 'empty' | 'critical' | 'warning' | 'ok' | 'ready' | 'approved';
+export interface HeatCell {
+  requirementId: string; criterionNo: number; sectionStatus: SectionStatus;
+  level: HeatLevel; score: number; gaps: Record<GapSeverity, number>;
+}
+export interface PendingWork { userId: string; open: number; overdue: number; nextDue?: string; requirementIds: string[] }
+export interface Readiness {
+  percent: number;                  // 0–100
+  heatmap: HeatCell[];              // 53 ช่อง
+  gapCounts: Record<GapSeverity, number>;
+  gaps: Gap[];
+  pending: PendingWork[];
+}
+
+// ═══════════════════════ Session ═══════════════════════
+
+export interface Session {
+  userId: string; username: string; fullName: string; universityId: string;
+  roles: RoleAssignment[]; loginAt: number;
 }

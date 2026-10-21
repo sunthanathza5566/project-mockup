@@ -14,7 +14,7 @@ export default function AuthNav() {
     transition: 'color 0.2s', cursor: 'pointer',
   };
 
-  const links: [string, string][] = [['#about', 'เกี่ยวกับเรา'], ['#clients', 'ลูกค้าของเรา'], ['#contact', 'ติดต่อเรา']];
+  const links: [string, string][] = [['#about', 'จุดเด่น'], ['#flow', 'ขั้นตอนใช้งาน'], ['#contact', 'เริ่มใช้งาน']];
 
   return (
     <nav style={{
@@ -27,7 +27,7 @@ export default function AuthNav() {
           fontSize: '1.5rem', fontWeight: 600, color: 'var(--brown-dark)', cursor: 'pointer',
           fontFamily: 'Cormorant Garamond, serif', letterSpacing: '0.04em',
         }}>
-          Edu<span style={{ color: 'var(--brown-mid)' }}>Flow</span>
+          AUN-QA <span style={{ color: 'var(--brown-mid)' }}>Copilot</span>
         </div>
       </Link>
 

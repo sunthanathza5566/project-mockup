@@ -7,8 +7,8 @@ import Toast from '@/components/ui/Toast';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'EduFlow — ระบบอำนวยความสะดวกโรงเรียน',
-  description: 'ระบบครบวงจรสำหรับการจัดการการเข้าเรียน ลงชื่อเข้าเรียน และติดตามผลนักเรียนแบบเรียลไทม์',
+  title: 'AUN-QA Copilot — ผู้ช่วยจัดทำ SAR ระดับหลักสูตร',
+  description: 'ผู้ช่วยจัดทำรายงานประเมินตนเอง (SAR) ตามเกณฑ์ AUN-QA ระดับหลักสูตร: มอบหมายงาน ผูกหลักฐาน ตรวจช่องว่าง ส่งออกเอกสาร',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
