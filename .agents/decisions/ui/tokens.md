@@ -17,7 +17,8 @@
 | `--c-primary` | `#3B4FA0` | ปุ่มหลัก, ลิงก์, focus ring, เมนู active, ตัวเลข KPI หลัก |
 | `--c-primary-strong` | `#2A3978` | hover/pressed ของปุ่มหลัก, แถบเข้ม (CTA band, footer, แผงซ้ายหน้า login) |
 | `--c-primary-tint` | `#E8EBF8` | พื้นเมนู active, แถว selected, heat "พอใช้", chip ข้อที่เลือก |
-| `--c-accent` | `#E9A23B` | **ตกแต่งเท่านั้น**: จุดในโลโก้, เส้นใต้หัวข้อ, ประกายฉลอง, progress ring ช่วงสุดท้าย, focus ring บนพื้นเข้ม |
+| `--c-accent` | `#E9A23B` | **ตกแต่งเท่านั้น**: จุดในโลโก้, เส้นใต้หัวข้อ, ประกายฉลอง (L7), focus ring บนพื้นเข้ม — **ห้ามใช้เป็นแท่งค่าของ progress ring/bar** (accent/surface-2 = 1.89 ไม่ถึง 3:1; U1b F4) |
+| `--c-danger-strong` | `#8F1D17` | hover/pressed ของปุ่ม `danger-solid` (U1b F10) |
 | `--c-on-accent` | `#3A2500` | ตัวอักษรบนพื้น accent (chip "ใหม่", ป้ายฉลอง) |
 | `--c-accent-tint` | `#FCEBD0` | ไฮไลต์แถวที่เพิ่งเพิ่ม/แก้ (จางออก), แถบ "เคล็ดลับ" |
 | `--c-border-control` | `#8C8178` | ขอบช่องกรอก/select/checkbox/ปุ่ม secondary (ต้อง ≥3:1) |
@@ -41,7 +42,7 @@
 | # | ตัวหน้า | พื้น | อัตราส่วน | เกณฑ์ | ที่มา | ใช้กับ |
 |---|---|---|---|---|---|---|
 | 1 | ink | bg | 14.12 | 4.5 | R | เนื้อหาทั้งหมด |
-| 2 | ink | surface | ~14.9 | 4.5 | A | เนื้อหาในการ์ด |
+| 2 | ink | surface | 14.95 | 4.5 | A (U1b วัดแล้ว) | เนื้อหาในการ์ด |
 | 3 | ink | surface-2 | 13.06 | 4.5 | A | หัวตาราง, read-only |
 | 4 | ink | accent-tint | 12.77 | 4.5 | A | แถวไฮไลต์ |
 | 5 | muted | bg | 6.88 | 4.5 | R | ข้อความรอง |
@@ -76,6 +77,20 @@
 | 34 | border-control | primary-tint | 3.20 | 3.0 | A | ขอบ chip |
 | 35 | primary (focus ring) | bg / surface | 7.05 / 7.47 | 3.0 | R | focus ring ทุกที่บนพื้นสว่าง |
 | 36 | #FFFFFF | primary (matrix M) | 7.47 | 4.5 | R | matrix ระดับ M |
+
+คู่เพิ่มจาก U1b (ui-inspector วัดด้วย `.agents/playtest/u1b/contrast.mjs` แล้ว — ที่มา **[U]**):
+| # | ตัวหน้า | พื้น | อัตราส่วน | เกณฑ์ | ใช้กับ |
+|---|---|---|---|---|---|
+| 37 | ink | success-bg / warn-bg / danger-bg / info-bg | 13.08 / 13.39 / 12.69 / 12.91 | 4.5 | เนื้อความใน InlineMessage (C9) |
+| 38 | muted | success-bg / warn-bg / danger-bg / info-bg | 6.37 / 6.52 / 6.18 / 6.29 | 4.5 | ข้อความรองใน InlineMessage |
+| 39 | primary | accent-tint | 6.38 | 4.5 | ลิงก์รหัสในแถวที่ไฮไลต์ (L5) |
+| 40 | primary (แท่งค่า ring/bar) | surface-2 (track) | 6.52 | 3.0 | ProgressRing/bar ค่าระหว่างทาง (C20) |
+| 41 | success (แท่งค่า ring/bar) | surface-2 (track) | 4.58 | 3.0 | ProgressRing/bar เมื่อครบและไม่มี gap วิกฤต |
+| 42 | surface (#FFF พื้นปุ่ม) / primary-strong (ตัว) | primary-strong (แถบเข้ม) | 10.74 | 4.5 / 3.0 ขอบเขตปุ่ม | ปุ่ม primary บนแถบเข้ม `.aq-on-dark .aq-btn-primary` (U1b F3) |
+| 43 | on-dark (ตัว) + on-dark-muted (ขอบ 1px) | primary-strong | 10.14 / 6.91 | 4.5 / 3.0 | ปุ่ม secondary/ghost และ LangToggle บนแถบเข้ม (U1b F3) |
+| 44 | #FFFFFF | danger-strong | 8.91 | 4.5 | ปุ่ม danger-solid hover/pressed (A คำนวณ) |
+คู่ที่ **ห้ามใช้** (วัดแล้วตก — แทนด้วยคู่ข้างบน): accent บน surface-2 (1.89) → ใช้ #40/#41 · ปุ่ม primary ปกติบน primary-strong (1.44) → ใช้ #42 · border-control บน primary-strong (2.83) → ใช้ #43
+หมายเหตุ #19 (accent/primary-strong 4.96) และ #20 (success/success-bg 4.59) ผ่านแบบเฉียด: #19 ใช้กับตัวอักษร 600+ ขนาด ≥18px หรือ focus ring เท่านั้น · #20 ใช้กับ pill/heat (13px 600) ได้ตามที่วัด ห้ามลดน้ำหนักเป็น 400
 
 ข้อห้ามสี (ตรวจได้ด้วย grep/สคริปต์):
 - `--c-accent` ห้ามเป็นสีตัวอักษร/ไอคอนบนพื้นสว่าง (2.04:1) — ใช้เป็นพื้น/เส้นตกแต่งเท่านั้น
@@ -121,6 +136,9 @@
 - `letter-spacing` ≤ 0.01em ทุกที่ · ห้าม `text-transform: uppercase` · ห้ามตัวเอียงในข้อความไทย · ย่อหน้ายาวชิดซ้าย ห้าม `text-align: justify`
 - ความกว้างย่อหน้าอ่าน: `--measure: 46rem` (ใช้กับ `.aq-prose`, คำอธิบายข้อกำหนด, ร่าง AI)
 - ห้ามกำหนด `height` คงที่ให้กล่องที่มีข้อความ (ใช้ `min-height`) — รองรับ WCAG 1.4.12 และการขยาย 125%
+- **กันวรรณยุกต์/สระไทยถูกตัด (U1b F5 — ink ของ "ปั้น/ผู้ใหญ่/น้ำ" เกินกล่องบรรทัด 4–9px):** element ที่ใช้ `overflow:hidden`, `text-overflow:ellipsis` หรือ `line-clamp` ต้องมี `line-height ≥ 1.6` และ `padding-block ≥ 0.15em` · **ห้ามใช้ overflow/ellipsis/clamp กับ h1–h3 และ pill/badge** · ข้อความที่ต้องสั้นลง (เช่นชื่อข้อใน h1 ของ P9) ให้ตัดใน JS (`truncateTh(s, n)` ใน `lib/ui/aunqa.ts`: ตัดที่ n ตัวอักษร แล้วถอยไปตำแหน่งที่ไม่ใช่สระบน/ล่าง/วรรณยุกต์ ช่วง U+0E31, U+0E34–U+0E3A, U+0E47–U+0E4E เพื่อไม่ตัดกลางพยางค์ แล้วต่อ "…") · ที่อนุญาต ellipsis ด้วย CSS: `nav-user` ชื่อใน top bar, option ใน RequirementPicker, ข้อความใน select (ทั้งหมด fs-base lh 1.7 อยู่แล้ว + padding-block 0.15em)
+- base layer: `html { font-synthesis: none; }` และ `em, i { font-style: normal; font-weight: 600; }` (U1b F13 — กันเบราว์เซอร์สังเคราะห์ตัวหนา/เอียงไทย)
+- **บันทึกการเบี่ยงจาก ui-ux.md §9 ข้อ 1 โดยตั้งใจ (U1b F9):** (1) 13px อนุญาตเฉพาะป้ายสั้น ≤3 คำ weight 600 ใน class T2.3 (2) line-height <1.6 อนุญาตเฉพาะหัวข้อ ≥18px (1.35–1.45) และตัวเลข KPI ล้วน (1.15) — ui-inspector วัดใน U1b แล้วว่าไม่ชนกันที่ Sarabun (`ui-lh-test-390.png`, `ui-lh-stress-390.png`)
 
 ### T2.3 class ที่อนุญาตให้เป็น 13px
 `.aq-pill`, `.aq-badge`, `.aq-count`, `.aq-heat-cell__label`, `.aq-chart-label`, `.aq-kbd` — นอกจากนี้ห้าม (AC-02 ตรวจด้วยสคริปต์)
@@ -145,7 +163,7 @@ class ที่ใช้ `--fs-sm` (14px) ได้: `.aq-help`, `.aq-meta`, `.a
 | token | ค่า | ใช้กับ |
 |---|---|---|
 | `--control-h` | 44px | ปุ่มทุกแบบ, input, select, เมนู sidebar, tab, ปุ่มไอคอน (กว้าง×สูง 44×44) |
-| `--control-h-sm` | 40px (≤768: 44px) | ปุ่มในแถวตาราง/ปุ่มเล็กในการ์ด **บนเดสก์ท็อปเท่านั้น** |
+| `--control-h-sm` | 40px (<768: 44px) | ปุ่มในแถวตาราง/ปุ่มเล็กในการ์ด **บนเดสก์ท็อปเท่านั้น** |
 | checkbox/radio | กล่อง 20×20, label ทั้งแถวกดได้ สูง ≥44px | ฟอร์ม |
 ไม่มี `.aq-btn-sm` ที่ 30px อีกต่อไป (M8)
 
@@ -226,6 +244,8 @@ html[data-effects="off"] .aq-celebrate-spark { display: none !important; }
 | `lg` | ≥1024px | **sidebar ถาวร** (ต่ำกว่านี้ = drawer), section editor 2 คอลัมน์ |
 | `xl` | ≥1280px | KPI 5 ช่องแถวเดียว, หน้า login แบบแบ่งครึ่ง |
 ความกว้างที่ต้องทดสอบ: **390, 768, 1024, 1440** (AC-03)
+
+**กฎการอ่าน breakpoint ทั้ง spec (U1b F1 — มีผลเหนือทุกไฟล์):** เขียน CSS แบบ mobile-first ด้วย `min-width` ตามตารางข้างบนเท่านั้น · ข้อความใน spec ที่เขียน "≤767", "≤768" หรือ "<768" ทั้งหมดหมายถึง **ต่ำกว่า md** = ความกว้าง 0–767.98px (ถ้าต้องเขียน max-width ให้ใช้ `@media (max-width: 767.98px)`) · "≤479" = 0–479.98 · "≤1023" = 0–1023.98 · "≤1279" = 0–1279.98 · **ที่ 768px พอดีใช้ค่าของ md (เดสก์ท็อปเล็ก) เสมอ** เช่น h1 28px, padding การ์ด 24px, toast มุมขวาล่าง, top bar แสดงชื่อผู้ใช้
 
 ## T11. Dark mode — ตัดสิน: **ไม่ทำใน Phase U**
 เหตุผล: (1) ผู้ใช้หลักทำงานกลางวันในสำนักงาน/ห้องประชุมที่ฉายโปรเจกเตอร์ — โหมดสว่างอ่านง่ายกว่าบนโปรเจกเตอร์ (2) ต้องตรวจ contrast ใหม่ทั้ง 36 คู่ + สีสถานะ + heatmap + กราฟ เท่ากับทำงานสองเท่า ขณะที่เจ้าของไม่ได้ขอ (3) token ทุกตัวอยู่ใน `:root` ที่เดียว ถ้าจะทำภายหลังให้เพิ่ม `@media (prefers-color-scheme: dark)` ได้โดยไม่แตะคอมโพเนนต์ (บันทึกเป็น backlog) · ใส่ `<meta name="color-scheme" content="light">` ใน layout เพื่อไม่ให้เบราว์เซอร์กลับสีฟอร์มเอง

@@ -20,13 +20,14 @@
 | danger | `aq-btn aq-btn-danger` | surface / danger / danger 1px | ส่งกลับแก้ไข, ลบ (ก่อนยืนยัน) |
 | danger-solid | `aq-btn aq-btn-danger-solid` | danger / #FFF | ปุ่มยืนยันลบ **ใน dialog เท่านั้น** |
 | icon | `aq-btn aq-btn-icon` + variant | 44×44, ไอคอน 20 | ต้องมี `aria-label` + Tooltip |
+| บนพื้นเข้ม (U1b F3) | ภายใน container `.aq-on-dark` (CTA band, footer, แผงแบรนด์ login) | primary → พื้น surface #FFF / ตัว primary-strong / ขอบ surface (คู่ #42) · secondary/ghost → พื้นโปร่ง / ตัว on-dark / ขอบ 1px on-dark-muted (คู่ #43) · hover: primary → พื้น primary-tint; secondary → พื้น `rgba(255,255,255,.12)` · focus ring accent (T9) | LangToggle บนแผงแบรนด์ใช้แบบ secondary บนพื้นเข้มเดียวกัน · ห้ามใช้ปุ่มปกติบนพื้นเข้ม |
 ขนาด: สูง `--control-h` (44) padding-inline `--sp-5` font `--fs-base` 600 · `aq-btn-compact` = `--control-h-sm` (ใช้ในแถวตาราง) · ไอคอนนำหน้าห่าง `--sp-2` · `radius --r-md`
 
 | state | กฎ |
 |---|---|
 | default | ตามตาราง |
-| hover | primary → primary-strong; secondary/ghost → พื้น primary-tint; danger → พื้น danger-bg · `--dur-fast --ease-hover` |
-| active (pressed) | `transform: translateY(1px)`, primary → primary-strong, เงา none · `--dur-instant` |
+| hover | primary → primary-strong; secondary/ghost → พื้น primary-tint; danger → พื้น danger-bg; danger-solid → พื้น danger-strong (คู่ #44) · `--dur-fast --ease-hover` |
+| active (pressed) | `transform: translateY(1px)`, primary → primary-strong, danger-solid → danger-strong, เงา none · `--dur-instant` |
 | focus-visible | T9 (outline 3px primary offset 2px) |
 | disabled | พื้น surface-2, ตัว muted (คู่ #7), ขอบ border-subtle, `cursor:not-allowed`, **ไม่ใช้ opacity** · ถ้าปุ่มสำคัญ disabled ต้องมีข้อความเหตุผลมองเห็นได้ข้างปุ่ม (`.aq-btn-reason`, fs-sm muted) ไม่ใช่แค่ title |
 | loading | `aria-busy="true"`, disabled, ไอคอน spinner 16px (วงแหวน stroke หมุน 0.9s linear; reduced-motion = จุดนิ่ง) + ข้อความเฉพาะการกระทำ เช่น "กำลังส่งตรวจ…" (`AsyncButton` รับ prop `busyText`; ค่า default "กำลังทำงาน…") · ความกว้างไม่กระโดด (`min-width` = ความกว้างตอนปกติ) |
@@ -64,10 +65,11 @@
 
 ## C4. RequirementPicker (`components/aunqa/RequirementPicker.tsx`) — ใหม่ (ฟอร์มหลักฐาน)
 - ARIA combobox (pattern ของ WAI-ARIA APG "combobox with listbox popup"): `<input role="combobox" aria-expanded aria-controls aria-activedescendant data-testid="ev-f-reqs-input">` + `<ul role="listbox">` + chips
-- container `data-testid="ev-f-reqs"` · option `role="option" data-testid="ev-f-req-opt-{id}"` · chip `data-testid="ev-f-req-chip-{id}"` (ปุ่ม × `aria-label="เอาข้อ {id} ออก"`)
+- container `data-testid="ev-f-reqs"` · option `role="option" data-testid="ev-f-req-opt-{id}"` · chip `data-testid="ev-f-req-chip-{id}"` สูง 36 พื้น primary-tint ตัว primary-strong ขอบ border-control (คู่ #15, #34) · ปุ่ม × ใน chip = `.aq-chip__remove` 32×32 (ไอคอน x 16) `aria-label="เอาข้อ {id} ออก"` — ได้รับยกเว้นจาก 44px ใน AC-05 (≥24 ตาม WCAG 2.5.8) เพราะ Backspace ลบได้ด้วย (U1b F6)
+- เหนือ picker แสดงบรรทัด `.aq-meta` "บันทึกเข้าหลักสูตร: {รหัส} — {ชื่อหลักสูตร}" (จาก `ev-programme` ของ toolbar) (U1b UX-8)
 - พิมพ์เลขข้อ ("1.1", "3") หรือคำ ("หลักสูตร", "PLO", คำอังกฤษ) → กรองจาก `searchRequirements(q)` (ว่าง = แสดงทั้ง 53 จัดกลุ่มตามเกณฑ์ หัวกลุ่ม `role="presentation"`) · แต่ละ option: "1.1" (600) + ข้อความไทย 1 บรรทัดตัดด้วย ellipsis + ชื่อเกณฑ์ fs-sm muted
 - คีย์บอร์ด: ↓/↑ เลื่อน, Enter = เพิ่ม/เอาออก (toggle) แล้วคงกล่องเปิดและล้างคำค้น, Esc ปิด, Backspace ในช่องว่าง = ลบ chip ล่าสุด · คลิก option = toggle · option ที่เลือกแล้วมีไอคอน check และ `aria-selected="true"`
-- ใต้ช่อง: "เลือกแล้ว: 1.1, 2.1" (`aria-live="polite"`) · ถ้ายังไม่เลือกรอบ → ช่อง disabled + ข้อความช่วย "เลือกรอบประเมินในช่องด้านบนก่อน จึงจะผูกข้อได้"
+- ใต้ช่อง: "เลือกแล้ว: 1.1, 2.1" (`aria-live="polite"`) · ถ้ายังไม่เลือกรอบใน `ev-f-cycle` (มีรอบให้เลือก) → ช่อง disabled + ข้อความช่วย "เลือกรอบประเมินในช่อง “รอบ” ทางซ้ายก่อน จึงจะผูกข้อได้" · ถ้าหลักสูตรนี้**ไม่มีรอบที่เปิดเขียน**เลย → ซ่อน picker และ `ev-f-cycle` แสดง InlineMessage info "ยังไม่มีรอบที่เปิดเขียน — บันทึกหลักฐานไว้ในคลังก่อน แล้วผูกกับข้อภายหลังจากหน้าข้อได้" (U1b UX-8)
 - listbox สูงสูงสุด 320px, z `--z-dropdown`, เงา e-2, ปิดเมื่อคลิกนอก
 - **ข้อเสนอ AI**: ถ้ามีข้อความ/ไฟล์และผู้ใช้กด "ให้ AI แนะนำข้อ" ไม่อยู่ใน scope U2 (ไม่ทำ) — ปุ่มนี้ไม่มี
 
@@ -82,13 +84,17 @@
 โครง: **sidebar** (≥1024 ถาวร กว้าง 256px / <1024 เป็น drawer ซ้าย กว้าง min(320px, 86vw)) + **top bar** สูง 64px sticky
 - รายการเมนู: สูง 44, padding `--sp-3`, ไอคอน 20 + label fs-base · active: พื้น primary-tint, ตัว primary-strong 600, แถบซ้าย 4px primary, `aria-current="page"` · hover: พื้น surface-2 · focus T9
 - หัวกลุ่ม: fs-sm 600 muted, margin-top `--sp-5`, ไม่ใช่ปุ่ม (ไม่พับ)
-- badge "รอท่าน": `.aq-count` (pill พื้น accent ตัว on-accent fs-xs 600) ชิดขวาของรายการ "หน้าหลัก" = จำนวน todo (`listMyTodos(user).length`, ซ่อนเมื่อ 0) และของ "รอตรวจ" = จำนวน todo kind `review_sections`+`faculty_review`+`final_approve` · aria-label ของลิงก์ = "หน้าหลัก — มีงานรอท่าน 3 รายการ"
+- badge "รอท่าน": `.aq-count` (pill พื้น accent ตัว on-accent fs-xs 600) ชิดขวาของรายการ · **นิยามเดียวทั้งระบบ (U1b M2): ตัวเลข = ผลรวม `count` ของ todo** (ไม่ใช่จำนวนรายการ) — ฟังก์ชันเดียว `todoTotal(items)` ใน `lib/ui/todo.ts`:
+  - "หน้าหลัก" = `todoTotal(listMyTodos(user))` (ทุก kind)
+  - "รอตรวจ" = `todoTotal` ของ kind `review_sections` + `faculty_review` + `final_approve` → chair ที่มี 6 ข้อรอตรวจเห็น **6** ตรงกับ todo "ตรวจและอนุมัติ 6 ข้อ" และจำนวนแถวใน `/app/review` ที่อนุมัติได้
+  - ซ่อนเมื่อ 0 · >99 = "99+" · aria-label ของลิงก์ = "หน้าหลัก — มีงานรอท่าน 6 งาน"
+  - คำนวณใหม่เมื่อเปลี่ยนหน้า (pathname) และหลัง action ที่เรียก `q.reload()` ผ่านอีเวนต์ `aunqa:todos-changed` (หน้าที่เปลี่ยนสถานะ dispatch หลังทำสำเร็จ; AppSidebar ฟังแล้วคำนวณใหม่)
 
 | กลุ่ม | รายการ (path · testid · ไอคอน) | แสดงเมื่อ (คงเงื่อนไขเดิมของ AppShell ทุกข้อ) |
 |---|---|---|
 | งานของฉัน | หน้าหลัก `/app` · `nav-home` · home | ทุกคน |
 | | รอตรวจ `/app/review` · `nav-review` · inbox-check | `canReview` เดิม |
-| จัดทำ SAR | รอบประเมิน `/app/cycles` · `nav-cycles` · calendar-cycle | ทุกคน |
+| จัดทำรายงาน (SAR) — หัวกลุ่มมี Term `sar` (U1b m7) | รอบประเมิน `/app/cycles` · `nav-cycles` · calendar-cycle | ทุกคน |
 | | หลักฐาน `/app/evidence` · `nav-evidence` · folder | ทุกคน |
 | | ส่งออกเอกสาร `/app/export` · `nav-export` · download | ทุกคน |
 | ข้อมูลหลักสูตร | หลักสูตร (PLO/รายวิชา) `/app/curriculum` · `nav-curriculum` · book-open | `!assessor` |
@@ -122,11 +128,12 @@
 ## C10. KPI tile (`.aq-kpi`)
 - การ์ดเล็ก radius lg พื้น surface เงา e-1 padding `--sp-5` · บรรทัดบน: ไอคอน 20 สี tone + label fs-sm 600 muted · บรรทัดกลาง: ตัวเลข fs-2xl 700 tabular-nums สี tone fg (ไม่ใช่สีเทาเหมือนกันหมด — M6) · บรรทัดล่าง (option): คำอธิบาย fs-sm muted หรือปุ่ม Term "?"
 - tone ตามความหมาย: ความพร้อม = primary · วิกฤต = danger · สูง = warn · กลาง = info · ต่ำ = neutral · ค่าเป็น 0 → tone neutral + ข้อความ "ไม่มี"
+- **ค่า 0 (U1b F12):** ตัวเลข "0" คงอยู่ในบรรทัดกลาง (fs-2xl lh 1.15 ใช้ได้เพราะเป็นตัวเลขล้วน) tone neutral + บรรทัดล่าง `.aq-kpi__label` "ไม่มี" — ห้ามแทนตัวเลขด้วยคำไทยในบรรทัดกลาง
 - ถ้าคลิกได้ (กรองรายการ gap ตามระดับ) = `<button>` ทั้งใบ `aria-pressed` เมื่อเป็นตัวกรองที่เลือก (กดซ้ำ = ยกเลิกกรอง) — แทน select `gap-filter` แต่ **คง select `gap-filter` ไว้ด้วย** ในหัวการ์ด gap (testid เดิม) และสองทางซิงก์ state เดียวกัน
 - testid เดิม: `kpi-row` (container), `readiness-percent`, `gap-count-{critical|high|medium|low}` บน element ตัวเลข
 
 ## C11. Status pill / Badge (`.aq-pill`, คง `Badge` + `.aq-badge`)
-- รูป: pill radius pill, สูง 28 (ไม่ใช่เป้ากด), padding 0 `--sp-3`, ไอคอน 16 + ข้อความ fs-xs 600, พื้น/ตัวตาม tone (T1.2) · `Badge` API เดิม (`tone: neutral|ok|warn|bad|info`) + เพิ่ม `primary` + prop `icon?: IconName` (ค่า default ตาม tone: ok→check-circle, warn→alert-triangle, bad→x-circle, info→info, neutral→circle-dashed, primary→ไม่มี)
+- รูป: pill radius pill, สูง 28 (ไม่ใช่เป้ากด), padding 0 `--sp-3`, ไอคอน 16 + ข้อความ fs-xs 600, พื้น/ตัวตาม tone (T1.2) · tone `primary` = พื้น primary-tint ตัว primary-strong (คู่ #15 — ให้ตรงกับ heat "พอใช้" และเมนู active; U1b F11) · `Badge` API เดิม (`tone: neutral|ok|warn|bad|info`) + เพิ่ม `primary` + prop `icon?: IconName` (ค่า default ตาม tone: ok→check-circle, warn→alert-triangle, bad→x-circle, info→info, neutral→circle-dashed, primary→ไม่มี)
 - ตารางแมปสถานะ (ไฟล์ `lib/ui/status.ts` ใหม่; ข้อความไทยอยู่ `lib/ui/aunqa.ts` เดิม):
 
 | ชนิด | ค่า | ข้อความ | tone | ไอคอน |
@@ -160,11 +167,12 @@
 - states: loading = Skeleton แบบตาราง 5 แถว · empty = EmptyState ใต้หัวตาราง (ไม่แสดงตารางว่าง) · error = ErrorState · แถวใหม่ = ไฮไลต์ L5 · แถวผิดใน preview = พื้น danger-bg + ไอคอน x-circle ในเซลล์ผลตรวจ (คง `aq-row-bad`)
 
 ## C13. Heatmap cell (`.aq-heat-cell`)
-- ขนาด 76×68 (≤479: 68×64) radius lg, ขอบ 1px ตาม tone, เป็น `<a>` ไปหน้าข้อ (testid `heat-{id}` เดิม, `data-level` เดิม)
-- เนื้อใน 3 บรรทัด: (1) เลขข้อ fs-base 700 tabular-nums (2) ป้ายระดับ `.aq-heat-cell__label` fs-xs 600 (3) แถวไอคอน: ไอคอนระดับ 16 + **ไอคอนสถานะข้อ 16** (จากตาราง C11 section) ที่มุมขวาบน
+- ขนาด **`min-width: 76px; min-height: 68px`** (<480: 68/64) — ห้าม width/height คงที่ (ที่ fontScale 1.25 เนื้อหาต้องการ 69/67px; U1b F2) · `position: relative`, padding `--sp-2`, radius lg, ขอบ 1px ตาม tone, เป็น `<a>` ไปหน้าข้อ (testid `heat-{id}` เดิม, `data-level` เดิม)
+- เนื้อใน **2 บรรทัด** จัดกลาง: (1) เลขข้อ fs-base 700 tabular-nums lh 1.3 (2) ไอคอนระดับ 16 + ป้ายระดับ `.aq-heat-cell__label` fs-xs 600 ในบรรทัดเดียวกัน (ไอคอนอยู่หน้าป้าย) · **ไอคอนสถานะข้อ** 16 (จากตาราง C11 section) วาง `position:absolute; top:4px; right:4px` (ไม่ใช่บรรทัดที่ 3)
+- ไอคอนระดับ (U1b F12): empty = `circle-dashed` · critical = `x-circle` · warning = `alert-triangle` · ok = `check` · ready = `clock` · approved = `check-circle`
 - tone ตาม `level`: empty = surface-2 + ขอบประ border-control + ink · critical = danger-bg/danger · warning = warn-bg/warn · ok = primary-tint/primary-strong · ready = info-bg/info · approved = success-bg/success (คู่ contrast #3, #25, #23, #15, #28, #20)
 - **P8**: ข้อที่ `sectionStatus=approved` แต่ level critical/warning แสดงไอคอนสถานะ check-circle ที่มุม + aria-label/Tooltip "ข้อ 1.2 · อนุมัติแล้ว · ยังมีช่องว่างวิกฤต 1 (ยังไม่มีหลักฐานผูก)" → ผู้ใช้เห็นว่า "อนุมัติแล้วแต่ยังขาด" ไม่ใช่สถานะขัดกัน
-- states: hover ยก 2px + เงา e-2 `--dur-fast` · focus T9 · ไม่มี disabled
+- states: hover = ขอบหนาขึ้นเป็น 2px สี fg ของ tone + เงา e-2 `--dur-fast` **ไม่เลื่อนตำแหน่ง** (53 ช่องขยับตามเมาส์รบกวนผู้ใช้ 50+; U1b L1) · focus T9 · ไม่มี disabled
 - legend (`HeatLegend`): รายการ ไอคอน+สี+ข้อความ ทุกระดับ + บรรทัด "ไอคอนมุมขวาบน = สถานะการอนุมัติของข้อ" · ห้าม testid ที่ขึ้นต้นด้วย `heat-` นอกจากช่อง 53 ช่องและ `heatmap` (E2E-02 นับ `heat-*`)
 - แถวเกณฑ์: label "เกณฑ์ 3" fs-sm 600 + จำนวนอนุมัติ "5/6" + ถ้าครบทั้งเกณฑ์ = pill ok "ครบ" พร้อม L6 เมื่อเปลี่ยนเป็นครบในหน้านั้น
 
@@ -183,7 +191,8 @@
 - panel: กว้าง `min(520px, 94vw)`, พื้น surface, radius xl, padding `--sp-6`, เงา e-3, **ชิดซ้าย** (ไม่จัดกลาง) · หัว: ไอคอน tone 24 (ไม่ใช้ emoji) + title fs-lg 700 (ไม่ใช่ Cormorant) · message fs-base · details · ปุ่มขวาล่าง: ปุ่มยกเลิก (secondary) ซ้ายของปุ่มยืนยัน, ระยะ `--sp-3`; มือถือ ≤479 ปุ่มเต็มความกว้างเรียงยืนยันบน
 - **ชื่อปุ่มยืนยันต้องขึ้นต้นด้วย "ยืนยัน" + คำกริยาเฉพาะ** เช่น "ยืนยันส่งตรวจ", "ยืนยันอนุมัติและล็อก", "ยืนยันลบ" (E2E ใช้ `getByRole('button', { name: 'ยืนยัน' })` แบบ substring) · ยกเว้น notify = "รับทราบ" (E2E-05 ใช้) และ duplicate = "สร้างซ้ำ"
 - variant → ปุ่มยืนยัน: primary → aq-btn-primary · warning → aq-btn-primary + ไอคอน alert-triangle ที่หัว · danger → aq-btn-danger-solid
-- ARIA: `role="dialog" aria-modal="true" aria-labelledby aria-describedby` · focus ไปปุ่มยกเลิกสำหรับ danger, ปุ่มยืนยันสำหรับอื่น, textarea สำหรับ prompt · focus trap · Esc = ยกเลิก · คลิก backdrop = ยกเลิก (ยกเว้น prompt ที่พิมพ์แล้ว = ไม่ปิด) · ปิดแล้วคืน focus ให้ element ที่เปิด
+- **focus เริ่มต้น (U1b UX-3):** ปุ่มยกเลิก เมื่อ variant `danger` หรือ `warning` หรือมี `details` ที่เป็นคำเตือน (preflight/checklist มีรายการ warn) · textarea สำหรับ prompt · ปุ่มยืนยันเฉพาะ confirm ธรรมดาที่ไม่มีคำเตือน · API เพิ่ม `cancelText` ที่ส่งเข้ามาได้ (มีอยู่แล้ว) — ชื่อปุ่มยกเลิกที่ใช้: checklist ก่อนส่งตรวจ = "กลับไปเติมก่อน", preflight แดชบอร์ด = "กลับไปตรวจก่อน", อื่น = "ยกเลิก"
+- ARIA: `role="dialog" aria-modal="true" aria-labelledby aria-describedby` · focus trap · Esc = ยกเลิก · คลิก backdrop = ยกเลิก (ยกเว้น prompt ที่พิมพ์แล้ว = ไม่ปิด) · ปิดแล้วคืน focus ให้ element ที่เปิด
 - motion L14: backdrop fade `--dur-fast`; panel `scale(.98)→1 + opacity` `--dur-base --ease-enter`
 - prompt: textarea `.aq-textarea` 3 แถว, ปุ่มยืนยัน disabled เมื่อ required ว่าง + ข้อความช่วย "ต้องระบุเหตุผล" (ไม่ใช่ opacity)
 
@@ -194,9 +203,9 @@
 - "รอท่าน" = C6 badge บนเมนู (คนละความหมายกับกระดิ่ง: กระดิ่ง = ข่าว, รอท่าน = งานที่ต้องลงมือ)
 
 ## C17. Tooltip / คำอธิบายศัพท์ (`components/ui/Term.tsx`) — ใหม่
-- `<Term k="pdca">PDCA</Term>` → ข้อความเดิม + ปุ่มเล็ก help-circle 20 (พื้นที่กด 32×32 ภายในบรรทัด — ยกเว้นตาม WCAG 2.5.8 inline) `aria-label="ความหมายของ PDCA"` `aria-expanded`
+- `<Term k="pdca">PDCA</Term>` → ข้อความเดิม + ปุ่มเล็ก `.aq-term__btn` ไอคอน help-circle 20 พื้นที่กด 32×32 ภายในบรรทัด (ยกเว้นจาก 44px ใน AC-05 เพราะเป็น inline ≥24 ตาม WCAG 2.5.8; U1b F6) `aria-label="ความหมายของ PDCA"` `aria-expanded`
 - กด/Enter/Space = เปิด popover (ไม่ใช่ hover-only; hover เปิดได้ด้วยหลัง 300ms บนเดสก์ท็อป) · Esc/คลิกนอก = ปิด · popover: พื้น surface, ขอบ border-subtle, เงา e-2, radius lg, กว้าง ≤320, padding `--sp-4`, หัว (600) + คำอธิบาย fs-sm 1–3 ประโยคภาษาง่าย · `role="tooltip"` + `aria-describedby` ชี้จากปุ่ม · z `--z-dropdown`
-- พจนานุกรม `lib/ui/glossary.ts` (`GLOSSARY: Record<string,{titleTh, bodyTh, bodyEn}>`) ต้องมีอย่างน้อย: `pdca, offline, redaction (ปกปิดข้อมูลส่วนบุคคล), append_replace, tagged, gap_rule_R1…R11 (ชื่อกฎ+ความหมาย 1 ประโยค), readiness (สูตร % ความพร้อม จาก gap.ts), revision, hash (ลายนิ้วมือเอกสาร), verdict, appendix_a, appendix_b, appendix_d, benchmark, plo, clo, irm, bloom, self_rating (สเกล 1–7 ตาม RATING_SCALE), pii, evidence_code (รูปแบบ E-x.x-nn และ E-0.0 = ยังไม่ผูกข้อตอนสร้าง), segregation`
+- พจนานุกรม `lib/ui/glossary.ts` (`GLOSSARY: Record<string,{titleTh, bodyTh, bodyEn}>`) ต้องมีอย่างน้อย: `sar (รายงานการประเมินตนเอง Self-Assessment Report), pdca, offline, redaction (ปกปิดข้อมูลส่วนบุคคล), append_replace, tagged, gap_rule_R1…R11 (ชื่อกฎ+ความหมาย 1 ประโยค), readiness (สูตร % ความพร้อม จาก gap.ts), revision, hash (ลายนิ้วมือเอกสาร), verdict, appendix_a, appendix_b, appendix_d, benchmark, plo, clo, irm, bloom, self_rating (สเกล 1–7 ตาม RATING_SCALE), pii, evidence_code (รูปแบบ E-x.x-nn และ E-0.0 = ยังไม่ผูกข้อตอนสร้าง), segregation`
 - ไอคอนปุ่ม (icon button) ใช้ Tooltip แบบเดียวกันแต่แสดงเมื่อ hover/focus อย่างเดียว (ข้อความ = aria-label)
 
 ## C18. Empty state (`Empty` ใน common.tsx — ปรับ)
@@ -213,7 +222,7 @@
 - งาน > 2 วินาทีที่เป็นขั้นตอน (export DOCX, import Excel, AI): ใช้ปุ่ม loading + ข้อความขั้นตอนใน `.aq-help` (เช่น "กำลังสร้างไฟล์ Word…") — ไม่ใช้ skeleton
 
 ## C20. Progress ring (`components/ui/ProgressRing.tsx`) + Progress bar (`.aq-progress`)
-- ring: SVG ขนาด 120 (เล็ก 56), stroke 10 (เล็ก 6), วงพื้น surface-2, วงค่า primary, **ช่วง ≥100% เปลี่ยนเป็น success** · ตรงกลาง: ตัวเลข "45/53" หรือ "85%" fs-2xl (เล็ก fs-base) 700 + label fs-sm ใต้ · `role="img" aria-label="อนุมัติแล้ว 45 จาก 53 ข้อ"`
+- ring: SVG ขนาด 120 (เล็ก 56), stroke 10 (เล็ก 6), วงพื้น surface-2, วงค่า primary (คู่ #40) · **เปลี่ยนเป็น success (คู่ #41) เฉพาะเมื่อ 100% และ prop `clean` = true** (ไม่มีช่องว่างวิกฤต — U1b M4); 100% แต่ยังมีวิกฤต = คง primary · **ไม่ใช้ accent เป็นแท่งค่าในทุกกรณี** (U1b F4) · ตรงกลาง: ตัวเลข "45/53" หรือ "85%" fs-2xl (เล็ก fs-base) 700 + label fs-sm ใต้ · `role="img" aria-label="อนุมัติแล้ว 45 จาก 53 ข้อ"`
 - เติมค่า L2: `stroke-dashoffset` จากเต็มไปค่าจริง `--dur-progress --ease-move` เมื่อ mount/ค่าเปลี่ยน · reduced motion = แสดงค่าทันที · ค่าต้องมาจากข้อมูลจริงเท่านั้น (ห้ามแถบหลอก)
 - bar: สูง 8 radius pill พื้น surface-2 แท่ง primary (`transform: scaleX(p)` origin left) + ข้อความ "อนุมัติ 45/53" ข้างบน/ข้าง · ใช้ในรายการรอบ, การ์ดรอบในหน้าหลัก, หัวเกณฑ์ใน assign
 
@@ -228,8 +237,8 @@
 - เต็มจอ z `--z-loader`, พื้น `--c-bg` + radial-gradient จาง `rgba(59,79,160,.08)` กลางจอ · กลางจอ: BrandMark 56px + Wordmark 22px · ใต้: วงแหวน 48px (วงพื้น surface-2 stroke 4 + arc primary ยาว 25% หมุน 1.2s linear infinite = `.aq-loader-ring__arc`) · ข้อความ 1 บรรทัด fs-md 600 ink + บรรทัดรอง fs-sm muted (ไม่หมุนเปลี่ยนข้อความ) · `role="status" aria-live="polite"`
 - props: `mode: 'init' | 'login' | 'logout'`, `name?`
   - init: "กำลังเตรียมข้อมูล…" / "ครั้งแรกอาจใช้เวลาสักครู่"
-  - login: "ยินดีต้อนรับ คุณ{name}" / "กำลังเปิดพื้นที่ทำงานของคุณ…"
-  - logout: "กำลังออกจากระบบ…" / "บันทึกงานที่ค้างแล้ว ปลอดภัย" (ข้อความรองแสดงหลัง flush autosave เสร็จ — ดู ADR P3)
+  - login: "ยินดีต้อนรับ {fullName}" (ใช้ fullName ตรงตัว ไม่เติม "คุณ" ไม่ตัดคำนำหน้า — U1b m2) / "กำลังเปิดพื้นที่ทำงานของคุณ…"
+  - logout: "กำลังออกจากระบบ…" / "บันทึกงานที่ค้างแล้ว" — AppLoader logout แสดง**หลัง** flush สำเร็จทุกตัวเท่านั้น; ถ้า flush ล้มเหลวจะไม่แสดง loader เลย (ดู ADR 6.4 M3)
 - เวลา: แสดงขั้นต่ำ 400ms (กันกระพริบ) · login รวมไม่เกิน 700ms หลัง login สำเร็จ (ลดจาก 1,200ms) · logout รวม 600ms (ลดจาก 1,450ms) · init = จนกว่าจะพร้อม; **เกิน 10 วินาที** = เปลี่ยนเป็นข้อความ "ใช้เวลานานกว่าปกติ" + ปุ่ม "ลองใหม่" (`location.reload()`) + ลิงก์ "กลับหน้าแรก"
 - reduced motion: arc ไม่หมุน (ซ่อน arc, แสดงวงพื้น + "…" ในข้อความ) · fade เข้า 150ms ปิดได้
 - ไม่มี emoji/มาสคอต (m1) — ลบ `LoginLoader.tsx`, `LogoutLoader.tsx` และ CSS `ll-*`

@@ -1,6 +1,6 @@
 # ADR-UI-001 — UI Redesign ของ AUN-QA Copilot (Phase U)
 
-- **สถานะ:** Proposed → รอ U1b (ui-inspector + playtester ตรวจ spec ก่อน build) · ครอบคลุมโดย `OWNER APPROVED: 2026-10-21` ใน TASK-0001 (design/build) — ไม่มี deploy/migration/dependency ใหม่
+- **สถานะ:** Accepted (หลัง U1b — ui-inspector และ playtester ให้ PASS-WITH-CHANGES; แก้ครบตาม "Changelog U1b" ท้ายไฟล์แล้ว ส่ง build ได้โดยไม่ต้องตรวจรอบใหม่) · ครอบคลุมโดย `OWNER APPROVED: 2026-10-21` ใน TASK-0001 (design/build) — ไม่มี deploy/migration/dependency ใหม่
 - **วันที่:** 2026-10-22 · **ผู้เขียน:** architect · **งาน:** TASK-0001 Phase U (U1)
 - **ไฟล์ประกอบ (เป็นส่วนหนึ่งของ ADR นี้ มีผลบังคับเท่ากัน):**
   - `ui/tokens.md` — ข้อ 2 design tokens + ตาราง contrast ทุกคู่
@@ -49,7 +49,7 @@ C0 Icon · C1 Button (primary/secondary/ghost/danger/danger-solid/icon) · C2 Li
 ## 4. ลูกเล่น (micro-interaction) — ทำเฉพาะรายการนี้ (CSS/SVG ล้วน)
 | # | ลูกเล่น | ที่ไหน | ทำงานอย่างไร | duration / easing | หน้าที่ (ทำไม) | reduced-motion |
 |---|---|---|---|---|---|---|
-| L1 | ปุ่มกดยุบ + การ์ดยกเมื่อ hover | ปุ่มทุกแบบ; การ์ด `--link`, heat cell, todo card | กด: `translateY(1px)` + สีเข้มขึ้น · hover การ์ด: `translateY(-2px)` + เงา e-2 | 100ms / 150ms `--ease-hover` | ยืนยันว่ากดโดนแล้ว (ผู้ใช้สูงวัยกดซ้ำเพราะไม่แน่ใจ) / บอกว่าการ์ดคลิกได้ | เปลี่ยนสีอย่างเดียว ไม่เคลื่อน |
+| L1 | ปุ่มกดยุบ + การ์ดยกเมื่อ hover | ปุ่มทุกแบบ; การ์ด `--link`, todo card (**heat cell ไม่เลื่อน** — เปลี่ยนขอบ/เงาอย่างเดียว ตาม C13; U1b L1) | กด: `translateY(1px)` + สีเข้มขึ้น · hover การ์ด: `translateY(-2px)` + เงา e-2 | 100ms / 150ms `--ease-hover` | ยืนยันว่ากดโดนแล้ว (ผู้ใช้สูงวัยกดซ้ำเพราะไม่แน่ใจ) / บอกว่าการ์ดคลิกได้ | เปลี่ยนสีอย่างเดียว ไม่เคลื่อน |
 | L1b | hero fade-up | landing hero เท่านั้น | `opacity 0→1` + `translateY(12px→0)` ครั้งเดียว, delay ≤120ms | 400ms `--ease-enter` | ให้หน้าแรกมีชีวิต | แสดงทันที |
 | L2 | Progress ring/bar เติมค่า | ring ใน dashboard, หน้าหลัก, assess, hero; bar ในรายการรอบ/assign | `stroke-dashoffset` (ring) / `scaleX` (bar) จาก 0 → ค่าจริง ตอน mount และเมื่อค่าเปลี่ยน | 600ms `--ease-move` | ทำให้ความคืบหน้า "รู้สึกได้" (NN/g R12) และเป็นกำลังใจ | ค่าแสดงทันที ตัวเลขอยู่ตรงกลางเสมอ |
 | L3 | Skeleton shimmer | `Async` หลัง 300ms | แถบสว่างเลื่อนผ่านโครงหน้า | 1.4s linear infinite (เฉพาะระหว่างโหลด) | บอกว่ากำลังโหลดโครงอะไร ลดความรู้สึกรอ (R11) | สีนิ่ง surface-2 |
@@ -91,7 +91,7 @@ P1 landing · P2 login (layout แยก) · P3 loader init/login/logout · P4 a
 |---|---|---|---|
 | **P1** session แท็บใหม่เด้ง /login | แก้ U2 | backend (B1) + frontend (F2) | session ย้ายไป localStorage + หมดอายุ idle 4 ชม./สูงสุด 12 ชม. + `subscribeSession` ข้ามแท็บ (ล็อกเอาต์แท็บหนึ่ง = ทุกแท็บไปหน้าแรก) · AuthContext ฟังอีเวนต์ |
 | **P2** ส่งตรวจข้อว่าง | แก้ U2 | backend (B5 ตรวจซ้ำ) + frontend (F4) | backend มีด่าน "ต้องมีเนื้อหา narrative ก่อนส่งตรวจ" อยู่แล้ว (`workflow.ts` transitionSection) → B5 พิสูจน์ด้วยสคริปต์ว่าข้อที่ TH/EN ว่างหรือมีแต่ช่องว่างถูกปฏิเสธ; ถ้าไม่ถูกปฏิเสธจริงให้แก้ให้ปฏิเสธ · frontend: checklist ก่อนส่ง (P9) เตือนไม่มีหลักฐาน/ไม่ให้คะแนน/เนื้อหาสั้น/R9/R11 |
-| **P3** autosave หายเมื่อ refresh | แก้ U2 | frontend (F4 + F2) | save ทันทีเมื่อ blur / visibilitychange / beforeunload / `aunqa:flush-save` (logout) + สถานะ "ยังไม่บันทึก" (C24) |
+| **P3** autosave หายเมื่อ refresh | แก้ U2 | frontend (F4 + F2) | save ทันทีเมื่อ blur / visibilitychange / beforeunload / `flushAll()` (logout, หมดอายุ, ออกจากแท็บอื่น — 6.4) + สถานะ "ยังไม่บันทึก" (C24) |
 | **P4** ฟอร์มหลักฐาน validate | แก้ U2 | frontend (F4) | inline validate + error summary + label "แนบหลักฐาน * (อย่างน้อย 1 อย่าง)" (P10) |
 | **P5** select ล้น | แก้ U2 | frontend (F1 CSS + F4) | `width:100%; min-width:0` ทุก control + ช่องค้นหา `link-search` |
 | **P6** คะแนนตนเองดูกดได้ตอน read-only | แก้ U2 | frontend (F4) | `canSelf` รวม `sectionEditable` + เหตุผลมองเห็นได้ |
@@ -123,7 +123,9 @@ export interface Session { /* เดิม: userId, username, fullName, universi
 export const SESSION_IDLE_MS = 4 * 60 * 60 * 1000;      // 4 ชม. ไม่มีการใช้งาน
 export const SESSION_ABSOLUTE_MS = 12 * 60 * 60 * 1000; // 12 ชม. นับจาก login
 export function getSession(): Session | null;            // อ่าน localStorage[KEYS.session]; หมดอายุ (now > expiresAt || now - lastActiveAt > IDLE) → clearSession() แล้วคืน null; ถ้าพบ key เดิมใน sessionStorage → ลบทิ้ง (ไม่ย้าย)
-export function touchSession(now?: number): void;       // อัปเดต lastActiveAt ถ้าห่างจากค่าเดิม > 60_000 ms (กันเขียนถี่)
+export function touchSession(now?: number, opts?: { force?: boolean }): void; // อัปเดต lastActiveAt ถ้าห่างจากค่าเดิม > 60_000 ms (กันเขียนถี่) หรือ force=true · ไม่มี session = no-op · ไม่ขยาย expiresAt (absolute)
+export function sessionTimeLeft(now?: number): number | null; // ms ที่เหลือก่อนหมดอายุ = min(expiresAt, lastActiveAt + SESSION_IDLE_MS) − now · ไม่มี session = null · (U1b M3) ใช้แสดงคำเตือน 5 นาที
+export function sessionExpiryKind(now?: number): 'idle' | 'absolute' | null; // อันไหนจะหมดก่อน (ใช้เลือกข้อความเตือน)
 export function subscribeSession(cb: (s: Session | null) => void): () => void; // ฟัง window 'storage' เฉพาะ key KEYS.session; คืน unsubscribe; SSR = no-op
 // getCurrentUser() เรียก touchSession() เมื่อมี session · setSession เขียน localStorage · clearSession ลบ localStorage (และ sessionStorage เผื่อค้าง)
 // loginUser(username, password): เทียบ `u.username.toLowerCase() === un.toLowerCase()` (un = trim) · attempts/lockout ใช้ key ตัวพิมพ์เล็ก · getLockUntil/remainingAttempts lowercase ภายใน
@@ -137,7 +139,8 @@ export type TodoKind =
   | 'write_section' | 'fix_section' | 'translation_review'
   | 'review_sections' | 'assign_sections' | 'submit_cycle' | 'revise_cycle'
   | 'faculty_review' | 'final_approve' | 'start_assessment' | 'assess_cycle'
-  | 'resolve_pii' | 'verify_actions';
+  | 'resolve_pii' | 'verify_actions'
+  | 'start_cycle' | 'close_cycle';   // เพิ่มจาก U1b M1
 export interface TodoItem {
   id: string;                // `${kind}:${cycleId ?? programmeId}:${requirementIds?.[0] ?? ''}` — คงที่ระหว่างการเรียก
   kind: TodoKind;
@@ -169,10 +172,13 @@ export function listMyTodos(user: AppUser, opts?: { now?: number }): TodoItem[];
 | faculty_review | `can(user,'approve.faculty',…)`, รอบ `under_review` | 1/รอบ | false | `ตรวจรอบ {ปี} ระดับคณะ` |
 | final_approve | `can(user,'approve.final',…)`, รอบ `faculty_approved` | 1/รอบ | false | `พิจารณาอนุมัติสุดท้ายรอบ {ปี}` |
 | start_assessment | `can(user,'assessor.assign',…)`, รอบ `final_approved` | 1/รอบ | false | `เริ่มการประเมินรอบ {ปี}` · detailTh ถ้าไม่มีกรรมการ: `ยังไม่ได้มอบหมายกรรมการประเมิน` |
-| assess_cycle | `isAssessorOf(user, c.id)`, รอบ `under_assessment` | 1/รอบ | assessmentDate ≤ 3 วัน | `ประเมินรอบ {ปี} (ให้คะแนนแล้ว {k}/8)` (k จาก `getAssessorProgress`) |
+| assess_cycle | `isAssessorOf(user, c.id)`, รอบ `under_assessment` | 1/รอบ | assessmentDate ≤ 3 วัน **หรือ** k = 8 | k < 8: `ประเมินรอบ {ปี} (ให้คะแนนแล้ว {k}/8)` · k = 8 และยังไม่มี verdict: `เลือก verdict และส่งผลประเมินรอบ {ปี}` · k = 8 และมี verdict: `ส่งผลประเมินรอบ {ปี}` (U1b M1) (k, hasVerdict จาก `getAssessorProgress`) |
+| start_cycle | `can(user,'cycle.create',cycleScope(c))`, รอบ `draft` และ (มีข้อที่มีเจ้าของ ≥1 **หรือ** ทุกข้อ approved) — draft → in_progress ต้องกดเองเพราะ `under_review` เปลี่ยนได้จาก `in_progress` เท่านั้น (การเขียนทำได้ตั้งแต่ draft) | 1/รอบ | false | `เริ่มดำเนินการรอบ {ปี} (มอบหมายแล้ว {m} ข้อ)` |
+| close_cycle | `can(user,'cycle.close',cycleScope(c))`, รอบ `assessed` | 1/รอบ | false | `ปิดรอบ {ปี} หลังได้รับผลประเมิน` · detailTh `ตรวจผลและสร้างแผนปรับปรุงจากข้อเสนอแนะ (AFI) ก่อนปิดรอบ` |
 | resolve_pii | ผู้ใช้ไม่ใช่ assessor-only, `can(user,'evidence.write',programmeScope(p))`, หลักฐานของหลักสูตร `containsPii && !piiResolved` | 1/หลักสูตร | false | `จัดการข้อมูลส่วนบุคคลในหลักฐาน {n} ชิ้น` |
 | verify_actions | `can(user,'action.verify',programmeScope(p))`, action `done` ที่ `ownerUserId !== user.id` | 1/หลักสูตร | false | `ตรวจรับแผนปรับปรุง {n} รายการ` |
-เรียงลำดับ: `urgent` ก่อน → `daysLeft` น้อยไปมาก (ไม่มี = ท้าย) → ลำดับ kind ตามตาราง → `compareReqId` ของ requirementIds[0] · super_admin ใช้กฎเดียวกัน (ไม่ข้าม) · ผู้ใช้ข้ามมหาวิทยาลัยไม่เห็นของอีกที่ (มาจาก `listCycles`)
+ลำดับ kind สำหรับการเรียง (U1b): fix_section, write_section, translation_review, review_sections, revise_cycle, start_cycle, assign_sections, submit_cycle, faculty_review, final_approve, start_assessment, assess_cycle, close_cycle, resolve_pii, verify_actions
+เรียงลำดับ: `urgent` ก่อน → `daysLeft` น้อยไปมาก (ไม่มี = ท้าย) → ลำดับ kind ตามรายการข้างบน → `compareReqId` ของ requirementIds[0] · super_admin ใช้กฎเดียวกัน (ไม่ข้าม) · ผู้ใช้ข้ามมหาวิทยาลัยไม่เห็นของอีกที่ (มาจาก `listCycles`)
 
 **B3 — แจ้งเตือนถึง role ถัดไป + unreadCount ตรงกัน** (`lib/api/workflow.ts`, `lib/api/notification.store.ts`)
 - `notifyCycleChange` (ภายใน) เพิ่มผู้รับจากเดิม (เจ้าของข้อ + ประธาน) ตามตาราง; ผู้รับ "ตามสิทธิ์" = ผู้ใช้ใน university เดียวกันที่ `can(u, action, cycleScope(cycle))` เป็นจริง **ยกเว้น** ผู้ที่บทบาททั้งหมดเป็น `super_admin` และยกเว้น actor · kind `'cycle_status'` (revision_requested คง `'changes_requested'`) · ไม่ใช้ dedupeKey (transition เกิดซ้ำได้ใน revision เดียว)
@@ -223,6 +229,22 @@ export function getTransitionPreflight(user: AppUser, cycleId: string, to: Cycle
 4. observer: `OPTS = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['placeholder','aria-label','title'] }` · ใน callback ถ้า `m.type === 'attributes'` → push `m.target` · ป้องกันลูป: observer ถูก `disconnect()` ระหว่างที่เรา setAttribute (มีอยู่แล้ว) — คงไว้
 5. ทดสอบมือ: สลับ EN → ปุ่ม `ai-accept` ที่ title เปลี่ยนตาม state ต้องแปล; สลับกลับ TH ได้ค่าปัจจุบันของ React
 
+### 6.4 M3 — ออกจากระบบ/หมดอายุโดยงานไม่หาย (frontend, เพิ่มจาก U1b)
+**สัญญา flush (ไฟล์ใหม่ `lib/ui/flush.ts`):**
+```ts
+export interface FlushResult { ok: boolean; label: string /* เช่น 'ข้อ 3.6' */; error?: string /* errMsg ภาษาไทย */ }
+export type FlushHandler = () => FlushResult | null;   // null = ไม่มีอะไรค้าง
+export function registerFlush(h: FlushHandler): () => void; // คืน unregister
+export function flushAll(): FlushResult[];              // เรียกทุก handler แบบ sync (saveSection เป็น sync) คืนเฉพาะที่ไม่ใช่ null
+```
+- `SarWorkspace` ลงทะเบียน handler ตอน mount: ถ้า `touched` → `save('autosave')` แล้วคืน `{ok, label:'ข้อ '+req.id, error}`; ไม่ touched = null · อีเวนต์ `aunqa:flush-save` เดิมยกเลิก → ใช้ `flushAll()` แทน (beforeunload/visibilitychange ยังเรียก save ของตัวเองเหมือนเดิม)
+- **logout ด้วยตนเอง** (AuthContext): `flushAll()` → ทุกตัว ok = ทำ logout ตาม P3 · มีตัวไม่ ok = dialog danger (ตาม P3) "กลับไปแก้" (ยกเลิก logout) / "ยืนยันออกโดยไม่บันทึก"
+- **คำเตือนก่อนหมดอายุ:** AuthContext ตรวจ `sessionTimeLeft()` ทุก 30 วินาที (`setInterval`, หยุดเมื่อไม่มี user) — เหลือ ≤ 5 นาที → dialog (ครั้งเดียวต่อรอบหมดอายุ) variant warning title "ใกล้หมดเวลาการใช้งาน" message:
+  - `sessionExpiryKind()==='idle'`: "ไม่มีการใช้งานมาระยะหนึ่ง ระบบจะออกจากระบบในอีก {m} นาที" ปุ่มยืนยัน "ยืนยันใช้งานต่อ" → `touchSession(undefined,{force:true})` · ปุ่มยกเลิก "ออกจากระบบตอนนี้" → logout ด้วยตนเอง
+  - `'absolute'`: "ครบเวลาใช้งานสูงสุด 12 ชั่วโมง ระบบจะออกจากระบบในอีก {m} นาที — งานที่พิมพ์ค้างจะถูกบันทึกให้ก่อน" ปุ่มเดียว notify "รับทราบ" (ต่ออายุไม่ได้)
+- **หมดอายุจริง** (`getCurrentUser()` คืน null ระหว่างใช้งาน) และ **ออกจากระบบจากแท็บอื่น** (`subscribeSession` ได้ null): `flushAll()` ก่อนเสมอ (saveSection ใช้ actor ที่ถืออยู่ในคอมโพเนนต์ ไม่ต้องมี session) → ทุกตัว ok หรือไม่มีค้าง = `router.push('/login')` พร้อม InlineMessage บนหน้า login (query `?reason=expired|other-tab`): "หมดเวลาการใช้งาน งานที่ค้างถูกบันทึกแล้ว — เข้าสู่ระบบอีกครั้ง" / "ออกจากระบบจากแท็บอื่นแล้ว งานที่ค้างถูกบันทึกแล้ว" · มีตัวไม่ ok = **ไม่ redirect**: หน้าเดิมเปลี่ยนเป็นอ่านอย่างเดียว + InlineMessage danger ติดบนสุด (testid `session-lost`) "ออกจากระบบแล้ว แต่ข้อ {label} ยังบันทึกไม่ได้: {error} — คัดลอกข้อความเก็บไว้ก่อน แล้วเข้าสู่ระบบใหม่" + ปุ่ม "คัดลอกข้อความ" (`navigator.clipboard.writeText` ของ narrative ภาษาปัจจุบัน) + ปุ่ม "เข้าสู่ระบบใหม่" (เปิด `/login` แท็บเดียวกัน)
+- การพิมพ์ = การใช้งาน: SarWorkspace, ฟอร์มหลักฐาน, assess เรียก `touchSession()` ใน onChange (B1 throttle 60s)
+
 ---
 
 ## 7. แผน build
@@ -237,19 +259,19 @@ F1 (frontend-dev) ─────────────┤ ขนานกั�
 | # | subtask | agent | ไฟล์ที่แตะ (เขียน) | ขึ้นกับ |
 |---|---|---|---|---|
 | U2-B | API ข้อ 6.2 B1–B5 + อัปเดต "API for frontend" ใน TASK | backend-dev | `eduflow-next/lib/types.ts`, `lib/api/auth.api.ts`, `lib/api/todo.ts` (ใหม่), `lib/api/preflight.ts` (ใหม่), `lib/api/workflow.ts`, `lib/api/notification.store.ts`, `lib/api/ai.service.ts` (export const เท่านั้น), `lib/api/index.ts` · (ถ้าจำเป็น `lib/api/org.store.ts` สำหรับ helper ผู้รับ) | ADR นี้ |
-| U2-F1 | Foundation: tokens + base CSS + primitives | frontend-dev | `app/globals.css` (เขียนใหม่ทั้งไฟล์: tokens → base → components → pages → utilities → reduced-motion), `app/layout.tsx` (ฟอนต์ Sarabun, `color-scheme`, skip link target), `components/ui/{Icon,BrandMark,ProgressRing,Stepper,Term,AppLoader,Toast}.tsx`, `context/ToastContext.tsx`, `context/DialogContext.tsx`, `components/aunqa/common.tsx` (PageHeader crumbs/status, Badge icon/primary, Loading/Skeleton+delay, Empty, ErrorBox code, AsyncButton busyText, `useLoad` เก็บ errorCode), `lib/ui/{aunqa,status,glossary,prefs,todo}.ts` (status/glossary/prefs/todo ใหม่) | ADR นี้ |
-| U2-F2 | Shell + auth + landing + 404 | frontend-dev | `components/aunqa/{AppShell,AppSidebar,AppTopbar}.tsx`, `context/AuthContext.tsx` (subscribeSession, flush event, เวลา loader), `components/auth/{AuthLayout,LoginForm}.tsx`, `app/login/page.tsx`, ลบ `components/auth/{AuthNav,LoginLoader,LogoutLoader}.tsx`, `components/landing/*`, `app/page.tsx`, `app/not-found.tsx` (ใหม่), `components/ui/LangToggle.tsx` (restyle) | F1, B1 |
+| U2-F1 | Foundation: tokens + base CSS + primitives | frontend-dev | `app/globals.css` (เขียนใหม่ทั้งไฟล์: tokens → base → components → pages → utilities → reduced-motion), `app/layout.tsx` (ฟอนต์ Sarabun, `color-scheme`, skip link target), `components/ui/{Icon,BrandMark,ProgressRing,Stepper,Term,AppLoader,Toast}.tsx`, `context/ToastContext.tsx`, `context/DialogContext.tsx`, `components/aunqa/common.tsx` (PageHeader crumbs/status, Badge icon/primary, Loading/Skeleton+delay, Empty, ErrorBox code, AsyncButton busyText, `useLoad` เก็บ errorCode), `lib/ui/{aunqa,status,glossary,prefs,todo,flush}.ts` (status/glossary/prefs/todo/flush ใหม่; todo.ts มี `todoTotal`, `groupForHome`, ตาราง kind→ปุ่ม; aunqa.ts เพิ่ม `truncateTh`) | ADR นี้ |
+| U2-F2 | Shell + auth + landing + 404 | frontend-dev | `components/aunqa/{AppShell,AppSidebar,AppTopbar}.tsx`, `context/AuthContext.tsx` (subscribeSession, `flushAll` ก่อน logout/หมดอายุ/ออกข้ามแท็บ, คำเตือน 5 นาที, เวลา loader — 6.4), หน้า login แสดงข้อความ `?reason=expired|other-tab`, `components/auth/{AuthLayout,LoginForm}.tsx`, `app/login/page.tsx`, ลบ `components/auth/{AuthNav,LoginLoader,LogoutLoader}.tsx`, `components/landing/*`, `app/page.tsx`, `app/not-found.tsx` (ใหม่), `components/ui/LangToggle.tsx` (restyle) | F1, B1 |
 | U2-F3 | หน้าทำงาน: หน้าหลัก, รอบ, แดชบอร์ด, มอบหมาย, รอตรวจ, assess | frontend-dev | `app/app/page.tsx`, `app/app/cycles/page.tsx`, `app/app/cycles/[id]/page.tsx`, `app/app/cycles/[id]/assign/page.tsx`, `app/app/review/page.tsx`, `app/app/cycles/[id]/assess/page.tsx` | F2, B2, B3, B4 |
 | U2-F4 | SAR + หลักฐาน + คลังเกณฑ์ | frontend-dev | `app/app/sections/[id]/page.tsx`, `components/aunqa/{SarWorkspace,TranslateResult,RequirementCard,RequirementPicker}.tsx` (Picker ใหม่), `app/app/evidence/page.tsx`, `app/app/evidence/[id]/page.tsx`, `app/app/requirements/page.tsx` | F3, B4 (TRANSLATE_MAX_CHARS) |
 | U2-F5 | หน้าข้อมูล + i18n | frontend-dev | `app/app/curriculum/page.tsx`, `app/app/metrics/page.tsx`, `components/aunqa/{MetricImport,TrendChart}.tsx`, `app/app/actions/page.tsx`, `app/app/export/page.tsx`, `app/app/admin/page.tsx`, `lib/i18n/dict-aunqa.ts` (EN ของข้อความใหม่ทั้งหมด + pattern R11 + ข้อความแจ้งเตือนใหม่ของ B3 + titleTh ของ todo ทุกรูปแบบ), `lib/i18n/dom-translate.ts` (C-10) | F4 |
-| U2-Q | E2E/เทสต์ให้ตรง UI ใหม่ + เช็กอัตโนมัติ AC | qa-tester | `eduflow-next/e2e/helpers.ts`, `e2e/flows-a.spec.ts` (E2E-04/05 เท่านั้น), `e2e/ui-u.spec.ts` (ใหม่), `eduflow-next/tests/phase-u.test.ts` (ใหม่: listMyTodos, preflight, notify ผู้รับ, session หมดอายุ/ข้ามแท็บ, username ไม่แยกตัวพิมพ์, unreadCount) | U2-B, U2-F5 |
+| U2-Q | E2E/เทสต์ให้ตรง UI ใหม่ + เช็กอัตโนมัติ AC | qa-tester | `eduflow-next/e2e/helpers.ts`, `e2e/flows-a.spec.ts` (E2E-04/05 เท่านั้น), `e2e/ui-u.spec.ts` (ใหม่), `eduflow-next/tests/phase-u.test.ts` (ใหม่: listMyTodos ทุก kind รวม start_cycle/close_cycle/assess_cycle 8/8, preflight, notify ผู้รับ, session หมดอายุ idle/absolute + `sessionTimeLeft` + `touchSession` force + ข้ามแท็บ, username ไม่แยกตัวพิมพ์, unreadCount), `eduflow-next/tests/contrast.test.ts` (ใหม่ — ย้ายตรรกะจาก `.agents/playtest/u1b/contrast.mjs`: **อ่าน hex จาก `:root` ใน `app/globals.css`** แทน hard-code แล้วตรวจทุกคู่ใน tokens.md T1.3 #1–#44 ตามเกณฑ์ของแต่ละคู่ + ตรวจว่าคู่ต้องห้าม 3 คู่ไม่ปรากฏเป็นกฎใน CSS (`.aq-on-dark .aq-btn-primary` ต้องไม่ใช้พื้น primary) = AC-01), `e2e/regress-u1b.spec.ts` (ใหม่: M1 todo ปิดรอบขึ้นที่ uadmin เมื่อรอบ assessed; M2 ตัวเลข badge "รอตรวจ" ของ chair1 = จำนวนปุ่ม `approve-*` ใน /app/review; M3 (ก) พิมพ์ `[E-9.9-99]` ใน narrative แล้วกด logout → dialog "ยังบันทึกงานไม่ได้" ขึ้นและกด "กลับไปแก้" แล้วยังอยู่หน้าเดิมพร้อมข้อความ (ข) เปิด 2 page ใน context เดียว พิมพ์ข้อความใน page A แล้ว logout ที่ page B → page A บันทึกข้อความแล้ว (เปิดใหม่เห็นข้อความ) และไปหน้า `/login?reason=other-tab`) | U2-B, U2-F5 |
 - frontend-dev ทำ F1→F5 ต่อเนื่องใน session เดียวหรือหลาย session ได้ แต่ **commit แยกต่อ subtask** และรัน `npx tsc --noEmit` + `npx next build` ผ่านทุกครั้งก่อนปิด subtask
 - ห้ามแก้ไฟล์นอกตาราง · เจอสิ่งที่ spec ไม่ได้กำหนด = `BLOCKED` ถาม architect (ห้ามตัดสินออกแบบเอง — เจ้าของสั่ง)
 - ระหว่าง F1–F4 หน้าเก่าที่ยังไม่ย้ายอาจดูเพี้ยน (เพราะ CSS ใหม่) — ยอมรับ; E2E รันครบหลัง F5 เท่านั้น
 
 ### 7.2 Contract ระหว่างโซน (frontend ใช้ได้ทันทีเมื่อ B เสร็จ)
 - types: `TodoKind`, `TodoItem`, `PreflightWarning`, `TransitionPreflight`, `Session.lastActiveAt/expiresAt` ตาม 6.2 (ชื่อ field ตรงตัว)
-- functions: `listMyTodos(user, opts?)`, `getTransitionPreflight(user, cycleId, to)`, `subscribeSession(cb)`, `touchSession()`, `TRANSLATE_MAX_CHARS`, `SESSION_IDLE_MS`, `SESSION_ABSOLUTE_MS` + ของเดิม `confirmTranslationReviewed(actor, cycleId, reqId, lang)`, `getGaps(user, cycleId, reqId?)`, `citableCodes(cycleId)`, `searchRequirements(q)`, `validateFileMeta({name,size})`, `MAX_DATAURL_BYTES`, `MAX_FILE_BYTES`
+- functions: `listMyTodos(user, opts?)`, `getTransitionPreflight(user, cycleId, to)`, `subscribeSession(cb)`, `touchSession(now?, {force?})`, `sessionTimeLeft(now?)`, `sessionExpiryKind(now?)`, `TRANSLATE_MAX_CHARS`, `SESSION_IDLE_MS`, `SESSION_ABSOLUTE_MS` + ของเดิม `confirmTranslationReviewed(actor, cycleId, reqId, lang)`, `getGaps(user, cycleId, reqId?)`, `citableCodes(cycleId)`, `searchRequirements(q)`, `validateFileMeta({name,size})`, `MAX_DATAURL_BYTES`, `MAX_FILE_BYTES`
 - frontend ไม่ import อะไรจาก `lib/api/*` ตรง ๆ นอกจาก `@/lib/api` (facade)
 - ถ้า F2 เริ่มก่อน B1 เสร็จ: ห้าม stub ฟังก์ชันใน lib — รอ
 
@@ -267,11 +289,11 @@ testid ที่ E2E ใช้ (ห้ามเปลี่ยน): `login-usern
 ### 7.4 Acceptance criteria (วัดได้ — ui-inspector/qa-tester/playtester ใช้ใน U3)
 | # | เกณฑ์ | วิธีวัด | ผ่านเมื่อ |
 |---|---|---|---|
-| AC-01 | contrast | สคริปต์ node (สูตร WCAG) วัด 36 คู่ใน tokens.md T1.3 + สุ่ม computed style 10 element/หน้า บน 10 หน้า | ทุกคู่ข้อความ ≥4.5:1, UI ≥3:1; ค่าที่วัดต่างจากตาราง ≤0.05 |
+| AC-01 | contrast | `tests/contrast.test.ts` (อ่าน hex จาก globals.css, คู่ #1–#44) + สุ่ม computed style 10 element/หน้า บน 10 หน้า (ui-inspector) | ทุกคู่ข้อความ ≥4.5:1, UI ≥3:1; ค่าที่วัดต่างจากตาราง ≤0.05 · ไม่มีคู่ต้องห้าม 3 คู่ (T1.3) |
 | AC-02 | ขนาดตัวอักษร | Playwright: ทุก text node ที่มองเห็นในทุกหน้าที่ระบุใน AC-03 | ไม่มี <13px · 13px อยู่เฉพาะ class ใน T2.3 · `p, td, li, label, input, select, textarea, button, nav a` ≥16px ยกเว้นเมื่ออยู่ใน (หรือเป็น) class รายการ fs-sm ใน tokens.md T2.3 ซึ่งต้อง ≥14px (fs-sm ใช้ได้เฉพาะใน class เหล่านี้) |
 | AC-03 | ไม่มี horizontal scroll | Playwright ที่ 390×844, 768×1024, 1440×900 บน: `/`, `/login`, `/app`, `/app/cycles`, `/app/cycles/cycle-demo-2569`, `/assign`, `/assess` (หลัง lock), `/app/sections/cycle-demo-2569::3.6`, `/app/evidence`, `/app/evidence/{id}`, `/app/curriculum` (ทุกแท็บ), `/app/metrics` (เปิด import), `/app/actions`, `/app/review`, `/app/export`, `/app/admin`, `/app/requirements`, `/zzz` | `document.documentElement.scrollWidth <= innerWidth` ทุกหน้า×ทุกขนาด (ตารางเลื่อนภายใน wrap ได้) |
-| AC-04 | ขยายตัวอักษร | ตั้ง `aunqa_ui_prefs.fontScale=1.25` แล้วรัน AC-03 ที่ 1440 และ 390 | ผ่านเหมือน AC-03 และไม่มีข้อความถูกตัด/ทับ (ดูภาพ 5 หน้า) |
-| AC-05 | target size | Playwright: `button, a.aq-btn, input:not([type=checkbox]):not([type=radio]), select, [role=tab], .aq-nav-item` ที่มองเห็น | สูง ≥44px ที่ 390 · ≥40px ที่ 1440 (≥44 ยกเว้น `.aq-btn-compact`) · ไม่มีปุ่ม <24×24 · ลิงก์ inline ในประโยคยกเว้น |
+| AC-04 | ขยายตัวอักษร + text-spacing + zoom (U1b F8) | (ก) ตั้ง `aunqa_ui_prefs.fontScale=1.25` แล้วรัน AC-03 ที่ 1440 และ 390 (ข) ฉีด CSS WCAG 1.4.12 (`* { line-height:1.5 !important; letter-spacing:.12em !important; word-spacing:.16em !important } p { margin-bottom:2em !important }`) ที่ 1440/390 บน `/app`, dashboard, section editor, `/app/evidence` (เปิดฟอร์ม), `/login` (ค) viewport 360×800 (เทียบเท่า 720px ที่ zoom 200%) บน 5 หน้าเดียวกัน | ทั้งสามกรณี: ไม่มี horizontal scroll ระดับหน้า และไม่มีข้อความถูกตัด/ทับ (ตรวจ `scrollHeight > clientHeight` ของ element ที่มี overflow hidden = 0 + ดูภาพ) · ช่อง heatmap ไม่ล้น |
+| AC-05 | target size (U1b F6/F7) | Playwright: `button, a.aq-btn, input:not([type=checkbox]):not([type=radio]), select, [role=tab], .aq-nav-item` ที่มองเห็น | **ที่ 1440:** ทุกตัวสูง ≥44 ยกเว้น `.aq-btn-compact` ≥40 · **ที่ 390:** ทุกตัว ≥44 (compact ก็ 44) · ข้อยกเว้นทั้งสองขนาด: `.aq-term__btn` และ `.aq-chip__remove` ≥32×32 (inline ตาม 2.5.8) · ไม่มีเป้าใด <24×24 · ลิงก์ inline ในประโยคยกเว้น |
 | AC-06 | focus | Tab ไล่ 30 ครั้งใน `/app`, `/login`, section editor | ทุก element ที่โฟกัสมี outline ≥2px ที่ contrast ≥3:1 · ไม่มี keyboard trap (ยกเว้น dialog/drawer ที่ Esc ออกได้) · skip link ทำงาน |
 | AC-07 | สถานะไม่พึ่งสี | ui-inspector: grayscale screenshot ของ dashboard, heatmap, evidence table, review | ทุก pill/ช่อง heatmap/KPI มีไอคอนหรือข้อความแยกสถานะได้ |
 | AC-08 | reduced motion | `emulateMedia({ reducedMotion: 'reduce' })` บน `/app`, dashboard, AppLoader (login) | `getAnimations()` ที่ playState running และ duration > 10ms = 0 (หลังโหลดเสร็จ) |
@@ -281,9 +303,12 @@ testid ที่ E2E ใช้ (ห้ามเปลี่ยน): `login-usern
 | AC-12 | unit/type/build | `npx tsc --noEmit`, `npm test`, `npx next build` | 0 error · 409 เดิม + ใหม่ผ่านทั้งหมด · build ผ่าน |
 | AC-13 | Lighthouse a11y | ui-inspector ใช้ Chrome DevTools Lighthouse ที่มีในเครื่อง (ไม่ติดตั้งเพิ่ม) บน `/login`, `/app`, section editor | ≥ 90 ทุกหน้า · ถ้าเครื่องรันไม่ได้ ให้ระบุ "วัดไม่ได้" และใช้ AC-02/05/06/07 แทน (ไม่ติดตั้ง package) |
 | AC-14 | usability: อัปโหลด+ผูก 1 ข้อ | playtester เล่นเป็นผู้ใช้ใหม่ (staff1) จาก `/app` ไม่ดูคู่มือ จับเวลาแบบคน (อ่านทุกข้อความ) | ≤ 3 นาที, ≤ 6 คลิก/การพิมพ์หลัก, จุดที่ต้องเดา ≤ 1 |
-| AC-15 | usability: รู้ว่าต้องทำอะไร | playtester ล็อกอินทุก role ในเดโม่ (หลังเดินรอบไป under_review / faculty_approved / under_assessment ตามลำดับ) | ทุก role ที่มีงานเห็น todo ที่ถูกต้องเป็นการ์ดแรกของหน้าหลัก และไปถึงหน้าที่ต้องทำได้ใน 1 คลิก · fqa1/dean1/assess1 ได้แจ้งเตือนเมื่อถึงคิว |
+| AC-15 | usability: รู้ว่าต้องทำอะไร | playtester ล็อกอินทุก role ในเดโม่ (หลังเดินรอบไป under_review / faculty_approved / under_assessment ตามลำดับ) | ทุก role ที่มีงานเห็น todo ที่ถูกต้องเป็นการ์ดแรกของหน้าหลัก และไปถึงหน้าที่ต้องทำได้ใน 1 คลิก · fqa1/dean1/assess1 ได้แจ้งเตือนเมื่อถึงคิว · ครบทุกขั้นของรอบ: chair เห็น start_cycle ในรอบ draft ที่มอบหมายแล้ว, uadmin/ผู้มี cycle.close เห็น close_cycle เมื่อ assessed, assess1 เห็น "ส่งผลประเมิน…" เมื่อให้คะแนนครบ 8/8 (U1b M1) |
 | AC-16 | คณบดีเห็นคำเตือนก่อนล็อก | dean1 ที่ faculty_approved ของรอบเดโม่ | การ์ด "ขั้นตอนถัดไป" และ dialog แสดงจำนวน gap วิกฤต/PII ก่อนกดยืนยัน |
 | AC-17 | bug P1–P10, C-7, C-8 UI, C-10 | playtester ทำซ้ำตามขั้นตอนในรายงาน U0 / review Phase C | ทำซ้ำไม่ได้ทุกข้อ (P8: เห็นไอคอนอนุมัติ + tooltip อธิบาย) |
+| AC-19 | งานไม่หายเมื่อออก/หมดอายุ (U1b M3) | `e2e/regress-u1b.spec.ts` M3 (ก)(ข) + vitest session + playtester: ตั้ง `lastActiveAt` ย้อน 3 ชม. 56 นาทีใน localStorage แล้วรอ ≤30 วินาที | (ก)(ข) ผ่าน · คำเตือน "ใกล้หมดเวลาการใช้งาน" ขึ้นและ "ยืนยันใช้งานต่อ" ทำให้ `sessionTimeLeft()` กลับเป็น ~4 ชม. · ไม่มีกรณีใดที่ข้อความที่พิมพ์หายโดยไม่มีข้อความแจ้ง |
+| AC-20 | badge ตรงกับงาน (U1b M2) | `e2e/regress-u1b.spec.ts` M2 + ui-inspector ดูภาพ | badge "รอตรวจ" = จำนวนข้อที่อนุมัติได้ใน `/app/review` · badge "หน้าหลัก" = ตัวเลขในหัวการ์ด "สิ่งที่ต้องทำตอนนี้ (รวม N งาน)" |
+| AC-21 | KPI ไม่ส่งสัญญาณขัดกัน (U1b M4) | playtester ที่รอบเดโม่ 2569 (45 อนุมัติ, วิกฤต 36) | เห็นป้าย "ความพร้อมด้านหลักฐาน" + `kpi-summary` แบบ warn ที่บอกทั้งจำนวนอนุมัติและจำนวนข้อที่วิกฤต · ring ไม่เป็นสี success |
 | AC-18 | ธีมเดียวกัน | ui-inspector เทียบภาพ landing, login, AppLoader ×3, app, 404 | ใช้ token ชุดเดียว (สี/ฟอนต์/radius) ไม่มีมาสคอต/emoji · ไม่มี finding blocker/major |
 
 ### 7.5 ความเสี่ยง / ข้อควรรู้
@@ -302,3 +327,58 @@ testid ที่ E2E ใช้ (ห้ามเปลี่ยน): `login-usern
 - (+) token รวมศูนย์ → dark mode/ธีมสถาบันทำต่อได้ภายหลังโดยไม่แตะคอมโพเนนต์
 - (−) งาน frontend ขนาด L (เขียน CSS ใหม่ + แตะทุกหน้า) · ต้องแก้ E2E 2 test + helper · thesis/diagram/screenshots เดิมล้าสมัย (Phase D ทำใหม่อยู่แล้ว)
 - (−) session แบบ localStorage เป็นโหมดเดโม่ ต้องเปลี่ยนเมื่อมี backend จริง (TODO ในโค้ด)
+
+---
+
+## Changelog U1b (2026-10-22 — จาก `.agents/reviews/TASK-0001-ui-spec-review.md` และ `.agents/playtest/TASK-0001-spec-walkthrough.md`)
+ผู้ตรวจทั้งสองให้ PASS-WITH-CHANGES และระบุว่าแก้ตามนี้แล้วส่ง build ได้เลย — **ไม่มีการเปลี่ยนทิศทาง/palette/ฟอนต์**
+
+### ui-inspector
+| ข้อ | ตัดสิน | แก้ที่ |
+|---|---|---|
+| F1 breakpoint ขัดกัน (major) | **ทำ** — กฎเดียว: mobile-first `min-width`; "≤767/≤768/<768" = 0–767.98px; 768 พอดี = ค่า md | tokens T10 (กฎอ่านทั้ง spec), T4, หัว pages.md |
+| F2 heat cell คงที่ล้นที่ 125% (major) | **ทำ** — `min-width/min-height` 76/68 (<480: 68/64), 2 บรรทัด, ไอคอนสถานะ absolute มุมขวาบน | components C13 |
+| F3 ไม่มีปุ่มบนพื้นเข้ม (major) | **ทำ** — `.aq-on-dark` primary = พื้นขาวตัว primary-strong (10.74), secondary = ตัว on-dark ขอบ on-dark-muted (6.91), LangToggle ใช้ตัวเดียวกัน | components C1, tokens #42/#43 |
+| F4 accent ใน progress ring (major) | **ทำ** — ลบ accent ออกจากแท่งค่า; ring = primary, ครบ+ไม่มีวิกฤต = success | tokens T1.1, components C20 |
+| F5 วรรณยุกต์ถูกตัดด้วย overflow (major) | **ทำ** — กฎ lh ≥1.6 + padding-block 0.15em, ห้ามกับ h1–h3/pill, ตัดข้อความด้วย `truncateTh` ใน JS | tokens T2.2, `lib/ui/aunqa.ts` (F1) |
+| F6 Term 32px / chip × ตก AC-05 | **ทำ** — ยกเว้น `.aq-term__btn` และ `.aq-chip__remove` ≥32×32 | components C4/C17, AC-05 |
+| F7 AC-05 กำกวม | **ทำ** — เขียนใหม่แยก 1440/390 | AC-05 |
+| F8 ไม่มี AC zoom 200% + text-spacing | **ทำ** — เพิ่มใน AC-04 (ข)(ค) | AC-04 |
+| F9 เบี่ยงจาก ui-ux §9 ไม่ได้บันทึก | **ทำ** — บันทึกเหตุผล + หลักฐานภาพ | tokens T2.2 |
+| F10 danger-solid ไม่มี hover | **ทำ** — token `--c-danger-strong #8F1D17` (8.91) | tokens T1.1/#44, C1 |
+| F11 pill primary ไม่ระบุ fg | **ทำ** — primary-tint/primary-strong (#15) | C11 |
+| F12 KPI 0 / ไอคอน heat ok/empty | **ทำ** — "0" คงไว้ + "ไม่มี" บรรทัดล่าง; ok=`check`, empty=`circle-dashed` (+ทุกระดับ) | C10, C13 |
+| F13 #2 = 14.95 + font-synthesis | **ทำ** | tokens #2, T2.2 base layer |
+| ตาราง contrast | **ทำ** — #2 = 14.95, เพิ่ม #37–#44 (ใช้จริง), ระบุ 3 คู่ต้องห้ามพร้อมคู่แทน, หมายเหตุ #19/#20 เฉียด | tokens T1.3 |
+
+### playtester
+| ข้อ | ตัดสิน | แก้ที่ |
+|---|---|---|
+| M1 todo ไม่ครบ lifecycle | **ทำ** — เพิ่ม `close_cycle` และ `start_cycle` (จำเป็น: `under_review` เปลี่ยนได้จาก `in_progress` เท่านั้น ส่วน draft→in_progress ต้องกดเอง) + titleTh assess_cycle เมื่อ k=8 + ลำดับ kind | 6.2 B2, pages P5, AC-15 |
+| M2 badge นิยามขัด | **ทำ** — badge = ผลรวม `count` ทุกที่ (`todoTotal`), หัวการ์ด "รวม N งาน", รีเฟรชผ่าน `aunqa:todos-changed` | C6, P4/P5, AC-20 |
+| M3 ออก/หมดอายุทำงานหาย | **ทำ** — `registerFlush/flushAll`, ยกเลิก logout ถ้าบันทึกไม่ได้, พิมพ์ = `touchSession`, เตือน 5 นาที (`sessionTimeLeft`, `sessionExpiryKind`, `touchSession force`), ออกข้ามแท็บ/หมดอายุ flush ก่อน + ไม่ redirect ถ้าบันทึกไม่ได้ | 6.2 B1, 6.4 ใหม่, P3, P9, AC-19 |
+| M4 KPI ขัดกัน | **ทำ** — ป้าย "ความพร้อมด้านหลักฐาน" + `kpi-summary` 3 แบบ, ring success เฉพาะครบ+ไม่มีวิกฤต, L7 ไม่มีประกายถ้ายังมีวิกฤต | P7, C20, AC-21 |
+| UX-3 dialog โฟกัสปุ่มยืนยัน | **ทำ** — focus ปุ่มยกเลิกเมื่อมีคำเตือน + "กลับไปเติมก่อน"/"กลับไปตรวจก่อน" | C15, P7, P9 |
+| UX-5 fqa/dean อ่าน SAR ทั้งรอบ | **ทำแบบเบาใน U2** — ปุ่ม "อ่าน SAR ทั้งรอบ (.docx)" ในการ์ดขั้นตอนถัดไป (ใช้ `exportSarDocx` ที่มีอยู่ ไม่มี API ใหม่) · **หน้าอ่านต่อเนื่องในเว็บ = ไม่ทำ (backlog)** เพราะเป็นหน้าใหม่ทั้งหน้า ขณะที่ .docx ตอบโจทย์อ่านก่อนอนุมัติได้แล้ว | P7 |
+| UX-6 ไม่มีทางไปข้อถัดไป | **ทำ** — toast action "ไปข้อถัดไปของฉัน →" | P9 |
+| UX-7 คิวรอตรวจไม่มีข้อมูลช่วยตัดสิน | **ทำ** — คอลัมน์สรุป (หลักฐาน/คำ/คะแนนตนเอง/วิกฤต-สูง) จาก API เดิม | P16 |
+| UX-8 picker disabled / ไม่รู้หลักสูตรปลายทาง | **ทำ** — บรรทัด "บันทึกเข้าหลักสูตร", ค่าเริ่มต้นรอบ, ข้อความเมื่อไม่มีรอบเขียนได้ | C4, P10 |
+| UX-9 เกณฑ์ 8 "ถัดไป" ไปไหน | **ทำ** — "ไปสรุปผลและเลือก verdict ↓" | P15 |
+| m1 "(5/7)" | **ทำ** — "คะแนนตนเอง 5" / "ยังไม่ให้คะแนน" | P9 |
+| m2 แยกชื่อ "คุณธนา" | **ทำ** — ใช้ fullName ตรงตัว | P5, C22 |
+| m3 ปรับขนาดตัวอักษรหายาก | **ทำ** — ตัวปรับ ก/ก+/ก++ บนหน้า login (`login-fontscale`) | P2 |
+| m4 offline ร่างได้แค่โครงร่าง | **ทำ** — ข้อความ `ai-offline-note` | P9 |
+| m5 write_section 11 การ์ด | **ทำ** — `groupForHome` รวมที่ไม่เร่งด่วนเมื่อ >3 (แสดงผลเท่านั้น) | P5 |
+| m6 (?) ทุกแถว gap | **ทำ** — ปุ่มเดียว "กฎ R1–R11 คืออะไร", แถวเหลือ "(R6)" + title | P7 |
+| m7 "จัดทำ SAR" | **ทำ** — "จัดทำรายงาน (SAR)" + glossary `sar` | C6, C17 |
+| L1 heat cell ขยับตามเมาส์ | **ทำ** — heat cell ไม่เลื่อน เปลี่ยนขอบ/เงาเท่านั้น (การ์ด todo คงยก −2px เพราะมีไม่กี่ใบ) | C13, ข้อ 4 L1 |
+| ข้อสังเกต: ผู้ใช้หลายบทบาท / อ่านแจ้งเตือนไม่ลบ todo | **ทำ** — ลำดับบทบาทสำหรับ empty state + ข้อความช่วยใต้การ์ดแจ้งเตือน | P5 |
+| ข้อสังเกต: อาจารย์เห็น 8 เมนู | **ไม่ทำ** — คงเงื่อนไขเมนูเดิม (ไม่เปลี่ยน RBAC/การมองเห็น) มีหัวกลุ่มให้สแกนได้แล้ว ผู้ตรวจยอมรับ | — |
+| ข้อสังเกต: กรรมการไม่มีเมนูพื้นที่ทำงาน | **ไม่ทำ** — todo `assess_cycle` พาไปใน 1 คลิกแล้ว ผู้ตรวจยอมรับ | — |
+
+### ผลต่อแผน
+- API ที่เพิ่ม (U2-B): `sessionTimeLeft`, `sessionExpiryKind`, `touchSession` option `force`, TodoKind `start_cycle`/`close_cycle` + ข้อความ assess_cycle — ไม่มีไฟล์ใหม่ใน backend นอกจากที่วางไว้
+- frontend เพิ่ม `lib/ui/flush.ts` (F1) และงาน 6.4 ใน AuthContext (F2) · ไม่เปลี่ยนลำดับ subtask
+- U2-Q เพิ่ม `tests/contrast.test.ts` (ย้ายจาก `.agents/playtest/u1b/contrast.mjs`, อ่าน hex จาก globals.css = AC-01) และ `e2e/regress-u1b.spec.ts` (M1/M2/M3)
+- AC: แก้ AC-01, AC-04, AC-05, AC-15 · เพิ่ม AC-19 (M3), AC-20 (M2), AC-21 (M4)
+- testid ใหม่: `kpi-summary`, `gap-rules-help`, `read-full-sar`, `crit-next` (เกณฑ์ 8 ใช้ตัวเดียวกัน), `ai-offline-note`, `login-fontscale`, `session-lost` — ไม่มีตัวใดขึ้นต้น `heat-`/`mywork-`

@@ -2,6 +2,8 @@
 
 > ใช้คู่กับ `../ADR-UI-001-redesign.md`, `tokens.md`, `components.md`
 > สัญลักษณ์ wireframe: `[ปุ่ม]`, `(pill)`, `{ช่องกรอก}`, `▸` = ลิงก์/การ์ดคลิกได้, `▾` = พับได้, `◔` = progress ring · ทุกหน้าในแอปอยู่ใน AppShell (P4) · ทุกหน้ามี h1 เดียวจาก PageHeader
+> สัญลักษณ์ ✓ ✕ ! ⚠ ◷ ⌂ ▢ ฯลฯ ใน wireframe = **ไอคอนจาก Icon.tsx** ไม่ใช่ตัวอักษรในโค้ด (AC-10 ห้าม emoji/สัญลักษณ์ U+2600–27BF)
+> breakpoint ใน wireframe ("≤767", "≤1023" ฯลฯ) อ่านตามกฎ tokens.md T10 (768 พอดี = ค่า md)
 > "คงไว้" = ห้ามเปลี่ยนพฤติกรรม/ข้อความที่ E2E อ้าง (ดู ADR 7.3) · "เปลี่ยน" = ทำตามนี้เท่านั้น
 > ข้อความในเครื่องหมาย "…" เป็นข้อความจริงที่ต้องใช้ (ไทย) — คู่ EN ต้องเพิ่มใน dict-aunqa
 
@@ -51,7 +53,7 @@
 │                      │  ▾ บัญชีทดสอบ (11) — รหัสผ่าน demo1234 │
 └──────────────────────┴──────────────────────────────┘
 ```
-- เปลี่ยน: ลบ `AuthNav` (ที่ลอกลิงก์ของ landing มาและพังที่ 390 — M3) → `components/auth/AuthLayout.tsx` ใหม่ (top bar แค่ Wordmark ลิงก์ `/` + LangToggle) · label ไม่ uppercase (m3) fs-base 600 · input สูง 44 · ปุ่มแสดงรหัสผ่านใช้ Icon `eye`/`eye-off` 44×44 (ไม่ใช่ emoji 👁🙈) · input username: `autoCapitalize="none" autoCorrect="off" spellCheck={false}` (P7)
+- เปลี่ยน: ลบ `AuthNav` (ที่ลอกลิงก์ของ landing มาและพังที่ 390 — M3) → `components/auth/AuthLayout.tsx` ใหม่ (top bar แค่ Wordmark ลิงก์ `/` + **ตัวปรับขนาดตัวอักษร** segmented "ก | ก+ | ก++" `aria-label="ขนาดตัวอักษร"` testid `login-fontscale` เขียนลง `aunqa_ui_prefs.fontScale` ตัวเดียวกับใน sidebar (U1b m3) + LangToggle) · บน ≥1280 ตัวปรับและ LangToggle อยู่มุมล่างของแผงแบรนด์ (ใช้ปุ่มแบบพื้นเข้ม C1) · label ไม่ uppercase (m3) fs-base 600 · input สูง 44 · ปุ่มแสดงรหัสผ่านใช้ Icon `eye`/`eye-off` 44×44 (ไม่ใช่ emoji 👁🙈) · input username: `autoCapitalize="none" autoCorrect="off" spellCheck={false}` (P7)
 - error: InlineMessage danger ที่หัวฟอร์ม "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง โปรดตรวจสอบแล้วลองอีกครั้ง" + ทั้งสองช่อง `aria-invalid` ขอบ danger + ข้อความ "เหลืออีก N ครั้งก่อนถูกล็อก 5 นาที" (`.aq-help` warn ใต้ช่องรหัสผ่าน) · ล็อก: InlineMessage warn + นับถอยหลัง (เดิม)
 - บัญชีทดสอบ: **พับไว้เป็นค่าเริ่มต้น** (m3: รายการยาวดันฟอร์ม) จำสถานะเปิด/ปิดใน `aunqa_ui_prefs.demoOpen` · เปิดแล้วเป็นกริด 2 คอลัมน์ (≥768) ของปุ่มสูง 44: `code` username + บทบาท fs-sm · กดแล้วเติมฟอร์ม + focus ปุ่มเข้าสู่ระบบ
 - หลังกด: ปุ่ม loading "กำลังตรวจสอบ…" → สำเร็จ = AppLoader mode login (C22) แล้ว `router.push('/app')`
@@ -60,7 +62,7 @@
 ## P3. Loader ตอน init / login / logout
 - AppShell ระหว่าง `isLoading` (init seed) → `<AppLoader mode="init" />` (ไม่ใช่กล่องข้อความ "กำลังเตรียมข้อมูล…" เดิม)
 - login สำเร็จ → `<AppLoader mode="login" name={fullName} />` ≤700ms
-- logout (AuthContext) → ส่งอีเวนต์ `aunqa:flush-save` → `<AppLoader mode="logout" />` 600ms → `router.push('/')` → `logoutUser()` (ลำดับเดิม: ไปหน้าแรกก่อนล้าง session เพื่อไม่ให้ guard เด้ง /login)
+- logout (AuthContext) → `flushAll()` (ADR 6.4 M3) → ถ้า **ทุกตัวสำเร็จ**: `<AppLoader mode="logout" />` 600ms → `router.push('/')` → `logoutUser()` (ลำดับเดิม: ไปหน้าแรกก่อนล้าง session) · ถ้า **มีตัวล้มเหลว**: ไม่แสดง loader, เปิด dialog variant danger title "ยังบันทึกงานไม่ได้" message "ข้อ {label}: {error}" ปุ่มยกเลิก (focus เริ่มต้น) "กลับไปแก้" และปุ่มยืนยัน danger-solid "ยืนยันออกโดยไม่บันทึก" → กลับไปแก้ = ยกเลิก logout ทั้งหมด
 - ทั้งสามใช้ component/สี/ฟอนต์เดียวกัน (แก้โจทย์เจ้าของ "loading/login/logout หลุด theme")
 
 ## P4. App shell (`components/aunqa/AppShell.tsx` + `AppSidebar.tsx` + `AppTopbar.tsx` ใหม่)
@@ -70,9 +72,9 @@
 │ ■ AUN-QA Copilot                    │                       [TH|EN] [🔔3] (อธ) อ.ธนา สอนดี │
 │                                     │                                    อาจารย์หลักสูตร   │
 │ งานของฉัน                           ├──────────────────────────────────────────────────────┤
-│ ▌⌂ หน้าหลัก               (3)       │ <main id="main"> (max 1280, padding 32)              │
+│ ▌⌂ หน้าหลัก              (11)       │ <main id="main"> (max 1280, padding 32)              │
 │  ☑ รอตรวจ                 (6)       │  (readonly-banner ถ้าเป็นกรรมการ)                   │
-│ จัดทำ SAR                           │  PageHeader: crumbs / h1 (status) / sub / actions    │
+│ จัดทำรายงาน (SAR)                   │  PageHeader: crumbs / h1 (status) / sub / actions    │
 │  ◷ รอบประเมิน                       │  … เนื้อหาหน้า …                                     │
 │  ▢ หลักฐาน                          │                                                      │
 │  ⤓ ส่งออกเอกสาร                     │                                                      │
@@ -92,8 +94,8 @@
 
 ## P5. หน้าหลัก `/app` — "สิ่งที่ต้องทำตอนนี้" ต่อ role (`app/app/page.tsx`)
 ```
-PageHeader: h1 "หน้าหลัก"  sub: "สวัสดีตอนบ่าย คุณธนา · วันพุธที่ 22 ตุลาคม 2569"
-┌ สิ่งที่ต้องทำตอนนี้ (h2) ──────────────────────────────────────── (3 รายการ) ┐
+PageHeader: h1 "หน้าหลัก"  sub: "สวัสดีตอนบ่าย อ.ธนา สอนดี · วันพุธที่ 22 ตุลาคม 2569"   (fullName ตรงตัว — U1b m2)
+┌ สิ่งที่ต้องทำตอนนี้ (h2) ─────────────────────────────── (รวม 11 งาน = todoTotal) ┐
 │ ┌ todo #1 (aq-card--accent, ใหญ่) ┐ ┌ todo #2 ┐ ┌ todo #3 ┐  ← top 3 (≤767 ซ้อนแนวตั้ง) │
 │ │ (เร่งด่วน) ไอคอน pencil          │ │ …       │ │ …       │                            │
 │ │ แก้ไขข้อ 3.6 ตามที่ถูกส่งกลับ     │ │         │ │         │                            │
@@ -127,15 +129,21 @@ PageHeader: h1 "หน้าหลัก"  sub: "สวัสดีตอนบ�
 | assess_cycle | library | "ไปพื้นที่ทำงานกรรมการ" | `/app/cycles/{id}/assess` |
 | resolve_pii | alert-triangle | "ดูหลักฐานที่มี PII" | `/app/evidence?pii=1` (หน้า evidence อ่าน query `pii=1` ตั้งตัวกรอง) |
 | verify_actions | list-check | "ตรวจรับแผนปรับปรุง" | `/app/actions?status=done` (อ่าน query ตั้งตัวกรอง) |
+| start_cycle | calendar-cycle | "เริ่มดำเนินการรอบ" | `/app/cycles/{id}` (U1b M1) |
+| close_cycle | check | "ปิดรอบ" | `/app/cycles/{id}` (U1b M1) |
+| assess_cycle (ครบ 8/8) | check-circle | "ส่งผลประเมิน" | `/app/cycles/{id}/assess#assess-progress` |
+- **รวมการ์ดเขียน (U1b m5):** ใน `lib/ui/todo.ts` ฟังก์ชัน `groupForHome(items)` — ถ้า `write_section` ที่ `urgent=false` มีมากกว่า 3 รายการ ให้รวมทั้งหมด (ที่ไม่ urgent) เป็นการ์ดเดียว kind แสดงผล `write_section_group` ไอคอน pencil ข้อความ "เขียนอีก {n} ข้อ (ใกล้สุด {id} · {เหลือ x วัน|ยังไม่กำหนดส่ง})" ปุ่ม "ดูรายการข้อของฉัน" → เลื่อนไป `#mywork` (การ์ด "ข้อที่ได้รับมอบหมาย") · write_section ที่ urgent ยังแสดงทีละใบ · การรวมนี้เป็นการแสดงผลเท่านั้น `todoTotal` ยังนับทุกข้อ
+- top 3 การ์ดใหญ่ = 3 รายการแรกหลัง `groupForHome` · ที่เหลืออยู่ใน "▾ งานอื่น ๆ อีก {n} รายการ" (ค่าเริ่มต้น **เปิด** ถ้ามี ≤5 รายการ, ปิดถ้ามากกว่า)
+- การทำเครื่องหมายแจ้งเตือนว่าอ่านแล้ว **ไม่ลบ todo** (todo หายเมื่องานเสร็จจริงเท่านั้น) — ข้อความช่วยใต้หัวการ์ดแจ้งเตือน `.aq-help`: "การทำเครื่องหมายว่าอ่านแล้วไม่ทำให้งานในรายการ “สิ่งที่ต้องทำ” หายไป"
 - urgent = pill warn "เร่งด่วน" (ไอคอน clock) ไม่ใช้แดงทั้งการ์ด · testid การ์ด `todo-{kind}-{index}` (**ห้ามใช้ prefix `mywork-`** — E2E-03 นับ `a[data-testid^="mywork-"]`)
-- ไม่มี todo: EmptyState icon `check-circle` title "ตอนนี้ไม่มีงานรอท่าน" + text ตาม role:
+- ไม่มี todo: EmptyState icon `check-circle` title "ตอนนี้ไม่มีงานรอท่าน" + text ตาม role — **ผู้ใช้หลายบทบาทใช้ข้อความของบทบาทแรกที่มีตามลำดับ** `programme_chair > faculty_qa > dean > uni_admin/super_admin > data_staff > programme_staff > assessor` (U1b) :
   - อาจารย์/เจ้าหน้าที่ (ไม่มีข้อ): "เมื่อประธานหลักสูตรมอบหมายข้อให้ งานจะขึ้นที่นี่ทันที ระหว่างนี้คุณเพิ่มหลักฐานเข้าคลังไว้ก่อนได้" + [เพิ่มหลักฐาน] → `/app/evidence?new=1`
   - เจ้าหน้าที่ข้อมูล: "อัปเดตตัวชี้วัดล่าสุดไว้ ระบบจะตรวจแนวโน้มให้" + [ไปหน้าตัวชี้วัด]
   - ประธาน: "ทุกข้อที่ส่งมาตรวจแล้ว" + [ดูแดชบอร์ดรอบ]
   - QA คณะ/คณบดี: "ยังไม่มีรอบที่รอการพิจารณาของคุณ — จะมีแจ้งเตือนเมื่อหลักสูตรส่งรอบมา"
   - กรรมการ: "ยังไม่มีรอบที่เปิดให้ประเมิน — คุณจะได้รับแจ้งเตือนเมื่อ QA คณะเริ่มการประเมิน"
   - ผู้ดูแล: "ไม่มีงานค้าง" + [จัดการผู้ใช้]
-- "ข้อที่ได้รับมอบหมาย" แสดงเฉพาะเมื่อมี ≥1 ข้อ (ซ่อนข้อความ "ประธานหลักสูตรมอบหมายข้อให้ได้ที่…" ที่ขึ้นให้ทุก role เดิม) · ลิงก์ข้อ `mywork-{reqId}` (เดิม) · คอลัมน์กำหนดส่ง pill: เลย = bad "เลย 2 วัน", ≤3 = warn, อื่น = neutral
+- "ข้อที่ได้รับมอบหมาย" (section `id="mywork"`) แสดงเฉพาะเมื่อมี ≥1 ข้อ (ซ่อนข้อความ "ประธานหลักสูตรมอบหมายข้อให้ได้ที่…" ที่ขึ้นให้ทุก role เดิม) · ลิงก์ข้อ `mywork-{reqId}` (เดิม) · คอลัมน์กำหนดส่ง pill: เลย = bad "เลย 2 วัน", ≤3 = warn, อื่น = neutral
 - แจ้งเตือน: id `notifications` (anchor ของกระดิ่ง) · ปุ่ม "อ่านแล้ว" → **"ทำเครื่องหมายว่าอ่านแล้ว"** · ใหม่ = จุด primary 8px ซ้าย + ตัว 600 · ปุ่ม "เปิดข้อ"/"เปิดรอบ" ตาม `requirementId`/`cycleId` · คง testid `noti-list`, `noti-read-all` · หัวการ์ดนับใหม่ต้องเท่ากับตัวเลขกระดิ่ง
 - คงไว้: `mywork-table`, `mywork-{id}`, `cycle-link-{id}`, `noti-list`
 
@@ -163,7 +171,8 @@ actions: [พื้นที่ทำงานกรรมการ/ดูผล
 │ (ถ้าปุ่ม disabled: .aq-btn-reason "ยังมี 8 จาก 53 ข้อที่ยังไม่อนุมัติ")                     │
 └───────────────────────────────────────────────────────────────────────────────────────┘
 (lock-banner msg success/warn) · (evidence-changed / evidence-unchanged)
-kpi-row: [◔ อนุมัติแล้ว 45/53] [ความพร้อม 28% (?)] [วิกฤต 36] [สูง 71] [กลาง 40] [ต่ำ 10]
+kpi-row: [◔ อนุมัติแล้ว 45/53] [ความพร้อมด้านหลักฐาน 28% (?)] [วิกฤต 36] [สูง 71] [กลาง 40] [ต่ำ 10]
+kpi-summary: "อนุมัติแล้ว 45 จาก 53 ข้อ แต่ 36 ข้อยังมีช่องว่างวิกฤต (เช่น ยังไม่มีหลักฐานผูก) — ควรเติมก่อนส่งต่อ"
 ┌ Heatmap 53 ข้อ (heatmap) + legend ───────────────────────────────────────────────────┐
 │ เกณฑ์ 1  5/5 (ครบ)  [1.1][1.2][1.3][1.4][1.5]                                          │
 │ …                                                                                       │
@@ -175,13 +184,21 @@ kpi-row: [◔ อนุมัติแล้ว 45/53] [ความพร้อ
 │   (เปิดแล้ว) (วิกฤต) ข้อ 1.2 ยังไม่มีหลักฐานผูก (R1) [?]  ▸เปิดข้อ │
 └──────────────────────────────────────────────────────────────────┘
 ```
-- KPI: ring ใหญ่ = **จำนวนข้อที่อนุมัติ** (ตัวชี้วัดซื่อตรง เข้าใจง่าย) · ความพร้อม % คง `readiness-percent` + Term `readiness` อธิบายสูตร ("คะแนนตามสถานะข้อ หักตามช่องว่าง เฉลี่ย 53 ข้อ") · tile ระดับ gap คลิกเพื่อกรอง (C10) คง `gap-count-*`
+- KPI: ring ใหญ่ = **จำนวนข้อที่อนุมัติ** (ตัวชี้วัดซื่อตรง เข้าใจง่าย) · ป้าย tile % = **"ความพร้อมด้านหลักฐาน"** (U1b M4) คง `readiness-percent` + Term `readiness` อธิบายสูตร ("คะแนนตามสถานะข้อ หักตามช่องว่าง เฉลี่ย 53 ข้อ") · tile ระดับ gap คลิกเพื่อกรอง (C10) คง `gap-count-*`
+- **ประโยคสรุปใต้ KPI (U1b M4)** `.aq-kpi-summary` testid `kpi-summary` fs-base (ใช้ c = จำนวนข้อที่ `heatmap[i].gaps.critical > 0`, a = approved):
+  - c > 0: "อนุมัติแล้ว {a} จาก 53 ข้อ แต่ {c} ข้อยังมีช่องว่างวิกฤต (เช่น ยังไม่มีหลักฐานผูก) — ควรเติมก่อนส่งต่อ" (InlineMessage warn)
+  - c = 0 และ a < 53: "อนุมัติแล้ว {a} จาก 53 ข้อ ไม่มีช่องว่างวิกฤต — เหลืออีก {53−a} ข้อ" (neutral)
+  - c = 0 และ a = 53: "ครบทุกข้อและไม่มีช่องว่างวิกฤต" (success)
+  - ring เป็นสี success เฉพาะ a = 53 และ c = 0 (`clean`)
 - heatmap: C13 (P8 ไอคอนสถานะ) · ป้ายแถวเกณฑ์มีจำนวนอนุมัติ + pill "ครบ"
+- **คำอธิบายกฎครั้งเดียว (U1b m6):** หัวการ์ด gap มีปุ่ม ghost "กฎ R1–R11 คืออะไร" (testid `gap-rules-help`, ไอคอน help-circle) เปิด popover รายการกฎทั้ง 11 ข้อจาก `GLOSSARY.gap_rule_R*` · **แถว gap ไม่มีปุ่ม Term** — ข้อความ "(R6)" เป็นตัวอักษรธรรมดา `.aq-meta` มี `title` = ชื่อกฎ
 - **gap-list จัดกลุ่มตามเกณฑ์** (accordion; หัวกลุ่มเป็น `<button aria-expanded>` + region `hidden` เมื่อปิด) — ค่าเริ่มต้น: ปิดทุกกลุ่ม · ปุ่ม **"แสดงทั้งหมด (N)"** = เปิดทุกกลุ่ม (ต้องมีเสมอเมื่อมีกลุ่มที่ปิดอยู่; หลังกดเปลี่ยนเป็น "ย่อทั้งหมด") — E2E `gapListText` กดปุ่มนี้แล้วอ่าน `innerText` · แถว gap: pill ระดับ + ข้อความ `messageTh` เป็นลิงก์ไปหน้าข้อ + **ตัวอักษร "(R6)"** (Term ของกฎ) — **ลบ "ข้อ x.x" ที่ UI เติมหน้าข้อความ** (ซ้ำกับ messageTh: "ข้อ 1.2 ข้อ 1.2 …" M6) · ในกลุ่มเรียงตามระดับแล้วตามข้อ · ไม่ตัด 40 แถวแรกแล้ว (กลุ่มพับแทน)
 - preflight: เรียก `getTransitionPreflight(user, id, to)` สำหรับทุกปุ่มใน cycle-actions (ADR 6.2 B4) → แสดง warnings ในการ์ด "ขั้นตอนถัดไป" ก่อนกด **และ** ใน dialog ยืนยัน (`details`) · ชื่อปุ่มยืนยัน: ไม่มี warning = "ยืนยัน{ชื่อการกระทำ}" เช่น "ยืนยันอนุมัติสุดท้ายและล็อก"; มี warning = "ยืนยัน{ชื่อการกระทำ} (มีข้อควรระวัง {n} เรื่อง)" · dialog variant warning · blockers → ปุ่ม disabled + reason
 - ปุ่ม transition: ปุ่มที่ไปข้างหน้า = primary, `revision_requested` = danger อยู่ขวาสุดห่าง 16px (แก้ dean กดผิดเพราะปุ่มเท่ากัน)
 - "ขั้นตอนถัดไป" แสดงเสมอ (แม้ผู้ใช้ไม่มีปุ่ม) เพื่อบอกว่ารอใคร — testid ใหม่ `cycle-next-info`; **`cycle-actions` render เฉพาะเมื่อมีปุ่ม** (E2E-08 คาด hidden)
-- L7 ฉลอง: เมื่อ approved = 53 และสถานะ in_progress → InlineMessage success "ครบทุกข้อแล้ว พร้อมส่ง QA คณะตรวจ" + ring เต็ม + ประกาย (ครั้งเดียวต่อ cycle+revision ต่อผู้ใช้)
+- **อ่าน SAR ทั้งรอบ (U1b UX-5 — ทำใน U2 แบบเบา):** ในการ์ด "ขั้นตอนถัดไป" เมื่อสถานะเป็น `under_review` หรือ `faculty_approved` และผู้ใช้มีปุ่ม transition → ปุ่ม secondary "อ่าน SAR ทั้งรอบ (.docx)" (testid `read-full-sar`, ไอคอน file-text) เรียก `exportSarDocx(user, cycleId)` + `downloadBlob(…, 'SAR_{รหัส}_{ปี}.docx')` พร้อมปุ่ม loading "กำลังสร้างไฟล์ Word…" · หน้าอ่านต่อเนื่องในเว็บ = backlog (ไม่ทำใน U2)
+- preflight dialog: ปุ่มยกเลิก "กลับไปตรวจก่อน" และ focus เริ่มที่ปุ่มนี้เมื่อมี warning (C15, U1b UX-3)
+- L7 ฉลอง: เมื่อ approved = 53 และสถานะ in_progress → ถ้า c = 0: InlineMessage success "ครบทุกข้อแล้ว พร้อมส่ง QA คณะตรวจ" + ring success + ประกาย · ถ้า c > 0: **ไม่มีประกาย** ring คง primary + InlineMessage info "อนุมัติครบ 53 ข้อแล้ว ส่ง QA คณะได้ — ยังมีช่องว่างวิกฤต {c} ข้อที่ควรเติม" (U1b M4) · ครั้งเดียวต่อ cycle+revision ต่อผู้ใช้
 - คงไว้: `kpi-row`, `readiness-percent`, `gap-count-*`, `heatmap`, `heat-*`, `gap-list`, `gap-filter`, `pending-table`, `cycle-actions`, `cycle-to-{status}`, `cycle-reopen`, `lock-banner` (ข้อความ "ถูกล็อก", "hash <16 hex>", "เนื้อหา SAR ตรงกับที่ล็อก"), `evidence-changed`, `evidence-unchanged`, `dean-return-hint`, `go-assess`, `go-assign`, `go-export`, `state-error` เมื่อไม่มีสิทธิ์ · ไอคอน 🔒 → Icon lock
 
 ## P8. มอบหมายงาน `/app/cycles/[id]/assign`
@@ -201,7 +218,7 @@ crumbs: รอบประเมิน › 2569 › มอบหมายงา�
 crumbs: รอบประเมิน › 2569 › ข้อ 3.6
 h1 "ข้อ 3.6 การพัฒนาวิชาชีพของอาจารย์"(ชื่อสั้นจาก textTh ตัด 60) (pill สถานะข้อ)   sub: รอบ 2569 · หลักสูตร · เจ้าของ อ.วิภา · กำหนดส่ง 30 ต.ค. (pill เหลือ 8 วัน)
 actions: [← แดชบอร์ดรอบ]
-Stepper: ① หลักฐาน (ผูกแล้ว 3) ─ ② เขียนเนื้อหา (412 คำ) ─ ③ PDCA และคะแนนตนเอง (5/7) ─ ④ ส่งตรวจ
+Stepper: ① หลักฐาน (ผูกแล้ว 3) ─ ② เขียนเนื้อหา (412 คำ) ─ ③ PDCA และคะแนนตนเอง ("คะแนนตนเอง 5" เมื่อให้แล้ว / "ยังไม่ให้คะแนน" เมื่อยัง — ห้ามเขียน "5/7"; U1b m1) ─ ④ ส่งตรวจ
 (readonly-reason msg ถ้าแก้ไม่ได้) (segregation-note msg warn ถ้าเป็นผู้เขียนล่าสุด)
 ┌ คอลัมน์หลัก (1fr) ───────────────────────────────┐ ┌ แผงข้าง 400px (≥1024; ≤1023 อยู่ใต้) ┐
 │ ▾ ข้อกำหนด (RequirementCard พับ: แสดงข้อความไทย   │ │ tabs: [หลักฐาน (3)] [ความเห็น (1)] │
@@ -233,13 +250,13 @@ Stepper: ① หลักฐาน (ผูกแล้ว 3) ─ ② เขี�
     4. "ให้คะแนนประเมินตนเองแล้ว (5)" — warn ถ้าไม่มี
     5. "คำแปลได้รับการยืนยัน" — แสดงเฉพาะถ้ามีธง R11 (warn)
     6. gap ระดับ critical/high อื่นของข้อนี้ — warn ต่อรายการ
-    - ปุ่ม: ไม่มี warn = "ยืนยันส่งตรวจ" · มี warn = "ยืนยันส่งตรวจ (ยังมี {n} จุดที่ควรเติม)" · ไม่บล็อก (ให้ประธานเป็นผู้ตัดสิน) ยกเว้นเนื้อหาว่าง (backend บล็อกอยู่แล้ว → แสดง error ใน dialog/toast)
-    - สำเร็จ: toast "ส่งตรวจข้อ 3.6 แล้ว — ประธานหลักสูตรได้รับแจ้งเตือน" + ขั้น ④ วาดเช็ก L6
-  - Autosave (P3): debounce 1,500ms เดิม + **บันทึกทันทีเมื่อ** textarea blur, `visibilitychange`→hidden, `beforeunload` (sync), อีเวนต์ `aunqa:flush-save` (ตอน logout), เปลี่ยนแท็บภาษา · ถ้าบันทึกใน beforeunload ไม่สำเร็จ (เช่น citation_invalid) → `event.preventDefault()` ให้เบราว์เซอร์ถามก่อนออก · save-status ใช้ C24 ("ยังไม่บันทึก — กำลังพิมพ์…" ระหว่าง dirty)
+    - ปุ่ม: ไม่มี warn = "ยืนยันส่งตรวจ" · มี warn = "ยืนยันส่งตรวจ (ยังมี {n} จุดที่ควรเติม)" · ปุ่มยกเลิก = "กลับไปเติมก่อน" และเป็น focus เริ่มต้นเมื่อมี warn (C15, U1b UX-3) · ไม่บล็อก (ให้ประธานเป็นผู้ตัดสิน) ยกเว้นเนื้อหาว่าง (backend บล็อกอยู่แล้ว → แสดง error ใน dialog/toast)
+    - สำเร็จ: toast "ส่งตรวจข้อ 3.6 แล้ว — ประธานหลักสูตรได้รับแจ้งเตือน" + ขั้น ④ วาดเช็ก L6 · **toast มี action "ไปข้อถัดไปของฉัน →"** (U1b UX-6): เรียก `listMyTodos(user)` หลังส่ง หา todo แรกที่ kind ∈ {fix_section, write_section, translation_review} → `router.push(sectionHref(...))`; ไม่มี = ไม่แสดง action · toast ที่มี action ค้างจนปิดหรือ 8 วินาที
+  - Autosave (P3): debounce 1,500ms เดิม + **บันทึกทันทีเมื่อ** textarea blur, `visibilitychange`→hidden, `beforeunload` (sync), `registerFlush` handler ที่ `flushAll()` เรียก (ตอน logout/หมดอายุ/ออกจากแท็บอื่น — สัญญาใน ADR 6.4), เปลี่ยนแท็บภาษา · onChange ของ textarea/PDCA/คะแนน เรียก `touchSession()` (นับการพิมพ์เป็นการใช้งาน; backend throttle 60 วินาทีเอง — U1b M3) · ถ้าบันทึกใน beforeunload ไม่สำเร็จ (เช่น citation_invalid) → `event.preventDefault()` ให้เบราว์เซอร์ถามก่อนออก · save-status ใช้ C24 ("ยังไม่บันทึก — กำลังพิมพ์…" ระหว่าง dirty)
   - **P6**: คะแนนตนเอง select/เหตุผล/ปุ่ม disabled เมื่อ `!sectionEditable` และแสดงเหตุผล "ข้อนี้อยู่ระหว่างตรวจหรืออนุมัติแล้ว จึงแก้คะแนนไม่ได้" (`canSelf = can(rating.self) && cycleWritable && sectionEditable`)
   - **P5/M4**: select ผูกหลักฐาน `width:100%` ภายในแผงที่ `min-width:0` + ช่องค้นหาเหนือ select (`link-search`) กรอง option ตามรหัส/ชื่อ (ว่าง = ทั้งหมด) · option label "E-3.6-01 · ชื่อหลักฐาน" · ปุ่ม "+ อัปโหลดหลักฐานใหม่สำหรับข้อนี้" → `/app/evidence?new=1&cycle={cycleId}&req={reqId}` (หน้า evidence เปิดฟอร์มพร้อมเลือกรอบ+ข้อไว้)
   - citation-warn: เพิ่ม "รหัสที่อ้างได้ในรอบนี้: …" (จาก `citableCodes(cycleId)` แสดงสูงสุด 12 + "และอีก n") และวิธีแก้ "ลบหรือแก้รหัสที่ไม่มีอยู่ หรือผูกหลักฐานนั้นกับรอบนี้ก่อน"
-  - AI result (AiResult): `pre` → `div.aq-prose` (white-space pre-wrap) คง `ai-draft-text` · ป้าย "ปกปิด n จุด" → Term redaction "ปกปิดข้อมูลส่วนบุคคล {n} จุด" · ร่างว่าง ("(ไม่มีร่าง)") → **ซ่อน pill post-check และ disable ปุ่มยอมรับ** + InlineMessage info "ยังร่างไม่ได้เพราะยังไม่มีหลักฐานที่ผูก — ผูกหลักฐานในแท็บหลักฐานก่อน" · โหมด offline: pill neutral "โหมดในเครื่อง (offline)" + Term offline · ต่อท้าย/แทนที่ = segmented "ต่อท้ายข้อความเดิม | แทนที่ทั้งหมด" + Term append_replace
+  - AI result (AiResult): `pre` → `div.aq-prose` (white-space pre-wrap) คง `ai-draft-text` · ป้าย "ปกปิด n จุด" → Term redaction "ปกปิดข้อมูลส่วนบุคคล {n} จุด" · ร่างว่าง ("(ไม่มีร่าง)") → **ซ่อน pill post-check และ disable ปุ่มยอมรับ** + InlineMessage info "ยังร่างไม่ได้เพราะยังไม่มีหลักฐานที่ผูก — ผูกหลักฐานในแท็บหลักฐานก่อน" · โหมด offline: pill neutral "โหมดในเครื่อง (offline)" + Term offline + (เฉพาะ AI-2 ร่าง) `.aq-help` ใต้ pill testid `ai-offline-note`: "โหมดในเครื่องสร้างเป็นโครงร่างหัวข้อจากหลักฐานที่ผูก ไม่ใช่ร่างฉบับเต็ม — ใช้เป็นจุดเริ่มแล้วเขียนต่อเอง" (U1b m4) · ต่อท้าย/แทนที่ = segmented "ต่อท้ายข้อความเดิม | แทนที่ทั้งหมด" + Term append_replace
   - **C-8 UI**: (1) ถ้า `section.needsTranslationReview?.[lang]` → InlineMessage info เหนือ textarea ภาษานั้น testid `translation-review-{lang}`: หัว "ข้อความส่วนนี้มาจากคำแปลอัตโนมัติแบบแทนศัพท์" + "แปลประโยคที่เหลือให้ครบแล้วกดยืนยัน ระบบจะเลิกเตือน (กฎ R11)" + ปุ่ม secondary **"ยืนยันว่าตรวจคำแปลแล้ว"** testid `translation-confirm-{lang}` (แสดงเมื่อ editable) → `confirmTranslationReviewed(user, cycleId, reqId, lang)` → toast "ยืนยันคำแปลแล้ว" + reload (2) ก่อนเรียกแปล: ถ้าความยาวต้นฉบับ > `TRANSLATE_MAX_CHARS` (8,000) → ไม่เรียก API, ปุ่มแปล disabled + `.aq-btn-reason` testid `translate-too-long`: "เนื้อหายาว {n:,} ตัวอักษร เกินที่แปลอัตโนมัติได้ครั้งละ 8,000 ตัวอักษร — แปลด้วยตนเอง หรือแบ่งเนื้อหาเป็นช่วงแล้วแปลทีละช่วงโดยย้ายส่วนที่ยังไม่แปลออกชั่วคราว" (3) TranslateResult คงเดิมแต่ restyle + ป้าย needs-human ใช้ InlineMessage warn
 - คงไว้: ทุก testid ในรายการ ADR 7.3 กลุ่ม section editor · ข้อความ readonly-reason "รอบถูกล็อกแล้ว แก้ไขไม่ได้" · `rating-panel` ข้อความ "ล่าสุด: 5 คะแนน" · `narrative-th` readonly เมื่อแก้ไม่ได้ · ปุ่ม save/submit/self-save ไม่ render เมื่อแก้ไม่ได้ (ไม่ใช่แค่ disabled — E2E-09/12 ตรวจ hidden/count 0) — **ยกเว้น P6**: select/เหตุผลคะแนนยัง render แบบ disabled ได้ แต่ `self-save` ต้องไม่ render เมื่อ `!canSelf`
 
@@ -263,7 +280,7 @@ toolbar หลัก: {หลักสูตร ▾}(ev-programme) {รอบ �
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ev-table (stack บนมือถือ): รหัส | ชื่อ (+pill PII) | ประเภท | PDCA | ปี | ข้อที่ผูก | สถานะ
 ```
-- เปลี่ยน: ปุ่ม `ev-new` อยู่ใน PageHeader actions (เห็นทันที ไม่ต้องผ่าน 6 ตัวกรอง) · ตัวกรองรองพับไว้ (แสดงจำนวนตัวกรองที่ใช้อยู่ในปุ่ม) · ฟอร์ม 3 ช่องหลัก + พับรายละเอียด (ค่าเริ่มต้น ประเภท=อื่น ๆ, PDCA=D, ปี=ปีปัจจุบัน พ.ศ. — เดิม) · ช่อง "รอบ" อยู่ในฟอร์ม (`ev-f-cycle`, ค่าเริ่มต้น = ค่าของ `ev-cycle`; ถ้า `ev-cycle` ว่าง = รอบล่าสุดที่ยังเขียนได้ของหลักสูตร หรือว่างถ้าไม่มี) · RequirementPicker แทน multi-select 53 บรรทัด (C4)
+- เปลี่ยน: ปุ่ม `ev-new` อยู่ใน PageHeader actions (เห็นทันที ไม่ต้องผ่าน 6 ตัวกรอง) · ตัวกรองรองพับไว้ (แสดงจำนวนตัวกรองที่ใช้อยู่ในปุ่ม) · ฟอร์ม 3 ช่องหลัก + พับรายละเอียด (ค่าเริ่มต้น ประเภท=อื่น ๆ, PDCA=D, ปี=ปีปัจจุบัน พ.ศ. — เดิม) · ช่อง "รอบ" อยู่ในฟอร์ม (`ev-f-cycle`, ค่าเริ่มต้น = ค่าของ `ev-cycle`; ถ้า `ev-cycle` ว่าง ("ทุกรอบ") = รอบล่าสุดที่ยังเขียนได้ (`draft|in_progress|revision_requested`) ของหลักสูตร; ถ้าไม่มีรอบเขียนได้ = ซ่อน picker + ข้อความตาม C4) · บรรทัด "บันทึกเข้าหลักสูตร: {รหัส} — {ชื่อ}" เหนือช่องรอบ (U1b UX-8) · RequirementPicker แทน multi-select 53 บรรทัด (C4)
 - **inline validate (P4)**: ตรวจฝั่ง client ก่อนเรียก `createEvidence`: (ก) ชื่อว่าง → error ใต้ ev-title "กรอกชื่อหลักฐาน เช่น รายงานการประชุมกรรมการหลักสูตร ครั้งที่ 1/2569" (ข) ไม่มีไฟล์/ลิงก์/ข้อความ → error ที่ fieldset 2 "แนบไฟล์ ใส่ลิงก์ หรือวางข้อความอย่างน้อยหนึ่งอย่าง" (ค) ลิงก์ไม่ขึ้นต้น http(s):// → error ใต้ช่องลิงก์ (ง) ตอนเลือกไฟล์: เรียก `validateFileMeta({name,size})` ทันที → ผิด = error ใต้ dropzone (ชนิด/ขนาด) และไม่เก็บไฟล์ · ไม่ผ่าน = error summary + focus summary · ฟอร์มค้างพร้อมค่าเดิม · error จาก API (AunqaError) แสดงใน error summary ด้วย (ไม่ใช่แค่ toast)
 - สำเร็จ: ปิดฟอร์ม + toast "เพิ่มหลักฐาน E-1.2-01 แล้ว" + แถวใหม่ไฮไลต์ L5 + `scrollIntoView({block:'center'})` (แก้ "หน้าเลื่อนกลางตาราง" ให้มีจุดโฟกัส) · PII = dialog notify เดิม ("รับทราบ")
 - query: `?new=1` เปิดฟอร์ม · `&cycle=` ตั้งรอบ · `&req=` ใส่ chip ข้อนั้น · `?pii=1` ติ๊ก ev-pii และเปิดตัวกรองเพิ่มเติม
@@ -320,7 +337,7 @@ assess-progress (การ์ด): ◔ ให้คะแนนแล้ว 3/8 
    [Appendix B (.doc)] [Appendix D (.doc)]
 tabs เกณฑ์ 1…8 (assess-crit-n, มี ✓ เมื่อให้คะแนนแล้ว)
 assess-panel-n: ข้อในเกณฑ์ (SAR อ่านอย่างเดียว + หลักฐาน + คะแนนตนเองของหลักสูตร) · ข้อค้นพบ · คะแนนเกณฑ์ {▾}(crit-score) {เหตุผล}(crit-why) [บันทึกคะแนนเกณฑ์นี้](crit-save)
-   หลังบันทึก: aq-saved "✓ บันทึกแล้ว" + [ไปเกณฑ์ 4 →] (testid crit-next)
+   หลังบันทึก: aq-saved "บันทึกแล้ว" (ไอคอน check) + [ไปเกณฑ์ {n+1} →] (testid crit-next) · **เกณฑ์ 8:** ปุ่มเดียวกัน (testid crit-next) ข้อความ "ไปสรุปผลและเลือก verdict ↓" → `scrollIntoView` การ์ด `assess-progress` + focus ช่อง `verdict-score` (U1b UX-9)
 ```
 - เปลี่ยน: เหตุผลที่ปุ่มส่งผล disabled แสดงเป็นข้อความ (ไม่ใช่แค่ title) · ปุ่ม "ไปเกณฑ์ถัดไป" ลดการหาแท็บ (ไม่ auto-advance) · tab ✓ ใช้ Icon check + วาด L6 ตอนเพิ่งบันทึก · verdict ใช้ Term verdict · RATING_SCALE แสดงชื่อระดับไทยใน option
 - คงไว้: `assess-crit-{n}`, `assess-panel-{n}`, `crit-score`, `crit-why`, `crit-save`, `rated-count` (ข้อความ "n/8"), `verdict-score`, `verdict-why`, `verdict-save`, `assess-finish`, `assess-appb`, `assess-appd`, `assess-notopen` (ข้อความ "ส่งผลประเมินแล้ว" เมื่อส่งแล้ว), `assess-hidden`, `assess-results`, `verdict-row` (มีคำว่า "verdict" และตัวเลข), ข้อความ "ประเมินตนเอง: N คะแนน" ในแผงเกณฑ์ (E2E-13 regex)
@@ -329,7 +346,9 @@ assess-panel-n: ข้อในเกณฑ์ (SAR อ่านอย่าง�
 ```
 h1 "รอตรวจ"  sub "ข้อที่ส่งตรวจและรอบที่รอการพิจารณาของคุณ"
 (cycle-tasks) การ์ดต่อรอบ: รอบ 2569 · หลักสูตร (pill) — "รอ: อนุมัติ (QA คณะ)" [เปิดแดชบอร์ดเพื่อพิจารณา →]
-review-table: ข้อ (ลิงก์+ชื่อย่อ) | รอบ | เจ้าของ | ส่งเมื่อ | [เปิดอ่าน](primary) [อนุมัติ](secondary) ··· [ส่งกลับ](danger)
+review-table: ข้อ (ลิงก์+ชื่อย่อ) | รอบ | เจ้าของ | ส่งเมื่อ | สรุป | [เปิดอ่าน](primary) [อนุมัติ](secondary) ··· [ส่งกลับ](danger)
+  คอลัมน์ "สรุป" (U1b UX-7, `.aq-meta` หลายบรรทัด): "หลักฐาน {n} ชิ้น · {w} คำ · คะแนนตนเอง {s|—}" + ถ้ามี pill bad "วิกฤต {c}" / pill warn "สูง {h}"
+  ที่มาข้อมูล (ไม่มี API ใหม่): n = `listLinks(user, cycleId)` กรอง requirementId · w = คำของ `narrativeTh` (นับแบบเดียวกับ editor) · s = `listRatings(user, cycleId)` self ล่าสุด · c/h = `getReadiness(user, cycleId).heatmap[...].gaps` (เรียกครั้งเดียวต่อรอบ)
 ```
 - เปลี่ยน: ปุ่มเป็นขนาดจริง (compact 40 บนเดสก์ท็อป, 44 มือถือ) ไม่ใช่ลิงก์ข้อความเล็ก · "เปิดอ่าน" เป็นปุ่มหลัก (สนับสนุนให้อ่านก่อนอนุมัติ) · แถวที่ผู้ใช้เป็นผู้เขียนล่าสุด: ปุ่มอนุมัติไม่ render + pill neutral "คุณเขียนเอง" + Term segregation · หลังอนุมัติ/ส่งกลับ: แถวจาง (opacity เฉพาะแถวที่ถูกนำออก 220ms แล้วหาย) + toast · **ไม่ทำอนุมัติเป็นชุด** (ADR 6.1 เหตุผล)
 - empty: icon inbox-check "ไม่มีข้อที่รอตรวจ — เมื่ออาจารย์ส่งข้อมา จะขึ้นที่นี่และมีแจ้งเตือน"
