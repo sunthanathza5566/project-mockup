@@ -12,7 +12,7 @@
  * TODO(i18n): เมื่อย้ายไป next-intl ให้เลิกใช้ไฟล์นี้ แล้วใช้ key แบบ message id แทน
  */
 
-import { EN, type Lang } from './dict';
+import { lookupEn, type Lang } from './dict';
 
 /** ข้อความไทยต้นฉบับของแต่ละ node — ใช้ย้อนกลับเป็นภาษาไทย */
 const originals = new WeakMap<Text, string>();
@@ -34,8 +34,35 @@ function eachTextNode(root: Node, fn: (n: Text) => void) {
   nodes.forEach(fn);
 }
 
+/** attribute ที่ผู้ใช้เห็น/ได้ยิน (placeholder, aria-label, title) — เก็บค่าไทยเดิมไว้ย้อนกลับ */
+const ATTRS = ['placeholder', 'aria-label', 'title'] as const;
+const attrOriginals = new WeakMap<Element, Partial<Record<string, string>>>();
+
+function translateAttrs(el: Element, lang: Lang) {
+  if (el.closest('[data-no-i18n]')) return;
+  for (const a of ATTRS) {
+    const cur = el.getAttribute(a);
+    if (cur === null) continue;
+    if (lang === 'en') {
+      const tr = cur.trim() ? lookupEn(cur.trim()) : undefined;
+      if (!tr) continue;
+      const saved = attrOriginals.get(el) ?? {};
+      if (saved[a] === undefined) { saved[a] = cur; attrOriginals.set(el, saved); }
+      el.setAttribute(a, tr);
+    } else {
+      const orig = attrOriginals.get(el)?.[a];
+      if (orig !== undefined && cur !== orig) el.setAttribute(a, orig);
+    }
+  }
+}
+
 /** แปลงข้อความในทุก text node ใต้ root ตามภาษาที่เลือก */
 export function translateTree(root: Node, lang: Lang) {
+  if (root.nodeType === Node.ELEMENT_NODE) {
+    const el = root as Element;
+    translateAttrs(el, lang);
+    el.querySelectorAll('[placeholder],[aria-label],[title]').forEach(e => translateAttrs(e, lang));
+  }
   eachTextNode(root, node => {
     if (shouldSkip(node)) return;
 
@@ -43,7 +70,7 @@ export function translateTree(root: Node, lang: Lang) {
       const raw = node.data;
       const key = raw.trim();
       if (!key) return;
-      const translated = EN[key];
+      const translated = lookupEn(key);
       if (!translated) return;
       if (!originals.has(node)) originals.set(node, raw);
       // คงช่องว่างหน้า/หลังเดิมไว้ เพื่อไม่ให้ layout เพี้ยน

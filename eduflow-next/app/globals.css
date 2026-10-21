@@ -398,3 +398,11 @@ i.aq-lv-I, i.aq-lv-R, i.aq-lv-M { display: inline-block; width: 12px; height: 12
 .aq-checklist li[data-done="true"] { color: #2E5C2E; }
 .aq-sar-text { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 0.9rem; max-height: 280px; overflow-y: auto; margin: 0.5rem 0; font-size: 0.88rem; line-height: 1.7; }
 .aq-cite { color: var(--brown-deep); font-weight: 600; text-decoration: underline; }
+
+/* ─── Phase C: translate / import / export ─── */
+.aq-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.aq-file-btn { position: relative; cursor: pointer; }
+.aq-file-btn:focus-within { outline: 2px solid var(--brown-dark); outline-offset: 2px; }
+.aq-row-bad td { background: rgba(176, 58, 46, 0.07); }
+.aq-translate-pair { display: flex; flex-direction: column; gap: 0.4rem; }
+.aq-translate-pair .aq-h3 { font-size: 0.85rem; margin-bottom: 0; }

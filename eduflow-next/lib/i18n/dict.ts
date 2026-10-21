@@ -8,9 +8,11 @@
  * TODO(i18n): ถ้าจำนวนคำเยอะขึ้นมาก ให้ย้ายไป next-intl + ไฟล์ json แยกภาษา
  */
 
+import { EN_AUNQA, PATTERNS } from './dict-aunqa';
+
 export type Lang = 'th' | 'en';
 
-export const EN: Record<string, string> = {
+const EN_BASE: Record<string, string> = {
   // ── ทั่วไป ──
   'ออกจากระบบ': 'Sign out',
   'ย้อนกลับ': 'Back',
@@ -235,8 +237,21 @@ export const EN: Record<string, string> = {
   'รายการจองจากนักเรียน': 'Student booking requests',
 };
 
+/** พจนานุกรมรวม — คำแปลของ AUN-QA (dict-aunqa.ts) ทับชุดเดิมได้ */
+export const EN: Record<string, string> = { ...EN_BASE, ...EN_AUNQA };
+
+/** หาคำแปลอังกฤษ: ตรงทั้งข้อความก่อน แล้วค่อยลอง pattern (ข้อความที่ประกอบจากตัวแปร) — ไม่พบ = undefined */
+export function lookupEn(key: string): string | undefined {
+  if (Object.prototype.hasOwnProperty.call(EN, key)) return EN[key];
+  for (const [re, fn] of PATTERNS) {
+    const m = re.exec(key);
+    if (m) return fn(m, k => lookupEn(k) ?? k);
+  }
+  return undefined;
+}
+
 /** แปลข้อความ — ถ้าไม่พบคำแปล คืนข้อความไทยเดิม (ไม่ทำให้หน้าพัง) */
 export function translate(text: string, lang: Lang): string {
   if (lang === 'th') return text;
-  return EN[text] ?? text;
+  return lookupEn(text) ?? text;
 }

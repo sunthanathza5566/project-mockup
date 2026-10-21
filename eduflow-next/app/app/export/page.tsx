@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  downloadBlob, exportAppendixAXlsx, exportAppendixBDoc, exportAppendixDDoc, exportEvidenceAndAppendixXlsx, exportEvidenceIndexXlsx, exportSarDoc,
+  downloadBlob, exportAppendixAXlsx, exportAppendixBDoc, exportAppendixDDoc, exportEvidenceAndAppendixXlsx, exportEvidenceIndexXlsx, exportSarDoc, exportSarDocx,
   getProgramme,
 } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
@@ -29,7 +29,7 @@ export default function ExportPage() {
 
   return (
     <>
-      <PageHeader title="ส่งออกเอกสาร" sub="ไฟล์ SAR เป็น .doc (เปิดด้วย Word ได้) และตารางหลักฐานเป็น .xlsx" />
+      <PageHeader title="ส่งออกเอกสาร" sub="ไฟล์ SAR เป็น .docx (เปิดด้วย Word) พร้อมสารบัญ และตารางหลักฐานเป็น .xlsx" />
       <div className="aq-toolbar">
         <select className="aq-input" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="x-programme">
           {programmes.map(p => <option key={p.id} value={p.id}>{p.code} — {p.nameTh}</option>)}
@@ -45,7 +45,14 @@ export default function ExportPage() {
           <section className="aq-card">
             <h2 className="aq-h2">รายงาน SAR</h2>
             <p className="aq-muted">ครบ 53 ข้อเรียงตามเกณฑ์ พร้อมคะแนนประเมินตนเองและรายการหลักฐานอ้างอิง</p>
-            <AsyncButton className="aq-btn aq-btn-primary" testId="export-sar" onClick={() => run('SAR', `SAR_${base}.doc`, () => exportSarDoc(user, cycle.id))}>ดาวน์โหลด SAR (.doc)</AsyncButton>
+            <div className="aq-actions">
+              <AsyncButton className="aq-btn aq-btn-primary" testId="export-sar-docx" onClick={() => run('SAR (.docx)', `SAR_${base}.docx`, () => exportSarDocx(user, cycle.id))}>ดาวน์โหลด SAR (.docx)</AsyncButton>
+              <AsyncButton className="aq-btn" testId="export-sar" title="ไฟล์สำรองแบบเดิม ใช้เมื่อเปิด .docx ไม่ได้" onClick={() => run('SAR (.doc)', `SAR_${base}.doc`, () => exportSarDoc(user, cycle.id))}>ไฟล์สำรอง (.doc)</AsyncButton>
+            </div>
+            <p className="aq-muted" style={{ fontSize: '0.8rem' }} data-testid="export-docx-note">
+              เมื่อเปิด .docx ใน Word หากขึ้นข้อความถามให้อัปเดต field ให้กด “ใช่” (หรือคลิกขวาที่สารบัญ แล้วเลือก “Update Field”)
+              เพื่อให้สารบัญแสดงเลขหน้าครบ · .doc เป็นไฟล์สำรองที่ไม่มีสารบัญอัตโนมัติ
+            </p>
           </section>
           <section className="aq-card">
             <h2 className="aq-h2">ดัชนีหลักฐาน</h2>

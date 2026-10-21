@@ -10,6 +10,7 @@ import { useDialog } from '@/context/DialogContext';
 import { Async, Empty, PageHeader, useLoad } from '@/components/aunqa/common';
 import { useScope } from '@/components/aunqa/useScope';
 import TrendChart from '@/components/aunqa/TrendChart';
+import MetricImport from '@/components/aunqa/MetricImport';
 import { errMsg } from '@/lib/ui/aunqa';
 
 const num = (s: string): number | undefined => (s.trim() === '' ? undefined : Number(s));
@@ -33,6 +34,7 @@ export default function MetricsPage() {
       </div>
 
       {canWrite && <AddForm user={user} programmeId={programmeId} onDone={q.reload} />}
+      {canWrite && <MetricImport user={user} programmeId={programmeId} onDone={q.reload} />}
 
       <Async q={q}>{rows => rows.length === 0 ? <Empty text="ยังไม่มีข้อมูลตัวชี้วัด" /> : (
         <>

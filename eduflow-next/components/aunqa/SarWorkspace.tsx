@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   acceptAiRun, addComment, approveSection, can, cycleScope, linkEvidence, programmeScope, resolveComment,
-  restoreVersion, returnSection, runSarDrafter, runSarReviewer, saveSection, setSelfRating,
+  restoreVersion, returnSection, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating,
   submitSection, unlinkEvidence, validateCitations,
 } from '@/lib/api';
 import type {
@@ -15,6 +15,7 @@ import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { AsyncButton, Badge, Empty, ModelBadge, SectionStatusBadge } from './common';
 import RequirementCard from './RequirementCard';
+import TranslateResult from './TranslateResult';
 import { PDCA_TH, errMsg, fmtDate, fmtDateTime } from '@/lib/ui/aunqa';
 
 type Lang = 'th' | 'en';
@@ -152,11 +153,17 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       setRun(r);
     } catch (e) { showToast(errMsg(e), 'error'); }
   }
+  async function doTranslate() {
+    if (touched && !save('autosave')) return;
+    try { setRun(await runTranslate(user, section.id, lang === 'th' ? 'en' : 'th')); }
+    catch (e) { showToast(errMsg(e), 'error'); }
+  }
   function doAccept() {
     if (!run) return;
+    if (touched && !save('autosave')) return;
     try {
       acceptAiRun(user, run.id, { mode: aiMode });
-      showToast(run.feature === 'AI-2' ? 'ใส่ร่างเข้าเอกสารแล้ว' : 'รับทราบคำแนะนำแล้ว', 'success');
+      showToast(run.feature === 'AI-2' ? 'ใส่ร่างเข้าเอกสารแล้ว' : run.feature === 'AI-4' ? 'ใส่คำแปลเข้าเอกสารแล้ว (ดูที่แท็บภาษาปลายทาง)' : 'รับทราบคำแนะนำแล้ว', 'success');
       setRun(null);
       remount();
     } catch (e) { showToast(errMsg(e), 'error'); }
@@ -310,8 +317,15 @@ export default function SarWorkspace({ data, user, reload, remount }: {
               <div className="aq-actions">
                 <AsyncButton className="aq-btn" testId="ai-draft" onClick={() => doAi('draft')} disabled={!editable} title={!editable ? 'แก้ไขข้อนี้ไม่ได้ในสถานะปัจจุบัน' : undefined}>ร่าง ({lang.toUpperCase()})</AsyncButton>
                 <AsyncButton className="aq-btn" testId="ai-review" onClick={() => doAi('review')}>ตรวจ ({lang.toUpperCase()})</AsyncButton>
+                <AsyncButton className="aq-btn" testId="ai-translate" onClick={doTranslate} disabled={!editable} title={!editable ? 'แก้ไขข้อนี้ไม่ได้ในสถานะปัจจุบัน' : undefined}>
+                  {lang === 'th' ? 'แปลเป็น EN' : 'แปลเป็น TH'}
+                </AsyncButton>
               </div>
-              {run && <AiResult run={run} aiMode={aiMode} setAiMode={setAiMode} onAccept={doAccept} onDiscard={() => setRun(null)} canAccept={run.feature === 'AI-3' || editable} />}
+              {run && run.feature === 'AI-4' && (
+                <TranslateResult run={run} source={(run.output as { from?: string }).from === 'en' ? en : th} mode={aiMode} setMode={setAiMode}
+                  onAccept={doAccept} onDiscard={() => setRun(null)} canAccept={editable} />
+              )}
+              {run && run.feature !== 'AI-4' && <AiResult run={run} aiMode={aiMode} setAiMode={setAiMode} onAccept={doAccept} onDiscard={() => setRun(null)} canAccept={run.feature === 'AI-3' || editable} />}
             </>
           )}
         </section>
