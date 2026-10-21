@@ -926,34 +926,57 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-footer { padding: var(--sp-8) var(--page-pad); border-top: 1px solid rgba(255, 255, 255, .12); }
 .aq-footer__inner { max-width: var(--content-max); margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); }
 
-/* P2 Login (layout แยก) */
-.aq-auth { min-height: 100vh; display: flex; flex-direction: column; background: var(--c-bg); }
-.aq-auth__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); }
-.aq-auth__top a { text-decoration: none; }
-.aq-auth__tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+/* P2 Login (layout แยก) — grid: <1280 "top" / "main" (tools วางในแถว top ชิดขวา) · ≥1280 "brand main" (tools มุมล่างแผงแบรนด์) */
+.aq-auth {
+  min-height: 100vh; background: var(--c-bg);
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr;
+  grid-template-areas: "top" "main";
+}
+.aq-auth__top { grid-area: top; display: flex; align-items: center; min-height: 64px; padding: var(--sp-3) var(--sp-4); }
+.aq-auth__top a, .aq-auth__brand > a, .aq-brand-link { text-decoration: none; display: inline-flex; }
+.aq-auth__tools {
+  grid-area: top; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4); justify-self: end; align-self: center;
+}
 .aq-auth__brand { display: none; }
-.aq-auth__main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); padding: var(--sp-6) var(--sp-4) var(--sp-12); }
+.aq-auth__main { grid-area: main; display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-4) var(--sp-12); min-width: 0; }
 .aq-auth__card {
   width: 100%; max-width: 440px; padding: var(--sp-6) var(--sp-4);
   background: var(--c-surface); border: 1px solid var(--c-border-subtle); border-radius: var(--r-xl); box-shadow: var(--e-1);
 }
 @media (min-width: 480px) { .aq-auth__card { padding: var(--sp-8); } }
+.aq-auth__sub { margin: var(--sp-1) 0 var(--sp-4); }
 .aq-auth__card form { display: grid; gap: var(--sp-4); }
-.aq-auth__demo { width: 100%; max-width: 440px; }
+.aq-auth__back { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: var(--control-h); margin-top: var(--sp-3); }
+.aq-auth__demo { width: 100%; max-width: 440px; padding: var(--sp-2) var(--sp-4); background: var(--c-surface); border: 1px solid var(--c-border-subtle); border-radius: var(--r-lg); }
+.aq-auth__demo .aq-demo-grid { padding-bottom: var(--sp-3); }
 .aq-pw { position: relative; }
 .aq-pw .aq-input { padding-right: 52px; }
 .aq-pw__toggle { position: absolute; right: 0; top: 0; }
-.aq-demo-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); margin-top: var(--sp-3); }
-@media (min-width: 768px) { .aq-demo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.aq-demo-btn { justify-content: flex-start; text-align: left; flex-wrap: wrap; gap: 0 var(--sp-2); }
+.aq-demo-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); margin-top: var(--sp-2); }
+@media (min-width: 768px) { .aq-demo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .aq-auth__demo, .aq-auth__card { max-width: 560px; } }
+.aq-demo-btn { justify-content: flex-start; flex-direction: column; align-items: flex-start; gap: 0; padding: var(--sp-2) var(--sp-3); text-align: left; color: var(--c-ink); }
+.aq-demo-btn code { font-weight: 700; color: var(--c-primary); }
+@media (max-width: 479.98px) { .aq-auth__top { min-height: 0; padding-bottom: 0; } .aq-auth { grid-template-areas: "top" "tools" "main"; grid-template-rows: auto auto 1fr; } .aq-auth__tools { grid-area: tools; justify-self: start; padding-top: var(--sp-2); } }
 @media (min-width: 1280px) {
-  .aq-auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .aq-auth { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 1fr; grid-template-areas: "brand main"; }
   .aq-auth__top { display: none; }
-  .aq-auth__brand { display: flex; flex-direction: column; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-12); }
-  .aq-auth__brand-title { font-size: var(--fs-2xl); font-weight: 700; line-height: 1.35; }
+  .aq-auth__brand { grid-area: brand; display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12) var(--sp-12) 120px; }
+  .aq-auth__brand-title { font-size: var(--fs-2xl); font-weight: 700; line-height: 1.35; margin-bottom: var(--sp-4); }
   .aq-auth__brand ul { list-style: none; display: grid; gap: var(--sp-3); }
-  .aq-auth__brand li { display: flex; gap: var(--sp-2); align-items: flex-start; }
+  .aq-auth__brand li { display: flex; gap: var(--sp-2); align-items: center; font-size: var(--fs-md); }
+  .aq-auth__brand li .aq-icon { color: var(--c-accent); }
+  .aq-auth__tools { grid-area: brand; align-self: end; justify-self: start; padding: var(--sp-8) var(--sp-12); }
+  /* ปุ่มบนพื้นเข้ม (คู่ #42/#43) — tools อยู่นอก .aq-on-dark ใน DOM จึงกำหนดตรงนี้ */
+  .aq-auth__tools .aq-btn, .aq-auth__tools .aq-seg { background: transparent; color: var(--c-on-dark); border-color: var(--c-on-dark-muted); }
+  .aq-auth__tools .aq-btn:hover:not(:disabled), .aq-auth__tools .aq-seg > button:hover { background: rgba(255, 255, 255, .12); color: var(--c-on-dark); }
+  .aq-auth__tools .aq-seg > button { color: var(--c-on-dark); border-right-color: var(--c-on-dark-muted); }
+  .aq-auth__tools .aq-seg > [aria-checked="true"] { background: var(--c-surface); color: var(--c-primary-strong); box-shadow: none; }
+  .aq-auth__tools .aq-lang__off { color: var(--c-on-dark-muted); }
+  .aq-auth__tools :focus-visible { outline-color: var(--c-accent); }
+  .aq-auth__main { justify-content: center; padding: var(--sp-12) var(--sp-8); }
 }
+.aq-auth__art { max-width: 100%; height: auto; }
 
 /* P5 หน้าหลัก */
 .aq-todo-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
@@ -981,6 +1004,44 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-notfound { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); padding: var(--sp-8) var(--sp-4); text-align: center; }
 .aq-notfound__art { display: inline-flex; align-items: center; justify-content: center; width: 96px; height: 96px; border-radius: 50%; background: var(--c-primary-tint); color: var(--c-primary); }
 .aq-notfound__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); }
+
+/* P4 App shell (F2) */
+.aq-shell__body { min-width: 0; display: flex; flex-direction: column; min-height: 100vh; }
+.aq-session-lost { position: sticky; top: calc(var(--topbar-h) + var(--sp-2)); z-index: var(--z-sticky); box-shadow: var(--e-2); }
+.aq-lang { gap: var(--sp-2); white-space: nowrap; }
+.aq-lang__off { color: var(--c-muted); font-weight: 400; }
+.aq-lang__sep { color: var(--c-border-control); font-weight: 400; }
+.aq-on-dark .aq-lang__off { color: var(--c-on-dark-muted); }
+.aq-on-dark .aq-lang__sep { color: var(--c-on-dark-muted); }
+.aq-popwrap { position: relative; }
+.aq-popover {
+  position: absolute; z-index: var(--z-dropdown); left: 0; width: min(288px, calc(100vw - 32px));
+  display: grid; gap: var(--sp-3); padding: var(--sp-4);
+  background: var(--c-surface); color: var(--c-ink); border: 1px solid var(--c-border-subtle); border-radius: var(--r-lg); box-shadow: var(--e-2);
+  animation: aq-pop-in var(--dur-base) var(--ease-enter);
+}
+.aq-popover--up { bottom: calc(100% + var(--sp-2)); }
+.aq-popover .aq-check { min-height: var(--control-h); }
+
+/* P1 Landing (F2) */
+.aq-hero__card { margin-bottom: 0; }
+.aq-hero__ring { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-6); }
+.aq-hero__content > .aq-badge { margin-bottom: var(--sp-2); }
+.aq-lsection--alt { background: var(--c-surface-2); border-block: 1px solid var(--c-border-subtle); }
+.aq-features, .aq-trust { list-style: none; }
+.aq-feature, .aq-trust__item { margin-bottom: 0; }
+.aq-trust { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
+@media (min-width: 768px) { .aq-trust { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.aq-flow__item { position: relative; padding-left: 56px; min-height: 40px; }
+.aq-flow__item .aq-flow__no { position: absolute; left: 0; top: 0; }
+.aq-flow__item:not(:last-child)::after {
+  content: ''; position: absolute; left: 19px; top: 48px; bottom: calc(-1 * var(--sp-4) + 8px); width: 2px; background: var(--c-border-control);
+}
+@media (min-width: 768px) {
+  .aq-flow__item { padding-left: 0; padding-top: 56px; }
+  .aq-flow__item:not(:last-child)::after { left: 48px; right: calc(-1 * var(--sp-4) + 8px); top: 19px; bottom: auto; width: auto; height: 2px; }
+}
+.aq-cta-band .aq-on-dark-muted, .aq-footer .aq-on-dark-muted { color: var(--c-on-dark-muted); }
 
 /* ── ส่วนของหน้าเดิมที่ยังใช้ชื่อ class เดิม (restyle ด้วย token — คงไว้) ── */
 .aq-muted { color: var(--c-muted); }
