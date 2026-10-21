@@ -3,3 +3,4 @@
 !.env.example
 thesis/export/_assembled.md
 __pycache__/
+.agents/playtest/*.log
