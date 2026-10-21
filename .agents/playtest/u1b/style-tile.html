@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AUN-QA Copilot — Style tile (ADR-UI-001 / U1b)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--c-bg:#FBF8F3;--c-surface:#FFFFFF;--c-surface-2:#F4EFE6;--c-ink:#2B2623;--c-muted:#5E554D;
+--c-primary:#3B4FA0;--c-primary-strong:#2A3978;--c-primary-tint:#E8EBF8;
+--c-accent:#E9A23B;--c-on-accent:#3A2500;--c-accent-tint:#FCEBD0;
+--c-border-control:#8C8178;--c-border-subtle:#E5DED3;--c-on-dark:#FBF8F3;--c-on-dark-muted:#C9CEEA;
+--c-success:#2F7A4B;--c-success-bg:#E6F3EA;--c-warn:#85530A;--c-warn-bg:#FFF1D6;--c-danger:#B3261E;--c-danger-bg:#FCE8E6;--c-info:#1F6F78;--c-info-bg:#E3F1F2;
+--font-sans:'Sarabun','Leelawadee UI','Tahoma','Noto Sans Thai',system-ui,sans-serif;
+--fs-xs:.8125rem;--fs-sm:.875rem;--fs-base:1rem;--fs-md:1.125rem;--fs-lg:1.375rem;--fs-xl:1.75rem;--fs-2xl:2.25rem;--fs-3xl:3rem;
+--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;
+--r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-pill:999px;
+--e-1:0 1px 2px rgba(43,38,35,.06),0 2px 8px rgba(43,38,35,.05);--e-2:0 2px 4px rgba(43,38,35,.06),0 8px 20px rgba(43,38,35,.10);--e-3:0 16px 40px rgba(43,38,35,.18);
+--control-h:44px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--c-bg);color:var(--c-ink);font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.7;font-weight:400}
+a{color:var(--c-primary);text-underline-offset:3px}
+main{max-width:1280px;margin:0 auto;padding:var(--sp-8)}
+@media(max-width:768px){main{padding:var(--sp-4)}}
+h1{font-size:var(--fs-xl);line-height:1.35;font-weight:700;margin:0 0 var(--sp-2)}
+h2{font-size:var(--fs-lg);line-height:1.45;font-weight:700;margin:var(--sp-8) 0 var(--sp-4);padding-bottom:var(--sp-2);border-bottom:3px solid var(--c-accent);display:inline-block}
+h3{font-size:var(--fs-md);line-height:1.6;font-weight:600;margin:0 0 var(--sp-2)}
+.sub{color:var(--c-muted);margin:0}
+.grid{display:grid;gap:var(--sp-4)}
+.g-auto{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.g-2{grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))}
+.card{background:var(--c-surface);border:1px solid var(--c-border-subtle);border-radius:var(--r-lg);padding:var(--sp-6);box-shadow:var(--e-1);min-width:0}
+@media(max-width:768px){.card{padding:var(--sp-4)}}
+.meta{font-size:var(--fs-sm);color:var(--c-muted);line-height:1.6}
+.sw{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--c-border-subtle);background:#fff}
+.sw i{display:block;height:56px}.sw b{display:block;padding:6px 10px 0;font-size:var(--fs-sm);font-weight:600;line-height:1.5}.sw span{display:block;padding:0 10px 8px;font-size:var(--fs-sm);color:var(--c-muted);line-height:1.5}
+.ts{display:grid;grid-template-columns:170px 1fr;gap:var(--sp-3) var(--sp-4);align-items:baseline;padding:var(--sp-3) 0;border-bottom:1px solid var(--c-border-subtle)}
+@media(max-width:520px){.ts{grid-template-columns:1fr;gap:0}}
+.ts code{font-size:var(--fs-sm);color:var(--c-muted);font-family:var(--font-sans)}
+.t3xl{font-size:var(--fs-3xl);line-height:1.35;font-weight:700}.t2xl{font-size:var(--fs-2xl);line-height:1.35;font-weight:700}.t2xln{font-size:var(--fs-2xl);line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.txl{font-size:var(--fs-xl);line-height:1.35;font-weight:700}.tlg{font-size:var(--fs-lg);line-height:1.45;font-weight:700}.tmd{font-size:var(--fs-md);line-height:1.6;font-weight:600}
+.tbase{font-size:var(--fs-base);line-height:1.7}.tsm{font-size:var(--fs-sm);line-height:1.6}.txs{font-size:var(--fs-xs);line-height:1.4;font-weight:600}
+@media(max-width:768px){.t3xl{font-size:2.125rem}.t2xl,.t2xln{font-size:1.75rem}.txl,h1{font-size:1.5rem}}
+.lhtest{display:flex;gap:var(--sp-4);flex-wrap:wrap}
+.lhtest div{background:#fff;border:1px dashed var(--c-border-control);border-radius:var(--r-sm);padding:0 var(--sp-3);max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--control-h);padding:0 var(--sp-5);border-radius:var(--r-md);font:600 var(--fs-base)/1.7 var(--font-sans);cursor:pointer;border:1px solid var(--c-border-control);background:var(--c-surface);color:var(--c-primary);transition:background-color 150ms,color 150ms,transform 100ms}
+.btn:hover,.btn.is-hover{background:var(--c-primary-tint)}
+.btn:active,.btn.is-active{transform:translateY(1px)}
+.btn-primary{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
+.btn-primary:hover,.btn-primary.is-hover,.btn-primary.is-active{background:var(--c-primary-strong);border-color:var(--c-primary-strong)}
+.btn-ghost{background:transparent;border-color:transparent}
+.btn-danger{color:var(--c-danger);border-color:var(--c-danger)}.btn-danger:hover,.btn-danger.is-hover{background:var(--c-danger-bg)}
+.btn-danger-solid{background:var(--c-danger);border-color:var(--c-danger);color:#fff}
+.btn:focus-visible,.btn.is-focus{outline:3px solid var(--c-primary);outline-offset:2px}
+.btn:disabled{background:var(--c-surface-2);color:var(--c-muted);border-color:var(--c-border-subtle);cursor:not-allowed}
+.btn .spin{width:16px;height:16px;border-radius:50%;border:2.5px solid var(--c-border-subtle);border-top-color:var(--c-primary);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:center}
+.lbl{width:100%;font-size:var(--fs-sm);color:var(--c-muted);margin:var(--sp-2) 0 0}
+.reason{font-size:var(--fs-sm);color:var(--c-muted)}
+svg.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.ic16{width:16px;height:16px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 var(--sp-3);border-radius:var(--r-pill);font-size:var(--fs-xs);line-height:1.4;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--c-success-bg);color:var(--c-success)}.p-warn{background:var(--c-warn-bg);color:var(--c-warn)}.p-bad{background:var(--c-danger-bg);color:var(--c-danger)}.p-info{background:var(--c-info-bg);color:var(--c-info)}.p-neu{background:var(--c-surface-2);color:var(--c-ink)}.p-pri{background:var(--c-primary-tint);color:var(--c-primary-strong)}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:var(--r-pill);background:var(--c-accent);color:var(--c-on-accent);font-size:var(--fs-xs);font-weight:600;line-height:1}
+.count-r{background:var(--c-danger);color:#fff}
+.field{display:grid;gap:4px}.field label{font-weight:600}
+.help{font-size:var(--fs-sm);color:var(--c-muted);line-height:1.6}
+.inp{min-height:var(--control-h);width:100%;min-width:0;padding:0 var(--sp-3);border:1px solid var(--c-border-control);border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);font:400 var(--fs-base)/1.7 var(--font-sans)}
+.inp::placeholder{color:var(--c-muted)}.inp:hover{border-color:var(--c-ink)}.inp:focus{border-color:var(--c-primary)}
+.inp.ro{background:var(--c-surface-2);border-color:var(--c-border-subtle)}
+.inp.dis{background:var(--c-surface-2);color:var(--c-muted);border-color:var(--c-border-subtle);cursor:not-allowed}
+.inp.err{border:2px solid var(--c-danger)}
+.ferr{display:flex;gap:6px;align-items:flex-start;font-size:var(--fs-sm);font-weight:600;color:var(--c-danger);line-height:1.6}
+.ferr svg{margin-top:3px}
+.fok{display:flex;gap:6px;align-items:center;font-size:var(--fs-sm);color:var(--c-success)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.kpi{background:var(--c-surface);border-radius:var(--r-lg);box-shadow:var(--e-1);padding:var(--sp-5);border:1px solid var(--c-border-subtle)}
+.kpi .top{display:flex;gap:8px;align-items:center;font-size:var(--fs-sm);font-weight:600;color:var(--c-muted);line-height:1.6}
+.kpi .num{font-size:var(--fs-2xl);font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi .bot{font-size:var(--fs-sm);color:var(--c-muted);line-height:1.6}
+@media(max-width:768px){.kpi .num{font-size:1.75rem}}
+.heat{width:76px;min-height:68px;border-radius:var(--r-lg);border:1px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;text-decoration:none;transition:transform 150ms,box-shadow 150ms}
+@media(max-width:479px){.heat{width:68px;min-height:64px}}
+.heat:hover{transform:translateY(-2px);box-shadow:var(--e-2)}
+.heat b{font-size:var(--fs-base);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
+.heat em{font-style:normal;font-size:var(--fs-xs);font-weight:600;line-height:1.4;display:flex;gap:2px;align-items:center}
+.heat .st{position:absolute;top:4px;right:4px}
+.h-empty{background:var(--c-surface-2);border:1px dashed var(--c-border-control);color:var(--c-ink)}
+.h-crit{background:var(--c-danger-bg);border-color:var(--c-danger);color:var(--c-danger)}
+.h-warn{background:var(--c-warn-bg);border-color:var(--c-warn);color:var(--c-warn)}
+.h-ok{background:var(--c-primary-tint);border-color:var(--c-primary);color:var(--c-primary-strong)}
+.h-ready{background:var(--c-info-bg);border-color:var(--c-info);color:var(--c-info)}
+.h-appr{background:var(--c-success-bg);border-color:var(--c-success);color:var(--c-success)}
+.ringbox{display:flex;gap:var(--sp-6);flex-wrap:wrap;align-items:center}
+.ring{position:relative;width:120px;height:120px;flex:none}.ring.s{width:56px;height:56px}
+.ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-xl);line-height:1.15;font-variant-numeric:tabular-nums}
+.ring.s .mid{font-size:var(--fs-base)}
+.ring .mid small{font-size:var(--fs-sm);font-weight:400;color:var(--c-muted);line-height:1.6}
+.bar{height:8px;border-radius:var(--r-pill);background:var(--c-surface-2);overflow:hidden}.bar i{display:block;height:100%;background:var(--c-primary);transform-origin:left}
+.toast{position:relative;overflow:hidden;display:flex;gap:12px;align-items:flex-start;background:var(--c-surface);border-left:4px solid;border-radius:var(--r-md);box-shadow:var(--e-3);padding:var(--sp-3) var(--sp-2) var(--sp-4) var(--sp-4);max-width:400px}
+.toast svg.ic0{margin-top:4px}
+.toast .x{margin-left:auto;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--c-ink);cursor:pointer;margin-top:-6px}
+.toast .tl{position:absolute;left:0;right:0;bottom:0;height:3px;transform-origin:left}
+.t-ok{border-color:var(--c-success)}.t-ok .ic0{color:var(--c-success)}.t-ok .tl{background:var(--c-success);transform:scaleX(.6)}
+.t-bad{border-color:var(--c-danger)}.t-bad .ic0{color:var(--c-danger)}.t-bad .tl{background:var(--c-danger);transform:scaleX(.8)}
+.empty{background:var(--c-surface);border-radius:var(--r-lg);padding:var(--sp-8);text-align:center;border:1px solid var(--c-border-subtle)}
+.empty .art{position:relative;width:72px;height:72px;border-radius:50%;background:var(--c-primary-tint);color:var(--c-primary);display:inline-flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)}
+.empty .art svg{width:40px;height:40px}.empty .art u{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--c-accent)}
+.empty p{max-width:46rem;margin:0 auto var(--sp-4);color:var(--c-muted)}
+.sk{background:var(--c-surface-2);border-radius:var(--r-sm);position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:sh 1.4s linear infinite}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.sk-l{height:14px;margin:10px 0}
+.loader{border-radius:var(--r-xl);border:1px solid var(--c-border-subtle);min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-3);background:radial-gradient(circle at 50% 50%,rgba(59,79,160,.08),var(--c-bg) 70%);text-align:center;padding:var(--sp-6)}
+.wm{font-size:22px;line-height:1.35;font-weight:700}.wm span{font-weight:600;color:var(--c-primary)}
+.lring{width:48px;height:48px}.lring svg{width:100%;height:100%;animation:spin 1.2s linear infinite}
+.dark{background:var(--c-primary-strong);color:var(--c-on-dark);border-radius:var(--r-xl);padding:var(--sp-8)}
+.dark .m{color:var(--c-on-dark-muted)}.dark em{font-style:normal;color:var(--c-accent)}
+.dark .btn-primary{background:var(--c-surface);border-color:var(--c-surface);color:var(--c-primary-strong)}
+.dark .btn-out{background:transparent;color:var(--c-on-dark);border-color:var(--c-on-dark-muted)}
+.msg{display:flex;gap:12px;border-left:4px solid;border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);align-items:flex-start}
+.msg svg{margin-top:4px}
+.m-ok{background:var(--c-success-bg);border-color:var(--c-success)}.m-ok svg{color:var(--c-success)}.m-bad{background:var(--c-danger-bg);border-color:var(--c-danger)}.m-bad svg{color:var(--c-danger)}.m-warn{background:var(--c-warn-bg);border-color:var(--c-warn)}.m-warn svg{color:var(--c-warn)}.m-info{background:var(--c-info-bg);border-color:var(--c-info)}.m-info svg{color:var(--c-info)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--c-border-subtle);overflow-x:auto}
+.tab{min-height:44px;padding:0 var(--sp-4);font:600 var(--fs-base)/1.7 var(--font-sans);color:var(--c-muted);background:none;border:0;border-bottom:3px solid transparent;white-space:nowrap}
+.tab.on{color:var(--c-primary-strong);border-bottom-color:var(--c-primary)}
+.tblw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:480px}
+th{background:var(--c-surface-2);font-size:var(--fs-sm);font-weight:600;text-align:left;padding:var(--sp-3) var(--sp-4);line-height:1.6}
+td{padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--c-border-subtle)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17.2v.1"/></symbol>
+<symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></symbol>
+<symbol id="i-dash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></symbol>
+<symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
+</defs></svg>
+<main>
+<h1>AUN-QA Copilot — Style tile</h1>
+<p class="sub">ADR-UI-001 "Indigo &amp; Sand" · Sarabun 400/600/700 · ค่าทุกตัวมาจาก tokens.md ตรง ๆ · ui-inspector (U1b) ทำไว้ให้ดูทิศทางก่อน build — ไม่ใช่หน้าจริงของแอป</p>
+
+<h2>1 · Palette</h2>
+<div class="grid g-auto">
+<div class="sw"><i style="background:#FBF8F3"></i><b>--c-bg</b><span>#FBF8F3 พื้นหน้า</span></div>
+<div class="sw"><i style="background:#FFFFFF"></i><b>--c-surface</b><span>#FFFFFF การ์ด</span></div>
+<div class="sw"><i style="background:#F4EFE6"></i><b>--c-surface-2</b><span>#F4EFE6 พื้นยุบ</span></div>
+<div class="sw"><i style="background:#2B2623"></i><b>--c-ink</b><span>#2B2623 ตัวหลัก</span></div>
+<div class="sw"><i style="background:#5E554D"></i><b>--c-muted</b><span>#5E554D ตัวรอง</span></div>
+<div class="sw"><i style="background:#3B4FA0"></i><b>--c-primary</b><span>#3B4FA0 ปุ่ม/ลิงก์</span></div>
+<div class="sw"><i style="background:#2A3978"></i><b>--c-primary-strong</b><span>#2A3978 hover/แถบเข้ม</span></div>
+<div class="sw"><i style="background:#E8EBF8"></i><b>--c-primary-tint</b><span>#E8EBF8 selected</span></div>
+<div class="sw"><i style="background:#E9A23B"></i><b>--c-accent</b><span>#E9A23B ตกแต่งเท่านั้น</span></div>
+<div class="sw"><i style="background:#FCEBD0"></i><b>--c-accent-tint</b><span>#FCEBD0 ไฮไลต์</span></div>
+<div class="sw"><i style="background:#8C8178"></i><b>--c-border-control</b><span>#8C8178 ขอบช่องกรอก</span></div>
+<div class="sw"><i style="background:#E5DED3"></i><b>--c-border-subtle</b><span>#E5DED3 เส้นแบ่ง</span></div>
+<div class="sw"><i style="background:#2F7A4B"></i><b>--c-success</b><span>#2F7A4B / bg #E6F3EA</span></div>
+<div class="sw"><i style="background:#85530A"></i><b>--c-warn</b><span>#85530A / bg #FFF1D6</span></div>
+<div class="sw"><i style="background:#B3261E"></i><b>--c-danger</b><span>#B3261E / bg #FCE8E6</span></div>
+<div class="sw"><i style="background:#1F6F78"></i><b>--c-info</b><span>#1F6F78 / bg #E3F1F2</span></div>
+</div>
+
+<h2>2 · Type scale (Sarabun)</h2>
+<div class="card">
+<div class="ts"><code>3xl 48/1.35 · 700 (landing h1)</code><div class="t3xl">ระบบช่วยจัดทำรายงาน</div></div>
+<div class="ts"><code>2xl 36/1.35 ไทย</code><div class="t2xl">ผู้ใหญ่ ปั้นจั่น ที่นี่ น้ำใจ</div></div>
+<div class="ts"><code>2xl 36/1.15 ตัวเลข</code><div class="t2xln">45/53 · 85% · 1,234</div></div>
+<div class="ts"><code>xl 28/1.35 · 700 (h1)</code><div class="txl">แดชบอร์ดรอบประเมิน ผู้ใหญ่ ปั้นจั่น</div></div>
+<div class="ts"><code>lg 22/1.45 · 700 (h2)</code><div class="tlg">ช่องว่างที่ต้องปิดก่อนส่ง น้ำใจ ที่นี่ ฤๅษี</div></div>
+<div class="ts"><code>md 18/1.6 · 600 (h3)</code><div class="tmd">เกณฑ์ที่ 3 การจัดการเรียนการสอนและการประเมินผล</div></div>
+<div class="ts"><code>base 16/1.7 · 400</code><div class="tbase">อาจารย์ประจำหลักสูตรต้องแนบหลักฐานอย่างน้อยหนึ่งอย่างต่อหนึ่งข้อกำหนด เพื่อให้กรรมการตรวจย้อนหลังได้ — Latin text in Sarabun: AUN-QA v4.0, PLO 1–5.</div></div>
+<div class="ts"><code>sm 14/1.6 · meta</code><div class="tsm" style="color:var(--c-muted)">แก้ไขล่าสุดโดย ผศ.ดร. สมชาย ใจดี · 22 ต.ค. 2569 14:32 น. · ปั้นจั่น น้ำใจ</div></div>
+<div class="ts"><code>xs 13/1.4 · 600 (pill)</code><div class="txs">อนุมัติแล้ว · ส่งกลับแก้ไข · ผู้ใหญ่ ที่นี่ น้ำใจ</div></div>
+</div>
+<h3 style="margin-top:var(--sp-6)">เช็ก line-height กับวรรณยุกต์ซ้อน (กรอบเส้นประ = ขนาดกล่องบรรทัดจริง)</h3>
+<div class="lhtest" id="lh">
+<div style="font-size:28px;line-height:1.35;font-weight:700">ปั้นจั่น ผู้ใหญ่ ที่นี่ น้ำใจ (28/1.35)</div>
+<div style="font-size:36px;line-height:1.35;font-weight:700">ปั้นจั่น ผู้ใหญ่ น้ำใจ (36/1.35)</div>
+<div style="font-size:36px;line-height:1.15;font-weight:700">ปั้นจั่น ผู้ใหญ่ (36/1.15 = ห้ามใช้กับไทย)</div>
+<div style="font-size:22px;line-height:1.45;font-weight:700">ปั้นจั่น ผู้ใหญ่ ที่นี่ น้ำใจ (22/1.45)</div>
+<div style="font-size:13px;line-height:1.4;font-weight:600">ปั้นจั่น ผู้ใหญ่ ที่นี่ น้ำใจ (13/1.4)</div>
+</div>
+
+<h2>3 · ปุ่มทุก state</h2>
+<div class="card"><div class="row">
+<p class="lbl">primary: default · hover · active · focus · disabled · loading</p>
+<button class="btn btn-primary">ส่งตรวจ</button><button class="btn btn-primary is-hover">hover</button><button class="btn btn-primary is-active">active</button><button class="btn btn-primary is-focus">focus</button><button class="btn btn-primary" disabled>ส่งตรวจ</button><button class="btn btn-primary" aria-busy="true" disabled><span class="spin"></span>กำลังส่งตรวจ…</button>
+<span class="reason">ปุ่มปิดอยู่ เพราะ: ยังไม่ได้ให้คะแนนตนเอง</span>
+<p class="lbl">secondary · ghost · danger · danger-solid (ใน dialog) · icon 44×44</p>
+<button class="btn">บันทึกตอนนี้</button><button class="btn is-hover">hover</button><button class="btn btn-ghost">ยกเลิก</button><button class="btn btn-danger">ส่งกลับแก้ไข</button><button class="btn btn-danger is-hover">hover</button><button class="btn btn-danger-solid">ยืนยันลบ</button>
+<button class="btn btn-ghost" aria-label="ปิด" style="width:44px;padding:0"><svg class="ic"><use href="#i-x"/></svg></button>
+</div></div>
+
+<h2>4 · Badge สถานะ (สี + ไอคอน + ข้อความ)</h2>
+<div class="card"><div class="row">
+<span class="pill p-neu"><svg class="ic ic16"><use href="#i-dash"/></svg>ยังไม่เริ่ม</span>
+<span class="pill p-pri"><svg class="ic ic16"><use href="#i-pencil"/></svg>กำลังเขียน</span>
+<span class="pill p-info"><svg class="ic ic16"><use href="#i-clock"/></svg>รอตรวจ</span>
+<span class="pill p-warn"><svg class="ic ic16"><use href="#i-undo"/></svg>ส่งกลับแก้ไข</span>
+<span class="pill p-ok"><svg class="ic ic16"><use href="#i-check-circle"/></svg>อนุมัติแล้ว</span>
+<span class="pill p-ok"><svg class="ic ic16"><use href="#i-lock"/></svg>อนุมัติสุดท้าย (ล็อกแล้ว)</span>
+<span class="pill p-bad"><svg class="ic ic16"><use href="#i-x-circle"/></svg>วิกฤต</span>
+<span class="pill p-warn"><svg class="ic ic16"><use href="#i-alert"/></svg>สูง</span>
+<span class="pill p-info"><svg class="ic ic16"><use href="#i-info"/></svg>กลาง</span>
+<span class="count">3</span><span class="count count-r">99+</span><span class="meta">count "รอท่าน" (accent) / กระดิ่ง (danger)</span>
+</div></div>
+
+<h2>5 · ช่องกรอก + inline error</h2>
+<div class="grid g-2">
+<div class="card grid">
+<div class="field"><label for="a">ชื่อหลักฐาน *</label><span class="help">เช่น รายงานผลการสำรวจความพึงพอใจ</span><input id="a" class="inp" placeholder="พิมพ์ชื่อหลักฐาน"></div>
+<div class="field"><label for="b">รอบประเมิน</label><input id="b" class="inp" value="รอบ 2569"></div>
+<div class="field"><label for="c">อ่านอย่างเดียว</label><input id="c" class="inp ro" value="รอบ 2569 (ล็อกแล้ว)" readonly></div>
+<div class="field"><label for="d">ปิดใช้งาน</label><input id="d" class="inp dis" value="เลือกรอบก่อน" disabled></div>
+</div>
+<div class="card grid">
+<div class="field"><label for="e">คำอธิบายหลักฐาน *</label><input id="e" class="inp err" aria-invalid="true" aria-describedby="e-err"><div class="ferr" id="e-err"><svg class="ic ic16"><use href="#i-x-circle"/></svg><span><span class="sr">ข้อผิดพลาด:</span>กรุณาระบุคำอธิบายอย่างน้อย 10 ตัวอักษร</span></div></div>
+<div class="field"><label for="f">ไฟล์</label><input id="f" class="inp" value="รายงาน-2569.pdf"><div class="fok"><svg class="ic ic16"><use href="#i-check-circle"/></svg>ไฟล์ใช้ได้ · 2.4 MB</div></div>
+<div class="field"><label for="g">ตัวอย่าง focus</label><input id="g" class="inp" style="outline:3px solid var(--c-primary);outline-offset:2px;border-color:var(--c-primary)" value="กำลังพิมพ์…"></div>
+<div class="msg m-bad" role="alert"><svg class="ic"><use href="#i-x-circle"/></svg><div><b>ยังบันทึกไม่ได้ — โปรดแก้ 2 จุด</b><br><a href="#e">คำอธิบายหลักฐาน</a> · <a href="#a">ยังไม่ได้เลือกข้อ</a></div></div>
+</div>
+</div>
+
+<h2>6 · KPI tile · Heatmap · Progress</h2>
+<div class="grid g-auto" style="margin-bottom:var(--sp-4)">
+<div class="kpi"><div class="top"><svg class="ic" style="color:var(--c-primary)"><use href="#i-check-circle"/></svg>ความพร้อม</div><div class="num" style="color:var(--c-primary)">85%</div><div class="bot">อนุมัติ 45 จาก 53 ข้อ</div></div>
+<div class="kpi"><div class="top"><svg class="ic" style="color:var(--c-danger)"><use href="#i-x-circle"/></svg>วิกฤต</div><div class="num" style="color:var(--c-danger)">36</div><div class="bot">ช่องว่าง</div></div>
+<div class="kpi"><div class="top"><svg class="ic" style="color:var(--c-warn)"><use href="#i-alert"/></svg>สูง</div><div class="num" style="color:var(--c-warn)">12</div><div class="bot">ช่องว่าง</div></div>
+<div class="kpi"><div class="top"><svg class="ic" style="color:var(--c-info)"><use href="#i-info"/></svg>กลาง</div><div class="num" style="color:var(--c-info)">5</div><div class="bot">ช่องว่าง</div></div>
+<div class="kpi"><div class="top"><svg class="ic" style="color:var(--c-ink)"><use href="#i-dash"/></svg>ต่ำ</div><div class="num">0</div><div class="bot">ไม่มี</div></div>
+</div>
+<div class="card">
+<div class="row">
+<a class="heat h-empty" href="#"><b>1.1</b><em>ว่าง</em></a>
+<a class="heat h-crit" href="#" aria-label="ข้อ 1.2 · อนุมัติแล้ว · ยังมีช่องว่างวิกฤต 1"><svg class="ic ic16 st" style="color:var(--c-success)"><use href="#i-check-circle"/></svg><b>1.2</b><em><svg class="ic ic16"><use href="#i-x-circle"/></svg>วิกฤต</em></a>
+<a class="heat h-warn" href="#"><b>2.1</b><em><svg class="ic ic16"><use href="#i-alert"/></svg>เตือน</em></a>
+<a class="heat h-ok" href="#"><b>2.2</b><em>พอใช้</em></a>
+<a class="heat h-ready" href="#"><b>3.1</b><em><svg class="ic ic16"><use href="#i-clock"/></svg>รอตรวจ</em></a>
+<a class="heat h-appr" href="#"><b>3.6</b><em><svg class="ic ic16"><use href="#i-check-circle"/></svg>อนุมัติ</em></a>
+<span class="meta" style="flex:1 1 220px">ข้อ 1.2: อนุมัติแล้ว (ไอคอนมุมขวาบน) แต่ยังมีช่องว่างวิกฤต (P8)</span>
+</div></div>
+<div class="card" style="margin-top:var(--sp-4)"><div class="ringbox">
+<div class="ring" role="img" aria-label="อนุมัติแล้ว 45 จาก 53 ข้อ"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#F4EFE6" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="#3B4FA0" stroke-width="10" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="47"/></svg><div class="mid">45/53<small>ข้ออนุมัติ</small></div></div>
+<div class="ring" role="img" aria-label="ครบ 53 จาก 53"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#F4EFE6" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="#2F7A4B" stroke-width="10" stroke-dasharray="314.16" stroke-dashoffset="0"/></svg><div class="mid">53/53<small>ครบแล้ว</small></div></div>
+<div class="ring s" role="img" aria-label="62%"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="25" fill="none" stroke="#F4EFE6" stroke-width="6"/><circle cx="28" cy="28" r="25" fill="none" stroke="#3B4FA0" stroke-width="6" stroke-linecap="round" stroke-dasharray="157" stroke-dashoffset="60"/></svg><div class="mid">62%</div></div>
+<div style="flex:1 1 220px"><div class="meta" style="margin-bottom:4px">อนุมัติ 45/53</div><div class="bar"><i style="width:85%"></i></div></div>
+</div></div>
+
+<h2>7 · Toast · InlineMessage · Tabs · ตาราง</h2>
+<div class="grid g-2">
+<div class="grid" style="align-content:start">
+<div class="toast t-ok" role="status"><svg class="ic ic0"><use href="#i-check-circle"/></svg><div>บันทึกหลักฐานแล้ว (E-1.2-03)</div><button class="x" aria-label="ปิดข้อความ"><svg class="ic"><use href="#i-x"/></svg></button><i class="tl"></i></div>
+<div class="toast t-bad" role="alert"><svg class="ic ic0"><use href="#i-x-circle"/></svg><div>บันทึกไม่สำเร็จ: ไฟล์ใหญ่เกิน 5 MB</div><button class="x" aria-label="ปิดข้อความ"><svg class="ic"><use href="#i-x"/></svg></button><i class="tl"></i></div>
+<div class="msg m-ok"><svg class="ic"><use href="#i-check-circle"/></svg><div><b>ครบทุกข้อแล้ว</b><br>พร้อมส่ง QA คณะตรวจ</div></div>
+<div class="msg m-warn"><svg class="ic"><use href="#i-alert"/></svg><div><b>ยังมีช่องว่างวิกฤต 36 รายการ</b><br>ส่งต่อได้ แต่ควรตรวจก่อน</div></div>
+<div class="msg m-info"><svg class="ic"><use href="#i-info"/></svg><div>คุณเข้าในฐานะกรรมการประเมิน — เห็นเฉพาะรอบที่ได้รับมอบหมาย (อ่านอย่างเดียว)</div></div>
+</div>
+<div class="card">
+<div class="tabs" role="tablist"><button class="tab on" role="tab" aria-selected="true">ภาพรวม</button><button class="tab" role="tab">ข้อกำหนด</button><button class="tab" role="tab">ประวัติ</button></div>
+<div class="tblw" style="margin-top:var(--sp-3)"><table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>สถานะ</th></tr></thead><tbody>
+<tr style="background:var(--c-accent-tint)"><td><a href="#"><b>E-1.2-03</b></a></td><td>แบบสำรวจความพึงพอใจ (เพิ่งเพิ่ม)</td><td><span class="pill p-info"><svg class="ic ic16"><use href="#i-sparkle"/></svg>AI แนะนำข้อแล้ว</span></td></tr>
+<tr><td><a href="#"><b>E-2.1-01</b></a></td><td>รายงานผลการประเมินรายวิชา</td><td><span class="pill p-ok"><svg class="ic ic16"><use href="#i-check-circle"/></svg>ตรวจสอบแล้ว</span></td></tr>
+</tbody></table></div></div>
+</div>
+
+<h2>8 · Empty · Skeleton · AppLoader · แถบเข้ม</h2>
+<div class="grid g-2">
+<div class="empty"><div class="art"><svg class="ic"><use href="#i-folder"/></svg><u></u></div><h3>ยังไม่มีหลักฐานในรอบนี้</h3><p>หลักฐานช่วยให้แต่ละข้อมีที่มาที่ตรวจย้อนหลังได้ เริ่มจากอัปโหลดไฟล์แรก แล้วผูกกับข้อที่เกี่ยวข้อง</p><button class="btn btn-primary"><svg class="ic"><use href="#i-upload"/></svg>เพิ่มหลักฐาน</button></div>
+<div class="card"><div class="meta" role="status">กำลังโหลด… (skeleton)</div><div class="sk sk-l" style="width:40%;height:20px"></div><div class="sk sk-l"></div><div class="sk sk-l" style="width:90%"></div><div class="sk sk-l" style="width:70%"></div><div class="sk sk-l" style="width:55%"></div></div>
+<div class="loader" role="status"><svg width="56" height="56" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3B4FA0"/><path d="M9 6h8l4 4v16H9z" fill="#fff"/><path d="M12 14h7M12 17h7M12 20h4" stroke="#E8EBF8" stroke-width="1.6"/><circle cx="23" cy="23" r="6" fill="#E9A23B"/><path d="m20.3 23 2 2 3-3.6" fill="none" stroke="#3A2500" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="wm">AUN-QA <span>Copilot</span></div>
+<div class="lring"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="#F4EFE6" stroke-width="4"/><circle cx="24" cy="24" r="20" fill="none" stroke="#3B4FA0" stroke-width="4" stroke-linecap="round" stroke-dasharray="31.4 94.2"/></svg></div>
+<div style="font-size:var(--fs-md);font-weight:600;line-height:1.6">ยินดีต้อนรับ คุณสมชาย</div><div class="meta">กำลังเปิดพื้นที่ทำงานของคุณ…</div></div>
+<div class="dark"><div style="font-size:var(--fs-lg);font-weight:700;line-height:1.45">จัดทำ SAR ให้ <em>ครบ</em> ก่อนกำหนด</div><p class="m">ข้อความรองบนแถบเข้ม (on-dark-muted) ผู้ใหญ่ ปั้นจั่น น้ำใจ</p><div class="row"><button class="btn btn-primary">เริ่มใช้งาน</button><button class="btn btn-out">ดูตัวอย่าง</button><button class="btn btn-out" style="outline:3px solid var(--c-accent);outline-offset:2px">focus บนพื้นเข้ม</button></div></div>
+</div>
+</main></body></html>
