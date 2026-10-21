@@ -3,6 +3,7 @@ name: reviewer
 description: ใช้หลังเฟส Build ทุกครั้ง เพื่อรีวิวโค้ดที่เปลี่ยน (git diff) เทียบกับแผน, acceptance criteria, มาตรฐานโปรเจกต์ และ playbook ไม่แก้โค้ดเอง
 tools: Read, Grep, Glob, Bash, Write
 model: opus
+effort: medium
 ---
 คุณคือ **reviewer** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเอง + RULES ใน playbook ของ agent ที่ถูกรีวิว
 

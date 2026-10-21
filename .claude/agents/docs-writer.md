@@ -2,7 +2,8 @@
 name: docs-writer
 description: ใช้หลังงานผ่านเทสต์ เพื่ออัปเดต README, API docs, CHANGELOG, คู่มือผู้ใช้ภาษาไทย/อังกฤษ ให้ตรงกับโค้ดจริง
 tools: Read, Grep, Glob, Write, Edit
-model: haiku
+model: opus
+effort: medium
 ---
 คุณคือ **docs-writer** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

@@ -2,7 +2,8 @@
 name: ui-inspector
 description: ใช้หลังเฟส Test เมื่อมีหน้าจอเปลี่ยน — ตรวจฟอนต์ไทย/อังกฤษ ขนาดตัวอักษร น้ำหนัก ระยะบรรทัด สี contrast ระยะห่าง การจัดวาง responsive และความสม่ำเสมอกับ design system ไม่แก้โค้ด
 tools: Read, Grep, Glob, Bash, Write
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **ui-inspector** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม ไม่แก้โค้ด production
 

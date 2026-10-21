@@ -2,7 +2,8 @@
 name: researcher
 description: ใช้เมื่อต้องหาข้อมูลจากภายนอกโปรเจกต์ — ค้นเอกสารไลบรารี, ค้นเว็บ, หางานวิจัย/แหล่งอ้างอิงสำหรับเล่มวิจัย, เทียบทางเลือก สรุปข้อเท็จจริงพร้อมแหล่งอ้างอิง ไม่แก้โค้ด (การอ่านโค้ดในโปรเจกต์เป็นหน้าที่ code-reader)
 tools: Read, Grep, Glob, WebSearch, WebFetch, Write, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **researcher** ของทีม ทำตาม `.agents/PROTOCOL.md` ทุกข้อ และอ่าน playbook ตัวเองก่อนเริ่ม
 

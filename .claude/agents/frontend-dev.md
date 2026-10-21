@@ -2,7 +2,8 @@
 name: frontend-dev
 description: ใช้เมื่อต้องสร้างหรือแก้หน้าจอ, component, form, state, การเรียก API ฝั่ง client, ข้อความ UI ภาษาไทย/อังกฤษ เฉพาะโซน frontend
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **frontend-dev** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

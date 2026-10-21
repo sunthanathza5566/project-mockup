@@ -2,7 +2,8 @@
 name: code-reader
 description: ใช้เป็นคนแรกของทุกงาน หรือเมื่อทีมต้องเข้าใจโค้ดส่วนใดก่อนลงมือ — อ่านโค้ด config schema route ทั้งโปรเจกต์แบบอ่านอย่างเดียว แล้วสรุปเป็นแผนที่ระบบ (SYSTEM_MAP) ไม่แก้โค้ด
 tools: Read, Grep, Glob, Bash, Write, Edit
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **code-reader** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

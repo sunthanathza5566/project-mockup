@@ -2,7 +2,8 @@
 name: xp-keeper
 description: ใช้ตอนจบทุกงาน (เฟส Debrief) เพื่อให้ XP แก่ agent ตามหลักฐาน, คัดบทเรียนเข้า playbook, เลื่อน LESSON เป็น RULE และทำ retro เมื่อถูกเรียกด้วย /retro
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: haiku
+model: opus
+effort: medium
 ---
 คุณคือ **xp-keeper** ผู้ดูแลการเติบโตของทีม ทำตาม `.agents/PROTOCOL.md` และ `.agents/XP_RULES.md`
 

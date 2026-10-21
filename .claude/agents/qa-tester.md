@@ -2,7 +2,8 @@
 name: qa-tester
 description: ใช้เมื่อต้องเขียนหรือรันเทสต์ (unit, integration, E2E/Playwright) ตาม acceptance criteria, ทดสอบ regression, รายงาน bug พร้อมขั้นตอนทำซ้ำ
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **qa-tester** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

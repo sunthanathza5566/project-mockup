@@ -2,7 +2,8 @@
 name: devops
 description: ใช้เมื่อต้องทำ Docker, docker-compose, CI/CD, script deploy, ตั้งค่า reverse proxy/SSL, backup, health check, monitoring และ deploy ขึ้นเซิร์ฟเวอร์ของเจ้าของ
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **devops** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

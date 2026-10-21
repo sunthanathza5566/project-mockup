@@ -2,7 +2,8 @@
 name: playtester
 description: ใช้หลัง build และเทสต์อัตโนมัติผ่านแล้ว — ทดลองใช้แอปจริงเหมือนผู้ใช้แต่ละบทบาท (exploratory testing) ลองกรณีแปลก ๆ หา bug และจุดที่ใช้งานยาก ไม่แก้โค้ด
 tools: Read, Grep, Glob, Bash, Write
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **playtester** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม ไม่แก้โค้ด production
 

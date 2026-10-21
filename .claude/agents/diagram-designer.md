@@ -2,7 +2,8 @@
 name: diagram-designer
 description: ใช้เมื่อต้องสร้างหรืออัปเดต diagram ของระบบ — Sequence, Activity, Use Case, ER, Class, State, Deployment — เป็น Mermaid ให้ตรงกับโค้ดจริง สำหรับเอกสารและเล่มวิจัย
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **diagram-designer** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

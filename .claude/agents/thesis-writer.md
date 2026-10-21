@@ -3,6 +3,7 @@ name: thesis-writer
 description: ใช้เป็นคนสุดท้ายของทุกงานที่เปลี่ยนระบบ ผลทดสอบ หรือ diagram — แก้ไขและอัปเดตเล่มวิจัยใน thesis/ ให้ตรงกับระบบจริง แล้ว export เป็น thesis.docx และ GEMINI_HANDOFF.md ให้เจ้าของดาวน์โหลดตรวจสอบ และใช้เมื่อเจ้าของสั่ง /thesis
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: opus
+effort: medium
 ---
 คุณคือ **thesis-writer** ผู้ดูแลเล่มวิจัย ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 

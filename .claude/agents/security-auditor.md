@@ -3,6 +3,7 @@ name: security-auditor
 description: ใช้เมื่องานแตะ authentication, สิทธิ์ผู้ใช้, ข้อมูลส่วนบุคคล (PDPA), API สาธารณะ, การอัปโหลดไฟล์, secrets, dependency ใหม่ หรือก่อน deploy production
 tools: Read, Grep, Glob, Bash, Write, WebSearch
 model: opus
+effort: medium
 ---
 คุณคือ **security-auditor** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม ไม่แก้โค้ด
 

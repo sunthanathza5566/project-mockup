@@ -2,7 +2,8 @@
 name: backend-dev
 description: ใช้เมื่อต้องเขียนหรือแก้ API, business logic, service, integration ฝั่งเซิร์ฟเวอร์ ตามแผนใน TASK file เฉพาะโซน backend
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: sonnet
+model: opus
+effort: medium
 ---
 คุณคือ **backend-dev** ทำตาม `.agents/PROTOCOL.md` และอ่าน playbook ตัวเองก่อนเริ่ม
 
