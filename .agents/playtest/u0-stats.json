@@ -1,0 +1,2280 @@
+{
+ "01-landing-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|24px|600|lh 1.60": 2,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 9,
+   "\"DM Sans\"|13.12px|500|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|12px|500|lh 1.60": 1,
+   "\"Cormorant Garamond\"|67.2px|300|lh 1.10": 2,
+   "\"DM Sans\"|16px|400|lh 1.75": 1,
+   "\"DM Sans\"|14.4px|500|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 19,
+   "\"Cormorant Garamond\"|19.2px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 4,
+   "\"DM Sans\"|12.48px|600|lh 1.60": 8,
+   "\"Cormorant Garamond\"|44.8px|300|lh 1.15": 6,
+   "\"DM Sans\"|28.8px|400|lh 1.60": 4,
+   "\"Cormorant Garamond\"|11.52px|600|lh 1.60": 4,
+   "\"DM Sans\"|14.4px|400|lh 1.75": 4,
+   "\"DM Sans\"|14.4px|600|lh 1.75": 4,
+   "monospace|11.52px|400|lh 1.75": 1,
+   "\"DM Sans\"|16px|600|lh 1.60": 5,
+   "\"DM Sans\"|16px|700|lh 1.60": 5,
+   "\"DM Sans\"|15.2px|400|lh 1.75": 1,
+   "\"DM Sans\"|14.4px|500|lh NaN": 1,
+   "\"Cormorant Garamond\"|20.8px|500|lh 1.60": 2,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1
+  },
+  "smallN": 23,
+  "smallEx": [
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px",
+   "EN 12.48px",
+   "AUN-QA ระดับหลักสูตร 12px"
+  ],
+  "smallBtn": 1,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\""
+  ],
+  "overflow": true,
+  "loaded": [
+   "Cormorant Garamond300",
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500"
+  ]
+ },
+ "02-login-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|24px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 3,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"Cormorant Garamond\"|28.8px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.50": 1,
+   "\"DM Sans\"|12px|500|lh 1.60": 2,
+   "Arial|14.4px|400|lh 1.00": 1,
+   "\"DM Sans\"|14.4px|500|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh NaN": 2,
+   "\"DM Sans\"|12px|400|lh 1.60": 1,
+   "monospace|12px|400|lh 1.60": 1,
+   "monospace|12px|400|lh NaN": 11,
+   "\"DM Sans\"|12.8px|400|lh NaN": 11,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 1
+  },
+  "smallN": 32,
+  "smallEx": [
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px",
+   "EN 12.48px",
+   "ผู้ช่วยจัดทำรายงานปร 12.48px"
+  ],
+  "smallBtn": 16,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "INPUT.auth-input 406x41 \"\"",
+   "INPUT.auth-input 406x41 \"\"",
+   "BUTTON.pw-eye 22x22 \"👁\"",
+   "BUTTON.aq-demo-toggle 406x41 \"บัญชีทดสอบ (ข้อ\"",
+   "BUTTON.aq-demo-item 406x34 \"chair1ประธานหลั\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond400",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500"
+  ]
+ },
+ "04-app-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 3,
+   "\"DM Sans\"|16px|400|lh 1.60": 3,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 12,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "05-requirements-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 71,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 9,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 8,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 212,
+   "\"DM Sans\"|14.08px|600|lh 1.50": 53,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 317,
+   "\"DM Sans\"|14.08px|700|lh 1.60": 53,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 39
+  },
+  "smallN": 116,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "06-cycles-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 3,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1
+  },
+  "smallN": 18,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "07-cycle-dash-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 2,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 41,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 129,
+   "\"DM Sans\"|16px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 2,
+   "\"DM Sans\"|33.6px|800|lh 1.00": 5,
+   "\"DM Sans\"|12px|400|lh 1.60": 5,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 3,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 6,
+   "\"DM Sans\"|12.48px|600|lh 1.60": 8,
+   "\"DM Sans\"|13.6px|700|lh 1.20": 53,
+   "\"DM Sans\"|10.4px|400|lh 1.20": 53,
+   "\"DM Sans\"|12.8px|400|lh NaN": 5,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4
+  },
+  "smallN": 135,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 17,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "08-assign-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 63,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 54,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 9,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 18,
+   "\"DM Sans\"|13.6px|400|lh NaN": 9,
+   "\"DM Sans\"|14px|400|lh NaN": 32,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 32,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 53,
+   "\"DM Sans\"|12.8px|400|lh NaN": 212
+  },
+  "smallN": 353,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 146,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "09-section-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 2,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "10-evidence-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 3,
+   "\"DM Sans\"|12.8px|400|lh NaN": 68,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 81,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 16,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 17
+  },
+  "smallN": 101,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 21,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "12-metrics-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 157,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 19,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 465,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 78,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 36,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|10px|400|lh 1.60": 125,
+   "\"DM Sans\"|11px|400|lh 1.60": 77,
+   "\"DM Sans\"|16px|400|lh 1.60": 78,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 6
+  },
+  "smallN": 411,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 172,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "13-actions-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 13,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 5,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 30,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 6
+  },
+  "smallN": 39,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 27,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "14-assess-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "15-review-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 11,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 15,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 5
+  },
+  "smallN": 31,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 27,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "16-export-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 11,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 4,
+   "\"DM Sans\"|16px|400|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh NaN": 5
+  },
+  "smallN": 18,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 19,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "17-admin-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|12.8px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 117,
+   "monospace|13.6px|400|lh 1.60": 39
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 15,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "11-evidence-detail-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 4,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 8,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 4,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 9,
+   "monospace|14.08px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 2,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 1,
+   "\"DM Sans\"|14px|400|lh NaN": 54,
+   "\"DM Sans\"|16px|400|lh 1.60": 2,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "monospace|13.6px|400|lh 1.60": 1,
+   "Sarabun|14.08px|400|lh 1.60": 1
+  },
+  "smallN": 22,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 19,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "cur-plo-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 13,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 6,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 24
+  },
+  "smallN": 35,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 33,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-course-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 37,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 12,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 48,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 60,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 57,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-matrix-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 33,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 559,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 35,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 12
+  },
+  "smallN": 598,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 158,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-heat-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 38,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 64,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 28,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 20,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-gaps-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 2,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 2
+  },
+  "smallN": 25,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 20,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-prereq-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|12px|700|lh 1.60": 4,
+   "\"DM Sans\"|11px|700|lh 1.60": 12,
+   "\"DM Sans\"|10px|400|lh 1.60": 12,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 10,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 10
+  },
+  "smallN": 51,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 20,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-ai-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1
+  },
+  "smallN": 23,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 21,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "09b-section-real-d": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 8,
+   "\"DM Sans\"|13.12px|400|lh NaN": 3,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 13,
+   "\"Cormorant Garamond\"|32px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 6,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 12,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|14.08px|600|lh 1.50": 1,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 8,
+   "\"DM Sans\"|14.08px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "Sarabun|15.2px|400|lh 1.70": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 4,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 6,
+   "\"DM Sans\"|12.8px|400|lh NaN": 21,
+   "\"DM Sans\"|13.6px|400|lh NaN": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 4
+  },
+  "smallN": 54,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 33,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": true,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "01-landing-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|24px|600|lh 1.60": 2,
+   "Arial|17.6px|400|lh NaN": 1,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 4,
+   "\"DM Sans\"|13.12px|500|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|12px|500|lh 1.60": 1,
+   "\"Cormorant Garamond\"|35.2px|300|lh 1.10": 2,
+   "\"DM Sans\"|16px|400|lh 1.75": 1,
+   "\"DM Sans\"|14.4px|500|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 19,
+   "\"Cormorant Garamond\"|19.2px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 4,
+   "\"DM Sans\"|12.48px|600|lh 1.60": 8,
+   "\"Cormorant Garamond\"|32px|300|lh 1.15": 6,
+   "\"DM Sans\"|28.8px|400|lh 1.60": 4,
+   "\"Cormorant Garamond\"|11.52px|600|lh 1.60": 4,
+   "\"DM Sans\"|14.4px|400|lh 1.75": 4,
+   "\"DM Sans\"|14.4px|600|lh 1.75": 4,
+   "monospace|11.52px|400|lh 1.75": 1,
+   "\"DM Sans\"|16px|600|lh 1.60": 5,
+   "\"DM Sans\"|16px|700|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 5,
+   "\"DM Sans\"|15.2px|400|lh 1.75": 1,
+   "\"DM Sans\"|14.4px|500|lh NaN": 1,
+   "\"Cormorant Garamond\"|20.8px|500|lh 1.60": 2,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1
+  },
+  "smallN": 23,
+  "smallEx": [
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px",
+   "EN 12.48px",
+   "AUN-QA ระดับหลักสูตร 12px"
+  ],
+  "smallBtn": 1,
+  "btnEx": [
+   "BUTTON.nav-hamburger 40x39 \"☰\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond300",
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500"
+  ]
+ },
+ "02-login-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|24px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 3,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"Cormorant Garamond\"|28.8px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.50": 1,
+   "\"DM Sans\"|12px|500|lh 1.60": 2,
+   "Arial|14.4px|400|lh 1.00": 1,
+   "\"DM Sans\"|14.4px|500|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh NaN": 2,
+   "\"DM Sans\"|12px|400|lh 1.60": 1,
+   "monospace|12px|400|lh 1.60": 1,
+   "monospace|12px|400|lh NaN": 11,
+   "\"DM Sans\"|12.8px|400|lh NaN": 11,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 1
+  },
+  "smallN": 32,
+  "smallEx": [
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px",
+   "EN 12.48px",
+   "ผู้ช่วยจัดทำรายงานปร 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "INPUT.auth-input 300x41 \"\"",
+   "INPUT.auth-input 300x41 \"\"",
+   "BUTTON.pw-eye 22x22 \"👁\"",
+   "BUTTON.aq-demo-toggle 300x41 \"บัญชีทดสอบ (ข้อ\"",
+   "BUTTON.aq-demo-item 300x34 \"lect1อาจารย์หลั\""
+  ],
+  "overflow": true,
+  "loaded": [
+   "Cormorant Garamond400",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500"
+  ]
+ },
+ "04-app-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 3,
+   "\"DM Sans\"|16px|400|lh 1.60": 3,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 12,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "05-requirements-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 71,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 9,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 8,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 212,
+   "\"DM Sans\"|14.08px|600|lh 1.50": 53,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 317,
+   "\"DM Sans\"|14.08px|700|lh 1.60": 53,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 39
+  },
+  "smallN": 116,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "06-cycles-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 3,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1
+  },
+  "smallN": 18,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "07-cycle-dash-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 2,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 41,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 129,
+   "\"DM Sans\"|16px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 2,
+   "\"DM Sans\"|33.6px|800|lh 1.00": 5,
+   "\"DM Sans\"|12px|400|lh 1.60": 5,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 3,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 6,
+   "\"DM Sans\"|12.48px|600|lh 1.60": 8,
+   "\"DM Sans\"|13.6px|700|lh 1.20": 53,
+   "\"DM Sans\"|10.4px|400|lh 1.20": 53,
+   "\"DM Sans\"|12.8px|400|lh NaN": 5,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4
+  },
+  "smallN": 135,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 17,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "08-assign-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 63,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 54,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 9,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 18,
+   "\"DM Sans\"|13.6px|400|lh NaN": 9,
+   "\"DM Sans\"|14px|400|lh NaN": 32,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 32,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 53,
+   "\"DM Sans\"|12.8px|400|lh NaN": 212
+  },
+  "smallN": 353,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 146,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "09-section-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 2,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "10-evidence-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 3,
+   "\"DM Sans\"|12.8px|400|lh NaN": 68,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 81,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 16,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 17
+  },
+  "smallN": 101,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 21,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "12-metrics-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 157,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 19,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 465,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 78,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 36,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|10px|400|lh 1.60": 125,
+   "\"DM Sans\"|11px|400|lh 1.60": 77,
+   "\"DM Sans\"|16px|400|lh 1.60": 78,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 6
+  },
+  "smallN": 411,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 172,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "13-actions-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 13,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 5,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 30,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 6
+  },
+  "smallN": 39,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 27,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "14-assess-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "15-review-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 11,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 15,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 5
+  },
+  "smallN": 31,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 27,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "16-export-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 11,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 4,
+   "\"DM Sans\"|16px|400|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|400|lh NaN": 5
+  },
+  "smallN": 18,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 19,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "17-admin-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|12.8px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 117,
+   "monospace|13.6px|400|lh 1.60": 39
+  },
+  "smallN": 17,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 15,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "11-evidence-detail-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 4,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|15.2px|400|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 8,
+   "\"DM Sans\"|17.6px|700|lh 1.60": 4,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 9,
+   "monospace|14.08px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 2,
+   "\"DM Sans\"|12.8px|500|lh 1.60": 1,
+   "\"DM Sans\"|14px|400|lh NaN": 54,
+   "\"DM Sans\"|16px|400|lh 1.60": 2,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "monospace|13.6px|400|lh 1.60": 1,
+   "Sarabun|14.08px|400|lh 1.60": 1
+  },
+  "smallN": 22,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 19,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ },
+ "cur-plo-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 13,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 6,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 24
+  },
+  "smallN": 35,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 26,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-course-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 37,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 5,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 12,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 48,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 60,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 50,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-matrix-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 33,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 559,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 35,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 12
+  },
+  "smallN": 598,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 151,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-heat-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 4,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 7,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 38,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 64,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 1
+  },
+  "smallN": 28,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-gaps-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 2,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 2
+  },
+  "smallN": 25,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-prereq-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|12px|700|lh 1.60": 4,
+   "\"DM Sans\"|11px|700|lh 1.60": 12,
+   "\"DM Sans\"|10px|400|lh 1.60": 12,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 10,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 10
+  },
+  "smallN": 51,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 13,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "cur-ai-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 1,
+   "\"DM Sans\"|13.12px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 10,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|14px|400|lh NaN": 1,
+   "\"DM Sans\"|12.8px|400|lh NaN": 7,
+   "\"DM Sans\"|16px|400|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|400|lh NaN": 1
+  },
+  "smallN": 23,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 14,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": false,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun500"
+  ]
+ },
+ "09b-section-real-m": {
+  "fonts": {
+   "\"Cormorant Garamond\"|20.8px|600|lh 1.60": 2,
+   "\"DM Sans\"|17.6px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.8px|600|lh 1.60": 1,
+   "\"DM Sans\"|13.6px|500|lh 1.60": 1,
+   "\"DM Sans\"|11.52px|400|lh 1.60": 1,
+   "\"DM Sans\"|12.48px|600|lh NaN": 3,
+   "\"DM Sans\"|12.48px|400|lh NaN": 8,
+   "\"DM Sans\"|13.12px|400|lh NaN": 3,
+   "\"DM Sans\"|12.8px|400|lh 1.60": 13,
+   "\"Cormorant Garamond\"|25.6px|500|lh 1.20": 1,
+   "\"DM Sans\"|14.4px|400|lh 1.60": 2,
+   "\"DM Sans\"|11.52px|500|lh 1.60": 6,
+   "\"DM Sans\"|13.6px|400|lh 1.60": 12,
+   "\"DM Sans\"|13.6px|600|lh 1.60": 4,
+   "\"DM Sans\"|14.08px|600|lh 1.50": 1,
+   "\"DM Sans\"|14.08px|400|lh 1.60": 8,
+   "\"DM Sans\"|14.08px|700|lh 1.60": 1,
+   "\"DM Sans\"|13.12px|400|lh 1.50": 1,
+   "\"DM Sans\"|12.48px|400|lh 1.60": 1,
+   "Sarabun|15.2px|400|lh 1.70": 1,
+   "\"DM Sans\"|16px|400|lh 1.60": 4,
+   "\"DM Sans\"|15.2px|700|lh 1.60": 6,
+   "\"DM Sans\"|12.8px|400|lh NaN": 21,
+   "\"DM Sans\"|13.6px|400|lh NaN": 4,
+   "\"DM Sans\"|13.6px|700|lh 1.60": 4
+  },
+  "smallN": 54,
+  "smallEx": [
+   "ผศ 12.8px",
+   "ประธานหลักสูตร 11.52px",
+   "🌐 ไทย|EN 12.48px",
+   "ไทย 12.48px",
+   "| 12.48px"
+  ],
+  "smallBtn": 33,
+  "btnEx": [
+   "BUTTON.lang-toggle 109x30 \"🌐 ไทย|EN\"",
+   "BUTTON.dash-logout-btn 107x33 \"ออกจากระบบ\"",
+   "A.dash-tab-btn 100x38 \"งานของฉัน\"",
+   "A.dash-tab-btn 102x38 \"รอบประเมิน\"",
+   "A.dash-tab-btn 97x38 \"คลังเกณฑ์\"",
+   "A.dash-tab-btn 87x38 \"หลักฐาน\""
+  ],
+  "overflow": true,
+  "loaded": [
+   "Cormorant Garamond500",
+   "Cormorant Garamond600",
+   "DM Sans400",
+   "DM Sans500",
+   "Sarabun400",
+   "Sarabun400",
+   "Sarabun500"
+  ]
+ }
+}
