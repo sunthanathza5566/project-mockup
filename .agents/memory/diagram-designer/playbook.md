@@ -10,4 +10,5 @@
 ## PROJECT KNOWLEDGE
 - ไฟล์ diagram อยู่ `eduflow-next/docs/diagrams/*.mmd` (12 รูป, index ที่ INDEX.md); ของเดิมอยู่ `docs/diagrams/legacy/`
 - เวอร์ชันที่ render ผ่าน: mmdc 12.0.0 / mermaid 12.2.0 (อย่าอัปเกรดกลางงาน)
-- เลขรูปในเล่ม 3.5–3.12 ยังค้าง: deploy-aunqa แคบเกิน, class-domain แน่น → รอ B6b (ตาม HANDOFF ของ thesis-writer)
+- B6b เสร็จแล้ว: class-domain แยก 3 รูป (`class-domain-ai` 3.11, `class-domain-workflow` 3.12, `class-domain-support` 3.13), deploy-aunqa เป็น TB รูป 3.14 (ตัวอ่านได้ ~8pt ต้องย่อ method ≤4 ต่อคลาส)
+- C4 reviewer สุ่มตรวจ state-cycle และ seq-ai-pipeline ผ่านแล้ว (ตรงโค้ด). seq-ai-pipeline ยังไม่มี AI-4 translate และ completeness check → อัปเดตใน D1

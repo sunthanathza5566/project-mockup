@@ -11,3 +11,4 @@
 - คลังมาตรฐาน `.agents/research/standards/`: thesis-th.md, uml.md, INDEX.md
 - coverage ของ TASK-0001 ที่ `.agents/research/TASK-0001-coverage.md` (% เป็นการตัดสินของ researcher ไม่ใช่การวัด)
 - คู่มือ APA บางแห่งเปิดไม่ได้ → ใช้คู่มือห้องสมุดไทย 2 แห่งแทน
+- `standards/ui-ux.md` (U0): ส่วน 3 contrast, 4 palette (คำนวณแล้ว), 5 states, 6 motion, 10 แหล่งอ้างอิง, 11 ช่องว่างถึง architect. ข้อจำกัด: ส่วน 1.2 เรื่องฟอนต์ไทยเป็น [อนุมาน] ทั้งหมด (ไม่พบงานวัดตรง) → ui-inspector ต้อง render จริงก่อนล็อก; Google Fonts และ Material 3 เปิดไม่ได้

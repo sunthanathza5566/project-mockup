@@ -1,0 +1,14 @@
+import {session,txt,B} from './lib.mjs';
+const {p,as,done}=await session();
+const D='cycle-demo-2569';
+await as('assess1');
+await p.getByRole('link',{name:'รอบประเมิน'}).click();await p.waitForTimeout(700);
+console.log('ASSESS cycles',(await txt(p,2000)).split('\n').slice(10).join('|'));
+await p.goto(B+`/app/cycles/${D}`);await p.waitForTimeout(900);
+console.log('ASSESS dash',(await txt(p,2500)).split('\n').slice(10,40).join('|'));
+await p.screenshot({path:'shots/assess-dash.png',fullPage:true});
+await p.goto(B+`/app/cycles/${D}/assess`);await p.waitForTimeout(900);
+console.log('ASSESS page',(await txt(p,3500)).split('\n').slice(10,60).join('|'));
+await p.screenshot({path:'shots/assess-page.png',fullPage:true});
+console.log('testids',await p.locator('[data-testid]').evaluateAll(n=>[...new Set(n.map(e=>e.dataset.testid))].slice(0,60)));
+await done();

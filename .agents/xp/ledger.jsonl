@@ -42,3 +42,36 @@
 {"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียน seed เปลี่ยน helper freshDemo/freshSeededDemo รับเข้า backend-dev", "task": "TASK-0001"}
 {"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียน lastAuthorId แยกจาก updatedBy รับเข้า backend-dev", "task": "TASK-0001"}
 {"ts": "2026-10-21T16:52:08+00:00", "agent": "backend-dev", "points": 3, "reason": "บทเรียนค่าหลังล็อกเก็บใน snapshot รับเข้า backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "backend-dev", "points": 40, "reason": "C1 backend (L): AI-4 แปล TH-EN + import metric/cohort + export DOCX; tsc 0, 285/285 ผ่าน, build ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "backend-dev", "points": -3, "reason": "ต้องแก้หลัง review รอบ 1 (CHANGES_REQUESTED: C-1..C-6, C-8, C-11)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "backend-dev", "points": -3, "reason": "ต้องแก้หลัง review รอบ 2 (C2-1 major: แก้ C-8 ไม่ตรงคำสั่ง orchestrator + เทสต์ล็อกพฤติกรรมผิด)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "frontend-dev", "points": 40, "reason": "C2 UI (L): ปุ่มแปล/ผลแปล, หน้า import metric+cohort, DOCX/DOC export, EN dict; build ผ่าน, Playwright smoke ไม่มี console error", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "qa-tester", "points": 20, "reason": "C3a unit test (M): phase-c1.test.ts 83 เคส, npm test 368/368", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "qa-tester", "points": 20, "reason": "C3b Playwright E2E (M): 14 ผ่าน 2 skip มีเหตุผล (รัน 2 รอบติด), ไม่พบ bug production", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 20, "reason": "C4 review รอบ 1 (M): diff 34 ไฟล์, รัน tsc/test/build เอง, 12 finding มี file:line", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 10, "reason": "C4 review รอบ 2 (S): ตามรอยป้ายจาก offline translate ถึง DOCX, ยืนยัน C2-1 ด้วยเทสต์", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 10, "reason": "C4 review รอบ 3 (S): probe regex บรรทัด 412 ยืนยัน C3-1, รันชุดเทสต์+build", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 8, "reason": "พบ major C-1: export DOCX ไม่ตัด control char (probe \\u000b หลุดใน XML)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 8, "reason": "พบ major C2-1: ป้ายหลุดเข้า narrative และ DOCX ผ่าน offline translate", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 8, "reason": "พบ major C3-1: regex ^s+ ตัด s ตัวแรกของคำแปลทุกครั้ง (probe ยืนยัน)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 5, "reason": "บทเรียนของตัวเอง (regex ไทยต้องมีเทสต์สองฝั่ง) ถูกอ้างใช้ในรอบ 2 - C-1 fix ทำตาม RULE ของ backend-dev", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev LESSONS: import บุคคลแบบ all-or-nothing + dryRun ก่อนเขียน", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev LESSONS: post-check multiset (รหัส/ตัวเลข) สำหรับงานแปล", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev LESSONS: preview two-phase ผูก actorId + TTL + ใช้ครั้งเดียว", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev RULES: export XML ต้องตัด control char (incident C-1)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev RULES: คำสั่งแก้ระบุชัดห้ามทำต่าง ต้องถามก่อน (incident C2-1)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "reviewer", "points": 3, "reason": "บทเรียนรับเข้า backend-dev RULES: หลังแก้ regex ตรวจ backslash ด้วย grep + probe (incident C3-1)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "researcher", "points": 10, "reason": "ui-ux.md มาตรฐานไฟล์ใหม่ มีแหล่งอ้างอิงตรวจได้ (ส่วน 10) ป้ายยืนยัน/อนุมานชัด", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "diagram-designer", "points": 10, "reason": "B6b class-domain แยก 3 รูป + deploy TB ตามคำสั่งรอบ 2, render ผ่าน ตรวจ PNG (S)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "diagram-designer", "points": 5, "reason": "diagram ตรงโค้ดเมื่อ reviewer สุ่มตรวจ: state-cycle ตรง CYCLE_TRANSITIONS, seq-ai-pipeline ตรงลำดับ (ค้างจาก B7)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "diagram-designer", "points": 5, "reason": "Study uml.md สอดคล้องเมื่อ reviewer ตรวจ (stateDiagram/sequence) (ค้างจาก B7)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 blocker B1: ข้อความไทยไม่มี Sarabun ใน font stack ทุกหน้า", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 blocker B2: ตัวอักษรเล็กเกิน (12.5-13.6px, element <13px 17-598 ต่อหน้า)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M1: ลิงก์ในแอปหลุดธีม (#0000EE + ขีดเส้นใต้)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M2: landing 1440 scrollWidth 1540 ล้น", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M3: login 390 nav พัง โลโก้บีบ 3 บรรทัด หน้าเลื่อนแนวนอน", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M4: select ผูกหลักฐานล้นการ์ด (กว้าง 1483px)", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M5: section editor หลวม textarea สูง ~380px ปุ่ม disabled อ่านไม่ออก", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M6: cycle dashboard ยาว ~3000px ช่องว่าง 157 แถวไม่จัดกลุ่ม KPI สีเดียว", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M7: heatmap ตัวเล็ก 10.4px contrast 2.9-3.9 พึ่งสีอย่างเดียว", "task": "TASK-0001"}
+{"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M8: touch target ต่ำกว่า 44px (ปุ่ม/แท็บ/select) หลายตัวต่อหน้า", "task": "TASK-0001"}
