@@ -4,3 +4,5 @@
 thesis/export/_assembled.md
 __pycache__/
 .agents/playtest/*.log
+eduflow-next/e2e/artifacts/
+scripts/agents/__pycache__/
