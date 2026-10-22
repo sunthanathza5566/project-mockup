@@ -3,18 +3,20 @@
 
 Usage:
   build.py make-ref   create thesis/templates/reference.docx (TH Sarabun New, Thai margins, sizes from STYLE_SIZES)
-  build.py diagrams   render docs/diagrams/*.mmd -> thesis/export/figures/*.png (needs mmdc)
+  build.py diagrams [--force]  render docs/diagrams/*.mmd -> thesis/export/figures/*.png (needs mmdc;
+                      --force = render ใหม่ทุกไฟล์ ไม่ดู mtime)
   build.py docx       thesis/export/thesis.docx (needs pandoc)
   build.py gemini     thesis/export/GEMINI_HANDOFF.md (no dependencies)
   build.py check      report missing chapters, open markers (by type), missing diagrams/images
   build.py verify     open thesis.docx with python-docx: chapter headings, figure count, fonts
-  build.py all        make-ref + diagrams + docx + gemini + check + verify
+  build.py all [--force]  make-ref + diagrams + docx + gemini + check + verify
 
 pandoc: uses `pandoc` from PATH, else the binary bundled with pypandoc_binary
   (pip install --user pypandoc_binary)
 
 Diagram placeholder inside a chapter:
   {{diagram:seq-login|รูปที่ 3.1 Sequence diagram การเข้าสู่ระบบ}}
+  {{diagram:er-aunqa|รูปที่ 3.13 ...|landscape}}   วางรูปในหน้าแนวนอน (section แยก) ให้ตัวอักษรใหญ่ขึ้น
 """
 import re
 import shutil
@@ -32,7 +34,8 @@ FIG = OUT / "figures"
 DIAG = ROOT / "docs" / "diagrams"
 META = TH / "meta.md"
 REF = TH / "templates" / "reference.docx"
-PH = re.compile(r"\{\{diagram:([A-Za-z0-9_\-]+)(?:\|([^}]*))?\}\}")
+PH = re.compile(r"\{\{diagram:([A-Za-z0-9_\-]+)(?:\|([^}|]*))?(?:\|(landscape))?\}\}")
+FIG_NO_RE = re.compile(r"^(รูปที่\s*[0-9ก-ฮ]+\.[0-9]+)")
 # ป้ายค้าง: นับทั้งแบบเปล่า [ต้องการข้อมูล] และแบบมีรายละเอียด [ต้องการข้อมูล: ...]
 MARKER_RE = re.compile(
     r"\[(TODO|ต้องตรวจสอบกับคู่มือสาขา|ต้องตรวจสอบ|ต้องการข้อมูล|ต้องการอ้างอิง)(?:[:：][^\]]*)?\]")
@@ -75,6 +78,9 @@ GEMINI_HEADER = """# คำสั่งสำหรับ Gemini — จัด�
 
 ## Diagram
 บล็อก ```mermaid``` คือโค้ด diagram ให้แปลงเป็นรูป (เช่นผ่าน mermaid.live) แล้ววางแทนบล็อก พร้อมคำบรรยายรูปที่อยู่ด้านบนบล็อก (ย้ายคำบรรยายไปไว้ใต้รูป)
+- ห้ามลบบรรทัด `%%{init: …}%%` ที่มี themeCSS `.edge-pattern-dashed` (แก้บั๊กเส้นประของ mermaid 12.2.0 — ถ้าลบ เส้น include/extend/dependency จะกลายเป็นเส้นทึบ)
+- รูปที่มีหมายเหตุ "(จัดวางในหน้าแนวนอน)" ให้วางรูปและคำบรรยายในหน้าแนวนอนแยก [ต้องตรวจสอบกับคู่มือสาขา]
+- รูปภาพหน้าจอ `![...](../../.agents/screenshots/...)` ใช้ไฟล์ภาพจากโฟลเดอร์นั้นในโปรเจกต์ (thesis.docx มีภาพฝังอยู่แล้ว)
 
 ## ข้อห้าม
 - ห้ามแต่งข้อมูล ตัวเลข ผลการทดลอง หรือแหล่งอ้างอิงขึ้นใหม่
@@ -123,7 +129,8 @@ def assemble(mode):
         if mode == "docx" and png.exists():
             return f"![{caption}](figures/{name}.png)"
         code = src.read_text(encoding="utf-8").strip() if src.exists() else "%% [ต้องการข้อมูล] ไม่พบไฟล์ diagram"
-        return f"**{caption}**\n\n```mermaid\n{code}\n```"
+        note = " (จัดวางในหน้าแนวนอน)" if m.group(3) else ""
+        return f"**{caption}**{note}\n\n```mermaid\n{code}\n```"
 
     return PH.sub(repl, text)
 
@@ -208,7 +215,7 @@ def cmd_make_ref():
     print(f"wrote {REF.relative_to(ROOT)}")
 
 
-def cmd_diagrams():
+def cmd_diagrams(force=False):
     mmdc = shutil.which("mmdc")
     if not mmdc:
         print("ข้าม: ไม่พบ mmdc (ติดตั้ง: npm i -g @mermaid-js/mermaid-cli) — docx จะใส่โค้ด mermaid แทนรูป")
@@ -216,7 +223,7 @@ def cmd_diagrams():
     FIG.mkdir(parents=True, exist_ok=True)
     for src in sorted(DIAG.glob("*.mmd")):
         out = FIG / f"{src.stem}.png"
-        if out.exists() and out.stat().st_mtime >= src.stat().st_mtime:
+        if not force and out.exists() and out.stat().st_mtime >= src.stat().st_mtime:
             continue
         r = subprocess.run([mmdc, "-i", str(src), "-o", str(out), "-s", "2", "-b", "white"],
                            capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -248,28 +255,101 @@ def cmd_docx():
 
 
 MAX_IMG_HEIGHT_IN = 8.4  # พื้นที่พิมพ์ A4 สูง 9.19" (ขอบ 1.5/1) เผื่อคำบรรยายใต้รูป
+# หน้าแนวนอน: A4 หมุน 11.69" x 8.27" ใช้ขอบเดิม (บน 1.5 ซ้าย 1.5 ล่าง 1 ขวา 1)
+# -> พื้นที่พิมพ์ 9.19" x 5.77" เผื่อคำบรรยายใต้รูป [ต้องตรวจสอบกับคู่มือสาขา: ขอบของหน้าแนวนอน]
+LAND_MAX_W_IN = 9.19
+LAND_MAX_H_IN = 5.2
+
+
+def landscape_figures():
+    """เลขรูป (เช่น 'รูปที่ 3.13') ที่ placeholder ระบุ |landscape"""
+    out = set()
+    for p in chapters():
+        t = COMMENT_RE.sub("", p.read_text(encoding="utf-8"))
+        for m in PH.finditer(t):
+            if m.group(3):
+                n = FIG_NO_RE.match((m.group(2) or "").strip())
+                if n:
+                    out.add(re.sub(r"\s+", " ", n.group(1)))
+    return out
+
+
+def _para_text(p, qn):
+    return "".join(t.text or "" for t in p.iter(qn("w:t"))).strip()
 
 
 def fit_images(path):
-    """ย่อรูปที่สูงเกินหน้ากระดาษ (pandoc ย่อเฉพาะความกว้าง)"""
+    """ย่อรูปที่สูงเกินหน้ากระดาษ (pandoc ย่อเฉพาะความกว้าง) และวางรูปที่ระบุ landscape ในหน้าแนวนอน"""
     try:
+        import copy
         from docx import Document
+        from docx.oxml import OxmlElement
+        from docx.oxml.ns import qn
         from docx.shared import Inches
     except ImportError:
         print("เตือน: ไม่มี python-docx — ข้ามการย่อรูปที่สูงเกินหน้า")
         return
     d = Document(str(path))
-    limit = Inches(MAX_IMG_HEIGHT_IN)
-    changed = 0
-    for shp in d.inline_shapes:
-        if shp.height > limit:
-            ratio = limit / shp.height
-            shp.width = int(shp.width * ratio)
-            shp.height = limit
+    body = d.element.body
+    body_sect = body.find(qn("w:sectPr"))
+    want_land = landscape_figures()
+    els = list(body)
+    changed, land_done = 0, []
+
+    def extents(p):
+        return [e for e in p.iter(qn("wp:extent"))] + [e for e in p.iter(qn("a:ext"))]
+
+    def set_size(p, cx, cy):
+        for e in extents(p):
+            e.set("cx", str(int(cx)))
+            e.set("cy", str(int(cy)))
+
+    def add_sect(p, landscape):
+        ppr = p.find(qn("w:pPr"))
+        if ppr is None:
+            ppr = OxmlElement("w:pPr")
+            p.insert(0, ppr)
+        if ppr.find(qn("w:sectPr")) is not None:
+            return
+        s = copy.deepcopy(body_sect)
+        sz = s.find(qn("w:pgSz"))
+        w, h = int(sz.get(qn("w:w"))), int(sz.get(qn("w:h")))
+        if landscape:
+            sz.set(qn("w:w"), str(max(w, h)))
+            sz.set(qn("w:h"), str(min(w, h)))
+            sz.set(qn("w:orient"), "landscape")
+        ppr.append(s)
+
+    for i, el in enumerate(els):
+        if el.tag != qn("w:p") or not el.findall(".//" + qn("a:blip")):
+            continue
+        ext = el.find(".//" + qn("wp:extent"))
+        if ext is None:
+            continue
+        cx, cy = int(ext.get("cx")), int(ext.get("cy"))
+        cap = els[i + 1] if i + 1 < len(els) else None
+        cap_txt = _para_text(cap, qn) if cap is not None else ""
+        n = FIG_NO_RE.match(cap_txt)
+        fig_no = re.sub(r"\s+", " ", n.group(1)) if n else None
+        if fig_no in want_land and cap is not None and i > 0:
+            ratio = min(Inches(LAND_MAX_W_IN) / cx, Inches(LAND_MAX_H_IN) / cy)
+            set_size(el, cx * ratio, cy * ratio)
+            prev = els[i - 1]
+            if prev.tag == qn("w:p"):
+                add_sect(prev, landscape=False)   # ปิด section แนวตั้งก่อนรูป
+            add_sect(cap, landscape=True)         # section แนวนอน = รูป + คำบรรยาย
+            land_done.append(fig_no)
             changed += 1
+        elif cy > Inches(MAX_IMG_HEIGHT_IN):
+            ratio = Inches(MAX_IMG_HEIGHT_IN) / cy
+            set_size(el, cx * ratio, cy * ratio)
+            changed += 1
+    missing = sorted(want_land - set(land_done))
+    if missing:
+        print("เตือน: ไม่พบรูปที่ต้องวางแนวนอน: " + ", ".join(missing))
     if changed:
         d.save(str(path))
-        print(f"ย่อรูปที่สูงเกินหน้า {changed} รูป")
+        print(f"ปรับขนาดรูป {changed} รูป (หน้าแนวนอน {len(land_done)}: {', '.join(land_done) or '-'})")
 
 
 def cmd_gemini():
@@ -346,6 +426,14 @@ def cmd_verify():
     blips = len(d.element.body.findall(".//" + qn("a:blip")))
     print(f"  รูปใน docx: {blips} · placeholder + รูป Markdown ในต้นฉบับ: {expected}")
     ok &= blips == expected
+    land = [s for s in d.element.body.iter(qn("w:pgSz")) if s.get(qn("w:orient")) == "landscape"]
+    want = len(landscape_figures())
+    print(f"  section หน้าแนวนอน: {len(land)} · placeholder |landscape: {want}")
+    ok &= len(land) == want
+    tall = [round(int(e.get("cy")) / 914400, 2) for e in d.element.body.iter(qn("wp:extent"))
+            if int(e.get("cy")) > 914400 * MAX_IMG_HEIGHT_IN + 1]
+    print(f"  รูปที่สูงเกิน {MAX_IMG_HEIGHT_IN}\": {len(tall)}")
+    ok &= not tall
     for name in ("Normal", "Heading 1", "Heading 2", "Heading 3", "Body Text",
                  "First Paragraph", "Compact", "Image Caption", "Table Caption"):
         try:
@@ -373,12 +461,15 @@ def main(argv):
             "gemini": cmd_gemini, "check": cmd_check, "verify": cmd_verify}
     if not argv:
         sys.exit(__doc__)
+    force = "--force" in argv[1:]
     if argv[0] == "all":
-        cmd_make_ref(); cmd_diagrams(); cmd_docx(); cmd_gemini()
+        cmd_make_ref(); cmd_diagrams(force); cmd_docx(); cmd_gemini()
         problems = cmd_check()
         ok = cmd_verify()
         if problems or not ok:
             sys.exit(1)
+    elif argv[0] == "diagrams":
+        cmd_diagrams(force)
     elif argv[0] in cmds:
         cmds[argv[0]]()
     else:
