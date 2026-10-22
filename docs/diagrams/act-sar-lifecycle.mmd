@@ -1,43 +1,38 @@
-%% source: eduflow-next/lib/api/workflow.ts:27-48,181-229; cycle.store.ts:33-89; assessor.store.ts; action.store.ts:162-176 | task: TASK-0001 | updated: 2026-10-21
+%% source: eduflow-next/lib/api/workflow.ts:27-48 (CYCLE/SECTION_TRANSITIONS), 181-229 (transitionCycle: ทุกข้ออนุมัติ, lock + snapshotHash), 318-365 (transitionSection); sar.store.ts:159-184 (submit/approve/return); cycle.store.ts:33,130 (createCycle, assignSections) | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 15, "rankSpacing": 18, "padding": 4}}}%%
 swimlane-beta TB
   subgraph Chair["ประธานหลักสูตร"]
     S@{ shape: f-circ, label: "เริ่ม" }
-    A1[สร้างรอบและมอบหมายข้อ]
-    A2[ตรวจข้อ SAR]
-    D1@{ shape: diam, label: "ข้ออนุมัติ?" }
-    D2@{ shape: diam, label: "อนุมัติครบทุกข้อ?" }
-    A3[ส่งรอบให้ QA คณะตรวจ]
-    A10[สร้างแผนปรับปรุงจาก AFI]
-    E@{ shape: fr-circ, label: "สิ้นสุด" }
+    A1[สร้างรอบ มอบหมายข้อ]
+    A2[ตรวจข้อ]
+    D1@{ shape: diam, label: "อนุมัติ?" }
+    D2@{ shape: diam, label: "ครบ?" }
+    W[รอข้อถัดไป]
+    A3[ส่งรอบให้ QA]
   end
-  subgraph Lecturer["อาจารย์ผู้รับผิดชอบข้อ"]
-    L1[เขียน/แก้ SAR และแนบหลักฐาน]
-    L2[ส่งข้อให้ประธานตรวจ]
+  subgraph Lecturer["อาจารย์"]
+    L1[เขียน/แก้ SAR แนบหลักฐาน]
+    L2[ส่งข้อให้ตรวจ]
+    L3[แก้ตามข้อเสนอแนะ]
   end
   subgraph QA["QA คณะ"]
     Q1[ตรวจรอบ]
-    D3@{ shape: diam, label: "QA อนุมัติ?" }
-    Q2[มอบหมายกรรมการ]
-    Q3[ปิดรอบประเมิน]
+    D3@{ shape: diam, label: "อนุมัติ?" }
   end
   subgraph Dean["คณบดี"]
     N1[ตรวจรอบ]
-    D4@{ shape: diam, label: "คณบดีอนุมัติ?" }
-    N2[อนุมัติสุดท้าย ล็อกรอบ และบันทึก snapshot hash]
-  end
-  subgraph Assessor["กรรมการประเมิน"]
-    R1[ให้คะแนนรายเกณฑ์และบันทึกข้อค้นพบ]
-    R2[เลือก verdict]
-    D5@{ shape: diam, label: "กรรมการครบทุกคน?" }
+    D4@{ shape: diam, label: "อนุมัติ?" }
+    N2[อนุมัติสุดท้าย ล็อก + hash]
+    E@{ shape: fr-circ, label: "สิ้นสุด" }
   end
   S --> A1 --> L1 --> L2 --> A2 --> D1
-  D1 -- "[ไม่อนุมัติ: ส่งกลับ]" --> L1
+  D1 -- "[ส่งกลับ]" --> L3
   D1 -- "[อนุมัติ]" --> D2
-  D2 -- "[ยังไม่ครบ]" --> L1
+  D2 -- "[ยังไม่ครบ]" --> W
+  W --> A2
   D2 -- "[ครบ]" --> A3 --> Q1 --> D3
-  D3 -- "[ไม่อนุมัติ: ส่งกลับ]" --> L1
+  D3 -- "[ส่งกลับ]" --> L3
   D3 -- "[อนุมัติ]" --> N1 --> D4
-  D4 -- "[ไม่อนุมัติ: ส่งกลับ]" --> L1
-  D4 -- "[อนุมัติ]" --> N2 --> Q2 --> R1 --> R2 --> D5
-  D5 -- "[ยังไม่ครบ]" --> R1
-  D5 -- "[ครบ]" --> Q3 --> A10 --> E
+  D4 -- "[ส่งกลับ]" --> L3
+  D4 -- "[อนุมัติ]" --> N2 --> E
+  L3 --> L2

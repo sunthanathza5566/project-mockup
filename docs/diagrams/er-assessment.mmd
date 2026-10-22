@@ -1,0 +1,66 @@
+%% source: eduflow-next/lib/types.ts:98-104 (Rating), 112-115 (ReviewEvent), 172-177 (AppNotification), 318-345 (ActionItem, AssessmentFinding, AssessmentVerdict); lib/api/db.ts:7-36 (KEYS) | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"themeVariables": {"fontSize": "24px"}, "er": {"entityPadding": 6}}}%%
+erDiagram
+  PROGRAMME ||--o{ ACTION_ITEM : "มีแผน"
+  ACTION_ITEM }o--o| ASSESSMENT_CYCLE : "ที่มาของแผน"
+  ACTION_ITEM |o--o| EVIDENCE : "หลักฐานขั้น A"
+  REVIEW_EVENT }o--|| ASSESSMENT_CYCLE : "บันทึกการอนุมัติ"
+  NOTIFICATION }o--o| ASSESSMENT_CYCLE : "อ้างถึง"
+  ASSESSMENT_CYCLE ||--o{ RATING : "มีคะแนน"
+  ASSESSMENT_CYCLE ||--o{ ASSESSMENT_FINDING : "มีข้อค้นพบ"
+  ASSESSMENT_CYCLE ||--o{ ASSESSMENT_VERDICT : "มี verdict"
+  RATING }o--|| APP_USER : "ผู้ให้คะแนน"
+  ASSESSMENT_FINDING }o--|| APP_USER : "กรรมการ"
+  ASSESSMENT_VERDICT }o--|| APP_USER : "กรรมการ"
+  REVIEW_EVENT }o--|| APP_USER : "ผู้กระทำ"
+  NOTIFICATION }o--|| APP_USER : "ผู้รับ"
+  ASSESSMENT_CYCLE {
+    string id PK
+  }
+  APP_USER {
+    string id PK
+  }
+  PROGRAMME {
+    string id PK
+  }
+  EVIDENCE {
+    string id PK
+  }
+  REVIEW_EVENT {
+    string id PK
+    string cycleId FK
+    string actorId FK
+    string toStatus
+  }
+  RATING {
+    string id PK
+    string cycleId FK
+    string raterUserId FK
+    string raterType
+    int score
+  }
+  ASSESSMENT_FINDING {
+    string id PK
+    string cycleId FK
+    string assessorUserId FK
+    text afi
+  }
+  ASSESSMENT_VERDICT {
+    string id PK
+    string cycleId FK
+    string assessorUserId FK
+    int verdict
+  }
+  ACTION_ITEM {
+    string id PK
+    string programmeId FK
+    string originCycleId FK
+    string evidenceId FK
+    string status
+  }
+  NOTIFICATION {
+    string id PK
+    string userId FK
+    string cycleId FK
+    string kind
+  }

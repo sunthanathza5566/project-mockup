@@ -1,0 +1,33 @@
+%% source: eduflow-next/lib/api/ai/claude.ts:19-60 (serverHasKey, viaClaude, claudeProvider); app/api/ai/route.ts:54-109 (GET, POST); lib/api/ai/ratelimit.ts:45-67 (rateLimited, dailyExhausted); lib/api/ai/guards.ts (inputGuards, outputGuards) | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"fontSize": 22, "sequence": {"mirrorActors": false, "actorMargin": 20, "width": 170}}}%%
+sequenceDiagram
+  participant P as claudeProvider
+  participant R as /api/ai
+  participant C as Anthropic API
+  participant O as offlineProvider
+  P->>R: GET /api/ai (แคช 5 นาที)
+  R-->>P: {available, model}
+  opt available = true
+    P->>R: POST /api/ai {task, input}
+    alt ไม่มี API key
+      R-->>P: 503 ai_unavailable
+    else origin/header ไม่ถูก
+      R-->>P: 403 forbidden
+    else เกินเพดานต่อนาที หรืองบรายวัน
+      R-->>P: 429 rate_limited / daily_limit
+    else body เกินขนาด / input ผิดรูป
+      R-->>P: 413 too_large / 400 bad_request
+    else ผ่าน
+      R->>C: POST /v1/messages (redact ซ้ำ)
+      C-->>R: ผลตอบ / error
+      alt ล้มเหลว หรือ output ผิดรูป
+        R-->>P: 502 ai_unavailable / bad_output
+      else สำเร็จ
+        R-->>P: 200 {output, model}
+      end
+    end
+  end
+  opt ไม่ได้ 200 หรือ output ผิดรูป
+    P->>O: fallback (งานเดิม)
+    O-->>P: output (offline)
+  end

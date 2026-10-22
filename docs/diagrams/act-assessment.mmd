@@ -1,0 +1,23 @@
+%% source: eduflow-next/lib/api/cycle.store.ts:183 (assignAssessor); workflow.ts:27-38,195-212 (under_assessment → assessed: กรรมการทุกคนครบ 8 เกณฑ์ + มี verdict), 231-288 (notifyCycleChange); assessor.store.ts:64-135 (upsertFinding, setCriterionRating, setVerdict); action.store.ts:135-200 (setActionStatus, createActionsFromAfi) | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 15, "rankSpacing": 18, "padding": 4}}}%%
+swimlane-beta TB
+  subgraph QA["QA คณะ / ผู้ดูแลมหาวิทยาลัย"]
+    S@{ shape: f-circ, label: "เริ่ม" }
+    Q1[มอบหมายกรรมการ เริ่มประเมิน]
+    Q2[ปิดรอบ]
+  end
+  subgraph Assessor["กรรมการประเมิน"]
+    R1[ให้คะแนน 8 เกณฑ์ บันทึกข้อค้นพบ]
+    R2[เลือก verdict กดส่งผล]
+    D1@{ shape: diam, label: "ครบทุกคน?" }
+    R3[รอกรรมการคนอื่น]
+  end
+  subgraph Chair["ประธานหลักสูตร"]
+    C1[สร้างแผนปรับปรุงจาก AFI]
+    C2[ดำเนินการตามแผน]
+    E@{ shape: fr-circ, label: "สิ้นสุด" }
+  end
+  S --> Q1 --> R1 --> R2 --> D1
+  D1 -- "[ยังไม่ครบ]" --> R3
+  R3 --> R2
+  D1 -- "[ครบ]" --> Q2 --> C1 --> C2 --> E

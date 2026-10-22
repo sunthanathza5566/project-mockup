@@ -1,49 +1,35 @@
-%% source: eduflow-next/lib/api/ai.service.ts:139-160,316-348; ai/claude.ts:19-47; app/api/ai/route.ts:54-109; ai/postcheck.ts | task: TASK-0001 | updated: 2026-10-21
+%% source: eduflow-next/lib/api/ai.service.ts:39-89 (getProvider, finalize, judgementFilter), 144-167 (runSarDrafter), 217-282 (runTranslate), 396-444 (acceptAiRun); lib/api/sar.store.ts:52-79 | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"fontSize": 22, "sequence": {"mirrorActors": false, "actorMargin": 20, "width": 100}}}%%
 sequenceDiagram
   actor U as ผู้ใช้
   participant UI as Frontend
   participant S as ai.service
-  participant P as claudeProvider
-  participant R as /api/ai (Route Handler)
-  participant C as Anthropic API
-  participant O as offlineProvider
-  U->>+UI: กดร่าง SAR (AI-2)
-  UI->>+S: runSarDrafter(actor, cycleId, requirementId)
-  alt ไม่มีสิทธิ์ ai.use หรือมหาวิทยาลัยปิด AI
-    S-->>UI: AunqaError forbidden / ai_disabled
-    UI-->>U: แสดงข้อความผิดพลาด
-  else มีสิทธิ์
-    S->>S: redactDeep (digestOf หลักฐาน)
-    S->>+P: draftSar(input)
-    P->>R: GET /api/ai (serverHasKey, แคช 5 นาที)
-    R-->>P: available true / false
-    alt server มี ANTHROPIC_API_KEY
-      P->>R: POST /api/ai {task, input}
-      R->>R: ตรวจ origin, x-aunqa-client, rateLimited, inputGuards, redactDeep
-      R->>C: POST /v1/messages
-      C-->>R: ข้อความตอบกลับ / error
-      alt Claude ตอบสำเร็จและ outputGuards ผ่าน
-        R-->>P: 200 {output, model}
-        P->>P: outputGuards[task](output)
-      else upstream error, output ผิดรูป หรือ 403/429/503
-        R-->>P: error status (502 ai_unavailable, bad_output ฯลฯ)
+  participant P as AiProvider
+  participant SS as sar.store
+  U->>UI: ร่าง AI-2 / แปล AI-4
+  UI->>S: runSarDrafter / runTranslate
+  alt ไม่มีสิทธิ์ ai.use / ปิด AI
+    S-->>UI: forbidden / ai_disabled
+  else AI-4 รอบล็อก / ต้นฉบับว่าง
+    S-->>UI: locked / invalid
+  else ผ่าน
+    S->>S: redactDeep (ปิด PII)
+    break AI-4 เกิน 8,000 ตัวอักษร
+      S-->>UI: invalid
+    end
+    S->>+P: draftSar / translate
+    P-->>-S: output (Claude/offline)
+    S->>S: postCheckText + ตัวกรอง*
+    S-->>UI: AiRun (finalize: saveRun, audit)
+    opt ผู้ใช้กดยอมรับ
+      UI->>S: acceptAiRun(runId, mode)
+      S->>SS: saveSection('ai_accept')
+      alt สิทธิ์ / lock / citation ไม่ผ่าน
+        SS-->>S: AunqaError
+        S-->>UI: แจ้งข้อผิดพลาด
+      else บันทึกได้
+        SS-->>S: SarSection
+        S-->>UI: AiRun accepted + audit
       end
     end
-    opt ไม่มี key หรือเรียก Claude ไม่สำเร็จ (fallback)
-      P->>+O: draftSar(input)
-      O-->>-P: DraftOutput
-    end
-    P-->>-S: DraftOutput
-    S->>S: postCheckText (ตัดรหัส E-... ปลอม, ตัวเลขนอก input)
-    S->>S: finalize: saveRun(AiRun accepted=false) + appendAudit
-    S-->>-UI: AiRun (output + postCheck)
-    UI-->>U: แสดงร่างเป็นข้อเสนอพร้อมธง
-    opt ผู้ใช้กดยอมรับ
-      U->>UI: ยอมรับร่าง
-      UI->>+S: acceptAiRun(actor, runId, opts)
-      S->>S: saveSection(..., 'ai_accept') ผ่าน can / lock / citation check
-      S->>S: run.accepted = true + appendAudit(ai.accept)
-      S-->>-UI: AiRun
-    end
   end
-  UI-->>-U: เสร็จสิ้น

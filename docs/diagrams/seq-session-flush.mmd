@@ -1,0 +1,37 @@
+%% source: eduflow-next/context/AuthContext.tsx:91-139 (doLogout, logout, handleLost), 161-219 (subscribeSession, tick 30s); lib/ui/flush.ts:25-41; components/aunqa/SarWorkspace.tsx:111-117,184-190; lib/api/auth.api.ts:75-147,194-198; lib/api/sar.store.ts:63-70 | task: TASK-0001 | updated: 2026-10-22
+%%{init: {"fontSize": 22, "sequence": {"mirrorActors": false, "actorMargin": 20, "width": 165}}}%%
+sequenceDiagram
+  actor U as ผู้ใช้
+  participant A as AuthContext
+  participant AU as auth.api
+  participant W as SarWorkspace
+  participant SS as sar.store
+  alt ก. ออกเอง
+    U->>A: logout()
+  else ข. หมดอายุ
+    A->>AU: sessionTimeLeft()
+    AU-->>A: null
+  else ค. แท็บอื่น
+    AU-)A: storage event
+  end
+  A->>W: flushAll()
+  W->>SS: saveSection(baseUpdatedAt)
+  alt ถูกแก้จากที่อื่น
+    SS-->>W: AunqaError<br/>conflict
+  else บันทึกได้
+    SS-->>W: SarSection
+  end
+  W-->>A: FlushResult[]
+  alt ก. ไม่ครบ
+    A-->>U: ถามยืนยันออก
+    opt ยืนยันออก
+      A->>AU: logoutUser()
+    end
+  else ก. ครบ
+    A->>AU: logoutUser()
+    A-->>U: ไปหน้าแรก
+  else ข.ค. ไม่ครบ
+    A-->>U: session-lost
+  else ข.ค. ครบ
+    A-->>U: /login?reason=…
+  end
