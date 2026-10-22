@@ -1,0 +1,30 @@
+%% source: eduflow-next/lib/api/rbac.ts:37-49 (POLICY programme_chair/programme_staff/data_staff: evidence.write, metric.write, curriculum.write, action.write); evidence.store.ts:149; ai.service.ts:115,285 (AI-1, AI-7); metrics-import.ts:207,350 | task: TASK-0001 | updated: 2026-10-23
+%%{init: {"themeCSS": "g{--mermaid-usecase-font-size: 20px; --mermaid-usecase-actor-font-size: 20px} .edgeLabel, .edgeLabel *{font-size: 18px !important} .edge-pattern-dashed{stroke-dasharray: 4 4 !important}"}}%%
+usecase-beta
+direction LR
+actor Chair("ประธานหลักสูตร")
+actor Staff("อาจารย์ผู้รับผิดชอบข้อ")
+actor Data("เจ้าหน้าที่ข้อมูล")
+systemBoundary AUNQA_Copilot
+  UC1("แนบและจัดการหลักฐาน")
+  UC2("สแกน PII ในหลักฐาน")
+  UC3("ติดป้ายหลักฐานด้วย AI")
+  UC4("บันทึกตัวชี้วัด")
+  UC5("นำเข้าตัวชี้วัดจาก Excel")
+  UC6("จัดการหลักสูตร PLO/CLO")
+  UC7("ตรวจคำกริยา Bloom ด้วย AI")
+  UC8("จัดการแผนปรับปรุง")
+end
+Chair --> UC1
+Staff --> UC1
+Data --> UC1
+Chair --> UC4
+Data --> UC4
+Chair --> UC6
+Staff --> UC6
+Chair --> UC8
+Staff --> UC8
+UC1 ..> : include UC2
+UC3 ..> : extend UC1
+UC5 ..> : extend UC4
+UC7 ..> : extend UC6

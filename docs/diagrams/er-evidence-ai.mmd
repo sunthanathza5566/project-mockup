@@ -1,0 +1,67 @@
+%% source: eduflow-next/lib/types.ts:36-39 (MetricValue), 123-168 (Evidence, EvidenceLink, EvidenceFile), 178-182 (AuditLog), 184-203 (AiRun); lib/api/db.ts:7-36 (KEYS) | task: TASK-0001 | updated: 2026-10-23
+%%{init: {"themeVariables": {"fontSize": "24px"}, "themeCSS": ".edgeLabel .label{font-size:22px}", "er": {"entityPadding": 6}}}%%
+erDiagram
+  PROGRAMME ||--o{ EVIDENCE : "เก็บ"
+  PROGRAMME ||--o{ METRIC_VALUE : "มีตัวชี้วัด"
+  EVIDENCE ||--o{ EVIDENCE_FILE : "มีไฟล์เวอร์ชัน"
+  EVIDENCE ||--o{ EVIDENCE_LINK : "ถูกผูก"
+  EVIDENCE_LINK }o--|| ASSESSMENT_CYCLE : "ในรอบ"
+  AI_RUN }o--o| ASSESSMENT_CYCLE : "ใช้ข้อมูลรอบ"
+  AI_RUN }o--o| EVIDENCE : "ติดป้าย"
+  AI_RUN }o--o| PROGRAMME : "AI-7 ระดับหลักสูตร"
+  AI_RUN }o--|| APP_USER : "สร้างโดย"
+  AUDIT_LOG }o--|| APP_USER : "ผู้กระทำ"
+  AUDIT_LOG }o--o| PROGRAMME : "ขอบเขต"
+  PROGRAMME {
+    string id PK
+  }
+  ASSESSMENT_CYCLE {
+    string id PK
+  }
+  APP_USER {
+    string id PK
+  }
+  EVIDENCE {
+    string id PK
+    string programmeId FK
+    string code UK
+    string sha256
+    boolean containsPii
+    string status
+  }
+  EVIDENCE_FILE {
+    string id PK
+    string evidenceId FK
+    int version
+    string piiScan
+  }
+  EVIDENCE_LINK {
+    string id PK
+    string evidenceId FK
+    string cycleId FK
+    string requirementId
+    string source
+  }
+  AI_RUN {
+    string id PK
+    string cycleId FK
+    string evidenceId FK
+    string programmeId FK
+    string createdBy FK
+    string feature
+    string redactedInputHash
+    boolean accepted
+  }
+  AUDIT_LOG {
+    string id PK
+    string actorId FK
+    string programmeId FK
+    string action
+  }
+  METRIC_VALUE {
+    string id PK
+    string programmeId FK
+    string code
+    int period
+    float value
+  }

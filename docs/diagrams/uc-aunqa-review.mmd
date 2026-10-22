@@ -1,4 +1,5 @@
-%% source: eduflow-next/lib/api/rbac.ts:50-55 (POLICY faculty_qa/dean), eduflow-next/lib/api/workflow.ts:27-38,181-264 | task: TASK-0001 | updated: 2026-10-21
+%% source: eduflow-next/lib/api/rbac.ts:50-55 (POLICY faculty_qa/dean), eduflow-next/lib/api/workflow.ts:27-38 (CYCLE_TRANSITIONS: revision_requested ต้องมีหมายเหตุ), 181-229, 299-316 (openRevision) | task: TASK-0001 | updated: 2026-10-23
+%%{init: {"themeCSS": "g{--mermaid-usecase-font-size: 20px; --mermaid-usecase-actor-font-size: 20px} .edgeLabel, .edgeLabel *{font-size: 18px !important} .edge-pattern-dashed{stroke-dasharray: 4 4 !important}"}}%%
 usecase-beta
 direction LR
 actor QA("QA คณะ")
@@ -13,6 +14,7 @@ systemBoundary AUNQA_Copilot
   UC7("มอบหมายกรรมการ")
   UC8("ปิดรอบประเมิน")
   UC9("ยืนยันผลแผนปรับปรุง")
+  UC10("ส่งรอบกลับแก้ไข")
 end
 QA --> UC1
 Dean --> UC1
@@ -23,4 +25,6 @@ QA --> UC8
 QA --> UC9
 Dean --> UC4
 Dean --> UC6
+QA --> UC10
+Dean --> UC10
 UC4 ..> : include UC5

@@ -1,28 +1,40 @@
-%% source: eduflow-next/lib/api/ai.service.ts; ai/{claude,offline,provider,postcheck,redact}.ts | task: TASK-0001 | updated: 2026-10-21
+%% source: eduflow-next/lib/api/ai.service.ts:39 (getProvider), 115-444 (run*, acceptAiRun); ai/provider.ts:61-69 (AiProvider); ai/claude.ts:50-57; ai/offline.ts; ai/postcheck.ts:24,95,109; ai/redact.ts:15; ai/glossary.ts:110,122 | task: TASK-0001 | updated: 2026-10-23
+%%{init: {"themeVariables": {"fontSize": "20px"}, "themeCSS": ".edge-pattern-dashed{stroke-dasharray: 4 4 !important}"}}%%
 classDiagram
   direction TB
   class AiService {
     <<module>>
+    +runEvidenceTagger()
     +runSarDrafter()
     +runSarReviewer()
-    +runEvidenceTagger()
+    +runTranslate()
+    +runVerbChecker()
+    +runAssessorSummary()
     +acceptAiRun()
   }
   class AiProvider {
     <<interface>>
+    +tagEvidence()
     +draftSar()
     +reviewSar()
-    +tagEvidence()
+    +translate()
     +checkVerbs()
+    +summarizeCriterion()
   }
   class PostCheck {
     <<module>>
     +postCheckText()
     +stripJudgement()
+    +mergePostChecks()
   }
   class Redact {
     <<module>>
     +redactDeep()
+  }
+  class Glossary {
+    <<module>>
+    +findGlossaryHits()
+    +applyGlossary()
   }
   class ClaudeProvider {
     <<module>>
@@ -33,8 +45,8 @@ classDiagram
   AiService --> AiProvider : getProvider()
   AiService ..> PostCheck
   AiService ..> Redact
-  AiService ..> SarStore : saveSection
-  AiService ..> EvidenceStore : linkEvidence
+  AiService ..> Glossary
   ClaudeProvider ..|> AiProvider
   OfflineProvider ..|> AiProvider
   ClaudeProvider ..> OfflineProvider : fallback
+  OfflineProvider ..> Glossary

@@ -1,7 +1,8 @@
-%% source: eduflow-next/lib/api/{evidence.store,assessor.store,workflow,rbac,audit.store,db}.ts | task: TASK-0001 | updated: 2026-10-21
+%% source: eduflow-next/lib/api/evidence.store.ts:149,249 (createEvidence, linkEvidence); utils/pii.ts:57,87 (normalizeForPii, scanPii); metrics-import.ts:46,207,292,350 (inspectZipDirectory, preview/commit, importCohortFile); assessor.store.ts:64-135; rbac.ts; audit.store.ts; db.ts | task: TASK-0001 | updated: 2026-10-23
+%%{init: {"themeVariables": {"fontSize": "20px"}, "themeCSS": ".edge-pattern-dashed{stroke-dasharray: 4 4 !important}"}}%%
 classDiagram
   direction TB
-  class WorkflowService {
+  class AiService {
     <<module>>
   }
   class EvidenceStore {
@@ -10,6 +11,18 @@ classDiagram
     +linkEvidence()
     +verifyEvidence()
     +resolvePii()
+  }
+  class PiiScan {
+    <<module>>
+    +normalizeForPii()
+    +scanPii()
+  }
+  class MetricsImport {
+    <<module>>
+    +previewMetricImport()
+    +commitMetricImport()
+    +importCohortFile()
+    +inspectZipDirectory()
   }
   class AssessorStore {
     <<module>>
@@ -30,10 +43,14 @@ classDiagram
     +load()
     +save()
   }
-  WorkflowService ..> Rbac
-  WorkflowService ..> AuditStore
-  WorkflowService ..> Db
+  AiService ..> EvidenceStore : linkEvidence
+  EvidenceStore ..> PiiScan
   EvidenceStore ..> Rbac
   EvidenceStore ..> AuditStore
   EvidenceStore ..> Db
+  MetricsImport ..> Rbac
+  MetricsImport ..> AuditStore
+  MetricsImport ..> Db
   AssessorStore ..> Rbac
+  AssessorStore ..> AuditStore
+  AssessorStore ..> Db
