@@ -25,16 +25,6 @@ const SM_CLASSES = ['aq-help', 'aq-meta', 'aq-crumbs', 'aq-btn-reason', 'aq-fiel
   // components.md C13: ป้ายแถวเกณฑ์ของ heatmap = fs-sm 600 แต่ T2.3 ไม่ได้ระบุ class นี้ → ถือตาม C13 (จดเป็น spec gap ใน Found Issues)
   'aq-heat-label'];
 
-/**
- * bug จริงที่บันทึกใน TASK-0001 Found Issues แล้ว — ตัดออกจากการตรวจรวม (กันเทสต์ทั้งชุดแดงเพราะจุดเดียว)
- * แต่ละตัวมีเทสต์ `test.fail` เฉพาะท้ายไฟล์ → เมื่อแก้ bug แล้วเทสต์นั้นจะ "ผ่านโดยไม่คาด" = ให้ลบรายการที่นี่และเปลี่ยนเป็นเทสต์ปกติ
- */
-const KNOWN_BUGS: Array<{ id: string; re: RegExp }> = [
-  { id: 'BUG-0001-U2Q-1', re: /^\/app\/metrics.*aq-chart-label/ },
-  { id: 'BUG-0001-U2Q-2', re: /^\/app\/curriculum.*แท็บ 6: [\d.]+px<16 text\. / },
-  { id: 'BUG-0001-U2Q-3', re: /h<44 select\[gap-filter\]/ },
-];
-const notKnown = (x: string) => !KNOWN_BUGS.some(b => b.re.test(x));
 const EMOJI_SRC = '[\\u{1F300}-\\u{1FAFF}\\u{2600}-\\u{27BF}]';
 
 interface Audit {
@@ -170,8 +160,8 @@ async function walkAll(page: Page, opts: { targets: 'desktop' | 'mobile' | 'none
   const problems = { hscroll: [] as string[], font: [] as string[], target: [] as string[], emoji: [] as string[] };
   const record = (name: string, a: Audit) => {
     if (a.scrollWidth > a.innerWidth) problems.hscroll.push(`${name}: scrollWidth ${a.scrollWidth} > ${a.innerWidth}`);
-    a.fontBad.map(x => `${name}: ${x}`).filter(notKnown).forEach(x => problems.font.push(x));
-    a.targetBad.map(x => `${name}: ${x}`).filter(notKnown).forEach(x => problems.target.push(x));
+    a.fontBad.map(x => `${name}: ${x}`).forEach(x => problems.font.push(x));
+    a.targetBad.map(x => `${name}: ${x}`).forEach(x => problems.target.push(x));
     a.emoji.forEach(x => problems.emoji.push(`${name}: ${x}`));
   };
   if (opts.fontScale) {
@@ -294,8 +284,8 @@ test.describe('AC-06 focus', () => {
   test('/login: ทุก element ที่โฟกัสมี outline ≥2px contrast ≥3 · ไม่ติดค้าง', async ({ page }) => {
     await page.goto('/login'); await settle(page);
     const { bad, seq } = await tabThrough(page);
-    // BUG-0001-U2Q-4: skip link ของหน้า login ที่ ≥1280 อยู่บนแผงเข้ม แต่ ring เป็น primary (1.44:1) → มีเทสต์ test.fail แยก
-    expect(bad.filter(x => !/a\.aq-skip/.test(x))).toEqual([]);
+    // รวม skip link บนแผงเข้ม (BUG-0001-U2Q-4 ปิดแล้วใน U3 fix — ไม่กรองออกอีก)
+    expect(bad).toEqual([]);
     // ไม่มี trap: focus ไม่ค้างที่เดิมติดกัน และวนได้หลายตัว
     for (let i = 1; i < seq.length; i++) expect(seq[i] === seq[i - 1] && seq[i] !== '(body)', `ค้างที่ ${seq[i]}`).toBe(false);
     expect(new Set(seq).size).toBeGreaterThan(5);
@@ -441,11 +431,9 @@ function grepTree(dirs: string[], file: RegExp, re: RegExp): string[] {
   return out;
 }
 
-// ─────────────────────────── bug ที่บันทึกแล้ว (test.fail = ยังเป็น bug อยู่) ───────────────────────────
-// ดู TASK-0001 "Found Issues" (ตั้ง U2Q_SHOW_BUGS=1 เพื่อดู error จริงของแต่ละตัว) — เมื่อ frontend แก้แล้ว เทสต์จะผ่าน → Playwright รายงาน "expected to fail" ให้ลบ test.fail + KNOWN_BUGS
-test.describe('Known bugs (U2-Q)', () => {
+// ─────────────────────────── regression ของ bug ที่ปิดแล้ว (BUG-0001-U2Q-1..4 — แก้ใน U3 fix) ───────────────────────────
+test.describe('Regression BUG-0001-U2Q-1..4 (ปิดแล้ว)', () => {
   test('BUG-0001-U2Q-1 TrendChart: ป้ายกราฟที่เห็นจริงต้อง ≥13px ที่ 390 และ 1440 (AC-02)', async ({ page }) => {
-    test.fail(!process.env.U2Q_SHOW_BUGS, 'BUG-0001-U2Q-1: SVG viewBox ย่อ → ป้าย 13px แสดงเป็น 7.5px@390 / 12px@1440');
     await loginAs(page, 'chair1');
     const sizes: Record<string, number> = {};
     for (const w of [390, 1440]) {
@@ -459,7 +447,6 @@ test.describe('Known bugs (U2-Q)', () => {
   });
 
   test('BUG-0001-U2Q-2 ผัง prerequisite: ชื่อวิชาใน SVG ต้อง ≥16px หรืออยู่ใน class ที่อนุญาต 13px (AC-02/T2.3)', async ({ page }) => {
-    test.fail(!process.env.U2Q_SHOW_BUGS, 'BUG-0001-U2Q-2: <text> ชื่อ/รหัสวิชาใน prereq SVG เป็น 13px ไม่มี class ใน T2.3');
     await loginAs(page, 'chair1');
     await page.goto('/app/curriculum'); await settle(page);
     await page.getByTestId('cur-tab-prereq').click();
@@ -472,7 +459,6 @@ test.describe('Known bugs (U2-Q)', () => {
   });
 
   test('BUG-0001-U2Q-3 แดชบอร์ด @1440: select gap-filter ต้องสูง ≥44 (AC-05 — compact 40 ใช้กับปุ่มเท่านั้น)', async ({ page }) => {
-    test.fail(!process.env.U2Q_SHOW_BUGS, 'BUG-0001-U2Q-3: .aq-input-sm = --control-h-sm 40px บนเดสก์ท็อป');
     await page.setViewportSize(VP['1440']);
     await loginAs(page, 'chair1');
     await page.goto(`/app/cycles/${encodeURIComponent(DEMO_CYCLE)}`); await settle(page);
@@ -481,7 +467,6 @@ test.describe('Known bugs (U2-Q)', () => {
   });
 
   test('BUG-0001-U2Q-4 /login @1440: focus ring ของ skip link ต้อง contrast ≥3 กับพื้นที่อยู่ (AC-06)', async ({ page }) => {
-    test.fail(!process.env.U2Q_SHOW_BUGS, 'BUG-0001-U2Q-4: ring primary บนแผง primary-strong = 1.44:1 (คู่ต้องห้ามใน T1.3)');
     await page.setViewportSize(VP['1440']);
     await page.goto('/login'); await settle(page);
     await page.keyboard.press('Tab');
