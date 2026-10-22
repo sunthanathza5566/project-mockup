@@ -78,13 +78,13 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   },
   appendix_b: {
     titleTh: 'Appendix B',
-    bodyTh: 'แบบบันทึกคะแนนของกรรมการรายเกณฑ์ พร้อมเหตุผล',
-    bodyEn: 'Assessors’ rating sheet per criterion with rationale.',
+    bodyTh: 'แบบวางแผนการประเมินของกรรมการรายข้อ: จุดแข็ง คำถามสัมภาษณ์ แหล่งหลักฐาน และข้อเสนอแนะเพื่อการปรับปรุง (AFI)',
+    bodyEn: 'Assessors’ planning sheet per requirement: strengths, interview questions, sources of evidence and areas for improvement (AFI).',
   },
   appendix_d: {
     titleTh: 'Appendix D',
-    bodyTh: 'สรุปจุดแข็งและข้อเสนอแนะเพื่อการปรับปรุง (AFI) ของกรรมการ',
-    bodyEn: 'Assessors’ summary of strengths and areas for improvement (AFI).',
+    bodyTh: 'รายงานผลการประเมินของกรรมการ: คะแนนรายเกณฑ์ จุดแข็ง และข้อเสนอแนะเพื่อการปรับปรุง (AFI)',
+    bodyEn: 'Assessors’ report: criterion ratings, strengths and areas for improvement (AFI).',
   },
   benchmark: {
     titleTh: 'benchmark (การเทียบเคียง)',
