@@ -1,0 +1,45 @@
+npm notice run eduflow-next@0.1.0 npx
+npm notice run next build
+  ▲ Next.js 14.2.35
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/15) ...
+   Generating static pages (3/15) 
+   Generating static pages (7/15) 
+   Generating static pages (11/15) 
+ ✓ Generating static pages (15/15)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    3.58 kB         563 kB
+├ ƒ /api/ai                              0 B                0 B
+├ ○ /app                                 4.83 kB         556 kB
+├ ○ /app/actions                         7.59 kB         559 kB
+├ ○ /app/admin                           7.24 kB         550 kB
+├ ○ /app/curriculum                      11 kB           553 kB
+├ ○ /app/cycles                          4.89 kB         556 kB
+├ ƒ /app/cycles/[id]                     7.87 kB         559 kB
+├ ƒ /app/cycles/[id]/assess              9.32 kB         560 kB
+├ ƒ /app/cycles/[id]/assign              5.27 kB         556 kB
+├ ○ /app/evidence                        7.45 kB         559 kB
+├ ƒ /app/evidence/[id]                   8.45 kB         560 kB
+├ ○ /app/export                          5.32 kB         548 kB
+├ ○ /app/metrics                         10 kB           552 kB
+├ ○ /app/requirements                    4.5 kB          547 kB
+├ ○ /app/review                          5.93 kB         557 kB
+├ ƒ /app/sections/[id]                   12.1 kB         563 kB
+├ ○ /login                               3.97 kB         572 kB
+└ ○ /_not-found                          873 B          88.2 kB
++ First Load JS shared by all            87.3 kB
+  ├ chunks/117-4b74d5881656cd2a.js       31.7 kB
+  ├ chunks/fd9d1056-5b0ef98b8ff45280.js  53.6 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
