@@ -1,0 +1,451 @@
+{
+ "AC04-spacing-d-login": {
+  "hscroll": false,
+  "sw": 1440,
+  "iw": 1440,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-d-app": {
+  "hscroll": false,
+  "sw": 1440,
+  "iw": 1440,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-d-dash": {
+  "hscroll": false,
+  "sw": 1440,
+  "iw": 1440,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-d-section": {
+  "hscroll": false,
+  "sw": 1440,
+  "iw": 1440,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-d-evform": {
+  "hscroll": false,
+  "sw": 1440,
+  "iw": 1440,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-m-login": {
+  "hscroll": false,
+  "sw": 390,
+  "iw": 390,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-m-app": {
+  "hscroll": false,
+  "sw": 390,
+  "iw": 390,
+  "clipped": [
+   "SPAN.aq-user__text sh50/ch1 sw115/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-m-dash": {
+  "hscroll": false,
+  "sw": 390,
+  "iw": 390,
+  "clipped": [
+   "SPAN.aq-user__text sh50/ch1 sw115/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-m-section": {
+  "hscroll": false,
+  "sw": 390,
+  "iw": 390,
+  "clipped": [
+   "SPAN.aq-user__text sh50/ch1 sw115/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-spacing-m-evform": {
+  "hscroll": false,
+  "sw": 390,
+  "iw": 390,
+  "clipped": [
+   "SPAN.aq-user__text sh50/ch1 sw115/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\"",
+   "THEAD. sh125/ch1 sw469/cw1 \"รหัส\tชื่อ\tประเภท\tPDCA\tปี\""
+  ],
+  "clippedN": 2,
+  "heatOverflow": 0
+ },
+ "AC04-zoom200-login": {
+  "hscroll": false,
+  "sw": 360,
+  "iw": 360,
+  "clipped": [],
+  "clippedN": 0,
+  "heatOverflow": 0
+ },
+ "AC04-zoom200-app": {
+  "hscroll": false,
+  "sw": 360,
+  "iw": 360,
+  "clipped": [
+   "SPAN.aq-user__text sh54/ch1 sw95/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-zoom200-dash": {
+  "hscroll": false,
+  "sw": 360,
+  "iw": 360,
+  "clipped": [
+   "SPAN.aq-user__text sh54/ch1 sw95/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-zoom200-section": {
+  "hscroll": false,
+  "sw": 360,
+  "iw": 360,
+  "clipped": [
+   "SPAN.aq-user__text sh54/ch1 sw95/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\""
+  ],
+  "clippedN": 1,
+  "heatOverflow": 0
+ },
+ "AC04-zoom200-evform": {
+  "hscroll": false,
+  "sw": 360,
+  "iw": 360,
+  "clipped": [
+   "SPAN.aq-user__text sh54/ch1 sw95/cw1 \"ผศ.ดร.ปรีชา ตัวอย่างดี\nป\"",
+   "THEAD. sh129/ch1 sw430/cw1 \"รหัส\tชื่อ\tประเภท\tPDCA\tปี\""
+  ],
+  "clippedN": 2,
+  "heatOverflow": 0
+ },
+ "axe-login": {
+  "violations": [],
+  "passes": 28
+ },
+ "contrast-app": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"หน้าหลัก\"",
+  "6.88 rgb(94, 85, 77) on rgb(251, 248, 243) \"สวัสดีตอนบ่าย ผศ\"",
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"สิ่งที่ต้องทำตอน\"",
+  "6.88 rgb(94, 85, 77) on rgb(251, 248, 243) \"(รวม 14 งาน)\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ตรวจและอนุมัติ 5\"",
+  "7.47 rgb(255, 255, 255) on rgb(59, 79, 160) \"ตรวจ 5 ข้อ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"มอบหมายผู้เขียน \"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"มอบหมายงาน\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"จัดการข้อมูลส่วน\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"ดูหลักฐานที่มี P\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"งานอื่น ๆ อีก 1 \"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ตรวจรับแผนปรับปร\""
+ ],
+ "lh-app": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 6,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "aq-help 14px lh1.60 ov:visible": 1,
+  "aq-badge 13px lh1.40 ov:visible": 1,
+  "aq-progress__label 14px lh1.60 ov:visible": 1
+ },
+ "axe-app": {
+  "violations": [],
+  "passes": 26
+ },
+ "contrast-dash": [
+  "7.05 rgb(59, 79, 160) on rgb(251, 248, 243) \"รอบประเมิน\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ตอนนี้รอ: ประธาน\"",
+  "6.69 rgb(59, 79, 160) on rgb(255, 241, 214) \"5.3\"",
+  "6.69 rgb(59, 79, 160) on rgb(255, 241, 214) \"1.5\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"ช่องว่างระดับวิก\"",
+  "4.59 rgb(47, 122, 75) on rgb(230, 243, 234) \"อนุมัติ\"",
+  "5.55 rgb(179, 38, 30) on rgb(252, 232, 230) \"วิกฤต\"",
+  "4.59 rgb(47, 122, 75) on rgb(230, 243, 234) \"ครบ\"",
+  "5.55 rgb(179, 38, 30) on rgb(252, 232, 230) \"5.3\"",
+  "5.55 rgb(179, 38, 30) on rgb(252, 232, 230) \"วิกฤต\"",
+  "5.55 rgb(179, 38, 30) on rgb(252, 232, 230) \"7.8\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"เกณฑ์ 2 — 22 ราย\""
+ ],
+ "lh-dash": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 2,
+  "aq-btn 16px lh1.40 ov:visible": 7,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "A 14px lh1.60 ov:visible": 1,
+  "aq-badge 13px lh1.40 ov:visible": 160,
+  "aq-step__label 16px lh1.40 ov:visible": 6,
+  "aq-btn-reason 14px lh1.60 ov:visible": 1,
+  "aq-ring__cap 14px lh1.60 ov:visible": 1,
+  "aq-kpi__label 14px lh1.60 ov:visible": 5,
+  "LI 14px lh1.60 ov:visible": 6,
+  "aq-legend__note 14px lh1.60 ov:visible": 1,
+  "SPAN 14px lh1.60 ov:visible": 8,
+  "aq-heat-cell__label 13px lh1.40 ov:visible": 53,
+  "aq-meta 14px lh1.60 ov:visible": 10,
+  "TH 14px lh1.60 ov:visible": 2,
+  "aq-num 14px lh1.60 ov:visible": 2
+ },
+ "axe-dash": {
+  "violations": [],
+  "passes": 30
+ },
+ "ring": [
+  {
+   "cls": "aq-ring aq-ring--lg",
+   "ring": 120,
+   "text": "45/53",
+   "fs": "36px",
+   "numW": 98,
+   "numH": 41,
+   "inner": 100,
+   "stroke": "rgb(59, 79, 160)",
+   "label": "อนุมัติแล้ว 45 จาก 53 ข้อ"
+  }
+ ],
+ "kpi": {
+  "cls": "aq-msg aq-msg--warn aq-kpi-summary",
+  "text": "อนุมัติแล้ว 45 จาก 53 ข้อ แต่ 36 ข้อยังมีช่องว่างวิกฤต (เช่น ยังไม่มีหลักฐานผูก) — ควรเติมก่อนส่งต่อ"
+ },
+ "contrast-section": [
+  "7.05 rgb(59, 79, 160) on rgb(251, 248, 243) \"รอบประเมิน\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"แดชบอร์ดรอบ\"",
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"(เสร็จแล้ว)\"",
+  "6.88 rgb(94, 85, 77) on rgb(251, 248, 243) \"กำลังเขียน\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"The teaching and\"",
+  "10.74 rgb(42, 57, 120) on rgb(255, 255, 255) \"คำถามวินิจฉัย (2\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"ภาษาไทย\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"รายวิชาโครงงานซอ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"Check — ติดตามตร\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"ล่าสุด: 3 คะแนน \"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"ความเห็น 0\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"แผนการสอนรายวิชา\""
+ ],
+ "lh-section": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 13,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "A 14px lh1.60 ov:visible": 1,
+  "SPAN 14px lh1.60 ov:visible": 1,
+  "aq-badge 13px lh1.40 ov:visible": 3,
+  "aq-step__label 16px lh1.40 ov:visible": 4,
+  "aq-step__meta 14px lh1.60 ov:visible": 4,
+  "aq-meta 14px lh1.60 ov:visible": 3,
+  "aq-help 14px lh1.60 ov:visible": 1,
+  "aq-saved 14px lh1.60 ov:visible": 1
+ },
+ "axe-section": {
+  "violations": [],
+  "passes": 32
+ },
+ "contrast-evidence": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"คลังหลักฐาน\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"สถานะ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ภาพถ่าย\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"1.1\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"แผนการสำรวจความต\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"2568\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"E-1.5-01\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"P\"",
+  "5.03 rgb(31, 111, 120) on rgb(227, 241, 242) \"AI แนะนำข้อแล้ว\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"แผน\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"2568\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"E-8.1-01\""
+ ],
+ "lh-evidence": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 4,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "TH 14px lh1.60 ov:visible": 6,
+  "aq-badge 13px lh1.40 ov:visible": 16
+ },
+ "contrast-review": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"รอตรวจ\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"รอบ\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"การกระทำ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"อ.วิภา เขียนรายง\"",
+  "7.47 rgb(255, 255, 255) on rgb(59, 79, 160) \"เปิดอ่าน\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"บริการสนับสนุนผู\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"หลักฐาน 1 ชิ้น ·\"",
+  "6.54 rgb(179, 38, 30) on rgb(255, 255, 255) \"ส่งกลับ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"—\"",
+  "7.47 rgb(255, 255, 255) on rgb(59, 79, 160) \"เปิดอ่าน\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"ความสามารถในการม\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"หลักฐาน 1 ชิ้น ·\""
+ ],
+ "lh-review": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 17,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "TH 14px lh1.60 ov:visible": 5,
+  "aq-sr-only 14px lh1.60 ov:hidden": 1,
+  "aq-meta 14px lh1.60 ov:visible": 10,
+  "aq-badge 13px lh1.40 ov:visible": 5
+ },
+ "contrast-heat": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"หลักสูตร (PLO · \"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"2\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"PLO3\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"I\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"CS103\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"·\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"I\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"·\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"CS301\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"·\"",
+  "5.03 rgb(31, 111, 120) on rgb(227, 241, 242) \"R\"",
+  "7.47 rgb(255, 255, 255) on rgb(59, 79, 160) \"M\""
+ ],
+ "lh-heat": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 2,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "SPAN 14px lh1.60 ov:visible": 1,
+  "TH 14px lh1.60 ov:visible": 1
+ },
+ "contrast-metrics": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"ตัวชี้วัด\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ภาวะการมีงานทำภา\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"เป้าหมาย\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ปีการศึกษา (พ.ศ.\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"6\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"เป้าหมาย\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"82\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"60\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"77\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"2566\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"2567\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"2568\""
+ ],
+ "lh-metrics": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 84,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "aq-help 14px lh1.60 ov:visible": 3,
+  "LI 14px lh1.60 ov:visible": 34,
+  "TH 14px lh1.60 ov:visible": 18,
+  "aq-num 14px lh1.60 ov:visible": 2,
+  "aq-sr-only 14px lh1.60 ov:hidden": 1,
+  "aq-meta 14px lh1.60 ov:visible": 1
+ },
+ "contrast-assign": [
+  "7.05 rgb(59, 79, 160) on rgb(251, 248, 243) \"รอบประเมิน\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"สถานะ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ทั้งเกณฑ์ — เจ้า\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"หลักสูตรมีโครงสร\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"3.2\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"ข้อ\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"ผู้เรียนได้รับข้\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"5.3\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ทั้งเกณฑ์ — เจ้า\"",
+  "7.29 rgb(94, 85, 77) on rgb(255, 255, 255) \"สมรรถนะของเจ้าหน\"",
+  "7.47 rgb(59, 79, 160) on rgb(255, 255, 255) \"7.3\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"กำลังเขียน\""
+ ],
+ "lh-assign": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 13,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "A 14px lh1.60 ov:visible": 1,
+  "SPAN 14px lh1.60 ov:visible": 1,
+  "aq-badge 13px lh1.40 ov:visible": 54,
+  "aq-progress__label 14px lh1.60 ov:visible": 9,
+  "TH 14px lh1.60 ov:visible": 32
+ },
+ "contrast-admin": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"ผู้ดูแลระบบ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"22 ต.ค. 2569 15:\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ผศ.ดร.ปรีชา ตัวอ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"evidence.create\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"evidence: evd_mv\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"22 ต.ค. 2569 15:\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ผศ.ดร.ปรีชา ตัวอ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"evidence.link\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"evidence: evd_mv\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"22 ต.ค. 2569 15:\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ผศ.ดร.ปรีชา ตัวอ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"section.assign\""
+ ],
+ "lh-admin": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 3,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "aq-meta 14px lh1.60 ov:visible": 1,
+  "TH 14px lh1.60 ov:visible": 4
+ },
+ "contrast-actions": [
+  "14.12 rgb(43, 38, 35) on rgb(251, 248, 243) \"แผนปรับปรุง (Act\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"ข้อ\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"สถานะ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"อ.ธนา สอนดี\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"ตั้งเป้าลดอัตราอ\"",
+  "5.03 rgb(31, 111, 120) on rgb(227, 241, 242) \"ทำเสร็จแล้ว (รอต\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"จัดทำรายงานติดตา\"",
+  "13.06 rgb(43, 38, 35) on rgb(244, 239, 230) \"ยังไม่เริ่ม\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"เพิ่มการประเมินผ\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"กำลังทำ\"",
+  "14.95 rgb(43, 38, 35) on rgb(255, 255, 255) \"นำผลสำรวจความพึง\"",
+  "9.04 rgb(42, 57, 120) on rgb(232, 235, 248) \"กำลังทำ\""
+ ],
+ "lh-actions": {
+  "aq-nav-group 14px lh1.60 ov:visible": 4,
+  "aq-term 14px lh1.60 ov:visible": 1,
+  "aq-btn 16px lh1.40 ov:visible": 13,
+  "aq-lang__on 16px lh1.40 ov:visible": 1,
+  "aq-user__role 14px lh1.60 ov:visible": 1,
+  "TH 14px lh1.60 ov:visible": 5,
+  "aq-meta 14px lh1.60 ov:visible": 6,
+  "aq-badge 13px lh1.40 ov:visible": 6
+ },
+ "ringTry": {
+  "2xl": {
+   "fs": "36px",
+   "w": 98,
+   "h": 41,
+   "innerDiameter": 100
+  },
+  "xl": {
+   "fs": "28px",
+   "w": 76,
+   "h": 32,
+   "innerDiameter": 100
+  }
+ },
+ "ringM": {
+  "text": "45/53",
+  "fs": "28px",
+  "w": 76
+ },
+ "logoutM": "หา logout ไม่เจอ"
+}

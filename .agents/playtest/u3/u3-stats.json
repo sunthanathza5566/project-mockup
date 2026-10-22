@@ -1,0 +1,2366 @@
+{
+ "01-landing-d": {
+  "h": 1925,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|24px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 6,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|13px|600|lh 1.40": 3,
+   "Sarabun|48px|700|lh 1.35": 2,
+   "Sarabun|18px|400|lh 1.70": 1,
+   "Sarabun|18px|600|lh 1.60": 13,
+   "Sarabun|36px|700|lh 1.15": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|16px|400|lh 1.70": 14,
+   "Sarabun|36px|700|lh 1.35": 4,
+   "Sarabun|16px|700|lh 1.70": 6,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "13px .aq-badge": 3,
+   "14px .aq-ring__cap": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "20-404-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 1,
+   "Sarabun|16px|600|lh 1.40": 2
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {},
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "02-login-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|36px|700|lh 1.35": 1,
+   "Sarabun|18px|400|lh 1.70": 3,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 2,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|16px|700|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 11
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-meta": 11
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "02c-login-error-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|36px|700|lh 1.35": 1,
+   "Sarabun|18px|400|lh 1.70": 3,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 3,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|16px|700|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 11
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-help": 1,
+   "14px .aq-meta": 11
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "04-app-d": {
+  "h": 1313,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 6,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|400|lh 1.70": 12,
+   "Sarabun|16px|600|lh 1.40": 7,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-progress__label": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "A.aq-btn 201x40 \"ตรวจรับแผนปรับปรุง\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "05-requirements-d": {
+  "h": 11417,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 163,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|400|lh 1.70": 327,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 12,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 55,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.60": 1,
+   "Sarabun|22px|700|lh 1.45": 8,
+   "Sarabun|16px|400|lh 1.45": 8,
+   "Sarabun|16px|700|lh 1.70": 106,
+   "Sarabun|18px|600|lh 1.60": 53,
+   "Sarabun|13px|600|lh 1.40": 39
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .aq-meta": 1,
+   "14px .aq-req-en": 53,
+   "13px .aq-badge": 39
+  },
+  "smallBtn": 11,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-btn 95x40 \"ทุกเกณฑ์\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 1\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 2\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 3\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 4\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 5\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 6\"",
+   "BUTTON.aq-btn 87x40 \"เกณฑ์ 7\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "06-cycles-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 11,
+   "Sarabun|16px|400|lh 1.70": 12,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 5,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 1,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-progress__label": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "A.aq-btn 87x40 \"เปิด\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "07-cycle-dash-d": {
+  "h": 2324,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 67,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 40,
+   "Sarabun|16px|400|lh 1.70": 20,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 14,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 13,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 56,
+   "Sarabun|16px|700|lh 1.70": 6,
+   "Sarabun|18px|600|lh 1.60": 1,
+   "Sarabun|36px|700|lh 1.15": 6,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|16px|700|lh 1.30": 53
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 2,
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 9,
+   "13px .aq-badge": 3,
+   "14px .aq-btn-reason": 1,
+   "14px .aq-ring__cap": 1,
+   "14px .aq-kpi__label": 5,
+   "14px .li": 6,
+   "14px .aq-legend__note": 1,
+   "14px .aq-tnum": 8,
+   "13px .aq-heat-cell__label": 53,
+   "14px .aq-meta": 10,
+   "14px .th": 2,
+   "14px .aq-num": 2
+  },
+  "smallBtn": 6,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ ความพร\"",
+   "SELECT.aq-input 110x40 \"ทุกระดับ\nวิกฤต\nสูง\"",
+   "BUTTON.aq-btn 196x40 \"กฎ R1–R11 คืออะไร\"",
+   "BUTTON.aq-btn 160x40 \"แสดงทั้งหมด (157)\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "08-assign-d": {
+  "h": 8804,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 46,
+   "Sarabun|16px|400|lh 1.70": 64,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 14,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 4,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 54,
+   "Sarabun|18px|600|lh 1.60": 9,
+   "Sarabun|16px|600|lh 1.60": 18,
+   "Sarabun|16px|700|lh 1.70": 53
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 54,
+   "14px .aq-progress__label": 9,
+   "14px .th": 32
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-btn 239x40 \"ไปข้อถัดไปที่ยังไม\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "09-section-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|16px|400|lh 1.70": 11,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 5,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|28px|700|lh 1.35": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 1
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "09b-section-real-d": {
+  "h": 2442,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 13,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|16px|400|lh 1.70": 27,
+   "Sarabun|13px|600|lh 1.00": 5,
+   "Sarabun|16px|600|lh 1.40": 18,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 13,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 3,
+   "Sarabun|16px|700|lh 1.70": 5,
+   "Sarabun|18px|600|lh 1.60": 5,
+   "Sarabun|18px|400|lh 1.80": 1,
+   "Sarabun|16px|600|lh 1.60": 3
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 5,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 3,
+   "14px .aq-step__meta": 4,
+   "14px .aq-req-en": 1,
+   "14px .aq-meta": 3,
+   "14px .aq-help": 1,
+   "14px .aq-saved": 1
+  },
+  "smallBtn": 11,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-btn 169x40 \"ร่างจากหลักฐาน\"",
+   "BUTTON.aq-btn 141x40 \"ตรวจเนื้อหา\"",
+   "BUTTON.aq-btn 142x40 \"แปลเป็น EN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PDCA\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ สเกล 1\"",
+   "BUTTON.aq-btn 146x40 \"แทรก [E-3.3-01]\"",
+   "BUTTON.aq-btn 40x40 \"เลิกผูก E-3.3-01\"",
+   "BUTTON.aq-btn 146x40 \"แทรก [E-3.3-02]\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "10-evidence-d": {
+  "h": 1528,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 12,
+   "Sarabun|16px|400|lh 1.70": 90,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 5,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 16,
+   "Sarabun|13px|600|lh 1.40": 17
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 7,
+   "13px .aq-badge": 17
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ รหัสหล\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "12-metrics-d": {
+  "h": 9724,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 28,
+   "Sarabun|16px|400|lh 1.70": 398,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 85,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 38,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|18px|600|lh 1.60": 19,
+   "Sarabun|16px|700|lh 1.70": 1,
+   "Sarabun|16px|600|lh 1.60": 1,
+   "Sarabun|22px|700|lh 1.45": 2,
+   "Sarabun|13px|600|lh 1.70": 268
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 3,
+   "13px .aq-chart-label": 268,
+   "14px .li": 34,
+   "14px .th": 18,
+   "14px .aq-num": 3,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 1
+  },
+  "smallBtn": 161,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ benchm\"",
+   "BUTTON.aq-btn 231x40 \"\"",
+   "INPUT.aq-sr-only 1x1 \"\"",
+   "BUTTON.aq-btn 231x40 \"\"",
+   "INPUT.aq-sr-only 1x1 \"\"",
+   "BUTTON.aq-btn 81x40 \"แก้\"",
+   "BUTTON.aq-btn 40x40 \"ลบ appeal_count ปี\"",
+   "BUTTON.aq-btn 81x40 \"แก้\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "13-actions-d": {
+  "h": 1170,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 10,
+   "Sarabun|16px|400|lh 1.70": 29,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 14,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 7,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 6
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-meta": 6,
+   "13px .aq-badge": 6
+  },
+  "smallBtn": 15,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PDCA\"",
+   "BUTTON.aq-btn 88x40 \"ตรวจรับ\"",
+   "BUTTON.aq-btn 135x40 \"เริ่มทำ / เปิดซ้ำ\"",
+   "BUTTON.aq-btn 135x40 \"เริ่มทำ / เปิดซ้ำ\"",
+   "BUTTON.aq-btn 81x40 \"แก้\"",
+   "BUTTON.aq-btn 40x40 \"ลบ\"",
+   "BUTTON.aq-btn 112x40 \"ทำเสร็จแล้ว\"",
+   "BUTTON.aq-btn 81x40 \"แก้\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "14-assess-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|16px|400|lh 1.70": 11,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 4,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "15-review-d": {
+  "h": 974,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 11,
+   "Sarabun|16px|400|lh 1.70": 25,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 18,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 11,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|22px|700|lh 1.45": 1,
+   "Sarabun|16px|700|lh 1.70": 5,
+   "Sarabun|13px|600|lh 1.40": 5
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 10,
+   "13px .aq-badge": 5
+  },
+  "smallBtn": 17,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "A.aq-btn 87x40 \"เปิดอ่าน\"",
+   "BUTTON.aq-btn 74x40 \"อนุมัติ\"",
+   "BUTTON.aq-btn 80x40 \"ส่งกลับ\"",
+   "A.aq-btn 87x40 \"เปิดอ่าน\"",
+   "BUTTON.aq-btn 74x40 \"อนุมัติ\"",
+   "BUTTON.aq-btn 80x40 \"ส่งกลับ\"",
+   "A.aq-btn 87x40 \"เปิดอ่าน\"",
+   "BUTTON.aq-btn 74x40 \"อนุมัติ\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "16-export-d": {
+  "h": 905,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|400|lh 1.70": 16,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 8,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 1,
+   "Sarabun|18px|600|lh 1.60": 4
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-help": 1
+  },
+  "smallBtn": 4,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ hash\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ Append\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "17-admin-d": {
+  "h": 2522,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 44,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 9,
+   "Sarabun|16px|400|lh 1.70": 127,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 4,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|28px|700|lh 1.35": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .aq-meta": 1,
+   "14px .th": 4
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "11-evidence-detail-d": {
+  "h": 1190,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 8,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 11,
+   "Sarabun|16px|400|lh 1.70": 25,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 9,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 6,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 1,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|16px|400|lh 1.80": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-flex-1": 1,
+   "14px .aq-help": 2,
+   "14px .th": 5,
+   "14px .aq-meta": 1
+  },
+  "smallBtn": 6,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-btn 98x40 \"แก้ไข\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ hash\"",
+   "BUTTON.aq-btn 40x40 \"เลิกผูกข้อ 1.1\"",
+   "INPUT.aq-sr-only 1x1 \"\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "10b-evidence-form-d": {
+  "h": 2597,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 12,
+   "Sarabun|16px|400|lh 1.70": 90,
+   "Sarabun|13px|600|lh 1.00": 2,
+   "Sarabun|16px|600|lh 1.40": 6,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 6,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|22px|700|lh 1.45": 1,
+   "Sarabun|16px|600|lh 1.60": 11,
+   "Sarabun|16px|700|lh 1.60": 3,
+   "Sarabun|16px|700|lh 1.70": 17,
+   "Sarabun|13px|600|lh 1.40": 17
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 2,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 4,
+   "14px .aq-meta": 1,
+   "14px .th": 7,
+   "13px .aq-badge": 17
+  },
+  "smallBtn": 4,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ รหัสหล\"",
+   "INPUT.aq-sr-only 1x1 \"\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-plo-d": {
+  "h": 1100,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 9,
+   "Sarabun|16px|400|lh 1.70": 37,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 16,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 6
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 4
+  },
+  "smallBtn": 17,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\"",
+   "BUTTON.aq-btn 53x40 \"แก้\"",
+   "BUTTON.aq-btn 54x40 \"ลบ\"",
+   "BUTTON.aq-btn 53x40 \"แก้\"",
+   "BUTTON.aq-btn 54x40 \"ลบ\"",
+   "BUTTON.aq-btn 53x40 \"แก้\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-course-d": {
+  "h": 1404,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 10,
+   "Sarabun|16px|400|lh 1.70": 61,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 40,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 12,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 41,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\"",
+   "BUTTON.aq-btn 63x40 \"CLO\"",
+   "BUTTON.aq-btn 53x40 \"แก้\"",
+   "BUTTON.aq-btn 54x40 \"ลบ\"",
+   "BUTTON.aq-btn 63x40 \"CLO\"",
+   "BUTTON.aq-btn 53x40 \"แก้\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-matrix-d": {
+  "h": 3103,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 23,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 12,
+   "Sarabun|16px|400|lh 1.70": 60,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 12
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .th": 7
+  },
+  "smallBtn": 143,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\"",
+   "SELECT.aq-input 68x40 \"—\nI\nR\nM\"",
+   "SELECT.aq-input 68x40 \"—\nI\nR\nM\"",
+   "SELECT.aq-input 68x40 \"—\nI\nR\nM\"",
+   "SELECT.aq-input 68x40 \"—\nI\nR\nM\"",
+   "SELECT.aq-input 68x40 \"—\nI\nR\nM\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-heat-d": {
+  "h": 1249,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 12,
+   "Sarabun|16px|400|lh 1.70": 77,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 5,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|700|lh 1.70": 38,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "14px .span": 4,
+   "14px .th": 7,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 5,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-gaps-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|400|lh 1.70": 15,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 2
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "13px .aq-badge": 2
+  },
+  "smallBtn": 5,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-prereq-d": {
+  "h": 1301,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|400|lh 1.70": 23,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|700|lh 1.70": 16,
+   "Sarabun|13px|400|lh 1.70": 12,
+   "Sarabun|18px|600|lh 1.60": 1,
+   "Sarabun|16px|700|lh 1.70": 10
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1,
+   "13px .text": 28
+  },
+  "smallBtn": 5,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-ai-d": {
+  "h": 900,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 11,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|400|lh 1.70": 14,
+   "Sarabun|13px|600|lh 1.00": 3,
+   "Sarabun|16px|600|lh 1.40": 4,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-nav-group": 4,
+   "13px .aq-count": 3,
+   "14px .aq-term": 1,
+   "14px .aq-user__role": 1
+  },
+  "smallBtn": 5,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ SAR\"",
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 1440,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "01-landing-m": {
+  "h": 3600,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|24px|600|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 3,
+   "Sarabun|34px|700|lh 1.35": 2,
+   "Sarabun|18px|400|lh 1.70": 1,
+   "Sarabun|16px|600|lh 1.40": 4,
+   "Sarabun|18px|600|lh 1.60": 13,
+   "Sarabun|28px|700|lh 1.15": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|16px|400|lh 1.70": 14,
+   "Sarabun|28px|700|lh 1.35": 4,
+   "Sarabun|16px|700|lh 1.70": 6,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "13px .aq-badge": 3,
+   "14px .aq-ring__cap": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "20-404-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 1,
+   "Sarabun|16px|600|lh 1.40": 2
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {},
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "02-login-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 2,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|16px|700|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 11
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-meta": 11
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "02c-login-error-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 3,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|16px|700|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 11
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-help": 1,
+   "14px .aq-meta": 11
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "04-app-m": {
+  "h": 1688,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 3,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|16px|600|lh 1.40": 4,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-progress__label": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "05-requirements-m": {
+  "h": 25413,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 162,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 55,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 318,
+   "Sarabun|16px|600|lh 1.60": 1,
+   "Sarabun|16px|600|lh 1.40": 9,
+   "Sarabun|22px|700|lh 1.45": 8,
+   "Sarabun|16px|400|lh 1.45": 8,
+   "Sarabun|16px|700|lh 1.70": 106,
+   "Sarabun|18px|600|lh 1.60": 53,
+   "Sarabun|13px|600|lh 1.40": 39
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-meta": 1,
+   "14px .aq-req-en": 53,
+   "13px .aq-badge": 39
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "06-cycles-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 3,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|16px|700|lh 1.70": 1,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-progress__label": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "07-cycle-dash-m": {
+  "h": 4045,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 67,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 13,
+   "Sarabun|14px|600|lh 1.60": 35,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 56,
+   "Sarabun|16px|400|lh 1.70": 9,
+   "Sarabun|16px|600|lh 1.40": 5,
+   "Sarabun|18px|600|lh 1.60": 1,
+   "Sarabun|16px|700|lh 1.70": 1,
+   "Sarabun|28px|700|lh 1.15": 6,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|16px|700|lh 1.30": 53
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 9,
+   "13px .aq-badge": 3,
+   "14px .aq-btn-reason": 1,
+   "14px .aq-ring__cap": 1,
+   "14px .aq-term": 1,
+   "14px .aq-kpi__label": 5,
+   "14px .li": 6,
+   "14px .aq-legend__note": 1,
+   "14px .aq-tnum": 8,
+   "13px .aq-heat-cell__label": 53,
+   "14px .aq-meta": 10,
+   "14px .th": 2,
+   "14px .aq-num": 2
+  },
+  "smallBtn": 1,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ ความพร\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "08-assign-m": {
+  "h": 18322,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 4,
+   "Sarabun|14px|600|lh 1.60": 41,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 54,
+   "Sarabun|16px|400|lh 1.70": 55,
+   "Sarabun|16px|600|lh 1.40": 11,
+   "Sarabun|18px|600|lh 1.60": 9,
+   "Sarabun|16px|600|lh 1.60": 18,
+   "Sarabun|16px|700|lh 1.70": 53
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 54,
+   "14px .aq-progress__label": 9,
+   "14px .th": 32
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "09-section-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|14px|600|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.70": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "09b-section-real-m": {
+  "h": 3630,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 14,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 9,
+   "Sarabun|14px|600|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.70": 13,
+   "Sarabun|16px|600|lh 1.40": 11,
+   "Sarabun|16px|700|lh 1.70": 4,
+   "Sarabun|18px|600|lh 1.60": 5,
+   "Sarabun|18px|400|lh 1.80": 1,
+   "Sarabun|16px|600|lh 1.60": 3,
+   "Sarabun|13px|600|lh 1.00": 3
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 3,
+   "14px .aq-req-en": 1,
+   "14px .aq-meta": 3,
+   "14px .aq-help": 1,
+   "14px .aq-saved": 1,
+   "13px .aq-count": 3
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PDCA\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ สเกล 1\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "10-evidence-m": {
+  "h": 5925,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 81,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|14px|600|lh 1.60": 7,
+   "Sarabun|16px|700|lh 1.70": 16,
+   "Sarabun|13px|600|lh 1.40": 17
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .th": 7,
+   "13px .aq-badge": 17
+  },
+  "smallBtn": 1,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ รหัสหล\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "12-metrics-m": {
+  "h": 30048,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 38,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 389,
+   "Sarabun|16px|600|lh 1.40": 82,
+   "Sarabun|18px|600|lh 1.60": 19,
+   "Sarabun|14px|600|lh 1.60": 23,
+   "Sarabun|16px|700|lh 1.70": 1,
+   "Sarabun|16px|600|lh 1.60": 1,
+   "Sarabun|22px|700|lh 1.45": 2,
+   "Sarabun|13px|600|lh 1.70": 268
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 3,
+   "13px .aq-chart-label": 268,
+   "14px .li": 34,
+   "14px .th": 18,
+   "14px .aq-num": 3,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ benchm\"",
+   "INPUT.aq-sr-only 1x1 \"\"",
+   "INPUT.aq-sr-only 1x1 \"\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "13-actions-m": {
+  "h": 2885,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 9,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 7,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 20,
+   "Sarabun|16px|600|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|13px|600|lh 1.40": 6
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-meta": 6,
+   "13px .aq-badge": 6
+  },
+  "smallBtn": 1,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PDCA\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "14-assess-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|14px|600|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 1,
+   "Sarabun|16px|400|lh 1.70": 2,
+   "Sarabun|16px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "15-review-m": {
+  "h": 2259,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 11,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 16,
+   "Sarabun|22px|700|lh 1.45": 1,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|16px|700|lh 1.70": 5,
+   "Sarabun|13px|600|lh 1.40": 5,
+   "Sarabun|16px|600|lh 1.40": 15
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .th": 5,
+   "14px .aq-sr-only": 1,
+   "14px .aq-meta": 10,
+   "13px .aq-badge": 5
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "16-export-m": {
+  "h": 1499,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 7,
+   "Sarabun|13px|600|lh 1.40": 1,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|16px|600|lh 1.40": 5
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-help": 1
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ hash\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ Append\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "17-admin-m": {
+  "h": 8463,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 43,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 2,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 118,
+   "Sarabun|16px|600|lh 1.40": 1,
+   "Sarabun|14px|600|lh 1.60": 4
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-meta": 1,
+   "14px .th": 4
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "11-evidence-detail-m": {
+  "h": 2037,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 7,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 6,
+   "Sarabun|14px|600|lh 1.60": 6,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 1,
+   "Sarabun|16px|400|lh 1.70": 16,
+   "Sarabun|16px|600|lh 1.40": 6,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|16px|400|lh 1.80": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-flex-1": 1,
+   "14px .aq-help": 2,
+   "14px .th": 5,
+   "14px .aq-meta": 1
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ hash\"",
+   "INPUT.aq-sr-only 1x1 \"\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "10b-evidence-form-m": {
+  "h": 7079,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 4,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 6,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 81,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|22px|700|lh 1.45": 1,
+   "Sarabun|16px|600|lh 1.60": 11,
+   "Sarabun|16px|700|lh 1.60": 3,
+   "Sarabun|16px|700|lh 1.70": 17,
+   "Sarabun|14px|600|lh 1.60": 7,
+   "Sarabun|13px|600|lh 1.40": 17
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 4,
+   "14px .aq-meta": 1,
+   "14px .th": 7,
+   "13px .aq-badge": 17
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ รหัสหล\"",
+   "INPUT.aq-sr-only 1x1 \"\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-plo-m": {
+  "h": 2895,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 28,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|16px|600|lh 1.40": 13,
+   "Sarabun|14px|600|lh 1.60": 4,
+   "Sarabun|16px|700|lh 1.70": 6
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "14px .th": 4
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-course-m": {
+  "h": 2504,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 52,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|16px|600|lh 1.40": 37,
+   "Sarabun|14px|600|lh 1.60": 5,
+   "Sarabun|16px|700|lh 1.70": 12,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "14px .th": 5,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-matrix-m": {
+  "h": 3745,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 22,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 51,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|14px|600|lh 1.60": 7,
+   "Sarabun|16px|700|lh 1.70": 12
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "14px .th": 7
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-heat-m": {
+  "h": 1889,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 5,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 68,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|14px|600|lh 1.60": 7,
+   "Sarabun|16px|700|lh 1.70": 38,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "14px .span": 4,
+   "14px .th": 7,
+   "13px .aq-badge": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-gaps-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 6,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|13px|600|lh 1.40": 2
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "13px .aq-badge": 2
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-prereq-m": {
+  "h": 1291,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 14,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|13px|700|lh 1.70": 16,
+   "Sarabun|13px|400|lh 1.70": 12,
+   "Sarabun|18px|600|lh 1.60": 1,
+   "Sarabun|16px|700|lh 1.70": 10
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1,
+   "13px .text": 28
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "cur-ai-m": {
+  "h": 844,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 10,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|24px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 5,
+   "Sarabun|13px|600|lh 1.00": 1,
+   "Sarabun|16px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "13px .aq-count": 1
+  },
+  "smallBtn": 3,
+  "btnEx": [
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ CLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PLO\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ I/R/M\""
+  ],
+  "overflow": false,
+  "sw": 390,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "02-login-t": {
+  "h": 1024,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|22px|700|lh 1.35": 1,
+   "Sarabun|22px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 2,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 2,
+   "Sarabun|16px|600|lh 1.60": 2,
+   "Sarabun|16px|700|lh 1.40": 11,
+   "Sarabun|14px|600|lh 1.60": 11
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-meta": 11
+  },
+  "smallBtn": 0,
+  "btnEx": [],
+  "overflow": false,
+  "sw": 768,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "04-app-t": {
+  "h": 1658,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 5,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 5,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 3,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 3,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|18px|600|lh 1.60": 4,
+   "Sarabun|13px|600|lh 1.40": 1
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .aq-help": 1,
+   "13px .aq-badge": 1,
+   "14px .aq-progress__label": 1
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "A.aq-btn 201x40 \"ตรวจรับแผนปรับปรุง\""
+  ],
+  "overflow": false,
+  "sw": 768,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "07-cycle-dash-t": {
+  "h": 3019,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 66,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 12,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 13,
+   "Sarabun|14px|600|lh 1.60": 35,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 56,
+   "Sarabun|16px|400|lh 1.70": 11,
+   "Sarabun|16px|700|lh 1.70": 6,
+   "Sarabun|18px|600|lh 1.60": 1,
+   "Sarabun|36px|700|lh 1.15": 6,
+   "Sarabun|22px|700|lh 1.45": 3,
+   "Sarabun|16px|700|lh 1.30": 53
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 1,
+   "14px .span": 9,
+   "13px .aq-badge": 3,
+   "14px .aq-btn-reason": 1,
+   "14px .aq-ring__cap": 1,
+   "14px .aq-term": 1,
+   "14px .aq-kpi__label": 5,
+   "14px .li": 6,
+   "14px .aq-legend__note": 1,
+   "14px .aq-tnum": 8,
+   "13px .aq-heat-cell__label": 53,
+   "14px .aq-meta": 10,
+   "14px .th": 2,
+   "14px .aq-num": 2
+  },
+  "smallBtn": 5,
+  "btnEx": [
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ ความพร\"",
+   "SELECT.aq-input 110x40 \"ทุกระดับ\nวิกฤต\nสูง\"",
+   "BUTTON.aq-btn 196x40 \"กฎ R1–R11 คืออะไร\"",
+   "BUTTON.aq-btn 160x40 \"แสดงทั้งหมด (157)\""
+  ],
+  "overflow": false,
+  "sw": 768,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "09b-section-real-t": {
+  "h": 3258,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 13,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 16,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 13,
+   "Sarabun|14px|600|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|13px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.70": 17,
+   "Sarabun|16px|700|lh 1.70": 5,
+   "Sarabun|18px|600|lh 1.60": 5,
+   "Sarabun|18px|400|lh 1.80": 1,
+   "Sarabun|16px|600|lh 1.60": 3,
+   "Sarabun|13px|600|lh 1.00": 3
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .a": 2,
+   "14px .span": 1,
+   "13px .aq-badge": 3,
+   "14px .aq-step__meta": 4,
+   "14px .aq-req-en": 1,
+   "14px .aq-meta": 3,
+   "14px .aq-help": 1,
+   "14px .aq-saved": 1,
+   "13px .aq-count": 3
+  },
+  "smallBtn": 10,
+  "btnEx": [
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-btn 169x40 \"ร่างจากหลักฐาน\"",
+   "BUTTON.aq-btn 141x40 \"ตรวจเนื้อหา\"",
+   "BUTTON.aq-btn 142x40 \"แปลเป็น EN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ PDCA\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ สเกล 1\"",
+   "BUTTON.aq-btn 146x40 \"แทรก [E-3.3-01]\"",
+   "BUTTON.aq-btn 40x40 \"เลิกผูก E-3.3-01\"",
+   "BUTTON.aq-btn 146x40 \"แทรก [E-3.3-02]\"",
+   "BUTTON.aq-btn 40x40 \"เลิกผูก E-3.3-02\""
+  ],
+  "overflow": false,
+  "sw": 768,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ },
+ "10-evidence-t": {
+  "h": 4088,
+  "fonts": {
+   "Sarabun|16px|600|lh 1.70": 3,
+   "Sarabun|20px|700|lh 1.35": 1,
+   "Sarabun|20px|600|lh 1.35": 1,
+   "Sarabun|16px|600|lh 1.40": 3,
+   "Sarabun|16px|400|lh 1.40": 2,
+   "Sarabun|14px|400|lh 1.60": 1,
+   "Sarabun|28px|700|lh 1.35": 1,
+   "Sarabun|16px|400|lh 1.70": 81,
+   "Sarabun|14px|600|lh 1.60": 7,
+   "Sarabun|16px|700|lh 1.70": 16,
+   "Sarabun|13px|600|lh 1.40": 17
+  },
+  "smallN": 0,
+  "smallEx": [],
+  "sub16": {
+   "14px .aq-user__role": 1,
+   "14px .th": 7,
+   "13px .aq-badge": 17
+  },
+  "smallBtn": 2,
+  "btnEx": [
+   "BUTTON.aq-btn 129x40 \"ไทย\n|\nEN\"",
+   "BUTTON.aq-term__btn 32x32 \"ความหมายของ รหัสหล\""
+  ],
+  "overflow": false,
+  "sw": 768,
+  "loaded": [
+   "Sarabun 400",
+   "Sarabun 600",
+   "Sarabun 700"
+  ],
+  "bodyFF": "Sarabun, \"Leelawadee UI\", Tahoma, \"Noto Sans Thai\", system-ui, sans-serif"
+ }
+}
