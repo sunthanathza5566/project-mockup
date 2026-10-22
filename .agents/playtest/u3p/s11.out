@@ -1,0 +1,64 @@
+P7 login "CHAIR1" -> /app 
+P7 login " lect1 " -> /app 
+new cycle cyc_mvjab4ie1a92c
+next-unowned focus: owner-1.2
+chair todos after 1 assign in draft [
+  'todo-start_cycle-0 เริ่มดำเนินการรอบ 2570 (มอบหมายแล้ว 1 ข้อ) เริ่มดำเนินการรอบ',
+  'todo-assign_sections-1 มอบหมายผู้เขียน 52 ข้อที่ยังไม่มีเจ้าของ (รอบ 2570) มอบหมายงาน',
+  'todo-resolve_pii-2 จัดการข้อมูลส่วนบุคคลในหลักฐาน 1 ชิ้น ดูหลักฐานที่มี PII',
+  'todo-verify_actions-3 ตรวจรับแผนปรับปรุง 1 รายการ ตรวจรับแผนปรับปรุง'
+]
+lect1 /app/admin => ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 2 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักสูตร หลักสูตร (PLO/รายวิชา) ตัวชี้วัด แผนปรับป
+lect1 /app/cycles/cyc_mvjab4ie1a92c/assign => ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 2 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักสูตร หลักสูตร (PLO/รายวิชา) ตัวชี้วัด แผนปรับป
+lect1 /app/review => ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 2 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักสูตร หลักสูตร (PLO/รายวิชา) ตัวชี้วัด แผนปรับป
+lect1 /app/cycles/cycle-demo-2569/assess => ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 2 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักสูตร หลักสูตร (PLO/รายวิชา) ตัวชี้วัด แผนปรับป
+lect1 /app/sections/xxx => ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 2 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักสูตร หลักสูตร (PLO/รายวิชา) ตัวชี้วัด แผนปรับป
+lect1 /zzz => AUN-QA Copilot ไม่พบหน้าที่ต้องการ ลิงก์อาจพิมพ์ผิดหรือหน้านี้ถูกย้ายแล้ว กลับหน้าหลัก ไปหน้าแรก
+assess1 3.6 editable? false คุณเข้าในฐานะกรรมการประเมิน — เห็นเฉพาะรอบที่ได้รับมอบหมาย (อ่านอย่างเดียว) รอบประเมิน 2569 ข้อ 3.6 ข้อ 3.6 กระบวนการเรียนการสอนได้รับการปรับปรุงอย่างต่อเนื่องเพื่อให้ส… อนุมัติแล้ว รอบ 2569 · วิทยาศ
+tab2 after logout /
+tab1 after other-tab logout /login?reason=other-tab [ 'ออกจากระบบจากแท็บอื่นแล้ว งานที่ค้างถูกบันทึกแล้ว' ]
+text survived other-tab logout? true
+session keys [
+  'userId',
+  'username',
+  'fullName',
+  'universityId',
+  'roles',
+  'loginAt',
+  'lastActiveAt',
+  'expiresAt'
+]
+after expiry /login?reason=expired [ 'หมดเวลาการใช้งาน งานที่ค้างถูกบันทึกแล้ว — เข้าสู่ระบบอีกครั้ง' ]
+Back after logout -> /login
+slow @900ms body: ข้ามไปเนื้อหาหลัก AUN-QA Copilot งานของฉัน หน้าหลัก 1 จัดทำรายงาน (SAR) รอบประเมิน หลักฐาน ส่งออกเอกสาร ข้อมูลหลักส
+chart labels (first 40): [
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined
+]
+import panel position y: -109.828125 table y: 3196.890625
+390 /app scrollWidth 390
+390 /app/evidence scrollWidth 390
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL
+Call log:
+[2m  - navigating to "http://localhost:3952http://localhost:3952/app/sections/cycle-demo-2569%3A%3A3.6", waiting until "load"[22m
+
+    at C:\Users\User\Documents\GitHub\project mockup\.agents\playtest\u3p\s11-edge.mjs:86:11 {
+  log: [
+    '  - navigating to "http://localhost:3952http://localhost:3952/app/sections/cycle-demo-2569%3A%3A3.6", waiting until "load"'
+  ],
+  name: 'Error'
+}
+
+Node.js v24.16.0

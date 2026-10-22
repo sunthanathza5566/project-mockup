@@ -1,0 +1,43 @@
+// s7: chair1 อนุมัติ 3.6 จากแถวในคิว (ไม่เปิดอ่าน) → todo ส่ง QA คณะ → dashboard (M4 ring vs readiness) → ส่ง
+import { session, B, tid } from './lib.mjs';
+const s = await session();
+const { p } = s;
+await s.as('chair1');
+console.log('TODOS0', await p.locator('[data-testid^="todo-"]').evaluateAll(es => es.map(e => e.innerText.replace(/\s+/g, ' ').slice(0, 100))));
+await p.goto(B + '/app/review'); await p.waitForTimeout(800);
+const row = tid(p, 'review-table').locator('tbody tr').first();
+await row.getByRole('button', { name: 'อนุมัติ', exact: true }).click(); s.act('อนุมัติจากแถว');
+await p.waitForTimeout(600);
+const dd = p.getByRole('dialog');
+console.log('row approve dialog?', await dd.count(), await dd.innerText().catch(() => ''));
+if (await dd.count()) { await dd.getByRole('button', { name: /^ยืนยัน/ }).last().click(); }
+await p.waitForTimeout(800);
+console.log('review page after:', (await s.txt(600)));
+await p.goto(B + '/app'); await p.waitForTimeout(1000);
+const todos = await p.locator('[data-testid^="todo-"]').evaluateAll(es => es.map(e => e.getAttribute('data-testid') + ' ' + e.innerText.replace(/\s+/g, ' ').slice(0, 120)));
+console.log('TODOS1', todos);
+await s.shot('chair-home-submit-todo');
+const w = p.locator('[data-testid^="todo-submit_cycle"]').first();
+await w.getByRole('link').or(w.getByRole('button')).first().click(); s.act('todo ส่ง QA');
+await p.waitForTimeout(1500);
+console.log('URL', p.url().replace(B, ''));
+console.log('DASH TOP:\n', (await s.txt(1800)));
+console.log('KPI:', (await tid(p, 'kpi-row').innerText().catch(() => '')).replace(/\n/g, ' | '));
+console.log('NEXT INFO:', (await tid(p, 'cycle-next-info').innerText().catch(() => '')).replace(/\n/g, ' | '));
+await s.shot('chair-dashboard-ready');
+await s.shot('chair-dashboard-ready-full', true);
+// ลูกเล่น: heat cell hover ขยับไหม
+const cell = p.locator('[data-testid^="heat-"]').first();
+const b0 = await cell.boundingBox(); await cell.hover(); await p.waitForTimeout(400); const b1 = await cell.boundingBox();
+console.log('heat hover shift y', b0 && b1 ? (b1.y - b0.y).toFixed(1) : '?', 'title/tooltip:', await cell.getAttribute('title'), await cell.getAttribute('aria-label'));
+await tid(p, 'cycle-to-under_review').click(); s.act('ส่ง QA คณะ');
+const d = p.getByRole('dialog'); await d.waitFor();
+console.log('SUBMIT CYCLE DLG:', (await d.innerText()).replace(/\n/g, ' | '));
+console.log('focused:', await p.evaluate(() => document.activeElement?.innerText));
+await s.shot('chair-submit-cycle-dlg');
+await d.getByRole('button', { name: /^ยืนยัน/ }).last().click(); s.act('ยืนยัน');
+await p.waitForTimeout(1200);
+console.log('toast', await p.locator('.aq-toast').allInnerTexts());
+console.log('NEXT INFO after:', (await tid(p, 'cycle-next-info').innerText().catch(() => '')).replace(/\n/g, ' | '));
+console.log('STATS', s.stats());
+await s.done();
