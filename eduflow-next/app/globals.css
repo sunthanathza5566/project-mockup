@@ -1081,6 +1081,39 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-progress-head .aq-checklist { margin-bottom: 0; }
 .aq-tabs [role="tab"] .aq-check-draw { color: var(--c-success); }
 
+/* F4 — section editor / หลักฐาน / คลังเกณฑ์ */
+.aq-btn[aria-pressed="true"] { background: var(--c-primary-tint); color: var(--c-primary-strong); border-color: var(--c-primary); box-shadow: inset 0 -3px 0 var(--c-primary); }
+.aq-sar-main { min-width: 0; display: flex; flex-direction: column; }
+.aq-sar-main > .aq-actionbar { margin-bottom: var(--sp-4); border-radius: var(--r-lg); border: 1px solid var(--c-border-subtle); }
+.aq-sidepanel { position: relative; }
+@media (min-width: 1024px) { .aq-sidepanel { position: sticky; top: calc(var(--topbar-h) + var(--sp-4)); max-height: calc(100vh - var(--topbar-h) - var(--sp-8)); overflow-y: auto; } }
+.aq-ai-toolbar { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.aq-ev-list { list-style: none; display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.aq-ev-list > li { display: grid; gap: var(--sp-2); padding: var(--sp-3); background: var(--c-surface-2); border-radius: var(--r-md); }
+.aq-link-more { display: grid; gap: var(--sp-2); padding-top: var(--sp-3); border-top: 1px solid var(--c-border-subtle); }
+.aq-link-more .aq-btn { justify-self: start; }
+.aq-reqcard--embedded { padding: 0; border: 0; box-shadow: none; margin: var(--sp-3) 0 0; }
+.aq-reqcard .aq-collapse > summary { color: var(--c-primary-strong); }
+.aq-filter-panel { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3) var(--sp-4); }
+.aq-filter-panel .aq-field { flex: 1 1 160px; }
+.aq-ev-form { display: grid; gap: var(--sp-5); }
+.aq-ev-step { display: grid; gap: var(--sp-3); min-width: 0; }
+.aq-ev-step > legend { margin-bottom: var(--sp-2); }
+.aq-step-badge {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-right: var(--sp-2);
+  border-radius: 50%; background: var(--c-primary); color: var(--c-white); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.aq-file-chosen { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3); border: 1px solid var(--c-border-control); border-radius: var(--r-lg); }
+.aq-file-chosen > .aq-icon { color: var(--c-primary); }
+.aq-ev-link { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+@media (min-width: 768px) { .aq-ev-link { grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); } }
+.aq-picker__control { position: relative; }
+.aq-picker__icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--c-muted); pointer-events: none; }
+.aq-picker__input { padding-left: 42px; }
+.aq-picker__crit { display: block; }
+.aq-picker__opt-text .aq-picker__crit { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aq-req-filter { display: grid; gap: var(--sp-3); }
+
 /* ── ส่วนของหน้าเดิมที่ยังใช้ชื่อ class เดิม (restyle ด้วย token — คงไว้) ── */
 .aq-muted { color: var(--c-muted); }
 .aq-meta { font-size: var(--fs-sm); line-height: 1.6; color: var(--c-muted); }

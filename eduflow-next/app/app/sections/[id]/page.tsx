@@ -1,17 +1,22 @@
 'use client';
 
+/**
+ * Section editor (ADR-UI-001 pages.md P9) — id = `${cycleId}::${requirementId}` (encode ใน URL)
+ * หัวหน้า: crumbs รอบประเมิน › ปี › ข้อ · h1 "ข้อ x.x ชื่อสั้น" (ตัดด้วย truncateTh 60) + pill สถานะข้อ
+ *          sub: รอบ · หลักสูตร · เจ้าของ · กำหนดส่ง (pill เหลือ n วัน)
+ */
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
-  can, getCycle, getProgramme, getRequirement, getSection, isAiEnabled, listComments, listEvidence, listRatings,
+  can, daysUntil, getCycle, getProgramme, getRequirement, getSection, isAiEnabled, listComments, listEvidence, listRatings,
   listUsers, listVersions, programmeScope,
 } from '@/lib/api';
-import { Async, CycleStatusBadge, PageHeader, useLoad, useMe } from '@/components/aunqa/common';
+import { Async, Badge, PageHeader, SectionStatusBadge, useLoad, useMe } from '@/components/aunqa/common';
 import SarWorkspace, { type WorkspaceData } from '@/components/aunqa/SarWorkspace';
-import { decodeParam } from '@/lib/ui/aunqa';
+import Icon from '@/components/ui/Icon';
+import { decodeParam, fmtDate, truncateTh } from '@/lib/ui/aunqa';
 
-/** S6 SAR editor — id = `${cycleId}::${requirementId}` (encode ใน URL) */
 export default function SectionPage() {
   const user = useMe();
   const sid = decodeParam(useParams().id);
@@ -45,14 +50,33 @@ export default function SectionPage() {
     if (pendingRemount.current && q.data) { pendingRemount.current = false; setRev(r => r + 1); }
   }, [q.data]);
 
+  const d = q.data;
+  const left = d?.section.due && d.section.status !== 'approved' ? daysUntil(d.section.due) : null;
   return (
     <>
       <PageHeader
-        title={<>ข้อ {reqId}</>}
-        sub={q.data ? <>รอบ {q.data.cycle.academicYear} · {getProgramme(q.data.cycle.programmeId)?.nameTh} · <CycleStatusBadge status={q.data.cycle.status} /></> : undefined}
-        actions={cycleId ? <Link className="aq-btn" href={`/app/cycles/${cycleId}`}>← แดชบอร์ดรอบ</Link> : undefined}
+        crumbs={[
+          { label: 'รอบประเมิน', href: '/app/cycles' },
+          ...(d ? [{ label: String(d.cycle.academicYear), href: `/app/cycles/${encodeURIComponent(cycleId)}` }] : []),
+          { label: `ข้อ ${reqId}` },
+        ]}
+        title={d ? `ข้อ ${reqId} ${truncateTh(d.req.textTh, 60)}` : `ข้อ ${reqId}`}
+        status={d ? <SectionStatusBadge status={d.section.status} /> : undefined}
+        sub={d ? (
+          <>
+            รอบ {d.cycle.academicYear} · {getProgramme(d.cycle.programmeId)?.nameTh} · เจ้าของ {d.names[d.section.ownerUserId || ''] || 'ยังไม่มอบหมาย'}
+            {d.section.due && <> · กำหนดส่ง {fmtDate(d.section.due)}{' '}
+              {left !== null && (
+                <Badge tone={left < 0 ? 'bad' : left <= 3 ? 'warn' : 'neutral'} icon="clock">
+                  {left < 0 ? `เลย ${-left} วัน` : left === 0 ? 'ครบกำหนดวันนี้' : `เหลือ ${left} วัน`}
+                </Badge>
+              )}
+            </>}
+          </>
+        ) : undefined}
+        actions={cycleId ? <Link className="aq-btn" href={`/app/cycles/${encodeURIComponent(cycleId)}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link> : undefined}
       />
-      <Async q={q}>{data => (
+      <Async q={q} skeleton="editor">{data => (
         <SarWorkspace key={`${sid}-${rev}`} data={data} user={user} reload={q.reload} remount={() => { pendingRemount.current = true; q.reload(); }} />
       )}</Async>
     </>
