@@ -314,3 +314,35 @@ Study: อ่าน PROTOCOL ข้อ 5 + playbook reviewer (LESSONS/PROJECT KN
 - 2026-10-22: อ่าน ADR-UI-001 6.2/6.3/6.4/7.1–7.5, TASK file (Found Issues, SPEC QUESTION ที่ตอบแล้ว, Log Q), playbook · อ่านโค้ด auth.api.ts, AuthContext, flush.ts, AppShell/Sidebar/Topbar, LoginForm, DialogContext, SarWorkspace (save/flush/autosave), dom-translate, dict pattern, Term, RequirementPicker, todo.ts, preflight.ts, diff ของ workflow/notification/sar.store, transition ใน cycles/[id]
 - รันเอง: `npx tsc --noEmit` → 0 error · `npm test` → 20 ไฟล์ 516/516 ผ่าน · `npx next build` → ผ่าน (15 หน้า) — build ในสำเนาที่ scratchpad (junction ไปที่ node_modules) เพื่อไม่ให้ทับ `.next` ที่ server ของ ui-inspector/playtester (port 3951/3952) ใช้อยู่ · ไม่ได้รัน e2e ตามคำสั่ง
 - ผล: **CHANGES_REQUESTED** — ให้ frontend-dev แก้ U-1, U-2 (major) + U-3..U-6 ในรอบ U3 fix เดียวกับ U2Q-1..4/F5-1/F5-3 · U-5(ข) และ U-1 ข้อ (2) ให้ architect ตัดสินก่อน · หลังแก้รีวิวสั้นเฉพาะ AuthContext/AppShell/DialogContext/2 ฟอร์ม
+
+## Phase U — round 2 (diff `git show HEAD~1 HEAD -- eduflow-next`: `5aaa2ac` backend conflict + `0119811` frontend U3 fix — รีวิวเฉพาะ AuthContext / AppShell / DialogContext / SarWorkspace save-conflict + flush / ฟอร์มใน U-1 / sar.store conflict / ข้อแก้ U-6, U-7)
+
+Verdict: **APPROVE** — U-1..U-7 ปิดหมด (U-8 ไม่ได้อยู่ในขอบเขตรอบนี้ ไม่บล็อก) · ไม่พบ blocker/major ใหม่ · มี minor 2 ข้อที่แก้ในรอบถัดไปได้
+
+### สถานะ finding เดิม
+| # | สถานะ | หลักฐาน |
+|---|---|---|
+| U-1 | ปิด | `AppShell.tsx` ฟัง `pointerdown/keydown/input` (capture, passive) → `touchSession()` และ touch ทุกครั้งที่ `pathname` เปลี่ยน มี cleanup ครบ · ครอบฟอร์มหลักฐานกับ assess ทั้งหมด (กว้างกว่า spec 6.4 ในทางที่ปลอดภัยกว่า) · throttle 60s อยู่ใน API |
+| U-2 | ปิด | ระหว่าง sessionLost ไม่ render sidebar/topbar · `onClickCapture` ที่ `<main>` กันปุ่ม/ลิงก์/ตัวเลือกทุกตัว (ยกเว้น textarea และ `data-session-lost-ok`) แล้วถามก่อนเรียก `endSession()` · เปลี่ยน pathname = `endSession()` · ปุ่ม "เข้าสู่ระบบใหม่" เรียก `endSession()` ซึ่งล้าง `user` จริง |
+| U-3 | ปิด | DialogContext ใช้คิว (`activeRef` + `queueRef`) ไม่ทับ promise เดิม · prompt `defaultText` ย้ายเข้า state แล้ว (ไม่ชนกับคิว) |
+| U-4 | ปิด | `dismissAll()` ถูกเรียกใน `doLogout`/`handleLost`/`endSession` · หลัง await คำเตือน idle เช็ก `userRef/busyRef/lostRef` ก่อนทำต่อ |
+| U-5 | ปิด | (ก) เลือก reason จาก `lastSessionRef` (เลยเวลาแล้ว = expired) (ข) storage ได้ session ของคนละ `userId` → `handleLost('other-tab')` · `userRef.current = null` ทันทีกัน callback ซ้อน |
+| U-6 | ปิด | `RequirementPicker` มี `onBlur` ที่เช็ก `relatedTarget` + listbox `tabIndex=-1` |
+| U-7 | ปิด | `dom-translate.ts` เปลี่ยนเป็น `replace(key, () => translated)` |
+
+### ตรวจส่วนใหม่ (ผ่าน)
+- **`sar.store.ts` conflict**: ตรวจหลังสิทธิ์/lock/editable (ไม่ข้ามลำดับ RBAC) · ไม่เขียนอะไรเมื่อ conflict · validate ชนิดของ `baseUpdatedAt` · `detail.current` เป็นข้อมูลที่ผู้เรียกอ่านได้อยู่แล้ว (ไม่รั่ว) · `opts` เป็น optional จึงไม่เปลี่ยนสัญญาเดิม
+- **SarWorkspace conflict + flush**: `baseRef` ขยับหลังบันทึกเองสำเร็จทุกครั้ง · action อื่นที่เปลี่ยน `section.updatedAt` (ยืนยันคำแปล, accept AI, approve/return, restore) ใช้ `remount()` ทั้งหมด จึงไม่มี conflict ปลอมจาก action ของตัวเอง (`linkEvidence`/rating/comment ใช้ `reload()` แต่ไม่แตะ `section.updatedAt`) · พอ conflict แล้ว autosave หยุด, flush คืน `ok:false` พร้อมข้อความ → logout จะได้ dialog "ยังบันทึกงานไม่ได้" และข้อความของผู้ใช้ไม่ถูกเขียนทับเงียบ ๆ
+- **AuthContext**: ไม่มี redirect loop (`exiting` + `endSession` ตั้ง exiting ก่อน push) · interval/subscribe มี cleanup เหมือนเดิม
+
+### Findings รอบ 2
+| # | severity | file:line | ปัญหา | ข้อเสนอแก้ | โซน |
+|---|---|---|---|---|---|
+| U2-1 | minor | `eduflow-next/components/aunqa/SarWorkspace.tsx:175` + `eduflow-next/context/DialogContext.tsx` (`dismissAll`) | `dismissAll()` resolve dialog conflict ด้วย `false` ซึ่งเป็นค่าเดียวกับปุ่ม "คัดลอกข้อความของฉันก่อน" → ตอน logout ("ยืนยันออกโดยไม่บันทึก") หรือ session หาย ระบบจะเรียก `copyMine()` เอง: เขียน narrative ลง clipboard ของเครื่องที่อาจใช้ร่วมกัน หรือขึ้น toast error "คัดลอกไม่สำเร็จ" ระหว่าง logout | แยกผลของการ dismiss ออกจาก cancel (เช่นให้ `dismissAll` resolve ด้วย `null`/ตั้งธง) หรือใน `.then` เช็กว่ายังมี user และไม่ได้กำลังออกอยู่ก่อนเรียก `copyMine` | frontend |
+| U2-2 | minor | `eduflow-next/components/aunqa/AppShell.tsx` (`onLostClickCapture`) | ตัวกันตอน sessionLost ดักแค่ click — `<select>` ที่ต้นทางเขียนข้อมูลใน onChange (เช่น `owner-{id}` ในหน้า assign, `self-score`) เปลี่ยนค่าด้วยลูกศรคีย์บอร์ดได้โดยไม่มี click (เกิดยาก เพราะต้องโฟกัสค้างไว้ก่อน session หาย และหน้าที่จะเข้าสู่ sessionLost มีแค่ section editor) | เพิ่ม `onChangeCapture`/`onKeyDownCapture` แบบเดียวกัน หรือใส่ `inert` ให้ส่วนที่ไม่ใช่ textarea | frontend |
+| U2-3 | nit | `eduflow-next/context/DialogContext.tsx` (`open`) | ถ้าผู้ใช้เปิด dialog ค้างแล้วเดินไปนาน คำเตือน idle จะติดอยู่ในคิวและไม่ขึ้นเลย (ผลไม่แย่กว่าเดิม: flush ยังทำงานตอนหมดอายุ) | ทางเลือก: ให้คำเตือนของระบบแทรกหน้าคิว — ไม่บังคับ | frontend |
+
+### Log (reviewer) — Phase U round 2
+- 2026-10-22: อ่าน `git show 5aaa2ac` (db.ts, sar.store.ts) + `git show 0119811` เฉพาะ AuthContext, DialogContext, AppShell, SarWorkspace (save/conflict/flush/remount), RequirementPicker, dom-translate, assess · ตามรอยผู้เขียน `section.updatedAt` ทั้งหมดใน lib/api เทียบกับ reload/remount ใน SarWorkspace (ยืนยันว่าไม่มี conflict ปลอม)
+- รันเองในสำเนาโค้ดใหม่ที่ scratchpad (junction ไปที่ node_modules ไม่แตะ `.next` ของ repo ที่ qa-tester รัน e2e อยู่): `npx tsc --noEmit` → 0 error · `vitest run` → 20 ไฟล์ 516/516 ผ่าน · `npx next build` → ผ่าน
+- ผล: **APPROVE** — U2-1/U2-2 แก้ได้ในรอบถัดไป ไม่ต้องรีวิวซ้ำ
