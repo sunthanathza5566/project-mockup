@@ -60,7 +60,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // U-2: กดปุ่ม/ลิงก์/ตัวเลือกในเนื้อหา ระหว่าง session-lost → ถามก่อนออก (ไม่ทำ action นั้น)
   const askingRef = useRef(false);
-  const onLostClickCapture = useCallback((e: React.MouseEvent<HTMLElement>) => {
+  function onLostClickCapture(e: React.MouseEvent<HTMLElement>) {
     if (!lost) return;
     const t = e.target as HTMLElement;
     if (t.closest('[data-session-lost-ok], textarea')) return;
@@ -68,6 +68,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (!ctl) return;
     e.preventDefault();
     e.stopPropagation();
+    askLeave();
+  }
+
+  // U2-2: คีย์บอร์ดก็ต้องเปลี่ยนค่า/กดปุ่มไม่ได้ (เช่นลูกศรบน select ที่โฟกัสค้าง) — Tab/Esc/Ctrl+C ยังใช้ได้
+  function onLostKeyCapture(e: React.KeyboardEvent<HTMLElement>) {
+    if (!lost) return;
+    const t = e.target as HTMLElement;
+    if (t.closest('[data-session-lost-ok], textarea')) return;
+    if (['Tab', 'Shift', 'Escape'].includes(e.key) || e.ctrlKey || e.metaKey) return;
+    const ctl = t.closest('button, a, select, input, [role="button"], [role="tab"], [role="combobox"], summary, [contenteditable="true"]');
+    if (!ctl) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.key === 'Enter' || e.key === ' ') askLeave();
+  }
+
+  function askLeave() {
     if (askingRef.current) return;
     askingRef.current = true;
     confirm({
@@ -77,7 +94,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       cancelText: 'กลับไปคัดลอกข้อความ',
       confirmText: 'ยืนยันไปหน้าเข้าสู่ระบบ',
     }).then(go => { askingRef.current = false; if (go) endSession(); });
-  }, [lost, confirm, endSession]);
+  }
 
   const closeMenu = useCallback(() => {
     setMenuOpen(o => {
@@ -123,7 +140,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {lost
           ? <header className="aq-topbar"><Brand /></header>
           : <AppTopbar ref={menuBtn} user={user} pathname={pathname} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />}
-        <main id="main" tabIndex={-1} className="aq-main" onClickCapture={lost ? onLostClickCapture : undefined}>
+        <main id="main" tabIndex={-1} className="aq-main" onClickCapture={lost ? onLostClickCapture : undefined} onKeyDownCapture={lost ? onLostKeyCapture : undefined}>
           {lostBanners}
           {assessor && !lost && (
             <InlineMessage tone="info" testId="readonly-banner">

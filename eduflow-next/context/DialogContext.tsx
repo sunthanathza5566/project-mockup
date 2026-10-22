@@ -14,6 +14,8 @@
  * ชื่อปุ่มยืนยันต้องขึ้นต้นด้วย "ยืนยัน" (E2E) — ผู้เรียกส่ง confirmText เช่น "ยืนยันส่งตรวจ"
  * U-3: เปิด dialog ซ้อนขณะมีตัวเปิดอยู่ = เข้าคิว (ไม่ทับ ไม่ทิ้ง promise/ข้อความที่พิมพ์ค้าง) · แสดงต่อเมื่อตัวก่อนหน้าปิด
  * U-4: dismissAll() ปิดทุกตัว (รวมในคิว) ด้วยค่า "ยกเลิก" — ใช้ตอน session หาย/ออกจากระบบ
+ * U2-1: choose(opts) → 'confirm' | 'cancel' | 'dismissed' — แยก "ระบบปิดให้" ออกจาก "ผู้ใช้กดปุ่มยกเลิก"
+ *       (ใช้เมื่อปุ่มยกเลิกมีผล เช่น "คัดลอกข้อความของฉันก่อน")
  */
 
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
@@ -61,11 +63,17 @@ interface DialogState {
   initialFocus: 'confirm' | 'cancel' | 'input';
   dismissible: boolean;
   defaultText?: string;
-  resolve: (v: boolean | string | null) => void;
+  resolve: (v: boolean | string | null | typeof DISMISSED) => void;
 }
+
+/** ค่าพิเศษที่ dismissAll() ส่งให้ dialog (ไม่ใช่การกดปุ่มของผู้ใช้) */
+const DISMISSED = Symbol('dismissed');
+export type ChooseResult = 'confirm' | 'cancel' | 'dismissed';
 
 interface DialogContextValue {
   confirm: (o: ConfirmOptions) => Promise<boolean>;
+  /** เหมือน confirm แต่บอกได้ว่าถูกระบบปิด (dismissAll) */
+  choose: (o: ConfirmOptions) => Promise<ChooseResult>;
   notify:  (o: NotifyOptions)  => Promise<void>;
   prompt:  (o: PromptOptions)  => Promise<string | null>;
   /** ปิดทุก dialog (รวมในคิว) ด้วยค่ายกเลิก */
@@ -74,7 +82,7 @@ interface DialogContextValue {
 
 const noop = async () => {};
 const DialogContext = createContext<DialogContextValue>({
-  confirm: async () => false, notify: noop, prompt: async () => null, dismissAll: () => {},
+  confirm: async () => false, choose: async () => 'dismissed', notify: noop, prompt: async () => null, dismissAll: () => {},
 });
 
 const VARIANT_ICON: Record<DialogVariant, IconName> = {
@@ -121,16 +129,17 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     show(s);
   }, [show]);
 
-  const confirm = useCallback((o: ConfirmOptions) => new Promise<boolean>(resolve => {
+  const choose = useCallback((o: ConfirmOptions) => new Promise<ChooseResult>(resolve => {
     const v = o.variant || 'primary';
     open({
       kind: 'confirm', title: o.title, message: o.message, details: o.details, variant: v,
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
       initialFocus: defaultFocus(v, o.initialFocus), dismissible: o.dismissible !== false,
-      resolve: r => resolve(r === true),
+      resolve: r => resolve(r === DISMISSED ? 'dismissed' : r === true ? 'confirm' : 'cancel'),
     });
   }), [open]);
+  const confirm = useCallback((o: ConfirmOptions) => choose(o).then(r => r === 'confirm'), [choose]);
 
   const notify = useCallback((o: NotifyOptions) => new Promise<void>(resolve => {
     const v = o.variant || 'success';
@@ -154,7 +163,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     });
   }), [open]);
 
-  const close = useCallback((result: boolean | string | null) => {
+  const close = useCallback((result: boolean | string | null | typeof DISMISSED) => {
     const cur = activeRef.current;
     if (!cur) return;
     activeRef.current = null;
@@ -170,9 +179,9 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const dismissAll = useCallback(() => {
     const q = queueRef.current;
     queueRef.current = [];
-    q.forEach(d => d.resolve(cancelValue(d)));
+    q.forEach(d => d.resolve(DISMISSED));
     const cur = activeRef.current;
-    if (cur) close(cancelValue(cur));
+    if (cur) close(DISMISSED);
   }, [close]);
 
   // focus เริ่มต้น
@@ -203,7 +212,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const tone = state ? VARIANT_TONE[state.variant] : 'primary';
 
   return (
-    <DialogContext.Provider value={{ confirm, notify, prompt, dismissAll }}>
+    <DialogContext.Provider value={{ confirm, choose, notify, prompt, dismissAll }}>
       {children}
       {state && (
         <div

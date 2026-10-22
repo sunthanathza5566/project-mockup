@@ -319,3 +319,68 @@ test('U-3 dialog เกิดพร้อมกัน (logout flush ไม่ผ
   await expect(page.getByTestId('nav-user')).toBeVisible();              // ยังไม่ออก (เลือกกลับไปแก้)
   await expect(page.getByTestId('narrative-th')).toHaveValue(textB);     // โหลดฉบับล่าสุดแล้ว
 });
+
+// ─────────────────────────── review round 2 (frontend-dev, orchestrator อนุญาตเฉพาะ 2 เคสนี้) ───────────────────────────
+test('U2-1 dialog conflict เปิดอยู่ แล้วออกจากระบบจากแท็บอื่น → dialog ถูกปิดโดยไม่คัดลอกข้อความลง clipboard', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await loginAs(page, 'chair1');
+  await openSection(page, DEMO_CYCLE, '3.6');
+  const SENTINEL = `clipboard-เดิม-${Date.now()}`;
+  await page.evaluate(t => navigator.clipboard.writeText(t), SENTINEL);
+
+  const b = await context.newPage();
+  await b.goto(sectionUrl(DEMO_CYCLE, '3.6'));
+  const textB = `U2-1 แท็บ B ${Date.now()}`;
+  await b.getByTestId('narrative-th').fill(textB);
+  await b.getByTestId('save-manual').click();
+  await expect.poll(() => storedNarrative(b, SID36)).toBe(textB);
+
+  const textA = `U2-1 แท็บ A ${Date.now()}`;
+  await page.getByTestId('narrative-th').fill(textA);
+  const dlg = page.getByRole('dialog');
+  await expect(dlg).toContainText('ข้อนี้ถูกแก้จากที่อื่น', { timeout: 15_000 });
+
+  // แท็บ B ออกจากระบบ ขณะ dialog conflict ของแท็บ A ยังเปิดอยู่
+  await b.goto('/app');
+  await b.getByTestId('logout').click();
+  await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
+  await b.close();
+
+  await expect(page.getByTestId('shell-lost')).toBeVisible({ timeout: 40_000 });
+  await expect(page.getByText('ข้อนี้ถูกแก้จากที่อื่น', { exact: true })).toHaveCount(0);  // dialog conflict ถูกปิดแล้ว
+  await expect(page.getByText('คัดลอกข้อความของคุณแล้ว')).toHaveCount(0);
+  await expect(page.getByText('คัดลอกไม่สำเร็จ', { exact: false })).toHaveCount(0);
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(SENTINEL);
+  await expect(page.getByTestId('narrative-th')).toHaveValue(textA);   // ข้อความยังอยู่ให้ผู้ใช้คัดลอกเอง
+});
+
+test('U2-2 sessionLost: select ที่โฟกัสอยู่เปลี่ยนค่าด้วยลูกศร/ตัวอักษรไม่ได้ · Enter บนปุ่ม = ถามก่อน ไม่ทำ action', async ({ page }) => {
+  await enterSessionLost(page);
+  // ใน section editor ทุก select ถูก disable แล้วเมื่อ sessionLost → ใส่ select ที่ยังเปิดอยู่ในเนื้อหา (แทน select ที่เขียนข้อมูลใน onChange
+  // ของหน้าอื่น เช่น owner-{id}) เพื่อพิสูจน์ว่าตัวกันคีย์บอร์ดของ AppShell ครอบทั้ง <main>
+  await page.evaluate(() => {
+    const s = document.createElement('select');
+    s.dataset.testid = 'probe-select';
+    ['1', '2', '3', '4', '5'].forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; s.appendChild(o); });
+    document.querySelector('[data-testid="sar-editor"]')!.appendChild(s);
+  });
+  const sel = page.getByTestId('probe-select');
+  await expect(sel).toBeEnabled();
+  const before = await sel.inputValue();
+  await sel.focus();
+  for (const k of ['ArrowDown', 'ArrowDown', 'ArrowUp', 'End', '5']) await page.keyboard.press(k);
+  await page.waitForTimeout(300);
+  expect(await sel.inputValue()).toBe(before);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // Enter บนปุ่มในเนื้อหา → dialog ถามก่อน ยกเลิกแล้วยังอยู่หน้าเดิม
+  const url = page.url();
+  await page.getByTestId('sidetab-history').focus();
+  await page.keyboard.press('Enter');
+  const dlg = page.getByRole('dialog');
+  await expect(dlg).toContainText('ออกจากระบบแล้ว');
+  await dlg.getByRole('button', { name: 'กลับไปคัดลอกข้อความ' }).click();
+  await expect(dlg).toBeHidden();
+  expect(page.url()).toBe(url);
+  await expect(page.getByTestId('shell-lost')).toBeVisible();
+});

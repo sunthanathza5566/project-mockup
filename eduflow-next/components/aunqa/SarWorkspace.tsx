@@ -79,7 +79,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 }) {
   const { cycle, section, req, linked, linkable, versions, ratings, comments, names, aiEnabled } = data;
   const { showToast } = useToast();
-  const { confirm, prompt } = useDialog();
+  const { confirm, choose, prompt } = useDialog();
   const reviewEvents = data.reviewEvents ?? [];
   const lastReturn = [...reviewEvents].reverse().find(e => e.toStatus === 'changes_requested');
   const { sessionLost } = useAuth();
@@ -139,8 +139,9 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   }, [user, cycle.id, req.id, th, en, pdca, showToast, reload, section, names]);
 
   // ค่าล่าสุดสำหรับ handler ภายนอก (flush / visibility / beforeunload)
-  const live = useRef({ touched, editable, save, lang, th, en });
-  live.current = { touched, editable, save, lang, th, en };
+  const { user: authUser } = useAuth();
+  const live = useRef({ touched, editable, save, lang, th, en, active: true });
+  live.current = { touched, editable, save, lang, th, en, active: !!authUser && !sessionLost };
 
   function edited() {
     setTouched(true);
@@ -165,14 +166,18 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   useEffect(() => {
     if (!conflict || askedConflict.current) return;
     askedConflict.current = true;
-    confirm({
+    // U2-1: ถูกระบบปิด (logout / session หาย) = ไม่ทำอะไร — ห้ามคัดลอกลง clipboard เอง
+    choose({
       title: 'ข้อนี้ถูกแก้จากที่อื่น',
       message: `${conflict.reason} — ระบบยังไม่บันทึกข้อความล่าสุดของคุณ เพื่อไม่ให้ทับงานที่อื่น`,
       variant: 'warning',
       confirmText: 'ยืนยันโหลดฉบับล่าสุด',
       cancelText: 'คัดลอกข้อความของฉันก่อน',
       initialFocus: 'cancel',
-    }).then(load => { if (load) remount(); else void copyMine(); });
+    }).then(r => {
+      if (r === 'dismissed' || !live.current.active) return;
+      if (r === 'confirm') remount(); else void copyMine();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conflict]);
 
