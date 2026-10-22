@@ -90,18 +90,19 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
           placeholder="พิมพ์เลขข้อหรือคำค้น…" value={q} disabled={disabled} autoComplete="off"
           onChange={e => { setQ(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)} onClick={() => setOpen(true)} onKeyDown={onKey}
+          onBlur={e => { if (!box.current?.contains(e.relatedTarget as Node | null)) setOpen(false); }}
           data-testid={`${testIdPrefix}s-input`}
         />
       </div>
       {open && !disabled && (
-        <ul id={listId} role="listbox" aria-multiselectable="true" aria-label={label} className="aq-picker__listbox">
+        <ul id={listId} role="listbox" aria-multiselectable="true" aria-label={label} className="aq-picker__listbox" tabIndex={-1}>
           {options.length === 0 && <li role="presentation" className="aq-picker__group">ไม่พบข้อที่ตรงกับคำค้น</li>}
           {options.map((r, i) => {
             const head = !q.trim() && r.criterionNo !== lastCrit;
             lastCrit = r.criterionNo;
             const sel = value.includes(r.id);
             return [
-              head ? <li key={`h${r.criterionNo}`} role="presentation" className="aq-picker__group aq-meta">เกณฑ์ {r.criterionNo}: {criteria.get(r.criterionNo)}</li> : null,
+              head ? <li key={`h${r.criterionNo}`} role="presentation" className="aq-picker__group aq-meta">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</li> : null,
               <li
                 key={r.id} id={`${uid}-opt-${i}`} role="option" aria-selected={sel}
                 className={`aq-picker__opt${i === active ? ' is-active' : ''}`}
@@ -111,7 +112,7 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
                 <strong className="aq-tnum">{r.id}</strong>
                 <span className="aq-picker__opt-text">
                   {r.textTh}
-                  {q.trim() && <span className="aq-meta aq-picker__crit">เกณฑ์ {r.criterionNo}: {criteria.get(r.criterionNo)}</span>}
+                  {q.trim() && <span className="aq-meta aq-picker__crit">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</span>}
                 </span>
                 {sel ? <Icon name="check" size={20} /> : <span aria-hidden="true" />}
               </li>,

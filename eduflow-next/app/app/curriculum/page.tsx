@@ -325,10 +325,13 @@ function HeatTab({ cur, matrix }: { cur: CurriculumData; matrix: ReturnType<type
   const rows = [...matrix.rows].sort((a, b) => a.course.year - b.course.year || a.course.code.localeCompare(b.course.code));
   return (
     <div className="aq-card aq-table-wrap">
-      <div className="aq-legend">
-        <span><i className="aq-heat aq-lv-I" />I</span><span><i className="aq-heat aq-lv-R" />R</span><span><i className="aq-heat aq-lv-M" />M</span>
-        <span><i className="aq-heat aq-heat-empty" />ไม่รับผิดชอบ</span>
-      </div>
+      {/* U3-3: ใช้ list มีระยะห่าง + ตัวอักษรในช่องสีเหมือน cell จริง (แยกได้ในขาวดำ) */}
+      <ul className="aq-legend aq-legend__list" data-testid="heat-legend">
+        <li><i className="aq-heat aq-lv-I" aria-hidden="true">I</i>{MAP_LEVEL_TH.I}</li>
+        <li><i className="aq-heat aq-lv-R" aria-hidden="true">R</i>{MAP_LEVEL_TH.R}</li>
+        <li><i className="aq-heat aq-lv-M" aria-hidden="true">M</i>{MAP_LEVEL_TH.M}</li>
+        <li><i className="aq-heat aq-heat-empty" aria-hidden="true" />ไม่รับผิดชอบ</li>
+      </ul>
       <table className="aq-table aq-matrix" data-testid="curriculum-heatmap">
         <thead><tr><th>วิชา</th>{matrix.plos.map(p => <th key={p.id} title={p.textTh}>{p.code}</th>)}</tr></thead>
         <tbody>
@@ -378,7 +381,7 @@ function GapTab({ gaps }: { gaps: ReturnType<typeof getCurriculumGaps> }) {
 function PrereqTab({ cur }: { cur: CurriculumData }) {
   if (cur.courses.length === 0) return <Empty icon="book-open" title="ยังไม่มีรายวิชา" />;
   const years = Array.from(new Set(cur.courses.map(c => c.year))).sort((a, b) => a - b);
-  const CW = 180, CH = 48, GX = 70, GY = 12, PADX = 10, PADY = 30;
+  const CW = 210, CH = 60, GX = 70, GY = 12, PADX = 10, PADY = 34; // U2Q-2: ป้ายในผัง 16px (ไม่ย่อด้วย viewBox)
   const pos = new Map<string, { x: number; y: number }>();
   let maxRows = 0;
   years.forEach((yr, xi) => {
@@ -394,7 +397,7 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
       <div className="aq-table-wrap">
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="ผัง prerequisite ของรายวิชาเรียงตามชั้นปี" data-testid="prereq-svg">
           <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" style={{ fill: 'var(--c-muted)' }} /></marker></defs>
-          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={16} fontSize="13" fontWeight="700" style={{ fill: 'var(--c-ink)' }}>ชั้นปี {yr}</text>)}
+          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={20} fontSize="16" fontWeight="700" style={{ fill: 'var(--c-ink)' }}>ชั้นปี {yr}</text>)}
           {cur.courses.flatMap(c => c.prerequisiteIds.map(pid => {
             const a = pos.get(pid), b = pos.get(c.id);
             if (!a || !b) return null;
@@ -411,8 +414,8 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
             return (
               <g key={c.id}>
                 <rect x={p.x} y={p.y} width={CW} height={CH} rx="8" style={{ fill: 'var(--c-surface)', stroke: 'var(--c-border-control)' }} />
-                <text x={p.x + 8} y={p.y + 18} fontSize="13" fontWeight="700" style={{ fill: 'var(--c-primary-strong)' }}>{c.code}</text>
-                <text x={p.x + 8} y={p.y + 38} fontSize="13" style={{ fill: 'var(--c-muted)' }}>{truncateTh(c.nameTh, 18)}</text>
+                <text x={p.x + 8} y={p.y + 23} fontSize="16" fontWeight="700" style={{ fill: 'var(--c-primary-strong)' }}>{c.code}</text>
+                <text x={p.x + 8} y={p.y + 48} fontSize="16" style={{ fill: 'var(--c-muted)' }}>{truncateTh(c.nameTh, 17)}</text>
               </g>
             );
           })}

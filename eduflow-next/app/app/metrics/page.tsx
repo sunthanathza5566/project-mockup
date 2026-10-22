@@ -15,6 +15,7 @@ import { useDialog } from '@/context/DialogContext';
 import { Async, Empty, PageHeader, useLoad } from '@/components/aunqa/common';
 import { useScope } from '@/components/aunqa/useScope';
 import TrendChart from '@/components/aunqa/TrendChart';
+import { useLang } from '@/context/LangContext';
 import MetricImport from '@/components/aunqa/MetricImport';
 import Icon from '@/components/ui/Icon';
 import Term from '@/components/ui/Term';
@@ -25,6 +26,7 @@ const num = (s: string): number | undefined => (s.trim() === '' ? undefined : Nu
 export default function MetricsPage() {
   const { user, programmes, programmeId, setProgrammeId } = useScope();
   const { showToast } = useToast();
+  const { lang } = useLang();
   const defs = listMetricDefinitions();
   const canWrite = !!programmeId && can(user, 'metric.write', programmeScope(programmeId));
 
@@ -52,7 +54,7 @@ export default function MetricsPage() {
             <div className="aq-grid-2">
               {Array.from(new Set(rows.map(r => r.code))).map(code => {
                 const d = getMetricDefinition(code);
-                return <TrendChart key={code} code={code} name={d?.nameTh} unit={d?.unit} rows={rows.filter(r => r.code === code)} />;
+                return <TrendChart key={code} code={code} name={lang === 'en' ? d?.nameEn || d?.nameTh : d?.nameTh} unit={d?.unit} rows={rows.filter(r => r.code === code)} />;
               })}
             </div>
           </section>

@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import type { AppUser, RoleCode, SarSection, TodoItem } from '@/lib/types';
 import {
-  daysUntil, getProgramme, getRequirement, listCycles, listMyTodos, listNotifications, listSections, markRead,
+  can, daysUntil, getProgramme, getRequirement, listCycles, listMyTodos, listNotifications, listSections, markRead, programmeScope,
 } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import {
@@ -96,7 +96,8 @@ export default function HomePage() {
     mine.sort((a, b) => MYWORK_ORDER[a.section.status] - MYWORK_ORDER[b.section.status]
       || (a.section.due || '9999').localeCompare(b.section.due || '9999'));
     const progress = new Map(cycles.map(c => [c.id, listSections(user, c.id).filter(s => s.status === 'approved').length]));
-    return { cycles, mine, progress, todos: listMyTodos(user), notes: listNotifications(user) };
+    const canUpload = cycles.some(c => can(user, 'evidence.write', programmeScope(c.programmeId)));
+    return { cycles, mine, progress, todos: listMyTodos(user), notes: listNotifications(user), canUpload };
   }, [user.id]);
 
   function readAll() { markRead(user); showToast('ทำเครื่องหมายว่าอ่านแล้วทั้งหมด', 'success'); notifyTodosChanged(); q.reload(); }
@@ -105,7 +106,13 @@ export default function HomePage() {
   const now = new Date();
   return (
     <>
-      <PageHeader title="หน้าหลัก" sub={`${greetingTh(now)} ${user.fullName} · ${fmtDateLongTh(now)}`} />
+      <PageHeader
+        title="หน้าหลัก" sub={`${greetingTh(now)} ${user.fullName} · ${fmtDateLongTh(now)}`}
+        actions={q.data?.canUpload ? (
+          // AC-14 / UX-U3-3: ทางลัดเพิ่มหลักฐาน → ฟอร์มเปิดทันที
+          <Link className="aq-btn" href="/app/evidence?new=1" data-testid="home-add-evidence"><Icon name="plus" size={20} />เพิ่มหลักฐาน</Link>
+        ) : undefined}
+      />
       <Async q={q} skeleton="cards">{({ cycles, mine, progress, todos, notes }) => {
         const home = groupForHome(todos);
         const top = home.slice(0, 3);

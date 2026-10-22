@@ -222,7 +222,7 @@
 - งาน > 2 วินาทีที่เป็นขั้นตอน (export DOCX, import Excel, AI): ใช้ปุ่ม loading + ข้อความขั้นตอนใน `.aq-help` (เช่น "กำลังสร้างไฟล์ Word…") — ไม่ใช้ skeleton
 
 ## C20. Progress ring (`components/ui/ProgressRing.tsx`) + Progress bar (`.aq-progress`)
-- ring: SVG ขนาด 120 (เล็ก 56), stroke 10 (เล็ก 6), วงพื้น surface-2, วงค่า primary (คู่ #40) · **เปลี่ยนเป็น success (คู่ #41) เฉพาะเมื่อ 100% และ prop `clean` = true** (ไม่มีช่องว่างวิกฤต — U1b M4); 100% แต่ยังมีวิกฤต = คง primary · **ไม่ใช้ accent เป็นแท่งค่าในทุกกรณี** (U1b F4) · ตรงกลาง: ตัวเลข "45/53" หรือ "85%" fs-2xl (เล็ก fs-base) 700 + label fs-sm ใต้ · `role="img" aria-label="อนุมัติแล้ว 45 จาก 53 ข้อ"`
+- ring: SVG ขนาด 120 (เล็ก 56), stroke 10 (เล็ก 6), วงพื้น surface-2, วงค่า primary (คู่ #40) · **เปลี่ยนเป็น success (คู่ #41) เฉพาะเมื่อ 100% และ prop `clean` = true** (ไม่มีช่องว่างวิกฤต — U1b M4); 100% แต่ยังมีวิกฤต = คง primary · **ไม่ใช้ accent เป็นแท่งค่าในทุกกรณี** (U1b F4) · ตรงกลาง: ตัวเลข "45/53" หรือ "85%" fs-xl (เล็ก fs-base; U3-2: fs-2xl ชนเส้นวงใน 100px) 700 + label fs-sm ใต้ · `role="img" aria-label="อนุมัติแล้ว 45 จาก 53 ข้อ"`
 - เติมค่า L2: `stroke-dashoffset` จากเต็มไปค่าจริง `--dur-progress --ease-move` เมื่อ mount/ค่าเปลี่ยน · reduced motion = แสดงค่าทันที · ค่าต้องมาจากข้อมูลจริงเท่านั้น (ห้ามแถบหลอก)
 - bar: สูง 8 radius pill พื้น surface-2 แท่ง primary (`transform: scaleX(p)` origin left) + ข้อความ "อนุมัติ 45/53" ข้างบน/ข้าง · ใช้ในรายการรอบ, การ์ดรอบในหน้าหลัก, หัวเกณฑ์ใน assign
 

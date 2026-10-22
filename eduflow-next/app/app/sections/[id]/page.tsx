@@ -10,9 +10,9 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   can, daysUntil, getCycle, getProgramme, getRequirement, getSection, isAiEnabled, listComments, listEvidence, listRatings,
-  listUsers, listVersions, programmeScope,
+  listReviewEvents, listUsers, listVersions, programmeScope,
 } from '@/lib/api';
-import { Async, Badge, PageHeader, SectionStatusBadge, useLoad, useMe } from '@/components/aunqa/common';
+import { Async, Badge, Empty, PageHeader, SectionStatusBadge, useLoad, useMe } from '@/components/aunqa/common';
 import SarWorkspace, { type WorkspaceData } from '@/components/aunqa/SarWorkspace';
 import Icon from '@/components/ui/Icon';
 import { decodeParam, fmtDate, truncateTh } from '@/lib/ui/aunqa';
@@ -21,10 +21,12 @@ export default function SectionPage() {
   const user = useMe();
   const sid = decodeParam(useParams().id);
   const [cycleId, reqId] = sid.split('::');
+  const validId = !!cycleId && !!reqId;  // U3P-1: URL ไม่มี "::" = ไม่ใช่ข้อ
   const [rev, setRev] = useState(0);
   const pendingRemount = useRef(false);
 
   const q = useLoad<WorkspaceData>(() => {
+    if (!validId) throw new Error('ไม่พบข้อนี้');
     const cycle = getCycle(user, cycleId);
     const section = getSection(user, cycleId, reqId);
     const req = getRequirement(reqId);
@@ -33,6 +35,8 @@ export default function SectionPage() {
     const linkedIds = new Set(linked.map(e => e.id));
     const canEv = can(user, 'evidence.write', programmeScope(cycle.programmeId));
     const linkable = canEv ? listEvidence(user, { programmeId: cycle.programmeId, cycleId }).filter(e => !linkedIds.has(e.id)) : [];
+    let reviewEvents: WorkspaceData['reviewEvents'] = [];
+    try { reviewEvents = listReviewEvents(user, cycleId).filter(e => e.targetType === 'section' && e.targetId === section.id); } catch { /* ไม่มีสิทธิ์ */ }
     let ratings: WorkspaceData['ratings'] = [];
     try { ratings = listRatings(user, cycleId); } catch { /* ไม่มีสิทธิ์ดูคะแนน */ }
     return {
@@ -42,6 +46,7 @@ export default function SectionPage() {
       comments: listComments(user, cycleId, reqId),
       names: Object.fromEntries(listUsers(cycle.universityId).map(u => [u.id, u.fullName])),
       aiEnabled: isAiEnabled(cycle.universityId),
+      reviewEvents,
     };
   }, [user.id, sid]);
 
@@ -51,6 +56,15 @@ export default function SectionPage() {
   }, [q.data]);
 
   const d = q.data;
+  if (!validId) {
+    return (
+      <>
+        <PageHeader crumbs={[{ label: 'รอบประเมิน', href: '/app/cycles' }, { label: 'ไม่พบข้อนี้' }]} title="ไม่พบข้อนี้" />
+        <Empty icon="search" title="ไม่พบข้อนี้" text="ลิงก์อาจไม่ครบหรือพิมพ์ผิด — เปิดข้อจากแดชบอร์ดรอบหรือหน้าหลักแทน"
+          action={<Link className="aq-btn aq-btn-primary" href="/app/cycles">ไปหน้ารอบประเมิน</Link>} />
+      </>
+    );
+  }
   const left = d?.section.due && d.section.status !== 'approved' ? daysUntil(d.section.due) : null;
   return (
     <>

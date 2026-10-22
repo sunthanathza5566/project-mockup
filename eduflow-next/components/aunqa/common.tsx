@@ -225,7 +225,7 @@ export function Empty({ title, text, icon = 'folder', action, tip, children }: {
     <div className="aq-empty" data-testid="state-empty">
       <span className="aq-empty__art" aria-hidden="true">
         <Icon name={icon} size={40} />
-        <i className="aq-empty__spark" />
+        {icon !== 'bell' && <i className="aq-empty__spark" />}{/* U3-9: จุดบนกระดิ่งดูเหมือนมีแจ้งเตือนค้าง */}
       </span>
       {head && <p className="aq-empty__title">{head}</p>}
       {body && <p className="aq-empty__text">{body}</p>}

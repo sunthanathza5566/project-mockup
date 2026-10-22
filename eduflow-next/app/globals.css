@@ -89,14 +89,17 @@
 @media (min-width: 768px) {
   :root {
     --fs-xl: 1.75rem; --fs-2xl: 2.25rem; --fs-3xl: 3rem;
-    --control-h-sm: 40px;
     --page-pad: var(--sp-8);
     --card-pad: var(--sp-6);
   }
 }
 
+/* U3-10: ปุ่ม compact 40 เฉพาะจอ ≥1024 (แท็บเล็ตเป็นจอสัมผัส = 44) */
+@media (min-width: 1024px) { :root { --control-h-sm: 40px; } }
+
 /* ─────────────────────────── 2. BASE ─────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 html {
   font-size: var(--user-scale, 100%);
   font-synthesis: none;
@@ -173,7 +176,7 @@ summary { cursor: pointer; }
   min-height: var(--control-h); padding: 0 var(--sp-5);
   background: var(--c-surface); color: var(--c-primary);
   border: 1px solid var(--c-border-control); border-radius: var(--r-md);
-  font-family: var(--font-sans); font-size: var(--fs-base); font-weight: 600; line-height: 1.4;
+  font-family: var(--font-sans); font-size: var(--fs-base); font-weight: 600; line-height: 1.5;
   text-align: center; text-decoration: none; cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-hover), color var(--dur-fast) var(--ease-hover),
     border-color var(--dur-fast) var(--ease-hover), box-shadow var(--dur-fast) var(--ease-hover),
@@ -501,8 +504,8 @@ select.aq-input[multiple], select.aq-select[multiple] { background-image: none; 
 .aq-msg--info .aq-msg__icon { color: var(--c-info); }
 .aq-msg--neutral .aq-msg__icon { color: var(--c-muted); }
 .aq-msg .aq-muted { color: var(--c-muted); }
-/* input ขนาดเล็กในแถวตาราง/ตัวกรอง (เดสก์ท็อป 40 / มือถือ 44) */
-.aq-input-sm { width: auto; min-height: var(--control-h-sm); }
+/* input กว้างพอดีเนื้อหา ในแถวตาราง/ตัวกรอง — สูง 44 (AC-05; 40 เฉพาะ select ใน matrix) */
+.aq-input-sm { width: auto; min-height: var(--control-h); }
 .aq-state-card { padding: var(--sp-4); }
 
 /* C10 KPI */
@@ -756,7 +759,7 @@ button.aq-kpi[aria-pressed="true"] { border-color: var(--c-primary); box-shadow:
 .aq-ring__value { stroke: var(--c-primary); transition: stroke-dashoffset var(--dur-progress) var(--ease-move), stroke var(--dur-fast) var(--ease-hover); }
 .aq-ring.is-success .aq-ring__value { stroke: var(--c-success); }
 .aq-ring__mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.aq-ring__num { font-size: var(--fs-2xl); font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--c-ink); }
+.aq-ring__num { font-size: var(--fs-xl); font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--c-ink); }
 .aq-ring--sm .aq-ring__num { font-size: var(--fs-base); line-height: 1.3; }
 .aq-ring__cap { color: var(--c-muted); line-height: 1.6; }
 .aq-progress { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
@@ -782,7 +785,7 @@ button.aq-kpi[aria-pressed="true"] { border-color: var(--c-primary); box-shadow:
 .aq-stepper__dots i.is-done { background: var(--c-success); border-color: var(--c-success); }
 .aq-stepper__dots i.is-here { background: var(--c-primary); border-color: var(--c-primary); }
 .aq-stepper__list { display: none; list-style: none; }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .aq-stepper__compact { display: none; }
   .aq-stepper__list { display: flex; align-items: center; gap: 0; }
 }
@@ -808,7 +811,7 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-step.is-current .aq-step__dot { background: var(--c-primary); border-color: var(--c-primary); color: var(--c-white); }
 .aq-step.is-done .aq-step__dot { background: var(--c-success-bg); border-color: var(--c-success); color: var(--c-success); }
 .aq-step__text { display: flex; flex-direction: column; min-width: 0; }
-.aq-step__label { font-weight: 600; line-height: 1.4; }
+.aq-step__label { font-weight: 600; line-height: 1.5; }
 .aq-step__meta { font-size: var(--fs-sm); line-height: 1.6; color: var(--c-muted); }
 .aq-check-draw path { stroke-dasharray: 1; stroke-dashoffset: 0; }
 .aq-check-draw.is-drawn { animation: aq-pop-circle 500ms var(--ease-move); }
@@ -870,7 +873,8 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-prose { max-width: var(--measure); line-height: 1.8; overflow-wrap: anywhere; }
 .aq-prose--pre { white-space: pre-wrap; }
 .aq-grid-2, .aq-grid-3 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
-@media (min-width: 768px) { .aq-grid-2, .aq-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 768px) { .aq-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .aq-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) { .aq-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .aq-grid-2 > .aq-card, .aq-grid-3 > .aq-card { margin-bottom: 0; }
 
@@ -969,6 +973,8 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
   .aq-auth__brand li { display: flex; gap: var(--sp-2); align-items: center; font-size: var(--fs-md); }
   .aq-auth__brand li .aq-icon { color: var(--c-accent); }
   .aq-auth__tools { grid-area: brand; align-self: end; justify-self: start; padding: var(--sp-8) var(--sp-12); }
+  /* skip link ลอยอยู่บนแผงเข้ม → ring accent (คู่ #19) */
+  .aq-auth .aq-skip:focus-visible { outline-color: var(--c-accent); }
   /* ปุ่มบนพื้นเข้ม (คู่ #42/#43) — tools อยู่นอก .aq-on-dark ใน DOM จึงกำหนดตรงนี้ */
   .aq-auth__tools .aq-btn, .aq-auth__tools .aq-seg { background: transparent; color: var(--c-on-dark); border-color: var(--c-on-dark-muted); }
   .aq-auth__tools .aq-btn:hover:not(:disabled), .aq-auth__tools .aq-seg > button:hover { background: rgba(255, 255, 255, .12); color: var(--c-on-dark); }
@@ -1009,6 +1015,8 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 
 /* P4 App shell (F2) */
 .aq-shell__body { min-width: 0; display: flex; flex-direction: column; min-height: 100vh; }
+/* U-2: session-lost ไม่มี sidebar → เนื้อหาเต็มความกว้าง */
+.aq-shell.aq-shell--lost { display: block; }
 .aq-session-lost { position: sticky; top: calc(var(--topbar-h) + var(--sp-2)); z-index: var(--z-sticky); box-shadow: var(--e-2); }
 .aq-lang { gap: var(--sp-2); white-space: nowrap; }
 .aq-lang__off { color: var(--c-muted); font-weight: 400; }
@@ -1052,6 +1060,10 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 @media (min-width: 480px) { .aq-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .aq-form-inline .aq-field { min-width: min(220px, 100%); }
 .aq-todo-list li > .aq-icon { color: var(--c-primary); }
+/* U3-6: จอแคบ ลิงก์ขึ้นบรรทัดใหม่ ไม่บีบชื่องาน */
+@media (max-width: 479.98px) { .aq-todo-list li > .aq-flex-1 { flex-basis: calc(100% - 32px); } }
+/* U3-4 */
+.aq-import__title, .aq-import__sub { display: block; }
 .aq-noti-list { list-style: none; display: grid; gap: var(--sp-2); }
 .aq-noti { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3); border-radius: var(--r-md); background: var(--c-surface-2); }
 .aq-noti.is-new { background: var(--c-primary-tint); }
@@ -1180,12 +1192,17 @@ a.aq-step__hit:hover, button.aq-step__hit:hover { background: var(--c-surface-2)
 .aq-lv-M { background: var(--c-primary); color: var(--c-white); }
 .aq-lv-none { background: var(--c-surface); color: var(--c-muted); }
 i.aq-lv-I, i.aq-lv-R, i.aq-lv-M { display: inline-block; width: 16px; height: 16px; border-radius: var(--r-sm); margin-right: var(--sp-1); vertical-align: middle; }
-.aq-matrix .aq-input-sm { min-width: 56px; text-align: center; }
+.aq-matrix .aq-input-sm { min-width: 56px; min-height: var(--control-h-sm); text-align: center; }
 .aq-clo-box { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); margin: var(--sp-2) 0; background: var(--c-surface-2); border: 1px solid var(--c-border-subtle); border-radius: var(--r-md); }
 .aq-chart { margin: 0; padding: var(--sp-4); background: var(--c-surface); border: 1px solid var(--c-border-subtle); border-radius: var(--r-lg); }
-.aq-chart-svg { display: block; width: 100%; height: auto; }
+/* U2Q-1: svg วาดที่ px จริงของ .aq-chart-box (ไม่ย่อด้วย viewBox) */
+.aq-chart-box { width: 100%; min-width: 0; overflow: hidden; }
+.aq-chart-svg { display: block; max-width: none; }
 .aq-chart-label { font-size: var(--fs-xs); font-weight: 600; }
 .aq-line-key { display: inline-block; width: 20px; height: 3px; margin-right: var(--sp-1); vertical-align: middle; border-radius: 2px; }
+.aq-line-key--actual { background: var(--c-primary); }
+.aq-line-key--target { background: repeating-linear-gradient(90deg, var(--c-muted) 0 6px, transparent 6px 10px); }
+.aq-line-key--bm { background: repeating-linear-gradient(90deg, var(--c-info) 0 2px, transparent 2px 6px); }
 .aq-checklist { list-style: none; display: flex; flex-direction: column; gap: var(--sp-1); margin-bottom: var(--sp-3); }
 .aq-checklist li[data-done="true"] { color: var(--c-success); }
 .aq-sar-text { padding: var(--sp-3) var(--sp-4); margin: var(--sp-2) 0; max-height: 280px; overflow-y: auto; line-height: 1.8; background: var(--c-surface-2); border: 1px solid var(--c-border-subtle); border-radius: var(--r-md); overflow-wrap: anywhere; }

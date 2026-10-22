@@ -8,12 +8,12 @@
  * - heatmap C13 (ไอคอนระดับ + ไอคอนสถานะข้อมุมขวาบน — P8) · gap จัดกลุ่มตามเกณฑ์ พับได้ + "แสดงทั้งหมด"
  * - L7 ฉลองครั้งเดียวต่อ cycle+revision ต่อผู้ใช้ (localStorage aunqa_celebrated) เฉพาะเมื่อไม่มีวิกฤต
  */
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   CYCLE_TRANSITIONS, can, cycleScope, downloadBlob, exportSarDocx, getCycle, getProgramme, getReadiness,
-  getTransitionPreflight, isAssessorOf, listReviewEvents, listSections, listUsers, openRevision, transitionCycle,
+  getTransitionPreflight, isAssessorOf, listActionItems, listReviewEvents, listSections, listUsers, openRevision, transitionCycle,
   verifySnapshot,
 } from '@/lib/api';
 import type { CycleStatus, Gap, GapSeverity, HeatCell, TransitionPreflight } from '@/lib/types';
@@ -128,7 +128,7 @@ export default function CycleDashboardPage() {
   const approvedNow = q.data ? q.data.sections.filter(s => s.status === 'approved').length : 0;
   const criticalNow = q.data ? q.data.readiness.heatmap.filter(h => h.gaps.critical > 0).length : 0;
   useEffect(() => {
-    if (!q.data || q.data.cycle.status !== 'in_progress' || approvedNow < 53 || criticalNow > 0) return;
+    if (!q.data || q.data.cycle.status !== 'in_progress' || approvedNow < q.data.sections.length || criticalNow > 0) return; // U-8
     try {
       const seen: string[] = JSON.parse(localStorage.getItem(CELEBRATED_KEY) || '[]');
       if (seen.includes(cycleKey)) return;
@@ -148,16 +148,30 @@ export default function CycleDashboardPage() {
       if (r === null) return;
       note = r;
     } else {
-      const warns = pf?.warnings ?? [];
+      const warns: { code: string; messageTh: ReactNode }[] = [...(pf?.warnings ?? [])];
+      // UX-U3-8: ปิดรอบ — เตือนถ้ายังไม่มีแผนปรับปรุงที่สร้างจาก AFI ของรอบนี้
+      let closeOk: ReactNode[] = [];
+      if (to === 'closed' && q.data) {
+        let made = 0;
+        try { made = listActionItems(user, q.data.cycle.programmeId).filter(a => a.originCycleId === id).length; } catch { /* ไม่มีสิทธิ์อ่าน */ }
+        if (made === 0) {
+          warns.push({ code: 'no_actions', messageTh: <>ยังไม่มีแผนปรับปรุงที่สร้างจากข้อเสนอแนะ (<Term k="afi">AFI</Term>) ของรอบนี้ — สร้างได้ที่หน้า “แผนปรับปรุง” (ปุ่มสร้างจาก AFI)</> });
+        } else closeOk = [`มีแผนปรับปรุงจากรอบนี้แล้ว ${made} รายการ`];
+      }
       const ok = await confirm({
         title: action,
         message: to === 'final_approved'
           ? 'เมื่ออนุมัติสุดท้าย รอบจะถูกล็อก แก้ไขเนื้อหา/หลักฐานไม่ได้ และบันทึกลายนิ้วมือเอกสาร (hash)'
-          : `เปลี่ยนสถานะรอบเป็น “${CYCLE_STATUS_TH[to]}”`,
-        details: warns.length ? (
-          <ul>{warns.map(w => (
-            <li key={w.code} className="aq-checkitem aq-checkitem--warn"><Icon name="alert-triangle" size={20} />{w.messageTh}</li>
-          ))}</ul>
+          : to === 'closed'
+            ? 'เมื่อปิดรอบแล้ว ผลประเมินจะแก้ไขไม่ได้ และรอบจะย้ายไปอยู่ในรายการรอบที่ปิดแล้ว'
+            : `เปลี่ยนสถานะรอบเป็น “${CYCLE_STATUS_TH[to]}”`,
+        details: warns.length || closeOk.length ? (
+          <ul>
+            {closeOk.map((t, i) => <li key={`ok${i}`} className="aq-checkitem aq-checkitem--ok"><Icon name="check-circle" size={20} />{t}</li>)}
+            {warns.map(w => (
+              <li key={w.code} className="aq-checkitem aq-checkitem--warn"><Icon name="alert-triangle" size={20} />{w.messageTh}</li>
+            ))}
+          </ul>
         ) : undefined,
         variant: warns.length || to === 'final_approved' ? 'warning' : 'primary',
         confirmText: warns.length ? `ยืนยัน${action} (มีข้อควรระวัง ${warns.length} เรื่อง)` : `ยืนยัน${action}`,
@@ -222,7 +236,7 @@ export default function CycleDashboardPage() {
             crumbs={[{ label: 'รอบประเมิน', href: '/app/cycles' }, { label: String(cycle.academicYear) }]}
             title={`รอบประเมิน ${cycle.academicYear}`}
             status={<CycleStatusBadge status={cycle.status} />}
-            sub={<>{prog?.nameTh} · revision {cycle.revision} · กำหนดส่ง {fmtDate(cycle.submissionDue)} · วันประเมิน {fmtDate(cycle.assessmentDate)}</>}
+            sub={<>{prog?.nameTh} · <Term k="revision">revision</Term> {cycle.revision} · กำหนดส่ง {fmtDate(cycle.submissionDue)} · วันประเมิน {fmtDate(cycle.assessmentDate)}</>}
             actions={<>
               {showAssess && <Link className="aq-btn aq-btn-primary" href={`/app/cycles/${id}/assess`} data-testid="go-assess">{isAssessor ? 'พื้นที่ทำงานกรรมการ' : 'ดูผลประเมินของกรรมการ'}</Link>}
               {canAssign && <Link className="aq-btn" href={`/app/cycles/${id}/assign`} data-testid="go-assign"><Icon name="users" size={20} />มอบหมายงาน</Link>}
@@ -234,7 +248,13 @@ export default function CycleDashboardPage() {
 
           <section className="aq-card aq-card--accent" aria-labelledby="next-h" data-testid="cycle-next-info">
             <h2 id="next-h" className="aq-h3">ขั้นตอนถัดไป</h2>
-            <p>ตอนนี้รอ: <strong>{NEXT_ACTOR_TH[cycle.status]}</strong>{youNext && cycle.status !== 'closed' ? ' (คุณ)' : ''}</p>
+            {cycle.status === 'closed' ? (
+              <p data-testid="cycle-closed-next">
+                รอบนี้ปิดแล้ว — <Link href={`/app/cycles/${encodeURIComponent(cycle.id)}/assess`}>ดูผลประเมิน</Link> หรือ <Link href="/app/export">ส่งออกเอกสาร</Link>
+              </p>
+            ) : (
+              <p>ตอนนี้รอ: <strong>{NEXT_ACTOR_TH[cycle.status]}</strong>{youNext ? ' (คุณ)' : ''}</p>
+            )}
             {cycle.status === 'faculty_approved' && back && (
               <InlineMessage tone="info" testId="dean-return-hint">
                 คณบดีพิจารณาแล้วพบว่ายังไม่พร้อม สามารถ “ส่งกลับแก้ไข” ได้ โดยต้องระบุเหตุผลให้ประธานหลักสูตรทราบ

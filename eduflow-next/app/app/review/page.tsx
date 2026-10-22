@@ -27,7 +27,7 @@ const LEAVE_MS = 220;
 export default function ReviewPage() {
   const user = useMe();
   const { showToast } = useToast();
-  const { prompt } = useDialog();
+  const { prompt, confirm } = useDialog();
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
 
   const q = useLoad(() => {
@@ -68,7 +68,16 @@ export default function ReviewPage() {
     setTimeout(() => { q.reload(); setLeaving(s => { const n = new Set(s); n.delete(sectionId); return n; }); }, LEAVE_MS);
   }
 
-  async function approve(cycleId: string, sectionId: string, req: string) {
+  async function approve(cycleId: string, sectionId: string, req: string, critical = 0) {
+    // UX-U3-5: อนุมัติจากแถวโดยไม่เปิดอ่าน ขณะข้อนั้นยังมีช่องว่างวิกฤต → เตือนก่อน
+    if (critical > 0) {
+      const ok = await confirm({
+        title: `อนุมัติข้อ ${req} ทั้งที่ยังมีช่องว่างวิกฤต`,
+        message: `ข้อนี้ยังมีช่องว่างระดับวิกฤต ${critical} รายการ (เช่น ยังไม่มีหลักฐานผูก) แนะนำให้เปิดอ่านก่อนอนุมัติ`,
+        variant: 'warning', cancelText: 'กลับไปเปิดอ่านก่อน', confirmText: 'ยืนยันอนุมัติ',
+      });
+      if (!ok) return;
+    }
     try { approveSection(user, cycleId, req); showToast(`อนุมัติข้อ ${req} แล้ว`, 'success'); finish(sectionId); }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
@@ -143,7 +152,7 @@ export default function ReviewPage() {
                                 <Link className="aq-btn aq-btn-primary aq-btn-compact" href={sectionHref(cycle.id, section.requirementId)}>เปิดอ่าน</Link>
                                 {canApprove && !ownWork && (
                                   <AsyncButton className="aq-btn aq-btn-compact" testId={`approve-${section.requirementId}`}
-                                    onClick={() => approve(cycle.id, section.id, section.requirementId)}>อนุมัติ</AsyncButton>
+                                    onClick={() => approve(cycle.id, section.id, section.requirementId, gaps?.critical ?? 0)}>อนุมัติ</AsyncButton>
                                 )}
                                 {canApprove && ownWork && (
                                   <span><Badge tone="neutral" icon="user">คุณเขียนเอง</Badge><Term k="segregation" label="การแยกหน้าที่" /></span>

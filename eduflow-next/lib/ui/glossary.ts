@@ -126,6 +126,11 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     bodyTh: 'รูปแบบ E-ข้อ-ลำดับ เช่น E-1.1-01 ใช้อ้างใน SAR · E-0.0-nn คือหลักฐานที่ยังไม่ได้ผูกข้อตอนสร้าง',
     bodyEn: 'Format E-item-number, e.g. E-1.1-01, used for citations. E-0.0-nn means it was not linked to an item when created.',
   },
+  afi: {
+    titleTh: 'AFI (ข้อเสนอแนะเพื่อการปรับปรุง)',
+    bodyTh: 'Areas for Improvement — ประเด็นที่กรรมการแนะนำให้หลักสูตรปรับปรุง ควรนำไปสร้างเป็นแผนปรับปรุงก่อนปิดรอบ',
+    bodyEn: 'Areas for Improvement: points the assessors recommend the programme improve; turn them into improvement actions before closing the cycle.',
+  },
   segregation: {
     titleTh: 'แยกหน้าที่ผู้เขียนกับผู้อนุมัติ',
     bodyTh: 'ผู้ที่เขียนข้อล่าสุดอนุมัติข้อนั้นเองไม่ได้ ต้องให้ผู้อื่นตรวจและอนุมัติ',

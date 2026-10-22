@@ -2,6 +2,8 @@
 
 /**
  * Section editor (ADR-UI-001 pages.md P9)
+ * - U3: เหตุผลที่ถูกส่งกลับ (UX-U3-1) ใต้หัวเรื่อง + แท็บประวัติ · กันเขียนทับข้ามแท็บด้วย baseUpdatedAt (U3P-2)
+ *       → conflict = dialog บอกเหตุผลจริง (ข้อความ / สถานะ / เจ้าของ-กำหนดส่ง / คำแปล) · ประธาน: "เปิดข้อถัดไปในคิว"
  * - Stepper 4 ขั้น (C21) · 2 คอลัมน์ (เนื้อหา / แผงข้าง 3 แท็บ) · sticky action bar (C23) · save indicator (C24)
  * - Autosave (P3): debounce 1.5s + บันทึกทันทีเมื่อ blur / visibilitychange→hidden / beforeunload / เปลี่ยนภาษา /
  *   flushAll() (registerFlush — ADR 6.4) · onChange เรียก touchSession() (M3)
@@ -16,10 +18,10 @@ import {
   RATING_SCALE, TRANSLATE_MAX_CHARS, acceptAiRun, addComment, approveSection, can, citableCodes, confirmTranslationReviewed,
   cycleScope, getGaps, linkEvidence, listMyTodos, programmeScope, resolveComment, restoreVersion, returnSection,
   runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSection, touchSession, unlinkEvidence,
-  validateCitations,
+  validateCitations, AunqaError, listSections,
 } from '@/lib/api';
 import type {
-  AiRun, AppUser, AssessmentCycle, Comment, Rating, Requirement, SarSection, SarSectionVersion,
+  AiRun, AppUser, AssessmentCycle, Comment, Rating, Requirement, ReviewEvent, SarSection, SarSectionVersion,
 } from '@/lib/types';
 import type { EvidenceView } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
@@ -53,6 +55,20 @@ export interface WorkspaceData {
   comments: Comment[];
   names: Record<string, string>;
   aiEnabled: boolean;
+  /** ประวัติการตรวจของข้อนี้ (ส่งตรวจ/อนุมัติ/ส่งกลับ) เรียงเก่า → ใหม่ — UX-U3-1 */
+  reviewEvents?: ReviewEvent[];
+}
+
+/** เหตุผลของ conflict ตามจริง (เทียบฉบับล่าสุดกับสิ่งที่หน้านี้รู้) — U3P-2 */
+function conflictReason(base: SarSection, saved: { th: string; en: string; pdca: SarSection['pdca'] }, cur: SarSection, names: Record<string, string>): string {
+  const who = cur.updatedBy ? names[cur.updatedBy] : '';
+  const by = who ? ` (โดย ${who})` : '';
+  if (cur.narrativeTh !== saved.th || cur.narrativeEn !== saved.en || JSON.stringify(cur.pdca) !== JSON.stringify(saved.pdca))
+    return `เนื้อหาของข้อนี้ถูกแก้จากที่อื่น${by} หลังจากที่คุณเปิดหน้า (อาจเป็นแท็บหรือเครื่องอื่น)`;
+  if (cur.status !== base.status) return `สถานะของข้อนี้เปลี่ยนเป็น “${SECTION_STATUS_TH[cur.status]}”${by}`;
+  if (cur.ownerUserId !== base.ownerUserId || cur.due !== base.due) return `ผู้รับผิดชอบหรือกำหนดส่งของข้อนี้ถูกเปลี่ยน${by}`;
+  if (JSON.stringify(cur.needsTranslationReview ?? {}) !== JSON.stringify(base.needsTranslationReview ?? {})) return `มีการยืนยันคำแปลของข้อนี้จากที่อื่น${by}`;
+  return `ข้อนี้ถูกบันทึกจากที่อื่น${by} หลังจากที่คุณเปิดหน้า`;
 }
 
 type SaveState = { kind: 'idle' | 'dirty' | 'saved' | 'error'; at?: number; msg?: string };
@@ -64,6 +80,8 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   const { cycle, section, req, linked, linkable, versions, ratings, comments, names, aiEnabled } = data;
   const { showToast } = useToast();
   const { confirm, prompt } = useDialog();
+  const reviewEvents = data.reviewEvents ?? [];
+  const lastReturn = [...reviewEvents].reverse().find(e => e.toStatus === 'changes_requested');
   const { sessionLost } = useAuth();
   const router = useRouter();
 
@@ -84,24 +102,41 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' });
   const thRef = useRef<HTMLTextAreaElement>(null);
   const enRef = useRef<HTMLTextAreaElement>(null);
+  // U3P-2: updatedAt ที่หน้านี้ถือ (ตอนเปิด / หลังบันทึกเองสำเร็จ) + เนื้อหาที่บันทึกล่าสุด
+  const baseRef = useRef(section.updatedAt);
+  const savedRef = useRef({ th: section.narrativeTh, en: section.narrativeEn, pdca: section.pdca });
+  const [conflict, setConflict] = useState<{ reason: string } | null>(null);
+  const conflictRef = useRef(false);
 
   const save = useCallback((reason: 'autosave' | 'manual'): { ok: boolean; error?: string } => {
+    if (conflictRef.current) return { ok: false, error: 'ข้อนี้ถูกแก้จากที่อื่น — โหลดฉบับล่าสุดก่อน' };
     try {
-      saveSection(user, cycle.id, req.id, {
-        narrativeTh: th, narrativeEn: en,
-        pdca: { plan: pdca.plan, do: pdca.do, check: pdca.check, act: pdca.act },
-      }, reason);
+      const nextPdca = { plan: pdca.plan, do: pdca.do, check: pdca.check, act: pdca.act };
+      const saved = saveSection(user, cycle.id, req.id, {
+        narrativeTh: th, narrativeEn: en, pdca: nextPdca,
+      }, reason, { baseUpdatedAt: baseRef.current });
+      baseRef.current = saved.updatedAt;
+      savedRef.current = { th: saved.narrativeTh, en: saved.narrativeEn, pdca: saved.pdca };
       setTouched(false);
       setSaveState({ kind: 'saved', at: Date.now() });
       if (reason === 'manual') { showToast('บันทึกแล้ว', 'success'); reload(); }
       return { ok: true };
     } catch (e) {
+      if (e instanceof AunqaError && e.code === 'conflict') {
+        const cur = (e.detail?.current ?? null) as SarSection | null;
+        const why = cur ? conflictReason(section, savedRef.current, cur, names) : e.message;
+        conflictRef.current = true;
+        setConflict({ reason: why });
+        const msg = 'ข้อนี้ถูกแก้จากที่อื่น ข้อความล่าสุดของคุณยังไม่ถูกบันทึก';
+        setSaveState({ kind: 'error', msg });
+        return { ok: false, error: msg };
+      }
       const msg = errMsg(e);
       setSaveState({ kind: 'error', msg });
       if (reason === 'manual') showToast(msg, 'error');
       return { ok: false, error: msg };
     }
-  }, [user, cycle.id, req.id, th, en, pdca, showToast, reload]);
+  }, [user, cycle.id, req.id, th, en, pdca, showToast, reload, section, names]);
 
   // ค่าล่าสุดสำหรับ handler ภายนอก (flush / visibility / beforeunload)
   const live = useRef({ touched, editable, save, lang, th, en });
@@ -115,10 +150,31 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
   // autosave: หยุดพิมพ์ 1.5 วิ
   useEffect(() => {
-    if (!editable || !touched) return;
+    if (!editable || !touched || conflict) return;
     const t = setTimeout(() => save('autosave'), 1500);
     return () => clearTimeout(t);
-  }, [th, en, pdca, touched, editable, save]);
+  }, [th, en, pdca, touched, editable, save, conflict]);
+
+  // U3P-2: แจ้ง conflict ครั้งเดียว — โหลดฉบับล่าสุด หรือคัดลอกข้อความของฉันก่อน (ไม่ทับงานคนอื่นเงียบ ๆ)
+  const myText = () => [th && `[ภาษาไทย]\n${th}`, en && `[English]\n${en}`].filter(Boolean).join('\n\n');
+  async function copyMine() {
+    try { await navigator.clipboard.writeText(myText()); showToast('คัดลอกข้อความของคุณแล้ว', 'success'); }
+    catch { showToast('คัดลอกไม่สำเร็จ — เลือกข้อความในกล่องแล้วคัดลอกเอง', 'error'); }
+  }
+  const askedConflict = useRef(false);
+  useEffect(() => {
+    if (!conflict || askedConflict.current) return;
+    askedConflict.current = true;
+    confirm({
+      title: 'ข้อนี้ถูกแก้จากที่อื่น',
+      message: `${conflict.reason} — ระบบยังไม่บันทึกข้อความล่าสุดของคุณ เพื่อไม่ให้ทับงานที่อื่น`,
+      variant: 'warning',
+      confirmText: 'ยืนยันโหลดฉบับล่าสุด',
+      cancelText: 'คัดลอกข้อความของฉันก่อน',
+      initialFocus: 'cancel',
+    }).then(load => { if (load) remount(); else void copyMine(); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conflict]);
 
   // flush (ADR 6.4) + visibilitychange + beforeunload (P3)
   useEffect(() => {
@@ -217,8 +273,22 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       remount();
     } catch (e) { showToast(errMsg(e), 'error'); }
   }
+  /** ข้อถัดไปในคิวรอตรวจของรอบนี้ (UX-U3-4) */
+  function nextInQueue(): string | null {
+    try {
+      const next = listSections(user, cycle.id).filter(s => s.status === 'ready_for_review' && s.requirementId !== req.id)
+        .sort((a, b) => a.updatedAt - b.updatedAt)[0];
+      return next ? sectionHref(cycle.id, next.requirementId) : null;
+    } catch { return null; }
+  }
+  function toastWithNext(msg: string) {
+    const next = nextInQueue();
+    showToast(msg, 'success', next
+      ? { action: { label: 'เปิดข้อถัดไปในคิว →', onClick: () => router.push(next) } }
+      : { action: { label: 'กลับคิวรอตรวจ', onClick: () => router.push('/app/review') } });
+  }
   async function doApprove() {
-    try { approveSection(user, cycle.id, req.id); showToast(`อนุมัติข้อ ${req.id} แล้ว`, 'success'); notifyTodosChanged(); remount(); }
+    try { approveSection(user, cycle.id, req.id); toastWithNext(`อนุมัติข้อ ${req.id} แล้ว`); notifyTodosChanged(); remount(); }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
   async function doReturn() {
@@ -227,7 +297,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       variant: 'warning', confirmText: 'ยืนยันส่งกลับแก้ไข',
     });
     if (note === null) return;
-    try { returnSection(user, cycle.id, req.id, note); showToast(`ส่งข้อ ${req.id} กลับแก้ไขแล้ว`, 'success'); notifyTodosChanged(); remount(); }
+    try { returnSection(user, cycle.id, req.id, note); toastWithNext(`ส่งข้อ ${req.id} กลับแก้ไขแล้ว`); notifyTodosChanged(); remount(); }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
   async function doRestore(v: SarSectionVersion) {
@@ -302,7 +372,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   const sideTabs: { k: SideTab; label: string; n: number }[] = [
     { k: 'evidence', label: 'หลักฐาน', n: linked.length },
     { k: 'comments', label: 'ความเห็น', n: unresolved },
-    { k: 'history', label: 'ประวัติ', n: versions.length },
+    { k: 'history', label: 'ประวัติ', n: versions.length + reviewEvents.length },
   ];
   const sideRefs = useRef<(HTMLButtonElement | null)[]>([]);
   function onSideKey(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -327,7 +397,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     { key: 'evidence', label: 'หลักฐาน', meta: `ผูกแล้ว ${linked.length} ชิ้น`, href: '#step-evidence', onSelect: () => setSide('evidence') },
     { key: 'write', label: 'เขียนเนื้อหา', meta: `${countWords(th)} คำ`, href: '#step-write' },
     { key: 'rating', label: 'PDCA และคะแนนตนเอง', meta: self ? `คะแนนตนเอง ${self.score}` : 'ยังไม่ให้คะแนน', href: '#step-rating' },
-    { key: 'submit', label: 'ส่งตรวจ', meta: SECTION_STATUS_TH[section.status], href: '#section-actionbar' },
+    { key: 'submit', label: 'ส่งตรวจ', meta: cycle.lockedAt ? 'ล็อกแล้ว' : SECTION_STATUS_TH[section.status], href: '#section-actionbar' },
   ].map(s => ({ ...s, state: done[s.key as keyof typeof done] ? 'done' : s.key === firstOpen ? 'current' : 'todo' }) as StepItem);
 
   const readonlyText = cycle.lockedAt ? 'รอบถูกล็อกแล้ว แก้ไขไม่ได้'
@@ -336,10 +406,29 @@ export default function SarWorkspace({ data, user, reload, remount }: {
         : sessionLost ? 'ออกจากระบบแล้ว — หน้านี้เป็นแบบอ่านอย่างเดียวจนกว่าจะเข้าสู่ระบบใหม่'
           : 'คุณไม่มีสิทธิ์แก้ไขข้อนี้ (ดูอย่างเดียว)';
   const needsReview = section.needsTranslationReview?.[lang];
+  const allStepsDone = steps.every(s => s.state === 'done');
+  const stepSummary = cycle.lockedAt ? (allStepsDone ? `ล็อกแล้ว (ครบ ${steps.length} ขั้น)` : 'ล็อกแล้ว — แก้ไขไม่ได้')
+    : section.status === 'approved' ? `อนุมัติแล้ว (ครบ ${steps.length} ขั้น)`
+      : section.status === 'ready_for_review' ? 'ส่งตรวจแล้ว — รอประธานหลักสูตรตรวจ' : undefined;
 
   return (
     <div data-testid="sar-editor">
-      <Stepper ariaLabel="ขั้นตอนของข้อนี้" steps={steps} />
+      {lastReturn && section.status === 'changes_requested' && (
+        <InlineMessage tone="warn" icon="undo" testId="return-reason"
+          title={`${names[lastReturn.actorId] || 'ประธานหลักสูตร'} ส่งกลับแก้ไขเมื่อ ${fmtDateTime(lastReturn.at)}`}>
+          {lastReturn.note?.trim() ? `“${lastReturn.note.trim()}”` : 'ไม่ได้ระบุเหตุผล'}
+        </InlineMessage>
+      )}
+      {conflict && (
+        <InlineMessage tone="danger" testId="save-conflict" title="ข้อนี้ถูกแก้จากที่อื่น — ข้อความล่าสุดของคุณยังไม่ถูกบันทึก"
+          actions={<>
+            <button type="button" className="aq-btn" onClick={() => void copyMine()}>คัดลอกข้อความของฉัน</button>
+            <button type="button" className="aq-btn aq-btn-primary" onClick={remount} data-testid="conflict-reload">โหลดฉบับล่าสุด</button>
+          </>}>
+          {conflict.reason}
+        </InlineMessage>
+      )}
+      <Stepper ariaLabel="ขั้นตอนของข้อนี้" steps={steps} summary={stepSummary} />
       {!editable && <InlineMessage tone="info" icon={cycle.lockedAt ? 'lock' : 'info'} testId="readonly-reason">{readonlyText}</InlineMessage>}
       {selfAuthored && (
         <InlineMessage tone="warn" testId="segregation-note" title={<>คุณเป็นผู้เขียนเนื้อหาล่าสุดของข้อนี้ จึงอนุมัติเองไม่ได้ <Term k="segregation" label="การแยกหน้าที่" /></>}>
@@ -562,6 +651,25 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
           {side === 'history' && (
             <div id="sidepanel-history" role="tabpanel" aria-labelledby="sidetab-history" className="aq-tabpanel" data-testid="versions">
+              {reviewEvents.length > 0 && (
+                <>
+                  <h2 className="aq-h3">{`ประวัติการตรวจ (${reviewEvents.length})`}</h2>
+                  <ul className="aq-list aq-mb-4" data-testid="review-history">
+                    {[...reviewEvents].reverse().map(ev => (
+                      <li key={ev.id}>
+                        <div className="aq-flex-1">
+                          <span>{fmtDateTime(ev.at)}</span>{' '}
+                          <Badge icon={false} tone={ev.toStatus === 'changes_requested' ? 'warn' : ev.toStatus === 'approved' ? 'ok' : 'neutral'}>
+                            {SECTION_STATUS_TH[ev.toStatus as SarSection['status']] ?? ev.toStatus}
+                          </Badge>
+                          <div className="aq-meta">{names[ev.actorId] || ev.actorId}</div>
+                          {ev.note?.trim() && <p className="aq-mt-2">{`“${ev.note.trim()}”`}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
               <h2 className="aq-h3">{`ประวัติเวอร์ชัน (${versions.length})`}</h2>
               {versions.length === 0 ? <Empty icon="clock" title="ยังไม่มีเวอร์ชันที่บันทึก" /> : (
                 <ul className="aq-list">

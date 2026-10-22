@@ -12,6 +12,8 @@
  * ARIA: role="dialog" aria-modal aria-labelledby aria-describedby · focus trap · Esc = ยกเลิก · คลิก backdrop = ยกเลิก
  *       (ยกเว้น prompt ที่พิมพ์แล้ว) · ปิดแล้วคืน focus ให้ element ที่เปิด
  * ชื่อปุ่มยืนยันต้องขึ้นต้นด้วย "ยืนยัน" (E2E) — ผู้เรียกส่ง confirmText เช่น "ยืนยันส่งตรวจ"
+ * U-3: เปิด dialog ซ้อนขณะมีตัวเปิดอยู่ = เข้าคิว (ไม่ทับ ไม่ทิ้ง promise/ข้อความที่พิมพ์ค้าง) · แสดงต่อเมื่อตัวก่อนหน้าปิด
+ * U-4: dismissAll() ปิดทุกตัว (รวมในคิว) ด้วยค่า "ยกเลิก" — ใช้ตอน session หาย/ออกจากระบบ
  */
 
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
@@ -58,6 +60,7 @@ interface DialogState {
   required?: boolean;
   initialFocus: 'confirm' | 'cancel' | 'input';
   dismissible: boolean;
+  defaultText?: string;
   resolve: (v: boolean | string | null) => void;
 }
 
@@ -65,11 +68,13 @@ interface DialogContextValue {
   confirm: (o: ConfirmOptions) => Promise<boolean>;
   notify:  (o: NotifyOptions)  => Promise<void>;
   prompt:  (o: PromptOptions)  => Promise<string | null>;
+  /** ปิดทุก dialog (รวมในคิว) ด้วยค่ายกเลิก */
+  dismissAll: () => void;
 }
 
 const noop = async () => {};
 const DialogContext = createContext<DialogContextValue>({
-  confirm: async () => false, notify: noop, prompt: async () => null,
+  confirm: async () => false, notify: noop, prompt: async () => null, dismissAll: () => {},
 });
 
 const VARIANT_ICON: Record<DialogVariant, IconName> = {
@@ -83,6 +88,8 @@ function defaultFocus(v: DialogVariant, f?: 'confirm' | 'cancel'): 'confirm' | '
   if (f) return f;
   return v === 'danger' || v === 'warning' ? 'cancel' : 'confirm';
 }
+
+const cancelValue = (s: DialogState) => (s.kind === 'confirm' ? false : null);
 
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -98,11 +105,21 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const titleId = `${uid}-title`;
   const descId = `${uid}-desc`;
 
-  const open = useCallback((s: DialogState) => {
-    opener.current = (typeof document !== 'undefined' ? document.activeElement : null) as HTMLElement | null;
-    setText('');
+  // ตัวที่แสดงอยู่ (อัปเดตทันที ไม่รอ render) + คิว
+  const activeRef = useRef<DialogState | null>(null);
+  const queueRef = useRef<DialogState[]>([]);
+
+  const show = useCallback((s: DialogState) => {
+    activeRef.current = s;
+    setText(s.defaultText ?? '');
     setState(s);
   }, []);
+
+  const open = useCallback((s: DialogState) => {
+    if (activeRef.current) { queueRef.current.push(s); return; }
+    opener.current = (typeof document !== 'undefined' ? document.activeElement : null) as HTMLElement | null;
+    show(s);
+  }, [show]);
 
   const confirm = useCallback((o: ConfirmOptions) => new Promise<boolean>(resolve => {
     const v = o.variant || 'primary';
@@ -132,26 +149,31 @@ export function DialogProvider({ children }: { children: ReactNode }) {
       icon: o.icon || VARIANT_ICON[v],
       confirmText: o.confirmText || 'ยืนยัน', cancelText: o.cancelText || 'ยกเลิก',
       placeholder: o.placeholder, required: o.required, initialFocus: 'input', dismissible: o.dismissible !== false,
+      defaultText: o.defaultValue,
       resolve: r => resolve(typeof r === 'string' ? r : null),
     });
-    if (o.defaultValue) setText(o.defaultValue);
   }), [open]);
 
-  const stateRef = useRef<DialogState | null>(null);
-  stateRef.current = state;
-
   const close = useCallback((result: boolean | string | null) => {
-    const cur = stateRef.current;
+    const cur = activeRef.current;
     if (!cur) return;
-    stateRef.current = null;
+    activeRef.current = null;
     cur.resolve(result);
+    const next = queueRef.current.shift();
+    if (next) { show(next); return; }
     setState(null);
     const back = opener.current;
     opener.current = null;
     if (back && typeof back.focus === 'function') setTimeout(() => { if (document.contains(back)) back.focus(); }, 0);
-  }, []);
+  }, [show]);
 
-  const cancelValue = (s: DialogState) => (s.kind === 'prompt' ? null : s.kind === 'confirm' ? false : null);
+  const dismissAll = useCallback(() => {
+    const q = queueRef.current;
+    queueRef.current = [];
+    q.forEach(d => d.resolve(cancelValue(d)));
+    const cur = activeRef.current;
+    if (cur) close(cancelValue(cur));
+  }, [close]);
 
   // focus เริ่มต้น
   useEffect(() => {
@@ -181,7 +203,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const tone = state ? VARIANT_TONE[state.variant] : 'primary';
 
   return (
-    <DialogContext.Provider value={{ confirm, notify, prompt }}>
+    <DialogContext.Provider value={{ confirm, notify, prompt, dismissAll }}>
       {children}
       {state && (
         <div

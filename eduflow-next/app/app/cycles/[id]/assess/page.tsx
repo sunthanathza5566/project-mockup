@@ -17,6 +17,7 @@ import Icon from '@/components/ui/Icon';
 import ProgressRing from '@/components/ui/ProgressRing';
 import { StepCheck } from '@/components/ui/Stepper';
 import Term from '@/components/ui/Term';
+import { useLang } from '@/context/LangContext';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 import { GROUP_TH, decodeParam, errMsg, fmtDateTime, sectionHref } from '@/lib/ui/aunqa';
 
@@ -151,10 +152,11 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
         <ul className="aq-checklist">
           <li className={`aq-checkitem aq-checkitem--${k === 8 ? 'ok' : 'warn'}`} data-done={k === 8}>
             <Icon name={k === 8 ? 'check-circle' : 'circle-dashed'} size={20} />
-            <span>ให้คะแนนรายเกณฑ์แล้ว <strong data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="aq-muted">{` (ยังขาดเกณฑ์ ${p.missingCriteria.join(', ')})`}</span>}</span>
+            {/* UX-U3-7: ข้อความตามสถานะจริง — ยังไม่ทำ = บอกสิ่งที่ยังไม่ทำ */}
+            <span>{k === 8 ? 'ให้คะแนนครบทุกเกณฑ์แล้ว' : 'ยังให้คะแนนรายเกณฑ์ไม่ครบ'} <strong data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="aq-muted">{` (ยังขาดเกณฑ์ ${p.missingCriteria.join(', ')})`}</span>}</span>
           </li>
           <li className={`aq-checkitem aq-checkitem--${p.hasVerdict ? 'ok' : 'warn'}`} data-done={p.hasVerdict}>
-            <Icon name={p.hasVerdict ? 'check-circle' : 'circle-dashed'} size={20} /><span>เลือก verdict ภาพรวมแล้ว</span>
+            <Icon name={p.hasVerdict ? 'check-circle' : 'circle-dashed'} size={20} /><span>{p.hasVerdict ? `เลือก verdict ภาพรวมแล้ว${mine?.verdict ? ` (${mine.verdict})` : ''}` : 'ยังไม่เลือก verdict ภาพรวม'}</span>
           </li>
           <li className="aq-checkitem"><Icon name="file-text" size={20} /><span>{`ข้อค้นพบ (Appendix B) ที่บันทึกแล้ว: ${p.findingCount} ข้อ (ไม่บังคับ)`}</span></li>
         </ul>
@@ -181,7 +183,9 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
           {writable && !p.canFinish && missing && <span className="aq-btn-reason">ยังขาด: {missing}</span>}
         </span>
         <AsyncButton className="aq-btn" testId="assess-appb" onClick={() => { downloadBlob(exportAppendixBDoc(user, cycle.id), `AppendixB_${cycle.academicYear}.doc`); }}>Appendix B (.doc)</AsyncButton>
+        <Term k="appendix_b" label="Appendix B" />
         <AsyncButton className="aq-btn" testId="assess-appd" onClick={() => { downloadBlob(exportAppendixDDoc(user, cycle.id), `AppendixD_${cycle.academicYear}.doc`); }}>Appendix D (.doc)</AsyncButton>
+        <Term k="appendix_d" label="Appendix D" />
       </div>
     </section>
   );
@@ -210,6 +214,7 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
 }) {
   const { showToast } = useToast();
   const crit = listCriteria().find(c => c.no === no);
+  const { lang } = useLang();
   const reqs = listRequirements(no);
   const myRating = d.ratings.find(r => r.criterionNo === no && r.raterUserId === user.id);
   const [score, setScore] = useState(String(myRating?.score ?? ''));
@@ -242,7 +247,7 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
   return (
     <div id={`crit-panel-${no}`} role="tabpanel" aria-labelledby={`crit-tab-${no}`} className="aq-tabpanel" data-testid={`assess-panel-${no}`}>
       <section className="aq-card" aria-labelledby="cr-h">
-        <h2 id="cr-h" className="aq-h2">เกณฑ์ {no}: {crit?.nameTh} <span className="aq-muted aq-h2-sub">{crit?.nameEn}</span></h2>
+        <h2 id="cr-h" className="aq-h2">{`เกณฑ์ ${no}: ${crit?.nameTh ?? ''}`} {lang !== 'en' && <span className="aq-muted aq-h2-sub">{crit?.nameEn}</span>}</h2>
         <div className="aq-form-inline">
           <div className="aq-field">
             <label htmlFor={`crit-score-${no}`}>คะแนนเกณฑ์นี้ (1–7) <Term k="self_rating" label="สเกล 1–7" /></label>

@@ -11,11 +11,13 @@ import { Empty, PageHeader } from '@/components/aunqa/common';
 import RequirementCard from '@/components/aunqa/RequirementCard';
 import Icon from '@/components/ui/Icon';
 import { CRITERION_GROUP_TH } from '@/lib/ui/aunqa';
+import { useLang } from '@/context/LangContext';
 
 export default function RequirementsPage() {
   const [q, setQ] = useState('');
   const [only, setOnly] = useState<number>(0);
   const criteria = useMemo(() => listCriteria(), []);
+  const { lang } = useLang();
 
   const groups = useMemo(() => {
     const hits = q.trim() ? new Set(searchRequirements(q).map(r => r.id)) : null;
@@ -42,7 +44,7 @@ export default function RequirementsPage() {
         <div className="aq-cluster" role="group" aria-label="กรองตามเกณฑ์" data-testid="req-criterion">
           <button type="button" className="aq-btn aq-btn-compact" aria-pressed={only === 0} onClick={() => setOnly(0)}>ทุกเกณฑ์</button>
           {criteria.map(c => (
-            <button key={c.no} type="button" className="aq-btn aq-btn-compact" aria-pressed={only === c.no} title={c.nameTh}
+            <button key={c.no} type="button" className="aq-btn aq-btn-compact" aria-pressed={only === c.no} title={`เกณฑ์ ${c.no}: ${c.nameTh}`}
               onClick={() => setOnly(o => (o === c.no ? 0 : c.no))}>เกณฑ์ {c.no}</button>
           ))}
         </div>
@@ -55,7 +57,7 @@ export default function RequirementsPage() {
       ) : groups.map(({ c, reqs }) => (
         <section key={c.no} className="aq-section" aria-labelledby={`crit-${c.no}`}>
           <h2 id={`crit-${c.no}`} className="aq-h2">
-            เกณฑ์ {c.no}: {c.nameTh} <span className="aq-h2-sub">{c.nameEn} · {CRITERION_GROUP_TH[c.group]} · {reqs.length} ข้อ</span>
+            {`เกณฑ์ ${c.no}: ${c.nameTh}`} <span className="aq-h2-sub">{`${lang === 'en' ? '' : `${c.nameEn} · `}${CRITERION_GROUP_TH[c.group]} · ${reqs.length} ข้อ`}</span>
           </h2>
           <div className="aq-reqgrid">{reqs.map(r => <RequirementCard key={r.id} req={r} compact />)}</div>
         </section>

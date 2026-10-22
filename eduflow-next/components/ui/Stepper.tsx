@@ -27,7 +27,8 @@ export interface StepperProps {
   steps: StepItem[];
   variant?: 'nav' | 'track';
   ariaLabel: string;
-
+  /** ข้อความแทน "ขั้น x จาก n" ในแบบย่อ (เช่น "อนุมัติแล้ว (ครบ 4 ขั้น)") — U3 UX-U3-9 */
+  summary?: ReactNode;
   testId?: string;
 }
 
@@ -40,7 +41,7 @@ function StepCheck({ drawn }: { drawn: boolean }) {
   );
 }
 
-export default function Stepper({ steps, variant = 'nav', ariaLabel, testId }: StepperProps) {
+export default function Stepper({ steps, variant = 'nav', ariaLabel, summary, testId }: StepperProps) {
   const prev = useRef<Record<string, StepState> | null>(null);
   const [justDone, setJustDone] = useState<Set<string>>(new Set());
 
@@ -57,15 +58,16 @@ export default function Stepper({ steps, variant = 'nav', ariaLabel, testId }: S
 
   const curIdx = Math.max(0, steps.findIndex(s => s.state === 'current'));
   const cur = steps[curIdx];
+  const allDone = steps.length > 0 && steps.every(s => s.state === 'done');
 
   return (
     <nav className={`aq-stepper aq-stepper--${variant}`} aria-label={ariaLabel} data-testid={testId}>
       <p className="aq-stepper__compact">
         <span className="aq-stepper__compact-text">
-          ขั้น {curIdx + 1} จาก {steps.length}: {cur?.label}
+          {summary ?? (allDone ? `ครบ ${steps.length} ขั้นแล้ว` : <>ขั้น {curIdx + 1} จาก {steps.length}: {cur?.label}</>)}
         </span>
         <span className="aq-stepper__dots" aria-hidden="true">
-          {steps.map((s, i) => <i key={s.key} className={`is-${s.state}${i === curIdx ? ' is-here' : ''}`} />)}
+          {steps.map((s, i) => <i key={s.key} className={`is-${s.state}${i === curIdx && !allDone && !summary ? ' is-here' : ''}`} />)}
         </span>
       </p>
       <ol className="aq-stepper__list">

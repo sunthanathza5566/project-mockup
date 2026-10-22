@@ -90,7 +90,7 @@ export function translateTree(root: Node, lang: Lang) {
       if (!translated) { originals.delete(node); translatedText.delete(node); return; }
       originals.set(node, raw);                                         // ต้นฉบับล่าสุดเสมอ
       // คงช่องว่างหน้า/หลังเดิมไว้ เพื่อไม่ให้ layout เพี้ยน
-      const out = raw.replace(key, translated);
+      const out = raw.replace(key, () => translated); // U-7: ไม่ตีความ $& $' ในคำแปล
       translatedText.set(node, out);
       node.data = out;
     } else {

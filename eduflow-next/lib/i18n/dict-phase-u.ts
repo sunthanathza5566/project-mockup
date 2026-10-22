@@ -5,7 +5,12 @@
  * ข้อมูลผู้ใช้/seed (ชื่อคน ชื่อหลักสูตร ข้อความข้อกำหนด เนื้อหา SAR ชื่อหลักฐาน) ไม่แปล
  */
 
+import { AUNQA_V4_CRITERIA } from '@/lib/mock-data/aunqa/framework';
+
 type Tr = (s: string) => string;
+
+/** F5-1/F5-3: ชื่อเกณฑ์ไทย → nameEn ทางการ (เช่น เกณฑ์ 5 "อาจารย์" = Academic Staff ไม่ใช่ Lecturer) */
+const CRIT_EN = new Map(AUNQA_V4_CRITERIA.map(c => [c.nameTh, c.nameEn]));
 
 export const EN_PHASE_U: Record<string, string> = {
   // ── shell / nav / prefs ──
@@ -689,6 +694,42 @@ export const EN_PHASE_U: Record<string, string> = {
   'คะแนน —': 'Score —',
   'อาจารย์': 'Lecturer',
   'การออกแบบ': 'Design', 'ทรัพยากร': 'Resources', 'ผลลัพธ์': 'Outputs',
+  // ── U3 fix ──
+  'ออกจากระบบแล้ว': 'Signed out',
+  'ทำรายการนี้ไม่ได้เพราะออกจากระบบแล้ว ถ้าไปหน้าเข้าสู่ระบบ ข้อความที่ยังไม่บันทึกในหน้านี้จะหายไป': 'You are signed out, so this action is not available. If you go to the sign-in page, unsaved text on this page will be lost.',
+  'กลับไปคัดลอกข้อความ': 'Go back and copy the text',
+  'ยืนยันไปหน้าเข้าสู่ระบบ': 'Confirm: go to sign-in',
+  'ล็อกแล้ว': 'Locked',
+  'ล็อกแล้ว — แก้ไขไม่ได้': 'Locked — cannot be edited',
+  'ส่งตรวจแล้ว — รอประธานหลักสูตรตรวจ': 'Submitted — waiting for the programme chair',
+  'ข้อนี้ถูกแก้จากที่อื่น': 'This item was changed elsewhere',
+  'ยืนยันโหลดฉบับล่าสุด': 'Confirm: load the latest version',
+  'คัดลอกข้อความของฉันก่อน': 'Copy my text first',
+  'คัดลอกข้อความของคุณแล้ว': 'Your text has been copied',
+  'คัดลอกไม่สำเร็จ — เลือกข้อความในกล่องแล้วคัดลอกเอง': 'Copy failed — select the text in the box and copy it yourself',
+  'ข้อนี้ถูกแก้จากที่อื่น — ข้อความล่าสุดของคุณยังไม่ถูกบันทึก': 'This item was changed elsewhere — your latest text has not been saved',
+  'ข้อนี้ถูกแก้จากที่อื่น ข้อความล่าสุดของคุณยังไม่ถูกบันทึก': 'Changed elsewhere; your latest text has not been saved',
+  'ข้อนี้ถูกแก้จากที่อื่น — โหลดฉบับล่าสุดก่อน': 'Changed elsewhere — load the latest version first',
+  'คัดลอกข้อความของฉัน': 'Copy my text',
+  'โหลดฉบับล่าสุด': 'Load latest version',
+  'ไม่ได้ระบุเหตุผล': 'No reason given',
+  'เปิดข้อถัดไปในคิว →': 'Open next item in queue →',
+  'กลับคิวรอตรวจ': 'Back to review queue',
+  'ไม่พบข้อนี้': 'Item not found',
+  'ลิงก์อาจไม่ครบหรือพิมพ์ผิด — เปิดข้อจากแดชบอร์ดรอบหรือหน้าหลักแทน': 'The link may be incomplete or mistyped — open the item from the cycle dashboard or the home page instead',
+  'ไปหน้ารอบประเมิน': 'Go to assessment cycles',
+  'กลับไปเปิดอ่านก่อน': 'Go back and read it first',
+  'ยืนยันอนุมัติ': 'Confirm approval',
+  'ให้คะแนนครบทุกเกณฑ์แล้ว': 'All criteria rated',
+  'ยังให้คะแนนรายเกณฑ์ไม่ครบ': 'Not all criteria rated yet',
+  'ยังไม่เลือก verdict ภาพรวม': 'Overall verdict not selected yet',
+  'เมื่อปิดรอบแล้ว ผลประเมินจะแก้ไขไม่ได้ และรอบจะย้ายไปอยู่ในรายการรอบที่ปิดแล้ว': 'Once closed, the assessment results cannot be changed and the cycle moves to the closed list.',
+  'ยังไม่มีแผนปรับปรุงที่สร้างจากข้อเสนอแนะ (': 'No improvement actions have been created from the assessors’ recommendations (',
+  ') ของรอบนี้ — สร้างได้ที่หน้า “แผนปรับปรุง” (ปุ่มสร้างจาก AFI)': ') for this cycle yet — create them on the “Improvement plan” page (Create from AFI button)',
+  'รอบนี้ปิดแล้ว —': 'This cycle is closed —',
+  'ดูผลประเมิน': 'View assessment results',
+  'หรือ': 'or',
+  'AFI (ข้อเสนอแนะเพื่อการปรับปรุง)': 'AFI (areas for improvement)',
 };
 
 const SEV: Record<string, string> = { 'วิกฤต': 'critical', 'สูง': 'high', 'กลาง': 'medium', 'ต่ำ': 'low' };
@@ -713,6 +754,28 @@ const due = (s?: string) => {
 
 /** ข้อความที่ประกอบจากตัวแปร — ลองก่อน PATTERNS เดิม · regex ห้ามมี flag g */
 export const PATTERNS_PHASE_U: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
+  // ── U3 fix ──
+  [/^ครบ (\d+) ขั้นแล้ว$/, m => `All ${m[1]} steps done`],
+  [/^ล็อกแล้ว \(ครบ (\d+) ขั้น\)$/, m => `Locked (all ${m[1]} steps done)`],
+  [/^อนุมัติแล้ว \(ครบ (\d+) ขั้น\)$/, m => `Approved (all ${m[1]} steps done)`],
+  [/^(.+) — ระบบยังไม่บันทึกข้อความล่าสุดของคุณ เพื่อไม่ให้ทับงานที่อื่น$/, (m, tr) => `${tr(m[1])} — your latest text has not been saved so that it does not overwrite the other change`],
+  [/^เนื้อหาของข้อนี้ถูกแก้จากที่อื่น(?: \(โดย (.+?)\))? หลังจากที่คุณเปิดหน้า \(อาจเป็นแท็บหรือเครื่องอื่น\)$/, m => `The content of this item was changed elsewhere${m[1] ? ` (by ${m[1]})` : ''} after you opened the page (another tab or device)`],
+  [/^สถานะของข้อนี้เปลี่ยนเป็น “(.+?)”(?: \(โดย (.+?)\))?$/, (m, tr) => `The status of this item changed to “${tr(m[1])}”${m[2] ? ` (by ${m[2]})` : ''}`],
+  [/^ผู้รับผิดชอบหรือกำหนดส่งของข้อนี้ถูกเปลี่ยน(?: \(โดย (.+?)\))?$/, m => `The owner or due date of this item was changed${m[1] ? ` (by ${m[1]})` : ''}`],
+  [/^มีการยืนยันคำแปลของข้อนี้จากที่อื่น(?: \(โดย (.+?)\))?$/, m => `The translation of this item was confirmed elsewhere${m[1] ? ` (by ${m[1]})` : ''}`],
+  [/^ข้อนี้ถูกบันทึกจากที่อื่น(?: \(โดย (.+?)\))? หลังจากที่คุณเปิดหน้า$/, m => `This item was saved elsewhere${m[1] ? ` (by ${m[1]})` : ''} after you opened the page`],
+  [/^(.+) ส่งกลับแก้ไขเมื่อ (.+)$/, (m, tr) => `${m[1] === 'ประธานหลักสูตร' ? 'The programme chair' : m[1]} returned this for revision on ${tr(m[2])}`],
+  [/^ประวัติการตรวจ \((\d+)\)$/, m => `Review history (${m[1]})`],
+  [/^อนุมัติข้อ (\S+) ทั้งที่ยังมีช่องว่างวิกฤต$/, m => `Approve item ${m[1]} despite critical gaps?`],
+  [/^ข้อนี้ยังมีช่องว่างระดับวิกฤต (\d+) รายการ \(เช่น ยังไม่มีหลักฐานผูก\) แนะนำให้เปิดอ่านก่อนอนุมัติ$/, m => `This item still has ${m[1]} critical gap(s) (e.g. no linked evidence). Please read it before approving.`],
+  [/^ต้องมอบหมายผู้เขียน (\d+) ข้อ \(ยังไม่อนุมัติและยังไม่มีเจ้าของ\)$/, m => `${m[1]} item(s) need an author (not approved and no owner)`],
+  [/^อีก (\d+) ข้ออนุมัติแล้วโดยยังไม่มีเจ้าของ — ไม่ต้องมอบหมาย$/, m => `${m[1]} more item(s) are approved without an owner — no assignment needed`],
+  [/^เลือก verdict ภาพรวมแล้ว \((\d)\)$/, m => `Overall verdict selected (${m[1]})`],
+  [/^มีแผนปรับปรุงจากรอบนี้แล้ว (\d+) รายการ$/, m => `${m[1]} improvement action(s) already created from this cycle`],
+  [/^รหัสตัวชี้วัด (\S+)$/, m => `Metric code ${m[1]}`],
+  [/^(\d+) ข้อ$/, m => `${m[1]} item${m[1] === '1' ? '' : 's'}`],
+  [/^หน่วย: (.+)$/, m => `Unit: ${({ 'คน': 'persons', 'ครั้ง': 'times', 'คะแนน/5': 'score/5', 'ชิ้น': 'items', 'บาท': 'baht', 'ปี': 'years' } as Record<string, string>)[m[1]] ?? m[1]}`],
+  [/^(.+) \((คน|ครั้ง|คะแนน\/5|ชิ้น|บาท|ปี)\)$/, (m, tr) => `${tr(m[1])} (${({ 'คน': 'persons', 'ครั้ง': 'times', 'คะแนน/5': 'score/5', 'ชิ้น': 'items', 'บาท': 'baht', 'ปี': 'years' } as Record<string, string>)[m[2]]})`],
   [/^ปีการศึกษา (\d{4})$/, m => `Academic year ${m[1]}`],
   [/^([1-7]) — (.+)$/, (m, tr) => `${m[1]} — ${tr(m[2])}`],
   [/^คำถามวินิจฉัย \((\d+)\)$/, m => `Diagnostic questions (${m[1]})`],
@@ -758,7 +821,7 @@ export const PATTERNS_PHASE_U: [RegExp, (m: RegExpExecArray, tr: Tr) => string][
   [/^ส่งตรวจข้อ (\S+) แล้ว — ประธานหลักสูตรได้รับแจ้งเตือน$/, m => `Item ${m[1]} submitted — the programme chair has been notified`],
   [/^ส่งข้อ (\S+) กลับแก้ไขแล้ว$/, m => `Item ${m[1]} returned for revision`],
   [/^ไปเกณฑ์ (\d+) →$/, m => `Go to criterion ${m[1]} →`],
-  [/^เกณฑ์ (\d+): (.+)$/, (m, tr) => `Criterion ${m[1]}: ${tr(m[2])}`],
+  [/^เกณฑ์ (\d+): (.+)$/, (m, tr) => `Criterion ${m[1]}: ${CRIT_EN.get(m[2]) ?? tr(m[2])}`],
   [/^เกณฑ์ (\d+)$/, m => `Criterion ${m[1]}`],
   [/^ข้อค้นพบ \(Appendix B\) ที่บันทึกแล้ว: (\d+) ข้อ \(ไม่บังคับ\)$/, m => `Findings (Appendix B) recorded: ${m[1]} (optional)`],
   [/^ \(ยังขาดเกณฑ์ (.+)\)$/, m => ` (still missing criteria ${m[1]})`],

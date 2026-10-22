@@ -74,7 +74,7 @@ export default function AssignPage() {
   }
 
   function gotoNextUnowned(sections: { requirementId: string; ownerUserId?: string; status: string }[]) {
-    const next = sections.find(s => !s.ownerUserId && s.status !== 'approved') ?? sections.find(s => !s.ownerUserId);
+    const next = sections.find(s => !s.ownerUserId && s.status !== 'approved');
     if (!next) return;
     const el = document.querySelector<HTMLSelectElement>(`[data-testid="owner-${next.requirementId}"]`);
     el?.closest('details')?.setAttribute('open', '');
@@ -85,7 +85,9 @@ export default function AssignPage() {
   return (
     <Async q={q} skeleton="table">{({ cycle, canAssign, canAssessor, assignable, sections, names, assessors }) => {
       const owned = sections.filter(s => s.ownerUserId).length;
-      const unowned = sections.length - owned;
+      // UX-U3-6: นับแบบเดียวกับ todo — ข้อที่อนุมัติแล้วไม่ต้องมีผู้เขียน
+      const unowned = sections.filter(s => !s.ownerUserId && s.status !== 'approved').length;
+      const unownedApproved = sections.filter(s => !s.ownerUserId && s.status === 'approved').length;
       const assignedAssessors = assessors.filter(a => a.roles.some(r => r.role === 'assessor' && r.scopeId === id));
       return (
         <>
@@ -143,13 +145,16 @@ export default function AssignPage() {
             <ProgressBar value={owned} max={sections.length || 53} label={`มอบหมายแล้ว ${owned}/${sections.length} ข้อ`} />
             {unowned > 0 && (
               <div className="aq-cluster">
-                <span>ยังไม่มีเจ้าของ {unowned} ข้อ</span>
+                <span data-testid="assign-unowned">{`ต้องมอบหมายผู้เขียน ${unowned} ข้อ (ยังไม่อนุมัติและยังไม่มีเจ้าของ)`}</span>
                 {canAssign && (
                   <button type="button" className="aq-btn aq-btn-compact" onClick={() => gotoNextUnowned(sections)}>
                     ไปข้อถัดไปที่ยังไม่มีเจ้าของ<Icon name="chevron-down" size={20} />
                   </button>
                 )}
               </div>
+            )}
+            {unownedApproved > 0 && (
+              <p className="aq-help">{`อีก ${unownedApproved} ข้ออนุมัติแล้วโดยยังไม่มีเจ้าของ — ไม่ต้องมอบหมาย`}</p>
             )}
           </section>
 
@@ -162,7 +167,7 @@ export default function AssignPage() {
               <details key={c.no} className="aq-card aq-collapse aq-assign-crit" open>
                 <summary>
                   <span className="aq-flex-1">
-                    <span className="aq-h3" id={`as-${c.no}`}>เกณฑ์ {c.no}: {c.nameTh}</span>
+                    <span className="aq-h3" id={`as-${c.no}`}>{`เกณฑ์ ${c.no}: ${c.nameTh}`}</span>
                     <ProgressBar value={done} max={secs.length || 1} label={`มอบหมาย ${done}/${secs.length}`} />
                   </span>
                   <Icon name="chevron-down" size={20} className="aq-collapse__chev" />
