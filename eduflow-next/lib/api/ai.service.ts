@@ -79,10 +79,10 @@ async function finalize(
 }
 
 /** กฎ 7.3 ในโค้ด: ตัดประโยคที่เข้ารูปให้คะแนน/ตัดสิน แล้วรวมเป็นธงใน postCheck (B4) */
-function judgementFilter() {
+function judgementFilter(opts: { bloomLevels?: boolean } = {}) {
   const removed: string[] = [];
   return {
-    clean(t: string): string { const r = stripJudgement(t); removed.push(...r.removed); return r.text; },
+    clean(t: string): string { const r = stripJudgement(t, opts); removed.push(...r.removed); return r.text; },
     apply(pc: PostCheckResult): PostCheckResult {
       return removed.length ? { ...pc, ok: false, flaggedSentences: [...pc.flaggedSentences, ...removed] } : pc;
     },
@@ -128,13 +128,16 @@ export async function runEvidenceTagger(actor: AppUser, evidenceId: string, cycl
   const inputContext = `${r.value.title}\n${r.value.text}\n${reqs.map(q => q.id).join(' ')}`;
   const pc = postCheckText(out.summary, { allowedCodes: new Set(), inputContext, dropUnsafe: true });
   const reasonChecks = out.suggestions.map(s => postCheckText(s.reasons.join(' '), { allowedCodes: new Set(), inputContext }));
+  // D-sec A-1: กฎ 7.3 — ตัดประโยคตัดสิน/ให้คะแนน (กัน prompt injection จากเนื้อหาหลักฐาน)
+  const jf = judgementFilter();
   const cleaned: TagOutput = {
-    ...out, summary: pc.text || `หลักฐาน: ${r.value.title}`,
+    ...out, summary: jf.clean(pc.text) || `หลักฐาน: ${r.value.title}`,
+    pdcaReason: jf.clean(out.pdcaReason ?? ''),
     suggestions: out.suggestions.filter(s => !!getRequirement(s.requirementId))
-      .map(s => ({ ...s, confidence: Number.isFinite(s.confidence) ? Math.min(1, Math.max(0, s.confidence)) : 0 })), // B5: clamp 0–1
+      .map(s => ({ ...s, reasons: (s.reasons ?? []).map(jf.clean).filter(Boolean), confidence: Number.isFinite(s.confidence) ? Math.min(1, Math.max(0, s.confidence)) : 0 })), // B5: clamp 0–1
   };
   return finalize(actor, 'AI-1', ev.universityId, { t: r.value, ids: reqs.length }, { evidenceId, cycleId, codes: [ev.code] },
-    redaction.count, cleaned, mergePostChecks([pc.result, ...reasonChecks.map(c => c.result)]), started);
+    redaction.count, cleaned, jf.apply(mergePostChecks([pc.result, ...reasonChecks.map(c => c.result)])), started);
 }
 
 // ─── AI-2 ────────────────────────────────────────────────────────────────
@@ -156,9 +159,11 @@ export async function runSarDrafter(actor: AppUser, cycleId: string, requirement
 
   const inputContext = stableStringify(input);
   const pc = postCheckText(out.draft, { allowedCodes: citableCodes(cycleId), inputContext, dropUnsafe: true });
-  const cleaned: DraftOutput = { ...out, draft: pc.text, usedEvidence: out.usedEvidence.filter(c => citableCodes(cycleId).has(c)) };
+  // D-sec A-1: ร่างจะเข้า SAR → ตัดประโยคตัดสิน/ให้คะแนน (ตัวเช็กตัวเลขกันไม่ได้เพราะ input มีเลข 1–7 เสมอ)
+  const jf = judgementFilter();
+  const cleaned: DraftOutput = { ...out, draft: jf.clean(pc.text), missing: (out.missing ?? []).map(jf.clean).filter(Boolean), usedEvidence: out.usedEvidence.filter(c => citableCodes(cycleId).has(c)) };
   return finalize(actor, 'AI-2', cycle.universityId, input as unknown as Record<string, unknown>,
-    { cycleId, requirementId, codes: evs.map(e => e.code) }, redaction.count, { ...cleaned, language }, pc.result, started);
+    { cycleId, requirementId, codes: evs.map(e => e.code) }, redaction.count, { ...cleaned, language }, jf.apply(pc.result), started);
 }
 
 // ─── AI-3 ────────────────────────────────────────────────────────────────
@@ -258,13 +263,19 @@ export async function runTranslate(actor: AppUser, sectionId: string, to: 'en' |
     ok: !lostCodes.length && !lostNums.length, removedCitations: [], unknownNumbers: [],
     flaggedSentences: [...lostCodes.map(c => `คำแปลขาดรหัสอ้างอิง [${c}]`), ...lostNums.map(n => `คำแปลขาดตัวเลข ${n}`)],
   };
+  // D-sec A-1: คำแปลห้ามเพิ่มประโยคตัดสินที่ต้นฉบับไม่มี → ติดธง (ไม่ตัด เพราะเนื้อหาเป็นของผู้ใช้)
+  const srcJudged = stripJudgement(sr.value).removed.length;
+  const outJudged = stripJudgement(pc.text).removed;
+  const judgement: PostCheckResult = outJudged.length > srcJudged
+    ? { ok: false, removedCitations: [], unknownNumbers: [], flaggedSentences: outJudged.map(t => `คำแปลมีประโยคเชิงตัดสิน/ให้คะแนนที่ต้นฉบับไม่มี: ${t}`) }
+    : { ok: true, removedCitations: [], unknownNumbers: [], flaggedSentences: [] };
   const cleaned: TranslateRunOutput = {
     translation: pc.text, from, to, sectionId, needsHumanTranslation: offline && out.needsHumanTranslation === true,
     glossaryHits: hits.map(h => (to === 'en' ? h.en : h.th)),
   };
   return finalize(actor, 'AI-4', cycle.universityId, input as unknown as Record<string, unknown>,
     { cycleId: sec.cycleId, requirementId: sec.requirementId, codes: Array.from(new Set(srcCodes)) }, redaction.count, cleaned,
-    mergePostChecks([pc.result, completeness]), started);
+    mergePostChecks([pc.result, completeness, judgement]), started);
 }
 
 // ─── AI-7: PLO/CLO verb checker (M4) ─────────────────────────────────────
@@ -296,18 +307,19 @@ export async function runVerbChecker(actor: AppUser, programmeId: string, ids?: 
   const inputContext = `${stableStringify(input)} ${BLOOM_CONTEXT}`;
   const checks = out.results.map(r => postCheckText(`${r.note} ${r.suggestions.join(' ')}`, { allowedCodes: new Set(), inputContext }));
   // B5: ค่าที่ระบบรู้อยู่แล้ว (code/kind/declaredLevel) ใช้จาก input เสมอ ไม่เชื่อ Claude · detectedLevels ต้องอยู่ 1–6
+  const jf = judgementFilter({ bloomLevels: true }); // D-sec A-1 · "ระดับ N" ของ Bloom ไม่ใช่คะแนน
   const cleaned: VerbOutput = {
     results: out.results.filter(r => known.has(r.id)).map(r => {
       const k = known.get(r.id)!;
       return {
-        ...r, code: k.code, kind: k.kind, declaredLevel: k.declaredLevel,
+        ...r, note: jf.clean(r.note ?? ''), suggestions: (r.suggestions ?? []).map(jf.clean).filter(Boolean), code: k.code, kind: k.kind, declaredLevel: k.declaredLevel,
         detectedLevels: Array.from(new Set(r.detectedLevels.filter(n => Number.isInteger(n) && n >= 1 && n <= 6))).sort((a, b) => a - b),
       };
     }),
   };
   return finalize(actor, 'AI-7', prog.universityId, input as unknown as Record<string, unknown>,
     { programmeId, codes: items.map(i => i.code) }, redaction.count, cleaned,
-    mergePostChecks(checks.map(c => c.result)), started);
+    jf.apply(mergePostChecks(checks.map(c => c.result))), started);
 }
 
 // ─── AI-9: assessor summary + interview questions (M12) ──────────────────

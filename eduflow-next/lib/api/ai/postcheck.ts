@@ -63,13 +63,18 @@ export function postCheckText(text: string, opt: PostCheckOptions): { text: stri
  */
 // ตัวเลขที่เป็นข้อเท็จจริง (ทศนิยม / "จาก 5") ไม่ใช่การตัดสิน — ใช้ lookahead กันตัดเกิน (R2-2)
 const NOT_FACT = String.raw`(?![\d๐-๙]|\.\d|\s*(?:จาก|out of|of)\s*\d)`;
-const JUDGEMENT_RE = new RegExp([
+const JUDGEMENT_SCORE_PARTS = [
   String.raw`(?:ให้|ควรได้|สมควรได้)\s*คะแนน`,
   String.raw`ได้คะแนน(?!\s*(?:เฉลี่ย|ความ|\d+\.\d))`,
   String.raw`คะแนน(?:ของ)?(?:เกณฑ์|ข้อ)(?:นี้|ย่อย)`,
   String.raw`คะแนน\s*[1-7๑-๗]${NOT_FACT}`,
+];
+/** "ระดับ N" — ใน AUN-QA = คะแนน 1–7 แต่ใน AI-7 = ระดับ Bloom (ข้อเท็จจริง) จึงแยกออกให้ปิดได้ */
+const JUDGEMENT_LEVEL_PARTS = [
   String.raw`ระดับ(?:ที่)?\s*[1-7๑-๗]${NOT_FACT}`,
   String.raw`(?:ควร)?ได้ระดับ(?!\s*\d+\.\d)`,
+];
+const JUDGEMENT_VERDICT_PARTS = [
   String.raw`(?<!\d\s)\b(?:score[sd]?|rating|verdict|adequate|inadequate|pass|fail)\b(?!\s*(?:of|is|was|:)?\s*\d+\.\d)`,
   String.raw`(?:ไม่)?ผ่าน(?:เกณฑ์|ตามเกณฑ์|การประเมิน|มาตรฐาน)`,
   String.raw`(?:ถือว่า|ควร|สมควร)(?:จะ)?(?:ไม่)?ผ่าน`,
@@ -77,18 +82,22 @@ const JUDGEMENT_RE = new RegExp([
   String.raw`ไม่ผ่าน[\s.!?]*$`,
   String.raw`ไม่เพียงพอ`,
   String.raw`เพียงพอ(?:ตามที่คาดหวัง|ตามเกณฑ์|ต่อเกณฑ์|แล้ว|ในระดับ|[\s.!?]*$)`,
-].join('|'), 'iu');
+];
+const JUDGEMENT_RE = new RegExp([...JUDGEMENT_SCORE_PARTS, ...JUDGEMENT_LEVEL_PARTS, ...JUDGEMENT_VERDICT_PARTS].join('|'), 'iu');
+/** AI-7 (Bloom): ไม่ตัด "ระดับ N" เพราะหมายถึงระดับ Bloom 1–6 · ยังตัดคะแนน/ผ่าน-ไม่ผ่าน/verdict (D-sec A-1) */
+const JUDGEMENT_RE_BLOOM = new RegExp([...JUDGEMENT_SCORE_PARTS, ...JUDGEMENT_VERDICT_PARTS].join('|'), 'iu');
 
 /** ประโยคไทยมักไม่มีจุด: แยกต่อเป็นอนุประโยคที่ช่องว่างระหว่างอักษรไทย เพื่อตัดเท่าที่จำเป็น ไม่ใช่ทั้งย่อหน้า */
 function splitClauses(sentence: string): string[] {
   return sentence.split(/(?<=[ก-๙])(?<![๐-๙])\s+(?=[ก-๙])(?![๐-๙])/).map(s => s.trim()).filter(Boolean);
 }
 
-export function stripJudgement(text: string): { text: string; removed: string[] } {
+export function stripJudgement(text: string, opts: { bloomLevels?: boolean } = {}): { text: string; removed: string[] } {
+  const re = opts.bloomLevels ? JUDGEMENT_RE_BLOOM : JUDGEMENT_RE;
   const removed: string[] = [];
   const lines = (text || '').split('\n').map(line => {
     const kept = splitSentences(line).flatMap(splitClauses).filter(s => {
-      if (JUDGEMENT_RE.test(s)) { removed.push(s); return false; }
+      if (re.test(s)) { removed.push(s); return false; }
       return true;
     });
     return kept.join(' ').trim();

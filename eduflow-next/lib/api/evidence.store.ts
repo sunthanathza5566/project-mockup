@@ -167,7 +167,7 @@ export async function createEvidence(actor: AppUser, input: CreateEvidenceInput)
   }
 
   const now = Date.now();
-  const pii = piiOf(input.title, input.description, extracted);
+  const pii = piiOf(input.title, input.description, extracted, input.file?.name); // D-sec A-6: ชื่อไฟล์ด้วย
   const ev: Evidence = {
     id: newId('evd'), universityId: prog.universityId, programmeId: prog.id,
     code: nextEvidenceCode(prog.id, reqIds[0]),
@@ -201,7 +201,8 @@ export function updateEvidence(actor: AppUser, id: string, patch: UpdateEvidence
   const next: Evidence = { ...e, ...Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)) } as Evidence;
   validateMeta(next);
   const ft = e.currentFileId ? load<EvidenceFile>(KEYS.files).find(f => f.id === e.currentFileId)?.extractedText : undefined;
-  const pii = piiOf(next.title, next.description, ft);
+  const cur = e.currentFileId ? load<EvidenceFile>(KEYS.files).find(f => f.id === e.currentFileId) : undefined;
+  const pii = piiOf(next.title, next.description, ft, cur?.name); // D-sec A-6
   if (pii.contains !== e.containsPii || pii.kinds.join() !== e.piiKinds.join()) {
     next.containsPii = pii.contains; next.piiKinds = pii.kinds;
     if (!pii.contains) next.piiResolved = false;
@@ -227,7 +228,7 @@ export async function addFileVersion(actor: AppUser, evidenceId: string, file: F
   assertNotInLockedCycle(evidenceId);
   const extracted = extractedText ?? file.text;
   const f = await storeFile(actor, evidenceId, file, extracted);
-  const pii = piiOf(e.title, e.description, extracted);
+  const pii = piiOf(e.title, e.description, extracted, file.name); // D-sec A-6
   const next: Evidence = {
     ...e, currentFileId: f.id, sha256: f.sha256, containsPii: pii.contains, piiKinds: pii.kinds,
     piiResolved: pii.contains ? false : e.piiResolved, updatedAt: Date.now(),

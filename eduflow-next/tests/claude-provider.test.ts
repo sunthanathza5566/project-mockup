@@ -76,7 +76,7 @@ describe('Claude provider: fallback เป็น offline เงียบ ๆ', (
     const out = await m.claude.checkVerbs(VERB_INPUT);
     expect(out.results[0].note).toBe('จาก Claude');
     expect(m.claude.model).toBe('claude-sonnet-5-5');
-    expect(m.claude.promptVersion).toBe('claude-v1');
+    expect(m.claude.promptVersion).toBe('claude-v2');
     const post = f.mock.calls.find(c => (c[1] as RequestInit).method === 'POST')!;
     expect((post[1] as RequestInit).headers).toMatchObject({ 'x-aunqa-client': '1' });
     expect(JSON.parse((post[1] as RequestInit).body as string)).toMatchObject({ task: 'verbs' });
@@ -133,7 +133,7 @@ describe('Claude ผ่าน ai.service: post-check / redact / ai_run ยัง
     stubFetch((_u, init) => ((init as RequestInit).method === 'GET' ? json({ available: true }) : json({ output: claudeOut, model: 'claude-sonnet-5-5' })));
     const run = await api.runAssessorSummary(a, 'cycle-demo-2569', 1);
     expect(run.model).toBe('claude-sonnet-5-5');
-    expect(run.promptVersion).toBe('claude-v1');
+    expect(run.promptVersion).toBe('claude-v2');
     const out = run.output as typeof claudeOut;
     const text = JSON.stringify(out);
     expect(text).not.toContain('97.31');

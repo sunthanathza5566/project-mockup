@@ -34,12 +34,51 @@ async function toBlob(wb: ExcelJS.Workbook): Promise<Blob> {
   return new Blob([await wb.xlsx.writeBuffer()], { type: XLSX_MIME });
 }
 
+// D-sec A-5: กัน zip bomb — ตรวจขนาดหลังแตก zip จาก central directory ก่อนให้ exceljs โหลด
+const MAX_UNZIPPED_BYTES = 60 * 1024 * 1024; // รวมทุก entry (cohort 100,000 แถว ≈ 15–25 MB)
+const MAX_ZIP_ENTRIES = 1000;
+
+/**
+ * อ่าน central directory ของ zip (ไม่แตกไฟล์) → ขนาดรวมหลังแตก + จำนวน entry
+ * ไม่ใช่ zip / ZIP64 / directory เสีย → throw invalid
+ * ข้อจำกัด: ค่าใน directory ผู้สร้างไฟล์ปลอมได้ — JSZip (ใน exceljs) ตรวจ size mismatch หลังแตกอีกชั้น
+ */
+export function inspectZipDirectory(buf: ArrayBuffer): { entries: number; uncompressed: number } {
+  const bad = (m = 'อ่านไฟล์ไม่ได้ — ต้องเป็นไฟล์ .xlsx') => new AunqaError('invalid', m);
+  const dv = new DataView(buf);
+  const len = buf.byteLength;
+  if (len < 22) throw bad();
+  let eocd = -1;
+  for (let i = len - 22; i >= Math.max(0, len - 22 - 0xFFFF); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw bad();
+  const total = dv.getUint16(eocd + 10, true);
+  const cdSize = dv.getUint32(eocd + 12, true);
+  const cdOffset = dv.getUint32(eocd + 16, true);
+  if (total === 0xFFFF || cdSize === 0xFFFFFFFF || cdOffset === 0xFFFFFFFF) throw bad('ไม่รองรับไฟล์ zip ขนาดใหญ่พิเศษ (ZIP64)');
+  if (total > MAX_ZIP_ENTRIES) throw bad(`ไฟล์มีส่วนประกอบมากเกินไป (เกิน ${MAX_ZIP_ENTRIES})`);
+  if (cdOffset + cdSize > len) throw bad();
+  let p = cdOffset; let sum = 0;
+  for (let n = 0; n < total; n++) {
+    if (p + 46 > len || dv.getUint32(p, true) !== 0x02014b50) throw bad();
+    const size = dv.getUint32(p + 24, true);
+    if (size === 0xFFFFFFFF) throw bad('ไม่รองรับไฟล์ zip ขนาดใหญ่พิเศษ (ZIP64)');
+    sum += size;
+    if (sum > MAX_UNZIPPED_BYTES) throw bad(`ข้อมูลในไฟล์ใหญ่เกินไปหลังแตกไฟล์ (เกิน ${MAX_UNZIPPED_BYTES / 1024 / 1024} MB)`);
+    p += 46 + dv.getUint16(p + 28, true) + dv.getUint16(p + 30, true) + dv.getUint16(p + 32, true);
+  }
+  return { entries: total, uncompressed: sum };
+}
+
 async function readWorkbook(file: Blob): Promise<ExcelJS.Workbook> {
   if (!file || typeof file.arrayBuffer !== 'function') throw new AunqaError('invalid', 'ไม่พบไฟล์');
   if (file.size > MAX_BYTES) throw new AunqaError('invalid', 'ไฟล์ใหญ่เกิน 5 MB');
+  const buf = await file.arrayBuffer();
+  inspectZipDirectory(buf); // D-sec A-5: ก่อนโหลดทั้งไฟล์
   const wb = new ExcelJS.Workbook();
   try {
-    await wb.xlsx.load(await file.arrayBuffer());
+    await wb.xlsx.load(buf);
   } catch {
     throw new AunqaError('invalid', 'อ่านไฟล์ไม่ได้ — ต้องเป็นไฟล์ .xlsx');
   }
