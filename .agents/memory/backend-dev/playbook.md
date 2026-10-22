@@ -1,14 +1,15 @@
 # Playbook — backend-dev
 
 ## RULES
-- [incident: TASK-0001 A#1 เกิดซ้ำที่ B7] ห้าม export ฟังก์ชันที่ข้าม guard ออกจาก facade `@/lib/api` ต้องอยู่ใน `*.internal.ts` เท่านั้น · getter ข้อมูลดิบต้องรับ `user` และผ่าน guard เดียวกับ getter หลัก. ใช้ซ้ำแล้ว 0 ครั้ง (เลื่อนจาก LESSONS เพราะเกิดซ้ำจริง)
+- [incident: TASK-0001 A#1 เกิดซ้ำที่ B7] ห้าม export ฟังก์ชันที่ข้าม guard ออกจาก facade `@/lib/api` ต้องอยู่ใน `*.internal.ts` เท่านั้น · getter ข้อมูลดิบต้องรับ `user` และผ่าน guard เดียวกับ getter หลัก. ใช้ซ้ำแล้ว 1 ครั้ง (U2-B: `usersWhoCan` ไม่ export, preflight/todo ผ่าน getCycle/listCycles) (เลื่อนจาก LESSONS เพราะเกิดซ้ำจริง)
 - [incident: TASK-0001 BUG-0001-B4-1] regex ที่ตัดข้อความไทย (เช่น JUDGEMENT_RE) ต้องมีตารางเทสต์สองฝั่ง: ต้องตัด (เช่น "ไม่ผ่านเกณฑ์ข้อนี้") และต้องไม่ตัด (เช่น "ความพึงพอใจ 4.51 คะแนน") เพราะประโยคไทยไม่มีตัวแบ่ง ตัด 1 ครั้งอาจหายทั้งย่อหน้า. ใช้ซ้ำแล้ว 1 ครั้ง (C4 รอบ 2 reviewer ยืนยันว่า C-1 test ทำตาม RULE นี้)
 - [incident: TASK-0001 C-1 major, DOCX] export ที่สร้าง XML (DOCX/XLSX/SVG) ต้องตัด control char ที่ XML 1.0 ห้าม (`\u0000-\u0008`, `\u000B`, `\u000C`, `\u000E-\u001F`, U+FFFE/FFFF, surrogate เดี่ยว) ก่อนส่งเข้า library เพราะ `docx` escape แค่ `& < >`. ทดสอบด้วย `\u000b` แล้ว unzip `word/document.xml` ดู. ใช้ซ้ำแล้ว 0 ครั้ง
-- [incident: TASK-0001 C2-1 major] ถ้า orchestrator/review ระบุพฤติกรรมชัด (เช่น "ป้ายไม่เขียนลง narrative") ให้ทำตามนั้น; ถ้าเห็นว่าไม่ถูก ให้ BLOCKED แล้วถามก่อน ห้ามทำแบบอื่นแล้วเขียนเทสต์ล็อกพฤติกรรมนั้น. ใช้ซ้ำแล้ว 0 ครั้ง
+- [incident: TASK-0001 C2-1 major] ถ้า orchestrator/review ระบุพฤติกรรมชัด (เช่น "ป้ายไม่เขียนลง narrative") ให้ทำตามนั้น; ถ้าเห็นว่าไม่ถูก ให้ BLOCKED แล้วถามก่อน ห้ามทำแบบอื่นแล้วเขียนเทสต์ล็อกพฤติกรรมนั้น. ใช้ซ้ำแล้ว 2 ครั้ง (U2-B จดจุดตีความ (ก)-(ช) ให้ยืนยัน; U3 fix BLOCKED signature saveSection)
 - [incident: TASK-0001 C3-1 major] หลังแก้ regex ทุกครั้ง grep ไฟล์ยืนยันว่า `\` ยังอยู่ครบ (เครื่องมือเขียนไฟล์บางครั้งกิน `\`) และ probe ด้วย node ก่อนส่ง review เช่น `'students meet'.replace(/^\s+/,'')` ต้องยังขึ้นต้นด้วย "students". ใช้ซ้ำแล้ว 0 ครั้ง
 
+- [TASK-0001 review #2, เลื่อนจาก LESSONS ใน Phase U] store ที่ load ผ่าน readJSON (cache คืน reference ร่วม): validate id/input ทั้งหมดก่อนแก้ object ใดๆ แล้วค่อย save; appendAudit หลัง save สำเร็จเท่านั้น; ค่าที่คืนให้ผู้เรียกที่อาจถือไว้ (เช่น detail.current) ให้คืนสำเนา. ใช้ซ้ำแล้ว 2 ครั้ง (U2-B getAttempts คืนสำเนา; U2-B รอบ 2 submitSection validate ก่อน mutate)
+
 ## LESSONS
-- [TASK-0001 review #2] store ที่ load ผ่าน readJSON (cache คืน reference ร่วม): validate id/input ทั้งหมดก่อนแก้ object ใดๆ แล้วค่อย save; appendAudit หลัง save สำเร็จเท่านั้น. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0001 review] กฎ "AI ห้ามให้คะแนน/เปลี่ยน state" บังคับด้วยโครงสร้าง import + provider interface ที่ไม่มีเมธอดให้คะแนน ดีกว่าเขียนแค่ใน prompt. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0001 B2] seed ที่เปลี่ยนสถานะเริ่มต้นของ entity กลางทำให้เทสต์เดิมพัง → แยก helper `freshDemo` (ว่าง) กับ `freshSeededDemo` ตั้งแต่แรก
 - [TASK-0001 B2] กฎ segregation "ผู้เขียนล่าสุด" เก็บฟิลด์แยก (`lastAuthorId`) ไม่ใช้ `updatedBy` เพราะ transition ก็อัปเดต updatedBy
@@ -19,6 +20,8 @@
 - [TASK-0001 C4 review] import ข้อมูลรายบุคคล (cohort): validate ทั้งชุดก่อน แถวผิดแถวเดียว = ไม่เขียนอะไรเลย, ทำ dryRun คืนผลสรุปก่อนเขียนจริง, ไม่เก็บไฟล์/แถวรายคนค้างไว้รอยืนยัน. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0001 C4 review] งานแปล/สร้างข้อความด้วย AI: post-check แบบ multiset เทียบรหัสและตัวเลขของต้นฉบับกับผลลัพธ์ (ขาด/เกิน = ธง) ดีกว่า check ทั่วไป. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0001 C4 review] preview ก่อน commit: ผูก actorId + TTL (30 นาที) + ใช้ได้ครั้งเดียว + จำกัดจำนวนรายการใน memory. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0001 U2-B] ฟังก์ชัน "เวลาเหลือ/ประเภทหมดอายุ" ใช้ตัวอ่านเดียวกับ getSession (หมดอายุ = คืน null + ล้าง) เพื่อไม่ให้ UI เห็นค่าติดลบที่ขัดกับ getCurrentUser. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0001 U3 fix] รับ contract ที่เพิ่มพารามิเตอร์ ให้เทียบตำแหน่ง + ชนิด field กับ signature จริงทันที แล้ว BLOCKED เร็วก่อนฝั่งที่ทำขนานผูกผิด (พบ opts ชน `reason`, string vs number). ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## PROJECT KNOWLEDGE
 - facade จุดเดียว `@/lib/api` (lib/api/index.ts); ทุก write รับ `actor: AppUser` และ throw `AunqaError` (.code/.message/.detail)
@@ -32,3 +35,6 @@
 - `lib/api/export-bundle.internal.ts` = loadBundle ที่ใช้ร่วมกับ export; ไม่ export ออก facade
 - AI translate (AI-4): เพดาน 8,000 ตัวอักษร**หลัง** redact, `MAX_TOKENS.translate` 8192; ธง `needsTranslationReview` (R11) ล้างได้ทาง `confirmTranslationReviewed` เท่านั้น; offline translate ไม่มีป้ายใน narrative
 - ค้างจาก C4 รอบ 1 ที่ฝั่ง frontend (C-7, C-10) ไม่ใช่งาน backend
+- สคริปต์ตรวจชั่วคราวด้วย vitest ใน scratchpad: config เป็น object ธรรมดา (ไม่ import `vitest/config` — resolve ไม่เจอ) + `test.dir` ชี้ scratchpad + setupFiles ของโปรเจกต์ (U2-B)
+- Phase U API: session localStorage (idle 4 ชม./absolute 12 ชม., `touchSession({force})`, `sessionTimeLeft`, `subscribeSession`), `listMyTodos` 15 kind (`lib/api/todo.ts`), `getTransitionPreflight` (`lib/api/preflight.ts`, รองรับ to:'closed'), `saveSection(..., reason, opts?: {baseUpdatedAt:number})` → `AunqaError('conflict')`; เหตุผลส่งกลับอ่านจาก `listReviewEvents`
+- ข้อค้าง (ไม่บล็อก): store คืน reference ของ cache; conflict ใช้ ms timestamp → ตอนย้าย PostgreSQL ใช้ revision counter; PII จับเลข 13 หลักในชื่อหลักฐาน (ตั้งใจ)

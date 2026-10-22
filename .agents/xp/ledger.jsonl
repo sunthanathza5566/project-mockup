@@ -75,3 +75,83 @@
 {"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M6: cycle dashboard ยาว ~3000px ช่องว่าง 157 แถวไม่จัดกลุ่ม KPI สีเดียว", "task": "TASK-0001"}
 {"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M7: heatmap ตัวเล็ก 10.4px contrast 2.9-3.9 พึ่งสีอย่างเดียว", "task": "TASK-0001"}
 {"ts": "2026-10-21T17:44:48+00:00", "agent": "ui-inspector", "points": 8, "reason": "U0 major M8: touch target ต่ำกว่า 44px (ปุ่ม/แท็บ/select) หลายตัวต่อหน้า", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": 40, "reason": "Phase U U1 ADR-UI-001 + ui/tokens,components,pages ครบ 7 ข้อ, AC-01..18 วัดได้ (L)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": -3, "reason": "Phase U U1b spec ต้องแก้หลังตรวจ 1 รอบ (PASS-WITH-CHANGES x2: F1-F5, M1-M4)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": 5, "reason": "Phase U Study ui-ux.md ข้อ 1-9 แล้ว spec สอดคล้องเมื่อ ui-inspector วัดซ้ำ (36 คู่ contrast ผ่าน)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": 3, "reason": "Phase U บทเรียนรับ: grep selector E2E ทำรายการห้ามเปลี่ยนก่อน redesign", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": 3, "reason": "Phase U บทเรียนรับ: spec ระบุข้อความไทยจริง + class ต่อขนาดตัวอักษรให้ AC ตรวจด้วยสคริปต์", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "architect", "points": 3, "reason": "Phase U บทเรียนรับ: contrast คำนวณมือติดป้ายแหล่งที่มา + บังคับวัดซ้ำด้วยสคริปต์", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 20, "reason": "Phase U U2-B API session/todo/notify/preflight/P2 (M): tsc 0, vitest 409, scratch 10 ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 10, "reason": "Phase U U2-B ผ่าน Phase U review รอบ 1 ไม่มี finding ในไฟล์ backend", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 10, "reason": "Phase U U3 fix backend (S): saveSection conflict + ยืนยัน listReviewEvents/preflight closed; 516 ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 5, "reason": "Phase U BLOCKED ถูกต้อง: contract saveSection ขัด signature จริง (ตำแหน่ง reason + ชนิด number)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: ฟังก์ชันเวลาเหลือใช้ตัวอ่านเดียวกับ getSession (หมดอายุ=null)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "backend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: เทียบ contract ที่เพิ่มพารามิเตอร์กับ signature จริงทันที แล้ว BLOCKED เร็ว", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 20, "reason": "Phase U U2-F1 foundation tokens/globals.css/primitives (M): tsc 0, build, E2E 14/2", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 5, "reason": "Phase U U2-F1 E2E 14 passed/2 skip ครั้งแรกหลังเขียน globals.css ใหม่ทั้งไฟล์", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 5, "reason": "Phase U Study ui-ux.md (F1) แล้ว U3 ui-inspector ยืนยันข้อ U0 ปิดครบ ฟอนต์/ขนาด/target ตามมาตรฐาน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 20, "reason": "Phase U U2-F2 shell/auth/landing/404 (M): build ผ่าน, ไม่มี h-scroll, ข้ามแท็บ logout ทำงาน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 20, "reason": "Phase U U2-F3 หน้าทำงาน todo/dashboard/assign/review/assess (M): เดินรอบเดโม่ทุก role ผ่าน UI", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 20, "reason": "Phase U U2-F4 section editor/หลักฐาน/คลังเกณฑ์ (M): build ผ่าน, M3(ก)(ข) ยืนยันด้วยมือ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 20, "reason": "Phase U U2-F5 curriculum/metrics/actions/export/admin + dict EN + C-7/C-10 (M): build ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 10, "reason": "Phase U C-7/C-10 ที่เลื่อนจาก C4 ทำใน F5 แล้ว reviewer Phase U ไม่พบปัญหา (C-10 ตรง 6.3)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": -3, "reason": "Phase U ต้องแก้หลัง Phase U review รอบ 1 (U-1, U-2 major + UI/playtest U3) = U3 fix 1 รอบ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: inventory className/var inline ก่อนเขียน globals.css ใหม่ + alias token เก่า", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: popover ใช้ position fixed + บีบใน clientWidth กัน h-scroll", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: control คนละที่ตาม breakpoint แต่ testid เดียว = element เดียว + grid-area", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: dialog ที่ยกเลิกมีผล (ออกจากระบบ) ต้องปิด Esc/ฉากหลัง", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: handler ภายนอก (flush/beforeunload) อ่านค่าผ่าน live ref", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: ตัวนับใน UI คู่กฎ backend ต้องใช้ฟังก์ชันเดียวกัน (countWords Segmenter)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: pattern แปลต้องแคบเท่ารูปแบบจริง วาง pattern ทั่วไปท้ายสุด", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: harvest ข้อความไทยทุกหน้าหลังสลับ EN ด้วย Playwright เป็นเกณฑ์วัด", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "frontend-dev", "points": 3, "reason": "Phase U บทเรียนรับ: สลับ layout ด้วย early-return ทำ children remount state หาย -> คงโครง DOM", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 40, "reason": "Phase U U2-Q (L): phase-u 47 + contrast 60 เคส, ui-u 20 + regress-u1b 5 e2e; 516 unit, 39 e2e 2 รอบติด", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 8, "reason": "Phase U พบ major BUG-0001-U2Q-1: ป้าย TrendChart เห็นจริง 7.5px@390 (ui-inspector U3 ยืนยัน)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 20, "reason": "Phase U U3 fix regression (M): regress-u3fix 13 + u3-fix 12 เคส; 528 unit, 52 e2e, repeat-each 3 ไม่ flaky", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 3, "reason": "Phase U บทเรียนรับ: วัดขนาดตัวอักษร SVG ต้องคูณ getScreenCTM", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 3, "reason": "Phase U บทเรียนรับ: contrast ของ focus ring วัดพื้นจริงด้วย elementsFromPoint", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 3, "reason": "Phase U บทเรียนรับ: bug ที่พบระหว่างเขียนเทสต์รวม แยก KNOWN_BUGS + test.fail ต่อ bug", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 3, "reason": "Phase U บทเรียนรับ: เก็บค่าที่เทียบเป็น primitive ทันที (store คืน reference ของ cache)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "qa-tester", "points": 3, "reason": "Phase U บทเรียนรับ: ทดสอบคิว dialog ด้วยสอง flow จริง ตรวจ role=dialog ทีละตัว", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 20, "reason": "Phase U Phase U review รอบ 1 (M): diff 81 ไฟล์, รัน tsc/test/build เอง, 8 finding มี file:line", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 8, "reason": "Phase U พบ major U-1: touchSession เรียกแค่ SarWorkspace ผู้ใช้หน้าอื่นถูกนับ idle ข้อความหาย", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 8, "reason": "Phase U พบ major U-2: sessionLost ทำให้อ่านอย่างเดียวแค่ SarWorkspace แท็บที่ออกแล้วยังเขียนได้", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 10, "reason": "Phase U Phase U review รอบ 2 (S): ตามรอยผู้เขียน section.updatedAt ยืนยันไม่มี conflict ปลอม, APPROVE", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 5, "reason": "Phase U RULE getter/ไม่ export ข้าม guard ถูกอ้างใช้ใน U2-B (usersWhoCan ไม่ export)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 5, "reason": "Phase U RULE คำสั่งระบุชัดต้องถามก่อน ถูกอ้างใน U2-B และ U3 BLOCKED saveSection", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 5, "reason": "Phase U บทเรียน validate ก่อน mutate (readJSON cache) ถูกใช้ใน U2-B getAttempts + submitSection", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 3, "reason": "Phase U บทเรียนรับ: spec บอก X เรียก Y ให้ grep ผู้เรียก Y ทั้ง repo (พบ U-1)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "reviewer", "points": 3, "reason": "Phase U บทเรียนรับ: state อ่านอย่างเดียวต้องตรวจว่าครอบทั้งแอป ไม่ใช่คอมโพเนนต์เดียว (พบ U-2)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 20, "reason": "Phase U U0 audit ทุกหน้า 58 ภาพ + สถิติ (M) (ค้างจาก C6 ที่ให้แค่ finding)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 10, "reason": "Phase U U1b ตรวจ spec ก่อน build (S): วัด contrast 36 คู่ด้วยสคริปต์ + render style tile", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U1b major F1: breakpoint ใน spec ขัดกันเอง (mobile-first vs max-width)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U1b major F2: ช่อง heatmap ขนาดคงที่ขัดกฎห้าม height คงที่/AC-04", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U1b major F3: ไม่มี variant ปุ่ม/LangToggle บนพื้นเข้ม", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U1b major F4: สี progress ring ช่วงท้าย tokens ขัด components C20", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U1b major F5: ไม่มีกฎกันวรรณยุกต์ถูกตัดเมื่อ ellipsis/ตัด 60", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 20, "reason": "Phase U U3 ตรวจของจริง (M): 100 ภาพ, axe 0 violation, contrast สุ่ม 120 ตัว, ยืนยัน U0 ปิดครบ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 8, "reason": "Phase U U3 major U3-1: textarea TH/EN แสดงพร้อมกัน ([hidden] แพ้ display:block)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 3, "reason": "Phase U บทเรียนรับ: ตรวจ [hidden] ที่ computed display != none ทุกครั้ง", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 3, "reason": "Phase U บทเรียนรับ: ก่อน next start ตรวจ .next/BUILD_ID และ source ไม่ใหม่กว่า build", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "ui-inspector", "points": 3, "reason": "Phase U บทเรียนรับ: เลขในวงแหวนวัดความกว้างเทียบวงใน เหลือ >=8px ต่อข้าง", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 20, "reason": "Phase U U0 เล่นทุก role บน build จริง 1366/390 (M): TASK-0001-roles.md + bug P1-P10", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major BUG-0001-P1: session sessionStorage เปิดแท็บใหม่ถูกเด้ง /login", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major BUG-0001-P2: ส่งตรวจข้อว่างได้ไม่มีเตือน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major BUG-0001-P3: refresh ภายใน 3 วิ ข้อความหาย ไม่มี beforeunload", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major BUG-0001-P4: ฟอร์มหลักฐาน error เป็น toast ไกลจากช่อง ปุ่มหาย", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major: หน้างานของฉันเหมือนกันทุก role ไม่บอกงานถัดไป (-> B2 todo)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U0 major: ไม่มี noti ถึง role ถัดไป fqa1/dean1/assess1 ไม่รู้ว่าต้องทำ (-> B3)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 10, "reason": "Phase U U1b paper walkthrough spec ทุก role (S): นับคลิกเทียบ U0", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U1b major M1: todo ไม่มีขั้นเริ่มรอบ/ปิดรอบ uadmin ติด", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U1b major M2: badge รอตรวจนิยามขัด wireframe", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U1b major M3: logout/หมดอายุตอน flush ไม่สำเร็จ งานหายเงียบ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U1b major M4: ring อนุมัติ 45/53 ข้างความพร้อม 28% ส่งสัญญาณขัด", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 20, "reason": "Phase U U3 เดินรอบเดโม่ครบทุก role + กรณีแปลก (M): AC-14/15/16/17 ตัดสิน, P1-P10 ไม่เกิดซ้ำ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 8, "reason": "Phase U U3 major UX-U3-1: เหตุผลที่ประธานส่งกลับไม่ปรากฏในหน้าข้อ", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 3, "reason": "Phase U บทเรียนรับ: สคริปต์ที่บันทึก storageState ห้าม pipe ผ่าน head (SIGPIPE)", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "playtester", "points": 3, "reason": "Phase U บทเรียนรับ: เก็บ state.json ทุกขั้นของรอบเพื่อเล่นซ้ำขั้นเดียว", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ architect U1 แล้วผ่านด่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ frontend-dev U2-F1 แล้วผ่านด่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ ui-inspector U3", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ playtester U3", "task": "TASK-0001"}
+{"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ qa-tester U3 fix (empty state) แล้วเทสต์ผ่าน", "task": "TASK-0001"}
