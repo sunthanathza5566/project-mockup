@@ -53,7 +53,8 @@ export function clearAllAunqa(): void {
 
 /** Error ของ domain — message เป็นภาษาไทยให้แสดงผู้ใช้ได้, ไม่มีรายละเอียดภายใน */
 export type AunqaErrorCode =
-  | 'forbidden' | 'locked' | 'invalid' | 'not_found' | 'duplicate' | 'bad_transition' | 'citation_invalid' | 'ai_disabled';
+  | 'forbidden' | 'locked' | 'invalid' | 'not_found' | 'duplicate' | 'bad_transition' | 'citation_invalid' | 'ai_disabled'
+  | 'conflict'; // U3P-2: section ถูกบันทึกจากที่อื่นหลังหน้าโหลด (detail.current)
 export class AunqaError extends Error {
   code: AunqaErrorCode;
   detail?: Record<string, unknown>;

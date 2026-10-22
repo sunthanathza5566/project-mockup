@@ -51,6 +51,7 @@ export type SaveReason = 'autosave' | 'manual' | 'ai_accept';
 
 export function saveSection(
   actor: AppUser, cycleId: string, requirementId: string, input: SaveSectionInput, reason: SaveReason = 'autosave',
+  opts: { baseUpdatedAt?: number } = {},
 ): SarSection {
   const rows = load<SarSection>(KEYS.sections);
   const sec = rows.find(s => s.id === sectionIdOf(cycleId, requirementId));
@@ -60,6 +61,13 @@ export function saveSection(
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้ไขข้อนี้ (เฉพาะเจ้าของข้อหรือประธานหลักสูตร)');
   assertCycleWritable(cycle);
   assertSectionEditable(sec);
+  // U3P-2 กันเขียนทับข้ามแท็บ: ถูกบันทึกจากที่อื่นหลังจากที่หน้าโหลด (baseUpdatedAt = SarSection.updatedAt ที่หน้าถืออยู่, ms) → ไม่เขียนอะไร
+  if (opts.baseUpdatedAt !== undefined) {
+    if (typeof opts.baseUpdatedAt !== 'number' || !Number.isFinite(opts.baseUpdatedAt))
+      throw new AunqaError('invalid', 'ข้อมูลเวลาที่ใช้ตรวจการแก้ซ้อนไม่ถูกต้อง');
+    if (sec.updatedAt > opts.baseUpdatedAt)
+      throw new AunqaError('conflict', 'ข้อนี้ถูกแก้ไขจากที่อื่นหลังจากที่คุณเปิดหน้า', { current: { ...sec } });
+  }
 
   const th = input.narrativeTh ?? sec.narrativeTh;
   const en = input.narrativeEn ?? sec.narrativeEn;
