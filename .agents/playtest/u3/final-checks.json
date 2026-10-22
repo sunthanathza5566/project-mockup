@@ -1,0 +1,227 @@
+{
+ "guide-landing": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-login": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-login-demo-accounts": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-login-error": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-cycles": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-dashboard": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-assign": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-section-editor-chair": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-evidence-list": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-evidence-form": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-evidence-detail": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-curriculum-plo": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-curriculum-matrix": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-curriculum-heat": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-curriculum-gaps": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-curriculum-prereq": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-metrics": {
+  "hscroll": false,
+  "small": 16,
+  "emoji": []
+ },
+ "guide-actions": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-review": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-export": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-requirements": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-lect-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-data-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-uadmin-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-admin": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-staff-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-section-editor-staff": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-section-presubmit-checklist": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-chair-dashboard-ready": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dialog-chair-send-qa": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-fqa-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-fqa-dashboard": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dean-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dean-dashboard": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dialog-dean-lock-warning": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dashboard-locked": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-dashboard-under-assessment": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-assess-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-assess": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "guide-export-locked": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "mobile-login": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "mobile-chair-home": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "mobile-section-editor": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ },
+ "mobile-dashboard": {
+  "hscroll": false,
+  "small": 0,
+  "emoji": []
+ }
+}
