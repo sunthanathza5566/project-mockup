@@ -37,3 +37,9 @@
   - (Phase U) บทเรียนที่ถูกใช้ซ้ำ: +5 ผู้เขียนครั้งเดียวต่อบทต่อ debrief แม้ถูกอ้างหลายครั้ง; counter นับทุกครั้ง
 - heredoc ใน Bash ที่มีไทย + backtick + quote พัง (unexpected EOF) → เขียนสคริปต์ playbook/award ด้วย Write tool ลง scratchpad แล้วรันด้วย python -X utf8 (Phase U)
 - TASK-0001 Phase U: ledger 77 → 157 (80 แถว, prefix reason "Phase U") — ตรวจซ้ำด้วยการหา "Phase U" ใน reason ก่อน award ครั้งถัดไป
+  - (Phase D) security severity: Medium ในกลุ่ม "แก้ก่อนส่ง" ที่ถูกแก้จริง = major (+8); Low/ข้อจำกัดสถาปัตยกรรม (กลุ่ม B) ไม่นับ
+  - (Phase D) งานที่ orchestrator ข้าม reviewer (D0, D0.5, D1, D-sec fix) → ไม่ให้ +10 ผ่านรอบแรก, +5 diagram ตรงโค้ด, +5 Study และไม่ให้ researcher +3 จาก Study ที่ไม่มีด่าน; thesis-writer ใช้ build.py check/verify เป็นด่าน
+  - (Phase D) บทเรียน "ถูกใช้ซ้ำ" นับได้เมื่อ Log มีหลักฐานการกระทำตรงตามบทชัดเจน (เช่น rebuild เพราะ source ใหม่กว่า build) แม้ไม่อ้างชื่อบท
+  - (Phase D) STUDY REQUEST +3 เฉพาะช่องว่างที่ INDEX ยังไม่ระบุ (security ได้, user-docs ไม่ได้เพราะ INDEX ระบุไว้แล้ว)
+  - (Phase D) LESSON CANDIDATE ที่ซ้ำ RULE เดิม → รวมเข้า RULE + counter ไม่ให้ +3
+- TASK-0001 Phase D: ledger 157 → 191 (34 แถว, prefix reason "Phase D ") — TASK-0001 ปิดแล้ว

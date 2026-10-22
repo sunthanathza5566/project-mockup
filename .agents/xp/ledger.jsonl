@@ -155,3 +155,37 @@
 {"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ ui-inspector U3", "task": "TASK-0001"}
 {"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ playtester U3", "task": "TASK-0001"}
 {"ts": "2026-10-22T13:26:28+00:00", "agent": "researcher", "points": 3, "reason": "Phase U ui-ux.md ถูกอ้างใน Study ของ qa-tester U3 fix (empty state) แล้วเทสต์ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 20, "reason": "Phase D D-sec audit security/PDPA ทั้งระบบ (M): npm audit, git grep secrets HEAD+master, PII probe 24 กรณี, verdict PASS เดโม่", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 8, "reason": "Phase D D-sec major A-1 (Medium): AI-1/2/7 ไม่ผ่าน stripJudgement - backend แก้ + เทสต์ยืนยัน", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 8, "reason": "Phase D D-sec major A-2 (Medium): regex PII หลุดเลขไทย/+66/คั่นจุด (probe หลุด 16/24) - backend แก้ + เทสต์ 37 กรณี", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 3, "reason": "Phase D D-sec STUDY REQUEST standards/security.md - ช่องว่างจริง (INDEX ไม่มีโซน security)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 3, "reason": "Phase D D-sec บทเรียนรับ: ตัวกรองกฎ AI ต้อง grep ว่าถูกเรียกในทุก run*", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 3, "reason": "Phase D D-sec บทเรียนรับ: number post-check ที่ใช้ input JSON เป็น context ยอมเลข 1-7 เสมอ", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "security-auditor", "points": 3, "reason": "Phase D D-sec บทเรียนรับ: PII regex ไทยต้อง normalize เลขไทย/full-width/+66 แล้ว probe", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "backend-dev", "points": 20, "reason": "Phase D D-sec fix A-1/A-2/A-3/A-5/A-6 (M): tsc 0, vitest 578 (ใหม่ 50), build ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "backend-dev", "points": 5, "reason": "Phase D D-sec RULE grep \\ หลังแก้ regex + probe 'students meet' ถูกอ้าง (RULE 5) จับ sed กิน \\ ได้", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "backend-dev", "points": 5, "reason": "Phase D D-sec RULE ตารางเทสต์ regex ไทยสองฝั่ง ถูกใช้ใน PII ต้องจับ 22 / ต้องไม่จับ 15", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "backend-dev", "points": 3, "reason": "Phase D D-sec บทเรียนรับ: ตัวกรองคำตัดสินต้องรู้บริบท feature (ระดับ N ใน AI-7 = Bloom)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "ui-inspector", "points": 10, "reason": "Phase D D0 screenshots ชุดสุดท้าย 50 ภาพ + INDEX + regression ต่อภาพ (S): h-scroll/emoji/<13px = 0", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "ui-inspector", "points": 5, "reason": "Phase D D0 บทเรียน ตรวจ BUILD_ID/source ใหม่กว่า build ถูกใช้: rebuild เพราะ prompts.ts ใหม่กว่า", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "docs-writer", "points": 20, "reason": "Phase D D0.5 คู่มือผู้ใช้ 11 ไฟล์ docs/guide (M): อ้างแหล่งทุกขั้น, ตรวจลิงก์ภาพ 44/44 + ลิงก์ข้ามไฟล์ 50 + anchor 20", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "docs-writer", "points": 3, "reason": "Phase D D0.5 บทเรียนรับ: คู่มือราย role ไล่ POLICY + เงื่อนไขแสดงปุ่มในหน้าจริงคู่กัน", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "docs-writer", "points": 3, "reason": "Phase D D0.5 บทเรียนรับ: role ที่ไม่ได้เล่นจริงติดหมายเหตุ อ้างอิงจากโค้ด", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "diagram-designer", "points": 20, "reason": "Phase D D1 diagram 20 ไฟล์ (ใหม่ 6) ตรง HEAD + แก้ความอ่านได้เป็น ~7-15pt (M): mmdc ผ่าน 20/20, เทียบโค้ดทีละลูกศร", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "diagram-designer", "points": 3, "reason": "Phase D D1 บทเรียนรับ: วัด pt จาก viewBox SVG เทียบพื้นที่พิมพ์ build.py", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "diagram-designer", "points": 3, "reason": "Phase D D1 บทเรียนรับ (RULE จาก incident): mermaid 12.2.0 เส้นประยาวเป็นเส้นทึบ -> themeCSS", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "diagram-designer", "points": 3, "reason": "Phase D D1 บทเรียนรับ: ตั้ง fontSize ต่างกันตามชนิด diagram + guard swimlane บนเส้นไปข้างหน้า", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 20, "reason": "Phase D D2 ยืนยันอ้างอิง 36 จุด (M): ยืนยัน 25 / แหล่งรอง 7 / ไม่พบ 4 + แก้ข้อเท็จจริงในเล่ม (53 ข้อ, Ji 2023, R3 2560)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 3, "reason": "Phase D D2 thesis-th.md ถูกอ้างใน Study ของ thesis-writer D3 และ build.py check/verify ผ่าน", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 5, "reason": "Phase D D2 บทเรียน mmdc ไม่ error ไม่พอต้องเปิด PNG ถูกใช้ใน D1 (เปิดดู PNG จนพบบั๊กเส้นประ)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 5, "reason": "Phase D D2 บทเรียน รูปแบบเล่มต่างสถาบันต้องติดป้ายสาขา ถูกใช้ใน D3 (6 ป้าย)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 3, "reason": "Phase D D2 บทเรียนรับ: PDF ที่ WebFetch อ่านไม่ได้ ใช้ pdftotext -layout หาเลขหน้า", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 3, "reason": "Phase D D2 บทเรียนรับ: api.crossref.org/works/<DOI> แทนหน้าสำนักพิมพ์ที่ 403", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "researcher", "points": 3, "reason": "Phase D D2 บทเรียนรับ: ฟอนต์ไทยใน PDF ราชการสกัดไม่ได้ -> แหล่งรอง + ติดป้าย", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 40, "reason": "Phase D D3 อัปเดตเล่มทุกบทตามระบบสุดท้าย + build.py landscape (L): ป้ายค้าง 98 -> 67, ไม่มีตัวเลขแต่ง", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 5, "reason": "Phase D D3 export สำเร็จ build.py check ปัญหารูป/diagram 0, รูปใน docx 36 = 36", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 5, "reason": "Phase D D3 บทเรียน ตัวเลขผลทดสอบต้องรันซ้ำวันที่เขียน ถูกใช้ (vitest/tsc/e2e รันเอง 2026-10-23)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 5, "reason": "Phase D D3 บทเรียน ตรวจความสูงรูปใน docx ถูกใช้ (verify รูปสูงเกิน 8.4in = 0, พบภาพ 390px ชนเพดาน)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: คำนวณสัดส่วนก่อนสั่งหน้าแนวนอน (ใกล้จัตุรัส = เล็กลง)", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: section แนวนอนใน docx = sectPr ที่ย่อหน้าก่อนรูป + ย่อหน้าคำบรรยาย", "task": "TASK-0001"}
+{"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: ภาพมือถือ 390px ต้องกำหนด width=45%", "task": "TASK-0001"}
