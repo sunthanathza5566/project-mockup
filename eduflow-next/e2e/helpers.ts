@@ -3,10 +3,13 @@ import { expect, type Page, type Locator } from '@playwright/test';
 export const DEMO_CYCLE = 'cycle-demo-2569';
 export const PASSWORD = 'demo1234';
 
-/** เข้าสู่ระบบเป็น username (ล้าง session เดิมก่อน — localStorage/ข้อมูลยังอยู่) */
+/**
+ * เข้าสู่ระบบเป็น username (ล้าง session เดิมก่อน — ข้อมูลเดโม่ใน localStorage ยังอยู่)
+ * Phase U (ADR-UI-001 7.3 ข้อ 1): session ย้ายไป localStorage → ล้างทั้ง localStorage และ sessionStorage
+ */
 export async function loginAs(page: Page, username: string, password = PASSWORD) {
   await page.goto('/login');
-  await page.evaluate(() => sessionStorage.removeItem('aunqa_session'));
+  await page.evaluate(() => { localStorage.removeItem('aunqa_session'); sessionStorage.removeItem('aunqa_session'); });
   await page.goto('/login');
   await page.getByTestId('login-username').fill(username);
   await page.getByTestId('login-password').fill(password);
@@ -50,6 +53,15 @@ export async function gapListText(page: Page, cycleId: string): Promise<string> 
   const more = page.getByRole('button', { name: /แสดงทั้งหมด/ });
   if (await more.count()) await more.click();
   return (await page.getByTestId('gap-list').innerText());
+}
+
+/** เลือกข้อกำหนดใน RequirementPicker ของฟอร์มหลักฐาน (ADR-UI-001 7.3 ข้อ 2 — แทน selectOption บน ev-f-reqs เดิม) */
+export async function pickRequirements(page: Page, ids: string[], prefix = 'ev-f-req') {
+  for (const id of ids) {
+    await page.getByTestId(`${prefix}s-input`).fill(id);
+    await page.getByTestId(`${prefix}-opt-${id}`).click();
+    await expect(page.getByTestId(`${prefix}-chip-${id}`)).toBeVisible();
+  }
 }
 
 /** เลือก option ตามข้อความ (label) */

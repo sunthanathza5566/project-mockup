@@ -3,7 +3,7 @@
  * ทุก test = browser context ใหม่ → localStorage/sessionStorage ว่าง → seed เดโม่ใหม่
  */
 import { test, expect } from '@playwright/test';
-import { createCycleUi, fakeThaiId, gapListText, loginAs, openSection, sectionUrl } from './helpers';
+import { createCycleUi, fakeThaiId, gapListText, loginAs, openSection, pickRequirements, sectionUrl } from './helpers';
 
 test.describe('E2E-01 uni_admin เชิญประธานหลักสูตร', () => {
   test('E2E-01 uadmin เพิ่มผู้ใช้ประธานหลักสูตร (scope หลักสูตร CS) → ประธานล็อกอินเห็นหลักสูตร/สร้างรอบได้', async ({ page }) => {
@@ -77,7 +77,7 @@ test('E2E-04 อัปโหลดหลักฐาน ผูก 1.1 และ 
   const title = 'รายงานทดสอบ E2E-04 ผูกสองข้อ';
   await page.getByTestId('ev-title').fill(title);
   await page.getByTestId('ev-text').fill('สรุปผลการดำเนินงานปีการศึกษา 2569 ไม่มีข้อมูลส่วนบุคคล');
-  await page.getByTestId('ev-f-reqs').selectOption(['1.1', '2.1']);
+  await pickRequirements(page, ['1.1', '2.1']);
   await page.getByTestId('ev-submit').click();
   const row = page.getByTestId('ev-table').locator('tr', { hasText: title });
   await expect(row).toHaveCount(1);
@@ -110,7 +110,7 @@ test('E2E-05 ไฟล์ .txt มีเลขบัตรประชาชน 
     name: 'roster.txt', mimeType: 'text/plain',
     buffer: Buffer.from(`รายชื่อนักศึกษาสมมติ\nสมชาย ใจดี เลขบัตร ${fakeThaiId()}\n`, 'utf8'),
   });
-  await page.getByTestId('ev-f-reqs').selectOption(['1.2']);
+  await pickRequirements(page, ['1.2']);
   await page.getByTestId('ev-submit').click();
   // dialog เตือน PII
   const dlg = page.getByRole('dialog');
