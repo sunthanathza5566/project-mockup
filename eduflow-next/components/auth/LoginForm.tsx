@@ -164,7 +164,7 @@ export default function LoginForm() {
       >
         <summary>
           <Icon name="users" size={20} />
-          บัญชีทดสอบ ({DEMO_ACCOUNTS.length}) — รหัสผ่าน demo1234
+          {`บัญชีทดสอบ (${DEMO_ACCOUNTS.length}) — รหัสผ่าน demo1234`}
           <Icon name="chevron-down" size={20} className="aq-collapse__chev" />
         </summary>
         <div className="aq-demo-grid" data-testid="demo-accounts">

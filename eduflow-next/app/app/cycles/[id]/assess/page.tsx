@@ -151,12 +151,12 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
         <ul className="aq-checklist">
           <li className={`aq-checkitem aq-checkitem--${k === 8 ? 'ok' : 'warn'}`} data-done={k === 8}>
             <Icon name={k === 8 ? 'check-circle' : 'circle-dashed'} size={20} />
-            <span>ให้คะแนนรายเกณฑ์แล้ว <strong data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="aq-muted"> (ยังขาดเกณฑ์ {p.missingCriteria.join(', ')})</span>}</span>
+            <span>ให้คะแนนรายเกณฑ์แล้ว <strong data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="aq-muted">{` (ยังขาดเกณฑ์ ${p.missingCriteria.join(', ')})`}</span>}</span>
           </li>
           <li className={`aq-checkitem aq-checkitem--${p.hasVerdict ? 'ok' : 'warn'}`} data-done={p.hasVerdict}>
             <Icon name={p.hasVerdict ? 'check-circle' : 'circle-dashed'} size={20} /><span>เลือก verdict ภาพรวมแล้ว</span>
           </li>
-          <li className="aq-checkitem"><Icon name="file-text" size={20} /><span>ข้อค้นพบ (Appendix B) ที่บันทึกแล้ว: {p.findingCount} ข้อ (ไม่บังคับ)</span></li>
+          <li className="aq-checkitem"><Icon name="file-text" size={20} /><span>{`ข้อค้นพบ (Appendix B) ที่บันทึกแล้ว: ${p.findingCount} ข้อ (ไม่บังคับ)`}</span></li>
         </ul>
       </div>
       <div className="aq-form-inline">
@@ -164,7 +164,7 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
           <label htmlFor="verdict-score"><Term k="verdict">Verdict</Term> ภาพรวม (คุณเลือกเอง — ระบบไม่คำนวณหรือแนะนำให้)</label>
           <select id="verdict-score" className="aq-input" value={v} disabled={!writable} onChange={e => setV(e.target.value)} data-testid="verdict-score">
             <option value="">— ยังไม่เลือก —</option>
-            {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{s.score} — {s.nameTh}</option>)}
+            {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
           </select>
         </div>
         <div className="aq-field aq-flex-1">
@@ -248,7 +248,7 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
             <label htmlFor={`crit-score-${no}`}>คะแนนเกณฑ์นี้ (1–7) <Term k="self_rating" label="สเกล 1–7" /></label>
             <select id={`crit-score-${no}`} className="aq-input" value={score} disabled={!writable} onChange={e => { setScore(e.target.value); setSaved(false); }} data-testid="crit-score">
               <option value="">— ยังไม่ให้คะแนน —</option>
-              {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{s.score} — {s.nameTh}</option>)}
+              {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
             </select>
           </div>
           <div className="aq-field aq-flex-1">
@@ -290,7 +290,7 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
               <div>
                 <div className="aq-row-between"><strong>SAR (อ่านอย่างเดียว)</strong>{sec && <Link className="aq-btn aq-btn-compact" href={sectionHref(cycle.id, r.id)}>เปิดเต็มหน้า</Link>}</div>
                 <div className="aq-sar-text" data-testid="sar-readonly">{sec?.narrativeTh ? <Narrative text={sec.narrativeTh} evidence={ev} cycleId={cycle.id} /> : <span className="aq-muted">ยังไม่มีเนื้อหา</span>}</div>
-                {self(r.id) && <p className="aq-muted">ประเมินตนเอง: {self(r.id)!.score} คะแนน — {self(r.id)!.rationale}</p>}
+                {self(r.id) && <p className="aq-muted">{`ประเมินตนเอง: ${self(r.id)!.score} คะแนน — ${self(r.id)!.rationale}`}</p>}
                 <strong>หลักฐานที่ผูก ({ev.length})</strong>
                 {ev.length === 0 ? <p className="aq-muted">ไม่มีหลักฐานผูกกับข้อนี้</p> : (
                   <ul className="aq-list">{ev.map(e => <li key={e.id}><Link href={`/app/evidence/${e.id}?cycle=${cycle.id}`}><strong>{e.code}</strong></Link> {e.title} <Badge>{e.pdcaStage}</Badge></li>)}</ul>

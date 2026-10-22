@@ -7,6 +7,8 @@
  * - ข้อความที่มาจาก seed/ผู้ใช้ (ชื่อหลักสูตร, เนื้อหา SAR, ข้อกำหนด, ข้อความแจ้งเตือนจากระบบ) ไม่แปล
  */
 
+import { EN_PHASE_U, PATTERNS_PHASE_U, PATTERNS_PHASE_U_LAST } from './dict-phase-u';
+
 export const EN_AUNQA: Record<string, string> = {
   // ── ทั่วไป / state ──
   'กำลังเตรียมข้อมูล…': 'Preparing data…',
@@ -443,12 +445,15 @@ export const EN_AUNQA: Record<string, string> = {
   'ยังไม่มีรอบประเมินให้ส่งออก': 'No assessment cycle to export',
   'หมายเหตุ: รอบนี้ยังไม่ล็อก เนื้อหาในไฟล์เป็นฉบับร่างล่าสุด': 'Note: this cycle is not locked yet — the file contains the latest draft.',
   'ส่งออกแล้ว': 'Exported',
+  // ── Phase U (ADR-UI-001) ──
+  ...EN_PHASE_U,
 };
 
 type Tr = (s: string) => string;
 
 /** ข้อความที่ประกอบจากตัวแปร — regex ต้องไม่มี flag g (ใช้ exec ซ้ำได้) */
 export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
+  ...PATTERNS_PHASE_U,
   [/^สวัสดี (.+) — งานที่ได้รับมอบหมายและการแจ้งเตือนของคุณ$/, m => `Hello ${m[1]} — your assigned work and notifications`],
   [/^แจ้งเตือนที่ยังไม่อ่าน (\d+) รายการ$/, m => `${m[1]} unread notifications`],
   [/^เลย (\d+) วัน$/, m => `${m[1]} days overdue`],
@@ -477,8 +482,8 @@ export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
   [/^ข้อ (\S+) มี (\d+) ประโยคที่ไม่ได้อ้างหลักฐาน$/, m => `Req. ${m[1]} has ${m[2]} sentence(s) without evidence citations`],
   [/^ข้อ (\S+) ให้คะแนนตนเอง (\d+) แต่หลักฐานยังไม่ครบ \(ขาดหลักฐาน\/ขั้น Check-Act\)$/, m => `Req. ${m[1]} is self-rated ${m[2]} but evidence is incomplete (missing evidence / Check-Act stage)`],
   [/^Appendix B \/ D จะดาวน์โหลดได้เมื่อกรรมการส่งผลประเมินแล้ว \(สถานะ “ประเมินแล้ว”\)$/, () => 'Appendix B / D can be downloaded once the assessors submit their results (status “Assessed”).'],
-  [/^ข้อ (\S+)$/, m => `Req. ${m[1]}`],
-  [/^ข้อ (\S+): (.+)$/, m => `Req. ${m[1]}: ${m[2]}`],
+  [/^ข้อ (\d+\.\d+)$/, m => `Req. ${m[1]}`],
+  [/^ข้อ (\d+\.\d+): (.+)$/, m => `Req. ${m[1]}: ${m[2]}`],
   [/^ปี (\d+)$/, m => `Year ${m[1]}`],
   [/^รอบ (\d+)$/, m => `Cycle ${m[1]}`],
   [/^ยังมี (\d+) ข้อที่ยังไม่อนุมัติ$/, m => `${m[1]} requirements are still not approved`],
@@ -510,4 +515,5 @@ export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
   [/^ตอบโดยโหมด offline \(กฎในเครื่อง\)$/, () => 'Answered by offline mode (local rules)'],
   [/^ตอบโดย Claude \((.+)\)$/, m => `Answered by Claude (${m[1]})`],
   [/^ข้อมูลมี (\d+) ปี \(น้อยกว่า 3 ปี\) แนวโน้มอาจยังไม่น่าเชื่อถือ ควรเพิ่มข้อมูลย้อนหลังให้ครบ 3–5 ปี$/, m => `Only ${m[1]} year(s) of data (fewer than 3) — the trend may be unreliable. Add history up to 3–5 years.`],
+  ...PATTERNS_PHASE_U_LAST,
 ];

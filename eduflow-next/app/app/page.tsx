@@ -116,7 +116,7 @@ export default function HomePage() {
             <section className="aq-section" aria-labelledby="todo-h">
               <div className="aq-card__head">
                 <h2 id="todo-h" className="aq-h2">สิ่งที่ต้องทำตอนนี้</h2>
-                {todos.length > 0 && <span className="aq-muted">(รวม {todoTotal(todos)} งาน)</span>}
+                {todos.length > 0 && <span className="aq-muted">{`(รวม ${todoTotal(todos)} งาน)`}</span>}
               </div>
               {home.length === 0 ? <EmptyTodos user={user} firstCycleId={cycles[0]?.id} /> : (
                 <>
@@ -126,7 +126,7 @@ export default function HomePage() {
                   {rest.length > 0 && (
                     <details className="aq-collapse aq-card aq-mt-4" open={rest.length <= 5}>
                       <summary>
-                        งานอื่น ๆ อีก {rest.length} รายการ
+                        {`งานอื่น ๆ อีก ${rest.length} รายการ`}
                         <Icon name="chevron-down" size={20} className="aq-collapse__chev" />
                       </summary>
                       <ul className="aq-todo-list">
@@ -154,7 +154,7 @@ export default function HomePage() {
             <div className={mine.length > 0 ? 'aq-grid-2' : undefined}>
               {mine.length > 0 && (
                 <section className="aq-card" id="mywork" aria-labelledby="mywork-h">
-                  <h2 id="mywork-h" className="aq-h2">ข้อที่ได้รับมอบหมาย ({mine.length})</h2>
+                  <h2 id="mywork-h" className="aq-h2">{`ข้อที่ได้รับมอบหมาย (${mine.length})`}</h2>
                   <div className="aq-table-wrap">
                     <table className="aq-table aq-table--stack" data-testid="mywork-table">
                       <thead><tr><th>ข้อ</th><th>รอบ</th><th>สถานะ</th><th>กำหนดส่ง</th></tr></thead>
@@ -197,7 +197,7 @@ export default function HomePage() {
 
               <section className="aq-card" id="notifications" aria-labelledby="noti-h">
                 <div className="aq-card__head">
-                  <h2 id="noti-h" className="aq-h2">แจ้งเตือน ({unread} ใหม่)</h2>
+                  <h2 id="noti-h" className="aq-h2">{`แจ้งเตือน (${unread} ใหม่)`}</h2>
                   {unread > 0 && (
                     <button type="button" className="aq-btn aq-btn-compact" onClick={readAll} data-testid="noti-read-all">
                       ทำเครื่องหมายว่าอ่านแล้วทั้งหมด

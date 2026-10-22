@@ -485,7 +485,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
           {side === 'evidence' && (
             <div id="sidepanel-evidence" role="tabpanel" aria-labelledby="sidetab-evidence" className="aq-tabpanel">
-              <h2 id="step-evidence" className="aq-h3" tabIndex={-1}>หลักฐานที่ผูกกับข้อนี้ ({linked.length})</h2>
+              <h2 id="step-evidence" className="aq-h3" tabIndex={-1}>{`หลักฐานที่ผูกกับข้อนี้ (${linked.length})`}</h2>
               {linked.length === 0 ? <Empty icon="link" title="ยังไม่มีหลักฐานที่ผูก" /> : (
                 <ul className="aq-ev-list" data-testid="linked-evidence">
                   {linked.map(e => (
@@ -517,7 +517,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
                   <input className="aq-input" type="search" placeholder="ค้นหารหัสหรือชื่อหลักฐาน…" aria-label="ค้นหาหลักฐานที่จะผูก"
                     value={linkQ} onChange={e => setLinkQ(e.target.value)} data-testid="link-search" />
                   <select className="aq-input" value={linkId} onChange={e => setLinkId(e.target.value)} aria-label="เลือกหลักฐานที่จะผูก" data-testid="link-select">
-                    <option value="">— เลือกหลักฐาน ({linkOptions.length}) —</option>
+                    <option value="">{`— เลือกหลักฐาน (${linkOptions.length}) —`}</option>
                     {linkOptions.map(e => <option key={e.id} value={e.id}>{e.code} · {e.title}</option>)}
                   </select>
                   <button type="button" className="aq-btn" disabled={!linkId} onClick={doLink} data-testid="link-btn"><Icon name="link" size={20} />ผูก</button>
@@ -533,7 +533,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
           {side === 'comments' && (
             <div id="sidepanel-comments" role="tabpanel" aria-labelledby="sidetab-comments" className="aq-tabpanel">
-              <h2 className="aq-h3">ความเห็น ({unresolved} ค้าง)</h2>
+              <h2 className="aq-h3">{`ความเห็น (${unresolved} ค้าง)`}</h2>
               {comments.length === 0 ? <Empty icon="inbox-check" title="ยังไม่มีความเห็น" /> : (
                 <ul className="aq-list" data-testid="comments">
                   {comments.map(c => (
@@ -562,7 +562,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
           {side === 'history' && (
             <div id="sidepanel-history" role="tabpanel" aria-labelledby="sidetab-history" className="aq-tabpanel" data-testid="versions">
-              <h2 className="aq-h3">ประวัติเวอร์ชัน ({versions.length})</h2>
+              <h2 className="aq-h3">{`ประวัติเวอร์ชัน (${versions.length})`}</h2>
               {versions.length === 0 ? <Empty icon="clock" title="ยังไม่มีเวอร์ชันที่บันทึก" /> : (
                 <ul className="aq-list">
                   {versions.map(v => (
@@ -697,7 +697,7 @@ function RatingPanel({ user, cycle, section, ratings, scope, cycleWritable, sect
           <select id="self-score" className="aq-input" value={score} disabled={!canSelf}
             onChange={e => { setScore(e.target.value); touchSession(); }} data-testid="self-score">
             <option value="">— ยังไม่ให้คะแนน —</option>
-            {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{s.score} — {s.nameTh}</option>)}
+            {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
           </select>
         </div>
         <div className="aq-field aq-flex-1">

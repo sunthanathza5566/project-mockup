@@ -17,7 +17,7 @@ const GAP = 8;
 
 export default function Term({ k, children, label }: { k: string; children?: ReactNode; label?: string }) {
   const entry = GLOSSARY[k];
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
@@ -81,7 +81,7 @@ export default function Term({ k, children, label }: { k: string; children?: Rea
           style={{ left: pos.left, top: pos.top, width: pos.width }}
           data-no-i18n={lang === 'en' ? '' : undefined}
         >
-          <span className="aq-term__title">{entry.titleTh}</span>
+          <span className="aq-term__title">{lang === 'en' ? t(entry.titleTh) : entry.titleTh}</span>
           <span className="aq-term__body">{lang === 'en' ? entry.bodyEn : entry.bodyTh}</span>
         </span>
       )}

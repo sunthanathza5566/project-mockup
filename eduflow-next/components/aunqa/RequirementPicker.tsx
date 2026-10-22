@@ -121,7 +121,7 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
       )}
       {disabled && disabledHint
         ? <p className="aq-help" id={`${uid}-hint`}>{disabledHint}</p>
-        : <p className="aq-help" id={`${uid}-sel`} aria-live="polite">เลือกแล้ว: {value.length ? value.join(', ') : '—'}</p>}
+        : <p className="aq-help" id={`${uid}-sel`} aria-live="polite">{`เลือกแล้ว: ${value.length ? value.join(', ') : '—'}`}</p>}
     </div>
   );
 }

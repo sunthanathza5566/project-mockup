@@ -9,8 +9,9 @@ import type { AiRun, AppUser, Clo, Course, CurriculumData, MapLevel, Plo } from 
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { Async, AsyncButton, Badge, Empty, ModelBadge, PageHeader, useLoad } from '@/components/aunqa/common';
+import Term from '@/components/ui/Term';
 import { useScope } from '@/components/aunqa/useScope';
-import { BLOOM_TH, MAP_LEVEL_TH, errMsg } from '@/lib/ui/aunqa';
+import { BLOOM_TH, MAP_LEVEL_TH, errMsg, truncateTh } from '@/lib/ui/aunqa';
 
 type Tab = 'plo' | 'course' | 'matrix' | 'heat' | 'gaps' | 'prereq' | 'ai';
 const TABS: [Tab, string][] = [
@@ -18,7 +19,10 @@ const TABS: [Tab, string][] = [
   ['gaps', 'ช่องว่างหลักสูตร'], ['prereq', 'ผัง prerequisite'], ['ai', 'ตรวจคำกริยา Bloom (AI)'],
 ];
 
-/** S9 หลักสูตร: PLO / รายวิชา / CLO / matrix I-R-M / heatmap / gap / prerequisite / AI-7 */
+/**
+ * หลักสูตร (ADR-UI-001 pages.md P12): PLO / รายวิชา / CLO / matrix I-R-M / heatmap / gap / prerequisite / AI-7
+ * แท็บเส้นใต้ (C5) + ตัวเลขช่องว่างในแท็บ · I/R/M ตาม T1.3 #15/#28/#36 + ตัวอักษรเสมอ · คง testid เดิมทั้งหมด
+ */
 export default function CurriculumPage() {
   const { user, programmes, programmeId, setProgrammeId } = useScope();
   const [tab, setTab] = useState<Tab>('plo');
@@ -30,20 +34,22 @@ export default function CurriculumPage() {
 
   return (
     <>
-      <PageHeader title="หลักสูตร (PLO · รายวิชา · CLO)" sub="ผูก CLO เข้ากับ PLO ระดับ I/R/M แล้วระบบตรวจช่องว่างให้อัตโนมัติ (ผลไปที่ข้อ 1.2, 2.4, 2.5, 4.1 ในแดชบอร์ดรอบประเมิน)" />
+      <PageHeader title="หลักสูตร (PLO · รายวิชา · CLO)" sub={<>ผูก <Term k="clo">CLO</Term> เข้ากับ <Term k="plo">PLO</Term> ระดับ <Term k="irm">I/R/M</Term> แล้วระบบตรวจช่องว่างให้อัตโนมัติ (ผลไปที่ข้อ 1.2, 2.4, 2.5, 4.1 ในแดชบอร์ดรอบประเมิน)</>} />
       <div className="aq-toolbar">
         <select className="aq-input" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="cur-programme">
           {programmes.map(p => <option key={p.id} value={p.id}>{p.code} — {p.nameTh}</option>)}
         </select>
-        {!canWrite && <Badge>ดูอย่างเดียว</Badge>}
+        {!canWrite && <Badge icon="eye">ดูอย่างเดียว</Badge>}
       </div>
-      <div className="dash-tabs-bar aq-tabs" role="tablist" aria-label="ส่วนของหลักสูตร">
+      <div className="aq-tabs" role="tablist" aria-label="ส่วนของหลักสูตร">
         {TABS.map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} className={`dash-tab-btn${tab === k ? ' active' : ''}`} onClick={() => setTab(k)} data-testid={`cur-tab-${k}`}>{l}</button>
+          <button key={k} type="button" role="tab" aria-selected={tab === k} aria-controls="cur-panel" onClick={() => setTab(k)} data-testid={`cur-tab-${k}`}>
+            {l}{k === 'gaps' && q.data ? <span className="aq-count aq-count--muted">{q.data.gaps.length}</span> : null}
+          </button>
         ))}
       </div>
-      <Async q={q}>{d => !d ? <Empty text="ยังไม่มีหลักสูตรที่เข้าถึงได้" /> : (
-        <div data-testid={`cur-panel-${tab}`}>
+      <Async q={q}>{d => !d ? <Empty icon="book-open" title="ยังไม่มีหลักสูตรที่เข้าถึงได้" /> : (
+        <div id="cur-panel" role="tabpanel" className="aq-tabpanel" data-testid={`cur-panel-${tab}`}>
           {tab === 'plo' && <PloTab user={user} programmeId={programmeId} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
           {tab === 'course' && <CourseTab user={user} programmeId={programmeId} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
           {tab === 'matrix' && <MatrixTab user={user} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
@@ -115,7 +121,7 @@ function PloTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progr
           <div className="aq-actions"><button className="aq-btn aq-btn-primary" data-testid="plo-save">บันทึก</button><button type="button" className="aq-btn" onClick={() => setEdit(null)}>ยกเลิก</button></div>
         </form>
       )}
-      {cur.plos.length === 0 ? <Empty text="ยังไม่มี PLO — เพิ่ม PLO ก่อนจึงจะผูก CLO ได้" /> : (
+      {cur.plos.length === 0 ? <Empty icon="list-check" title="ยังไม่มี PLO" text="เพิ่ม PLO ข้อแรกเพื่อเริ่มผูกรายวิชา" /> : (
         <div className="aq-card aq-table-wrap">
           <table className="aq-table" data-testid="plo-table">
             <thead><tr><th>รหัส</th><th>ข้อความ</th><th>ประเภท</th><th>Bloom</th>{canWrite && <th />}</tr></thead>
@@ -126,7 +132,7 @@ function PloTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progr
                   <td>{p.textTh}<div className="aq-muted" lang="en">{p.textEn}</div></td>
                   <td>{p.type === 'generic' ? 'ทั่วไป' : 'เฉพาะสาขา'}</td>
                   <td>{BLOOM_TH[p.bloomLevel]}</td>
-                  {canWrite && <td className="aq-nowrap"><button className="aq-btn aq-btn-sm" onClick={() => open(p)}>แก้</button> <button className="aq-btn aq-btn-sm" onClick={() => del(p)} aria-label={`ลบ ${p.code}`}>ลบ</button></td>}
+                  {canWrite && <td className="aq-cluster-cell"><button className="aq-btn aq-btn-compact" onClick={() => open(p)}>แก้</button> <button className="aq-btn aq-btn-compact" onClick={() => del(p)} aria-label={`ลบ ${p.code}`}>ลบ</button></td>}
                 </tr>
               ))}
             </tbody>
@@ -171,7 +177,7 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
           <h2 className="aq-h2">{edit === 'new' ? 'เพิ่มรายวิชา' : `แก้ ${edit.code}`}</h2>
           <div className="aq-form-inline">
             <label>รหัสวิชา<input className="aq-input" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required data-testid="course-code" /></label>
-            <label style={{ flex: 1 }}>ชื่อวิชา<input className="aq-input" value={f.nameTh} onChange={e => setF({ ...f, nameTh: e.target.value })} required data-testid="course-name" /></label>
+            <label className="aq-flex-1">ชื่อวิชา<input className="aq-input" value={f.nameTh} onChange={e => setF({ ...f, nameTh: e.target.value })} required data-testid="course-name" /></label>
           </div>
           <div className="aq-form-inline">
             <label>หน่วยกิต<input className="aq-input aq-input-sm" type="number" min={0} max={30} value={f.credits} onChange={e => setF({ ...f, credits: e.target.value })} /></label>
@@ -188,7 +194,7 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
           <div className="aq-actions"><button className="aq-btn aq-btn-primary" data-testid="course-save">บันทึก</button><button type="button" className="aq-btn" onClick={() => setEdit(null)}>ยกเลิก</button></div>
         </form>
       )}
-      {sorted.length === 0 ? <Empty text="ยังไม่มีรายวิชา" /> : (
+      {sorted.length === 0 ? <Empty icon="book-open" title="ยังไม่มีรายวิชา" /> : (
         <div className="aq-card aq-table-wrap">
           <table className="aq-table" data-testid="course-table">
             <thead><tr><th>รหัส</th><th>ชื่อวิชา</th><th>หน่วยกิต</th><th>ปี/ภาค</th><th>CLO</th><th /></tr></thead>
@@ -201,9 +207,9 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
                       <td><strong>{c.code}</strong></td>
                       <td>{c.nameTh}{c.isElective && <> <Badge>เลือก</Badge></>}</td>
                       <td>{c.credits}</td><td>{c.year}/{c.semester}</td><td>{clos.length}</td>
-                      <td className="aq-nowrap">
-                        <button className="aq-btn aq-btn-sm" aria-expanded={open === c.id} onClick={() => setOpen(open === c.id ? null : c.id)} data-testid={`course-toggle-${c.code}`}>CLO</button>
-                        {canWrite && <> <button className="aq-btn aq-btn-sm" onClick={() => openForm(c)}>แก้</button> <button className="aq-btn aq-btn-sm" onClick={() => del(c)} aria-label={`ลบ ${c.code}`}>ลบ</button></>}
+                      <td className="aq-cluster-cell">
+                        <button className="aq-btn aq-btn-compact" aria-expanded={open === c.id} onClick={() => setOpen(open === c.id ? null : c.id)} data-testid={`course-toggle-${c.code}`}>CLO</button>
+                        {canWrite && <> <button className="aq-btn aq-btn-compact" onClick={() => openForm(c)}>แก้</button> <button className="aq-btn aq-btn-compact" onClick={() => del(c)} aria-label={`ลบ ${c.code}`}>ลบ</button></>}
                       </td>
                     </tr>
                     {open === c.id && <tr><td colSpan={6}><CloList user={user} course={c} clos={clos} canWrite={canWrite} reload={reload} /></td></tr>}
@@ -241,27 +247,27 @@ function CloList({ user, course, clos, canWrite, reload }: { user: AppUser; cour
           {clos.map(c => (
             <li key={c.id}>
               <strong>{c.code}</strong>
-              <span style={{ flex: 1 }}>{c.textTh} <Badge>{BLOOM_TH[c.bloomLevel]}</Badge></span>
+              <span className="aq-flex-1">{c.textTh} <Badge>{BLOOM_TH[c.bloomLevel]}</Badge></span>
               {canWrite && <>
-                <button className="aq-btn aq-btn-sm" onClick={() => begin(c)}>แก้</button>
-                <button className="aq-btn aq-btn-sm" aria-label={`ลบ ${c.code}`} onClick={() => act(() => deleteClo(user, c.id), 'ลบ CLO แล้ว')}>ลบ</button>
+                <button className="aq-btn aq-btn-compact" onClick={() => begin(c)}>แก้</button>
+                <button className="aq-btn aq-btn-compact" aria-label={`ลบ ${c.code}`} onClick={() => act(() => deleteClo(user, c.id), 'ลบ CLO แล้ว')}>ลบ</button>
               </>}
             </li>
           ))}
         </ul>
       )}
-      {canWrite && !editId && <button className="aq-btn aq-btn-sm" onClick={() => begin(null)} data-testid={`clo-new-${course.code}`}>+ เพิ่ม CLO</button>}
+      {canWrite && !editId && <button className="aq-btn aq-btn-compact" onClick={() => begin(null)} data-testid={`clo-new-${course.code}`}>+ เพิ่ม CLO</button>}
       {editId && (
         <form className="aq-form-inline" onSubmit={submit} data-testid="clo-form">
           <label>รหัส<input className="aq-input aq-input-sm" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required /></label>
-          <label style={{ flex: 1 }}>ข้อความ<input className="aq-input" value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="clo-text" /></label>
+          <label className="aq-flex-1">ข้อความ<input className="aq-input" value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="clo-text" /></label>
           <label>Bloom
             <select className="aq-input aq-input-sm" value={f.bloom} onChange={e => setF({ ...f, bloom: e.target.value })}>
               {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{BLOOM_TH[n]}</option>)}
             </select>
           </label>
-          <button className="aq-btn aq-btn-sm aq-btn-primary" data-testid="clo-save">บันทึก</button>
-          <button type="button" className="aq-btn aq-btn-sm" onClick={() => setEditId(null)}>ยกเลิก</button>
+          <button className="aq-btn aq-btn-compact aq-btn-primary" data-testid="clo-save">บันทึก</button>
+          <button type="button" className="aq-btn aq-btn-compact" onClick={() => setEditId(null)}>ยกเลิก</button>
         </form>
       )}
     </div>
@@ -315,7 +321,7 @@ function MatrixTab({ user, cur, canWrite, reload }: TabProps) {
 
 // ───────────── Heatmap ─────────────
 function HeatTab({ cur, matrix }: { cur: CurriculumData; matrix: ReturnType<typeof getCurriculumMatrix> }) {
-  if (cur.plos.length === 0) return <Empty text="ยังไม่มี PLO" />;
+  if (cur.plos.length === 0) return <Empty icon="list-check" title="ยังไม่มี PLO" />;
   const rows = [...matrix.rows].sort((a, b) => a.course.year - b.course.year || a.course.code.localeCompare(b.course.code));
   return (
     <div className="aq-card aq-table-wrap">
@@ -353,14 +359,14 @@ const GAP_KIND_TH = {
   plo_no_course: 'PLO ไม่มีวิชารองรับ', course_no_plo: 'วิชาไม่ผูก PLO', plo_no_assessment: 'PLO ไม่มีวิธีวัดผล', prereq_cycle: 'prerequisite วนซ้ำ',
 } as const;
 function GapTab({ gaps }: { gaps: ReturnType<typeof getCurriculumGaps> }) {
-  if (gaps.length === 0) return <div className="auth-alert auth-alert-ok" data-testid="curriculum-gaps-none">ไม่พบช่องว่างในหลักสูตร</div>;
+  if (gaps.length === 0) return <div data-testid="curriculum-gaps-none"><Empty icon="check-circle" title="ไม่พบช่องว่างของหลักสูตร" /></div>;
   return (
     <div className="aq-card">
       <ul className="aq-list" data-testid="curriculum-gaps">
         {gaps.map((g, i) => (
           <li key={`${g.kind}-${g.refId}-${i}`}>
             <Badge tone={g.kind === 'prereq_cycle' ? 'bad' : 'warn'}>{GAP_KIND_TH[g.kind]}</Badge>
-            <span style={{ flex: 1 }}>{g.messageTh}</span>
+            <span className="aq-flex-1">{g.messageTh}</span>
           </li>
         ))}
       </ul>
@@ -370,9 +376,9 @@ function GapTab({ gaps }: { gaps: ReturnType<typeof getCurriculumGaps> }) {
 
 // ───────────── Prerequisite ─────────────
 function PrereqTab({ cur }: { cur: CurriculumData }) {
-  if (cur.courses.length === 0) return <Empty text="ยังไม่มีรายวิชา" />;
+  if (cur.courses.length === 0) return <Empty icon="book-open" title="ยังไม่มีรายวิชา" />;
   const years = Array.from(new Set(cur.courses.map(c => c.year))).sort((a, b) => a - b);
-  const CW = 150, CH = 34, GX = 70, GY = 12, PADX = 10, PADY = 28;
+  const CW = 180, CH = 48, GX = 70, GY = 12, PADX = 10, PADY = 30;
   const pos = new Map<string, { x: number; y: number }>();
   let maxRows = 0;
   years.forEach((yr, xi) => {
@@ -387,8 +393,8 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
     <div className="aq-card">
       <div className="aq-table-wrap">
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="ผัง prerequisite ของรายวิชาเรียงตามชั้นปี" data-testid="prereq-svg">
-          <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--brown-mid)" /></marker></defs>
-          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={16} fontSize="12" fontWeight="700" fill="var(--brown-dark)">ชั้นปี {yr}</text>)}
+          <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" style={{ fill: 'var(--c-muted)' }} /></marker></defs>
+          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={16} fontSize="13" fontWeight="700" style={{ fill: 'var(--c-ink)' }}>ชั้นปี {yr}</text>)}
           {cur.courses.flatMap(c => c.prerequisiteIds.map(pid => {
             const a = pos.get(pid), b = pos.get(c.id);
             if (!a || !b) return null;
@@ -397,26 +403,26 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
             const d = same
               ? `M${x1},${y1} C${x1 + 28},${y1} ${x1 + 28},${y2} ${x1},${y2}`
               : `M${x1},${y1} C${x1 + GX / 2},${y1} ${x2 - GX / 2},${y2} ${x2 - 2},${y2}`;
-            return <path key={`${pid}>${c.id}`} d={d} fill="none" stroke="var(--brown-mid)" strokeWidth="1.3" markerEnd="url(#arr)" opacity="0.8" />;
+            return <path key={`${pid}>${c.id}`} d={d} fill="none" strokeWidth="1.5" markerEnd="url(#arr)" style={{ stroke: 'var(--c-muted)' }} />;
           }))}
           {cur.courses.map(c => {
             const p = pos.get(c.id);
             if (!p) return null;
             return (
               <g key={c.id}>
-                <rect x={p.x} y={p.y} width={CW} height={CH} rx="8" fill="var(--cream)" stroke="var(--border)" />
-                <text x={p.x + 8} y={p.y + 14} fontSize="11" fontWeight="700" fill="var(--brown-ink)">{c.code}</text>
-                <text x={p.x + 8} y={p.y + 27} fontSize="10" fill="var(--text-muted)">{c.nameTh.length > 22 ? `${c.nameTh.slice(0, 21)}…` : c.nameTh}</text>
+                <rect x={p.x} y={p.y} width={CW} height={CH} rx="8" style={{ fill: 'var(--c-surface)', stroke: 'var(--c-border-control)' }} />
+                <text x={p.x + 8} y={p.y + 18} fontSize="13" fontWeight="700" style={{ fill: 'var(--c-primary-strong)' }}>{c.code}</text>
+                <text x={p.x + 8} y={p.y + 38} fontSize="13" style={{ fill: 'var(--c-muted)' }}>{truncateTh(c.nameTh, 18)}</text>
               </g>
             );
           })}
         </svg>
       </div>
-      <h2 className="aq-h3" style={{ marginTop: '1rem' }}>รายการลำดับวิชา (อ่านเป็นตัวอักษร)</h2>
+      <h2 className="aq-h3 aq-mt-4">รายการลำดับวิชา (อ่านเป็นตัวอักษร)</h2>
       {withPre.length === 0 ? <p className="aq-muted">ไม่มีวิชาที่กำหนด prerequisite</p> : (
         <ul className="aq-list" data-testid="prereq-list">
           {withPre.map(c => (
-            <li key={c.id}><strong>{c.code}</strong><span style={{ flex: 1 }}>ต้องเรียนก่อน: {c.prerequisiteIds.map(id => cur.courses.find(x => x.id === id)?.code ?? id).join(', ')}</span></li>
+            <li key={c.id}><strong>{c.code}</strong><span className="aq-flex-1">ต้องเรียนก่อน: {c.prerequisiteIds.map(id => cur.courses.find(x => x.id === id)?.code ?? id).join(', ')}</span></li>
           ))}
         </ul>
       )}
@@ -476,7 +482,7 @@ function AiTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progra
                     <td>{r.verbs.join(', ') || '—'}</td>
                     <td>{r.declaredLevel} / {r.detectedLevels.join(', ') || '—'}</td>
                     <td>{!r.measurable ? <Badge tone="bad">วัดผลยาก</Badge> : r.levelMatch === false ? <Badge tone="warn">ระดับไม่ตรง</Badge> : <Badge tone="ok">ปกติ</Badge>}</td>
-                    {canWrite && <td>{r.levelMatch === false && r.detectedLevels.length > 0 && <button className="aq-btn aq-btn-sm" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</button>}</td>}
+                    {canWrite && <td>{r.levelMatch === false && r.detectedLevels.length > 0 && <button className="aq-btn aq-btn-compact" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</button>}</td>}
                   </tr>
                 ))}
               </tbody>

@@ -218,7 +218,7 @@ function Inner() {
           <h2 id="ev-form-h" className="aq-h2">เพิ่มหลักฐานใหม่</h2>
           {errList.length > 0 && (
             <div className="aq-error-summary" role="alert" tabIndex={-1} ref={summaryRef} data-testid="ev-error-summary">
-              <p className="aq-error-summary__title">ยังบันทึกไม่ได้ — โปรดแก้ {errList.length} จุด</p>
+              <p className="aq-error-summary__title">{`ยังบันทึกไม่ได้ — โปรดแก้ ${errList.length} จุด`}</p>
               <ul>{errList.map(([k, m]) => <li key={k}><a href={`#${fieldOf[k]}`}>{m}</a></li>)}</ul>
             </div>
           )}

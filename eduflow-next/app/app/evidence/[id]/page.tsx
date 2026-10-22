@@ -79,7 +79,7 @@ function Inner() {
               <EvidenceStatusBadge status={ev.status} />
               {ev.containsPii && !ev.piiResolved && <Badge tone="bad" icon="alert-triangle">PII ยังไม่จัดการ</Badge>}
             </span>}
-            sub={<>{KIND_TH[ev.kind]} · {PDCA_TH[ev.pdcaStage]} · ปีการศึกษา {ev.academicYear}</>}
+            sub={`${KIND_TH[ev.kind]} · ${PDCA_TH[ev.pdcaStage]} · ปีการศึกษา ${ev.academicYear}`}
             actions={<Link className="aq-btn" href="/app/evidence"><Icon name="chevron-left" size={20} />คลังหลักฐาน</Link>}
           />
 

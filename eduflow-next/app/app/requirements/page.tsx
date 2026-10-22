@@ -46,7 +46,7 @@ export default function RequirementsPage() {
               onClick={() => setOnly(o => (o === c.no ? 0 : c.no))}>เกณฑ์ {c.no}</button>
           ))}
         </div>
-        <p className="aq-meta" role="status" data-testid="req-count">พบ {total} ข้อ</p>
+        <p className="aq-meta" role="status" data-testid="req-count">{`พบ ${total} ข้อ`}</p>
       </div>
 
       {groups.length === 0 ? (

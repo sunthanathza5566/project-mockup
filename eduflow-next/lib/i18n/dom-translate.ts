@@ -14,8 +14,13 @@
 
 import { lookupEn, type Lang } from './dict';
 
-/** ข้อความไทยต้นฉบับของแต่ละ node — ใช้ย้อนกลับเป็นภาษาไทย */
+/**
+ * ข้อความไทยต้นฉบับ + ข้อความที่เราแปลใส่ไป ของแต่ละ text node (C-10: ไม่เก็บ original ค้าง)
+ * - ถ้าค่าปัจจุบัน ≠ ค่าที่เราแปลใส่ → React เปลี่ยนข้อความเอง → ถือค่าปัจจุบันเป็นต้นฉบับใหม่
+ * - ตอนกลับเป็นไทย คืนค่าเฉพาะเมื่อค่าปัจจุบันยังเป็นค่าที่เราแปลใส่ (ไม่ทับค่าที่ React ตั้งใหม่)
+ */
 const originals = new WeakMap<Text, string>();
+const translatedText = new WeakMap<Text, string>();
 
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CODE']);
 
@@ -27,6 +32,7 @@ function shouldSkip(node: Node): boolean {
 }
 
 function eachTextNode(root: Node, fn: (n: Text) => void) {
+  if (root.nodeType === Node.TEXT_NODE) { fn(root as Text); return; }
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes: Text[] = [];
   let n = walker.nextNode();
@@ -34,24 +40,32 @@ function eachTextNode(root: Node, fn: (n: Text) => void) {
   nodes.forEach(fn);
 }
 
-/** attribute ที่ผู้ใช้เห็น/ได้ยิน (placeholder, aria-label, title) — เก็บค่าไทยเดิมไว้ย้อนกลับ */
+/** attribute ที่ผู้ใช้เห็น/ได้ยิน (placeholder, aria-label, title) */
 const ATTRS = ['placeholder', 'aria-label', 'title'] as const;
+/** ค่าต้นฉบับ (ไทย) ต่อ attribute */
 const attrOriginals = new WeakMap<Element, Partial<Record<string, string>>>();
+/** ค่าที่เราแปลใส่ไปแล้วต่อ attribute (ADR 6.3 ข้อ 1) */
+const translatedAttrs = new WeakMap<Element, Partial<Record<string, string>>>();
 
 function translateAttrs(el: Element, lang: Lang) {
   if (el.closest('[data-no-i18n]')) return;
   for (const a of ATTRS) {
     const cur = el.getAttribute(a);
     if (cur === null) continue;
+    const saved = attrOriginals.get(el) ?? {};
+    const done = translatedAttrs.get(el) ?? {};
     if (lang === 'en') {
+      if (done[a] !== undefined && cur === done[a]) continue;           // แปลแล้ว
+      // ค่าใหม่จาก React (ไม่ใช่ต้นฉบับเดิมและไม่ใช่ค่าที่เราแปล) → ต้นฉบับใหม่
+      if (saved[a] === undefined || cur !== saved[a]) { saved[a] = cur; attrOriginals.set(el, saved); }
       const tr = cur.trim() ? lookupEn(cur.trim()) : undefined;
-      if (!tr) continue;
-      const saved = attrOriginals.get(el) ?? {};
-      if (saved[a] === undefined) { saved[a] = cur; attrOriginals.set(el, saved); }
+      if (!tr) { delete done[a]; translatedAttrs.set(el, done); continue; }
+      done[a] = tr; translatedAttrs.set(el, done);
       el.setAttribute(a, tr);
     } else {
-      const orig = attrOriginals.get(el)?.[a];
-      if (orig !== undefined && cur !== orig) el.setAttribute(a, orig);
+      // คืนต้นฉบับเฉพาะเมื่อค่าปัจจุบันยังเป็นค่าที่เราแปลใส่ (ADR 6.3 ข้อ 3)
+      if (done[a] !== undefined && cur === done[a] && saved[a] !== undefined) el.setAttribute(a, saved[a]!);
+      delete done[a]; translatedAttrs.set(el, done);
     }
   }
 }
@@ -65,19 +79,24 @@ export function translateTree(root: Node, lang: Lang) {
   }
   eachTextNode(root, node => {
     if (shouldSkip(node)) return;
+    const raw = node.data;
+    const mine = translatedText.get(node);
 
     if (lang === 'en') {
-      const raw = node.data;
+      if (mine !== undefined && raw === mine) return;                   // แปลแล้ว
       const key = raw.trim();
       if (!key) return;
       const translated = lookupEn(key);
-      if (!translated) return;
-      if (!originals.has(node)) originals.set(node, raw);
+      if (!translated) { originals.delete(node); translatedText.delete(node); return; }
+      originals.set(node, raw);                                         // ต้นฉบับล่าสุดเสมอ
       // คงช่องว่างหน้า/หลังเดิมไว้ เพื่อไม่ให้ layout เพี้ยน
-      node.data = raw.replace(key, translated);
+      const out = raw.replace(key, translated);
+      translatedText.set(node, out);
+      node.data = out;
     } else {
       const original = originals.get(node);
-      if (original !== undefined && node.data !== original) node.data = original;
+      if (original !== undefined && mine !== undefined && raw === mine) node.data = original;
+      originals.delete(node); translatedText.delete(node);
     }
   });
 }
@@ -99,17 +118,23 @@ export function syncPageLanguage(lang: Lang): () => void {
 
   // React วาดใหม่เมื่อไร ให้แปลส่วนที่เพิ่มมาทันที
   // ปิด observer ระหว่างที่เราแก้ข้อความเอง — กันไม่ให้ mutation ของเราปลุก callback ซ้ำ
-  const OPTS: MutationObserverInit = { childList: true, subtree: true, characterData: true };
+  // C-10: ฟัง attribute ที่ผู้ใช้เห็นด้วย (React เปลี่ยน title/aria-label/placeholder ตาม state)
+  const OPTS: MutationObserverInit = {
+    childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...ATTRS],
+  };
   observer = new MutationObserver(mutations => {
     const targets: Node[] = [];
+    const attrTargets: Element[] = [];
     for (const m of mutations) {
       m.addedNodes.forEach(n => targets.push(n));
-      if (m.type === 'characterData') targets.push(m.target.parentNode || m.target);
+      if (m.type === 'characterData') targets.push(m.target);
+      if (m.type === 'attributes') attrTargets.push(m.target as Element);
     }
-    if (targets.length === 0) return;
+    if (targets.length === 0 && attrTargets.length === 0) return;
 
     observer?.disconnect();
     targets.forEach(n => translateTree(n, 'en'));
+    attrTargets.forEach(el => translateAttrs(el, 'en'));
     observer?.observe(document.body, OPTS);
   });
   observer.observe(document.body, OPTS);

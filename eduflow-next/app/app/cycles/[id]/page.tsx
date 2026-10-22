@@ -33,6 +33,7 @@ import {
 import { HEAT_VIEW, NEXT_ACTOR_TH, SECTION_STATUS_VIEW, SEVERITY_VIEW } from '@/lib/ui/status';
 import { GAP_RULE_KEYS, GLOSSARY } from '@/lib/ui/glossary';
 import { notifyTodosChanged } from '@/lib/ui/todo';
+import { useLang } from '@/context/LangContext';
 
 const TRACK: { key: string; label: string }[] = [
   { key: 'draft', label: 'ร่าง' }, { key: 'progress', label: 'ดำเนินการ' }, { key: 'qa', label: 'QA คณะตรวจ' },
@@ -49,6 +50,7 @@ function stripReq(msg: string, req: string): string { return msg.replace(new Reg
 
 /** popover รายการกฎ R1–R11 (U1b m6) */
 function GapRulesHelp() {
+  const { lang, t } = useLang();
   const [open, setOpen] = useState(false);
   const id = useId();
   const btn = useRef<HTMLButtonElement>(null);
@@ -67,9 +69,9 @@ function GapRulesHelp() {
         <Icon name="help-circle" size={20} />กฎ R1–R11 คืออะไร
       </button>
       {open && (
-        <div ref={pop} id={id} className="aq-popover aq-popover--down aq-popover--wide" role="group" aria-label="กฎตรวจช่องว่าง R1–R11">
+        <div ref={pop} id={id} className="aq-popover aq-popover--down aq-popover--wide" role="group" aria-label="กฎตรวจช่องว่าง R1–R11" data-no-i18n={lang === 'en' ? '' : undefined}>
           <ul className="aq-rule-list">
-            {GAP_RULE_KEYS.map(k => <li key={k}><strong>{GLOSSARY[k].titleTh}</strong><span className="aq-meta">{GLOSSARY[k].bodyTh}</span></li>)}
+            {GAP_RULE_KEYS.map(k => <li key={k}><strong>{lang === 'en' ? t(GLOSSARY[k].titleTh) : GLOSSARY[k].titleTh}</strong><span className="aq-meta">{lang === 'en' ? GLOSSARY[k].bodyEn : GLOSSARY[k].bodyTh}</span></li>)}
           </ul>
         </div>
       )}
@@ -336,11 +338,11 @@ export default function CycleDashboardPage() {
 
           {c > 0 ? (
             <InlineMessage tone="warn" testId="kpi-summary" className="aq-kpi-summary">
-              อนุมัติแล้ว {a} จาก 53 ข้อ แต่ {c} ข้อยังมีช่องว่างวิกฤต (เช่น ยังไม่มีหลักฐานผูก) — ควรเติมก่อนส่งต่อ
+              {`อนุมัติแล้ว ${a} จาก 53 ข้อ แต่ ${c} ข้อยังมีช่องว่างวิกฤต (เช่น ยังไม่มีหลักฐานผูก) — ควรเติมก่อนส่งต่อ`}
             </InlineMessage>
           ) : a < 53 ? (
             <InlineMessage tone="neutral" testId="kpi-summary" className="aq-kpi-summary">
-              อนุมัติแล้ว {a} จาก 53 ข้อ ไม่มีช่องว่างวิกฤต — เหลืออีก {53 - a} ข้อ
+              {`อนุมัติแล้ว ${a} จาก 53 ข้อ ไม่มีช่องว่างวิกฤต — เหลืออีก ${53 - a} ข้อ`}
             </InlineMessage>
           ) : (
             <InlineMessage tone="success" testId="kpi-summary" className="aq-kpi-summary">ครบทุกข้อและไม่มีช่องว่างวิกฤต</InlineMessage>
@@ -348,7 +350,7 @@ export default function CycleDashboardPage() {
           {cycle.status === 'in_progress' && a === 53 && (
             c === 0
               ? <InlineMessage tone="success">ครบทุกข้อแล้ว พร้อมส่ง QA คณะตรวจ</InlineMessage>
-              : <InlineMessage tone="info">อนุมัติครบ 53 ข้อแล้ว ส่ง QA คณะได้ — ยังมีช่องว่างวิกฤต {c} ข้อที่ควรเติม</InlineMessage>
+              : <InlineMessage tone="info">{`อนุมัติครบ 53 ข้อแล้ว ส่ง QA คณะได้ — ยังมีช่องว่างวิกฤต ${c} ข้อที่ควรเติม`}</InlineMessage>
           )}
 
           <section className="aq-card" aria-labelledby="heat-h">
@@ -376,7 +378,7 @@ export default function CycleDashboardPage() {
           <div className="aq-grid-2">
             <section className="aq-card" aria-labelledby="gap-h">
               <div className="aq-card__head">
-                <h2 id="gap-h" className="aq-h2">ช่องว่างที่ต้องแก้ ({gaps.length})</h2>
+                <h2 id="gap-h" className="aq-h2">{`ช่องว่างที่ต้องแก้ (${gaps.length})`}</h2>
                 <div className="aq-cluster">
                   <select className="aq-input aq-input-sm" value={sev} onChange={e => setSev(e.target.value as GapSeverity | 'all')} aria-label="กรองระดับ" data-testid="gap-filter">
                     <option value="all">ทุกระดับ</option>

@@ -105,7 +105,7 @@ export default function ReviewPage() {
           )}
 
           <section className="aq-card" aria-labelledby="rq-h">
-            <h2 id="rq-h" className="aq-h2">ข้อที่รอตรวจ ({items.length})</h2>
+            <h2 id="rq-h" className="aq-h2">{`ข้อที่รอตรวจ (${items.length})`}</h2>
             {items.length === 0 ? (
               <Empty icon="inbox-check" title="ไม่มีข้อที่รอตรวจ" text="เมื่ออาจารย์ส่งข้อมา จะขึ้นที่นี่และมีแจ้งเตือน" />
             ) : (
@@ -128,7 +128,7 @@ export default function ReviewPage() {
                           <td data-label="ส่งเมื่อ">{fmtDateTime(section.updatedAt)}</td>
                           <td data-label="สรุป">
                             <div className="aq-meta">
-                              หลักฐาน {evidence} ชิ้น · {section.wordCount} คำ · คะแนนตนเอง {self ?? '—'}
+                              {`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}
                               {gaps && (gaps.critical > 0 || gaps.high > 0) && (
                                 <div className="aq-cluster aq-mt-2">
                                   {gaps.critical > 0 && <Badge tone="bad">วิกฤต {gaps.critical}</Badge>}
