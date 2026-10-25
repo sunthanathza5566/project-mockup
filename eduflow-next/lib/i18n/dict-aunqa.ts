@@ -447,6 +447,13 @@ export const EN_AUNQA: Record<string, string> = {
   'ส่งออกแล้ว': 'Exported',
   // ── Phase U (ADR-UI-001) ──
   ...EN_PHASE_U,
+  // ── TASK-0002 ธีม (ADR-UI-002 saas-spec §S) ──
+  'ธีม': 'Theme',
+  'สว่าง': 'Light',
+  'มืด': 'Dark',
+  'ตามระบบ': 'System',
+  'สลับเป็นธีมมืด': 'Switch to dark theme',
+  'สลับเป็นธีมสว่าง': 'Switch to light theme',
 };
 
 type Tr = (s: string) => string;
