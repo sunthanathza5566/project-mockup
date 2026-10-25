@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * คอมโพเนนต์กลางของหน้าในแอป (ADR-UI-001 components.md C8 PageHeader, C9 InlineMessage, C11 Badge,
- * C18 Empty, C19 Skeleton/Loading, C1 AsyncButton loading, pages.md P21 ErrorBox)
+ * คอมโพเนนต์กลางของหน้าในแอป — หน้าตา Modern SaaS (ADR-UI-002 saas-spec §C1 AsyncButton, §C4 Badge, §C6 PageHeader,
+ * §C7 InlineMessage, §C15 Empty/Loading/ErrorBox) · logic/props/testid/role/ข้อความ เหมือน ADR-UI-001 เดิมทุกตัว
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
@@ -10,10 +10,18 @@ import type { AiRun, AppUser, CycleStatus, EvidenceStatus, HeatLevel, SectionSta
 import { AunqaError } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import Icon, { type IconName } from '@/components/ui/Icon';
+import { Button, type ButtonProps } from '@/components/ui/primitives/button';
+import { Badge as BadgePrimitive } from '@/components/ui/primitives/badge';
+import { Skeleton as SkeletonBlock } from '@/components/ui/primitives/skeleton';
+import { cn } from '@/lib/ui/cn';
+import { HEAT_CLASS, MSG_TONE, type MsgTone } from '@/lib/ui/tone';
 import { aiModelLabel, errMsg } from '@/lib/ui/aunqa';
 import {
   CYCLE_STATUS_VIEW, EVIDENCE_STATUS_VIEW, HEAT_VIEW, SECTION_STATUS_VIEW, TONE_ICON, aiModelView, type Tone,
 } from '@/lib/ui/status';
+
+/** type ของโทน InlineMessage ประกาศที่ `lib/ui/tone.ts` (S1) — re-export ให้ผู้เรียกเดิม import จากไฟล์นี้ได้ */
+export type { MsgTone };
 
 /** user ปัจจุบัน (AppShell การันตีว่าไม่ null เมื่อ render children) */
 export function useMe(): AppUser {
@@ -49,7 +57,7 @@ export function useLoad<T>(fn: () => T | Promise<T>, deps: unknown[]) {
   return { ...state, reload };
 }
 
-// ─── C8 PageHeader ───
+// ─── §C6 PageHeader ───
 
 export interface Crumb { label: ReactNode; href?: string }
 
@@ -57,41 +65,40 @@ export function PageHeader({ title, sub, actions, crumbs, status }: {
   title: ReactNode; sub?: ReactNode; actions?: ReactNode; crumbs?: Crumb[]; status?: ReactNode;
 }) {
   return (
-    <header className="aq-page-head">
+    <header className="mb-6">
       {crumbs && crumbs.length > 0 && (
-        <nav className="aq-crumbs" aria-label="เส้นทางของหน้า">
-          <ol>
+        <nav className="aq-crumbs mb-2" aria-label="เส้นทางของหน้า">
+          <ol className="flex list-none flex-wrap items-center gap-1">
             {crumbs.map((c, i) => {
               const last = i === crumbs.length - 1;
               return (
-                <li key={i}>
-                  {i > 0 && <Icon name="chevron-right" size={16} />}
+                <li key={i} className="inline-flex min-w-0 items-center gap-1">
+                  {i > 0 && <Icon name="chevron-right" size={16} className="text-muted-foreground" />}
                   {c.href && !last
-                    ? <Link href={c.href}>{c.label}</Link>
-                    : <span aria-current={last ? 'page' : undefined}>{c.label}</span>}
+                    ? <Link href={c.href} className="text-muted-foreground transition-colors duration-fast hover:text-foreground">{c.label}</Link>
+                    : <span aria-current={last ? 'page' : undefined} className={last ? 'font-medium text-foreground' : undefined}>{c.label}</span>}
                 </li>
               );
             })}
           </ol>
         </nav>
       )}
-      <div className="aq-page-head__row">
-        <div className="aq-page-head__main">
-          <div className="aq-page-head__title">
-            <h1 className="aq-h1">{title}</h1>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0 space-y-1">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
             {status}
           </div>
-          {sub && <p className="aq-muted aq-page-sub">{sub}</p>}
+          {sub && <p className="max-w-[46rem] text-base text-muted-foreground">{sub}</p>}
         </div>
-        {actions && <div className="aq-page-actions">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2 md:justify-end">{actions}</div>}
       </div>
     </header>
   );
 }
 
-// ─── C9 InlineMessage ───
+// ─── §C7 InlineMessage ───
 
-export type MsgTone = 'success' | 'warn' | 'danger' | 'info' | 'neutral';
 const MSG_ICON: Record<MsgTone, IconName> = {
   success: 'check-circle', warn: 'alert-triangle', danger: 'x-circle', info: 'info', neutral: 'circle-dashed',
 };
@@ -103,66 +110,69 @@ export function InlineMessage({ tone = 'info', title, children, actions, onClose
   return (
     <div
       id={id}
-      className={`aq-msg aq-msg--${tone}${large ? ' aq-msg--lg' : ''}${className ? ` ${className}` : ''}`}
+      className={cn('flex gap-3 rounded-lg border text-foreground', large ? 'p-5' : 'p-4', MSG_TONE[tone].box, className)}
       role={tone === 'danger' ? 'alert' : 'status'}
       data-testid={testId}
     >
-      <Icon name={icon ?? MSG_ICON[tone]} size={20} className="aq-msg__icon" />
-      <div className="aq-msg__body">
-        {title && <p className="aq-msg__title">{title}</p>}
-        {children && <div className="aq-msg__text">{children}</div>}
-        {actions && <div className="aq-msg__actions">{actions}</div>}
+      <Icon name={icon ?? MSG_ICON[tone]} size={20} className={cn('mt-0.5', MSG_TONE[tone].icon)} />
+      <div className="min-w-0 flex-1 space-y-1">
+        {title && <p className={cn('font-medium text-foreground', large && 'text-lg')}>{title}</p>}
+        {children && <div className="text-base text-foreground">{children}</div>}
+        {actions && <div className="flex flex-wrap gap-2 pt-2">{actions}</div>}
       </div>
       {onClose && (
-        <button type="button" className="aq-btn aq-btn-ghost aq-btn-icon aq-msg__close" aria-label="ปิดข้อความ" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="-my-2 -mr-2 shrink-0 border-transparent bg-transparent" aria-label="ปิดข้อความ" onClick={onClose}>
           <Icon name="x" size={20} />
-        </button>
+        </Button>
       )}
     </div>
   );
 }
 
-// ─── C19 Skeleton + Loading ───
+// ─── §C15 Skeleton + Loading ───
 
 export type SkeletonKind = 'cards' | 'table' | 'editor' | 'dashboard' | 'form';
 
-const Line = ({ w }: { w?: string }) => <span className="aq-skeleton aq-skeleton--line" style={w ? { width: w } : undefined} />;
+const CARD = 'rounded-lg border bg-card p-4 shadow-sm dark:shadow-none md:p-6';
+const Line = ({ w }: { w?: string }) => <SkeletonBlock className="h-4" style={w ? { width: w } : undefined} />;
 
 export function Skeleton({ kind = 'cards' }: { kind?: SkeletonKind }) {
   if (kind === 'table') {
     return (
-      <div className="aq-skel aq-skel--table" aria-hidden="true">
-        <span className="aq-skeleton aq-skeleton--head" />
-        {Array.from({ length: 5 }, (_, i) => <span key={i} className="aq-skeleton aq-skeleton--row" />)}
+      <div className={cn(CARD, 'space-y-3')} aria-hidden="true">
+        <SkeletonBlock className="h-10" />
+        {Array.from({ length: 5 }, (_, i) => <SkeletonBlock key={i} className="h-8" />)}
       </div>
     );
   }
   if (kind === 'editor') {
     return (
-      <div className="aq-skel aq-skel--editor" aria-hidden="true">
-        <div className="aq-card"><Line w="40%" /><span className="aq-skeleton aq-skeleton--block" /></div>
-        <div className="aq-card"><Line /><Line /><Line w="70%" /></div>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]" aria-hidden="true">
+        <div className={cn(CARD, 'space-y-4')}><Line w="40%" /><SkeletonBlock className="h-96" /></div>
+        <div className={cn(CARD, 'space-y-3')}><Line /><Line /><Line w="70%" /></div>
       </div>
     );
   }
   if (kind === 'dashboard') {
     return (
-      <div className="aq-skel aq-skel--dashboard" aria-hidden="true">
-        <div className="aq-skel__kpis">{Array.from({ length: 5 }, (_, i) => <span key={i} className="aq-skeleton aq-skeleton--kpi" />)}</div>
-        <div className="aq-card">{Array.from({ length: 8 }, (_, i) => <span key={i} className="aq-skeleton aq-skeleton--row" />)}</div>
+      <div className="space-y-6" aria-hidden="true">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: 5 }, (_, i) => <SkeletonBlock key={i} className="h-24 rounded-lg" />)}
+        </div>
+        <div className={cn(CARD, 'space-y-3')}>{Array.from({ length: 8 }, (_, i) => <SkeletonBlock key={i} className="h-8" />)}</div>
       </div>
     );
   }
   if (kind === 'form') {
     return (
-      <div className="aq-skel aq-skel--form aq-card" aria-hidden="true">
-        {Array.from({ length: 3 }, (_, i) => <div key={i}><Line w="30%" /><span className="aq-skeleton aq-skeleton--input" /></div>)}
+      <div className={cn(CARD, 'space-y-5')} aria-hidden="true">
+        {Array.from({ length: 3 }, (_, i) => <div key={i} className="space-y-1.5"><Line w="30%" /><SkeletonBlock className="h-11" /></div>)}
       </div>
     );
   }
   return (
-    <div className="aq-skel aq-skel--cards" aria-hidden="true">
-      {Array.from({ length: 3 }, (_, i) => <div key={i} className="aq-card"><Line w="40%" /><Line /><Line /><Line w="80%" /></div>)}
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+      {Array.from({ length: 3 }, (_, i) => <div key={i} className={cn(CARD, 'space-y-3')}><Line w="40%" /><Line /><Line /><Line w="80%" /></div>)}
     </div>
   );
 }
@@ -181,39 +191,37 @@ export function Loading({ text = 'กำลังโหลด…', skeleton = 'c
     return () => { clearTimeout(a); clearTimeout(b); };
   }, []);
   return (
-    <div className="aq-loading" role="status" aria-live="polite" aria-busy="true" data-testid="state-loading">
-      <span className="aq-sr-only">{text}</span>
+    <div role="status" aria-live="polite" aria-busy="true" data-testid="state-loading">
+      <span className="sr-only">{text}</span>
       {phase === 'skeleton' && <Skeleton kind={skeleton} />}
       {phase === 'slow' && (
         <InlineMessage
           tone="warn" title="ใช้เวลานานกว่าปกติ"
-          actions={onRetry ? <button type="button" className="aq-btn" onClick={onRetry}>ลองใหม่</button> : undefined}
+          actions={onRetry ? <Button variant="outline" onClick={onRetry}>ลองใหม่</Button> : undefined}
         />
       )}
     </div>
   );
 }
 
-// ─── P21 ErrorBox ───
+// ─── P21 ErrorBox (§C15: InlineMessage danger + ปุ่ม outline) ───
 
 export function ErrorBox({ message, onRetry, code }: { message: string; onRetry?: () => void; code?: string }) {
   const denied = code === 'forbidden';
   const missing = code === 'not_found';
   const title = denied ? 'คุณไม่มีสิทธิ์ดูข้อมูลนี้' : missing ? 'ไม่พบข้อมูล' : 'โหลดข้อมูลไม่สำเร็จ';
   const action = denied || missing
-    ? <Link className="aq-btn" href="/app">กลับหน้าหลัก</Link>
-    : onRetry ? <button type="button" className="aq-btn" onClick={onRetry}>ลองใหม่</button> : undefined;
+    ? <Button asChild variant="outline" className="visited:text-foreground"><Link href="/app">กลับหน้าหลัก</Link></Button>
+    : onRetry ? <Button variant="outline" onClick={onRetry}>ลองใหม่</Button> : undefined;
   return (
-    <div className="aq-card aq-state-card">
-      <InlineMessage tone="danger" large title={title} testId="state-error" actions={action}>{message}</InlineMessage>
-    </div>
+    <InlineMessage tone="danger" large title={title} testId="state-error" actions={action}>{message}</InlineMessage>
   );
 }
 
-// ─── C18 Empty ───
+// ─── §C15 Empty ───
 
 /**
- * `title` = หัวข้อ (fs-md 600) · `text` = คำอธิบาย · ถ้าส่งแค่ `text` (รูปแบบเดิม) จะใช้เป็นหัวข้อ
+ * `title` = หัวข้อ (text-lg 600) · `text` = คำอธิบาย · ถ้าส่งแค่ `text` (รูปแบบเดิม) จะใช้เป็นหัวข้อ
  * `action` หรือ children = ปุ่มทำต่อ · `tip` = ลิงก์คู่มือ/เคล็ดลับ
  */
 export function Empty({ title, text, icon = 'folder', action, tip, children }: {
@@ -222,15 +230,14 @@ export function Empty({ title, text, icon = 'folder', action, tip, children }: {
   const head = title ?? text;
   const body = title ? text : undefined;
   return (
-    <div className="aq-empty" data-testid="state-empty">
-      <span className="aq-empty__art" aria-hidden="true">
-        <Icon name={icon} size={40} />
-        {icon !== 'bell' && <i className="aq-empty__spark" />}{/* U3-9: จุดบนกระดิ่งดูเหมือนมีแจ้งเตือนค้าง */}
+    <div className="flex flex-col items-center rounded-lg border border-dashed bg-card px-6 py-12 text-center" data-testid="state-empty">
+      <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground" aria-hidden="true">
+        <Icon name={icon} size={24} />
       </span>
-      {head && <p className="aq-empty__title">{head}</p>}
-      {body && <p className="aq-empty__text">{body}</p>}
-      {(action || children) && <div className="aq-empty__actions">{action}{children}</div>}
-      {tip && <div className="aq-empty__tip">{tip}</div>}
+      {head && <p className="text-lg font-semibold text-foreground">{head}</p>}
+      {body && <p className="mt-1 max-w-md text-base text-muted-foreground">{body}</p>}
+      {(action || children) && <div className="mt-5 flex flex-wrap justify-center gap-2">{action}{children}</div>}
+      {tip && <div className="mt-4 max-w-md text-base text-muted-foreground">{tip}</div>}
     </div>
   );
 }
@@ -247,17 +254,17 @@ export function Async<T>({ q, children, skeleton }: {
   return <>{children(q.data)}</>;
 }
 
-// ─── C11 Badge / Status pill ───
+// ─── §C4 Badge / Status pill (สี + ไอคอน + ข้อความ) ───
 
 export function Badge({ tone = 'neutral', icon, children, title, testId }: {
   tone?: Tone; icon?: IconName | false; children: ReactNode; title?: string; testId?: string;
 }) {
   const ic = icon === false ? null : icon ?? TONE_ICON[tone];
   return (
-    <span className={`aq-badge aq-badge-${tone}`} title={title} data-testid={testId}>
-      {ic && <Icon name={ic} size={16} />}
+    <BadgePrimitive tone={tone} title={title} data-testid={testId}>
+      {ic && <Icon name={ic} size={14} />}
       {children}
-    </span>
+    </BadgePrimitive>
   );
 }
 
@@ -274,38 +281,64 @@ export function EvidenceStatusBadge({ status }: { status: EvidenceStatus }) {
   return <Badge tone={v.tone} icon={v.icon}>{v.label}</Badge>;
 }
 
-/** legend ของ heatmap (C13) — ไม่มี testid ที่ขึ้นต้นด้วย heat- */
+/** legend ของ heatmap (§C9) — ไม่มี testid ที่ขึ้นต้นด้วย heat- · ตัวอย่างช่องใช้ HEAT_CLASS ชุดเดียวกับช่องจริง */
 export function HeatLegend() {
   const levels: HeatLevel[] = ['empty', 'critical', 'warning', 'ok', 'ready', 'approved'];
   return (
     <div className="aq-legend" aria-label="คำอธิบายสีและไอคอน">
-      <ul className="aq-legend__list">
+      <ul className="flex list-none flex-wrap gap-x-4 gap-y-2">
         {levels.map(l => (
-          <li key={l}>
-            <i className={`aq-heat aq-heat-${l}`}><Icon name={HEAT_VIEW[l].icon} size={16} /></i>
+          <li key={l} className="inline-flex items-center gap-2 text-foreground">
+            <span className={cn('inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border', HEAT_CLASS[l])}>
+              <Icon name={HEAT_VIEW[l].icon} size={14} />
+            </span>
             {HEAT_VIEW[l].label}
           </li>
         ))}
       </ul>
-      <p className="aq-legend__note">ไอคอนมุมขวาบน = สถานะการอนุมัติของข้อ</p>
+      <p className="mt-2">ไอคอนมุมขวาบน = สถานะการอนุมัติของข้อ</p>
     </div>
   );
 }
 
-// ─── C1 AsyncButton (state loading) ───
+// ─── §C1 AsyncButton (state loading) ───
 
-/** ปุ่ม + สถานะกำลังทำงาน (กันกดซ้ำ) · aria-busy + spinner + ข้อความเฉพาะการกระทำ · ความกว้างไม่กระโดด */
-export function AsyncButton({ onClick, children, className = 'aq-btn', disabled, testId, title, busyText = 'กำลังทำงาน…' }: {
+type BtnVariant = NonNullable<ButtonProps['variant']>;
+type BtnSize = NonNullable<ButtonProps['size']>;
+
+/** class ปุ่มแบบเดิม (ADR-UI-001) → variant/size ของ Button — ผู้เรียกที่ยังส่ง className เดิมได้หน้าตาใหม่ทันที */
+const LEGACY_BTN = /^aq-btn(?:-primary|-danger|-danger-solid|-ghost|-compact|-icon|-block)?$/;
+function fromLegacy(className: string): { variant: BtnVariant; size: BtnSize; rest: string } {
+  const cls = className.split(/\s+/).filter(Boolean);
+  const has = (c: string) => cls.includes(c);
+  const variant: BtnVariant = has('aq-btn-danger-solid') ? 'destructive'
+    : has('aq-btn-danger') ? 'destructiveOutline'
+    : has('aq-btn-primary') ? 'default'
+    : has('aq-btn-ghost') ? 'ghost'
+    : 'outline';
+  const size: BtnSize = has('aq-btn-icon') ? 'icon' : has('aq-btn-compact') ? 'compact' : 'default';
+  const rest = cls.filter(c => !LEGACY_BTN.test(c));
+  if (has('aq-btn-block')) rest.push('w-full');
+  return { variant, size, rest: rest.join(' ') };
+}
+
+/**
+ * ปุ่ม + สถานะกำลังทำงาน (กันกดซ้ำ) · aria-busy + ไอคอน loader หมุน + ข้อความเฉพาะการกระทำ · ความกว้างไม่กระโดด
+ * หน้าตา: ส่ง `variant`/`size` (ใหม่) หรือ className แบบเดิม (`aq-btn aq-btn-primary aq-btn-compact` …) ก็ได้
+ */
+export function AsyncButton({ onClick, children, className = 'aq-btn', variant, size, disabled, testId, title, busyText = 'กำลังทำงาน…' }: {
   onClick: () => Promise<void> | void; children: ReactNode; className?: string; disabled?: boolean;
-  testId?: string; title?: string; busyText?: string;
+  testId?: string; title?: string; busyText?: string; variant?: BtnVariant; size?: BtnSize;
 }) {
   const [busy, setBusy] = useState(false);
   const [minW, setMinW] = useState<number | undefined>(undefined);
   const ref = useRef<HTMLButtonElement>(null);
+  const legacy = fromLegacy(className);
   return (
-    <button
+    <Button
       ref={ref}
-      type="button" className={className} disabled={disabled || busy} data-testid={testId} title={title}
+      variant={variant ?? legacy.variant} size={size ?? legacy.size} className={legacy.rest}
+      disabled={disabled || busy} data-testid={testId} title={title}
       aria-busy={busy || undefined}
       style={busy && minW ? { minWidth: minW } : undefined}
       onClick={async () => {
@@ -314,8 +347,8 @@ export function AsyncButton({ onClick, children, className = 'aq-btn', disabled,
         try { await onClick(); } finally { setBusy(false); }
       }}
     >
-      {busy ? <><span className="aq-spinner" aria-hidden="true" />{busyText}</> : children}
-    </button>
+      {busy ? <><Icon name="loader" size={16} className="animate-spin" />{busyText}</> : children}
+    </Button>
   );
 }
 

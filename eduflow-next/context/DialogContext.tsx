@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * Dialog กลางจอ — confirm / notify / prompt (API เดิม) · restyle ตาม ADR-UI-001 components.md C15 (ลูกเล่น L14)
+ * Dialog กลางจอ — confirm / notify / prompt (API เดิม) · หน้าตาตาม ADR-UI-002 saas-spec §C12
+ *   (ฉาก bg-black/50 จัดกลางด้วย flex — ห้าม translate เพราะ keyframe dialog-in ใช้ transform · กล่อง bg-popover ขอบ 1px)
  *
  *   - confirm(opts) → Promise<boolean>
  *   - notify(opts)  → Promise<void>          ปุ่มเดียว "รับทราบ"
@@ -20,6 +21,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Icon, { type IconName } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/primitives/button';
+import { Textarea } from '@/components/ui/primitives/textarea';
 
 export type DialogVariant = 'primary' | 'danger' | 'success' | 'warning' | 'info';
 
@@ -88,8 +91,13 @@ const DialogContext = createContext<DialogContextValue>({
 const VARIANT_ICON: Record<DialogVariant, IconName> = {
   primary: 'help-circle', danger: 'alert-triangle', success: 'check-circle', warning: 'alert-triangle', info: 'info',
 };
-const VARIANT_TONE: Record<DialogVariant, string> = {
-  primary: 'primary', danger: 'bad', success: 'ok', warning: 'warn', info: 'info',
+/** วงไอคอนหัว dialog (saas-spec §C12) — คู่ `*` บน `*-muted` (#11 #20 #21 #24 #27) */
+const VARIANT_ICON_BOX: Record<DialogVariant, string> = {
+  primary: 'bg-primary-muted text-primary',
+  danger: 'bg-destructive-muted text-destructive',
+  success: 'bg-success-muted text-success',
+  warning: 'bg-warning-muted text-warning',
+  info: 'bg-info-muted text-info',
 };
 
 function defaultFocus(v: DialogVariant, f?: 'confirm' | 'cancel'): 'confirm' | 'cancel' {
@@ -208,15 +216,14 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   }
 
   const promptInvalid = state?.kind === 'prompt' && !!state.required && !text.trim();
-  const okClass = state?.variant === 'danger' ? 'aq-btn aq-btn-danger-solid' : 'aq-btn aq-btn-primary';
-  const tone = state ? VARIANT_TONE[state.variant] : 'primary';
+  const okVariant = state?.variant === 'danger' ? 'destructive' : 'default';
 
   return (
     <DialogContext.Provider value={{ confirm, choose, notify, prompt, dismissAll }}>
       {children}
       {state && (
         <div
-          className="aq-dialog-backdrop"
+          className="fixed inset-0 z-dialog flex items-center justify-center overflow-y-auto bg-black/50 p-4 animate-fade-in dark:bg-black/70"
           onMouseDown={e => {
             if (e.target !== e.currentTarget || !state.dismissible) return;
             if (state.kind === 'prompt' && text.trim()) return; // พิมพ์แล้ว = ไม่ปิด
@@ -225,27 +232,29 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         >
           <div
             ref={panel}
-            className={`aq-dialog aq-dialog--${tone}`}
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border bg-popover p-6 text-popover-foreground shadow-lg animate-dialog-in dark:shadow-none"
             role="dialog" aria-modal="true" aria-labelledby={titleId}
             aria-describedby={state.message || state.details ? descId : undefined}
             onKeyDown={onKeyDown}
           >
-            <div className="aq-dialog__head">
-              <Icon name={state.icon} size={24} className="aq-dialog__icon" />
-              <h2 className="aq-dialog__title" id={titleId}>{state.title}</h2>
+            <div className="flex items-center gap-4">
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${VARIANT_ICON_BOX[state.variant]}`} aria-hidden="true">
+                <Icon name={state.icon} size={20} />
+              </span>
+              <h2 className="min-w-0 text-lg font-semibold text-foreground" id={titleId}>{state.title}</h2>
             </div>
             {(state.message || state.details) && (
-              <div id={descId} className="aq-dialog__body">
-                {state.message && <div className="aq-dialog__msg">{state.message}</div>}
-                {state.details && <div className="aq-dialog__details">{state.details}</div>}
+              <div id={descId} className="mt-3 space-y-3 text-base">
+                {state.message && <div className="text-muted-foreground">{state.message}</div>}
+                {state.details && <div className="rounded-md border bg-muted p-3 text-foreground">{state.details}</div>}
               </div>
             )}
 
             {state.kind === 'prompt' && (
-              <div className="aq-field aq-dialog__field">
-                <textarea
+              <div className="mt-4 space-y-1.5">
+                <Textarea
                   ref={input}
-                  className="aq-textarea"
+                  className="block"
                   rows={3}
                   value={text}
                   onChange={e => setText(e.target.value)}
@@ -258,19 +267,19 @@ export function DialogProvider({ children }: { children: ReactNode }) {
               </div>
             )}
 
-            <div className="aq-dialog__actions">
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               {state.cancelText && (
-                <button ref={cancelBtn} type="button" className="aq-btn" onClick={() => close(cancelValue(state))}>
+                <Button ref={cancelBtn} variant="outline" onClick={() => close(cancelValue(state))}>
                   {state.cancelText}
-                </button>
+                </Button>
               )}
-              <button
-                ref={okBtn} type="button" className={okClass}
+              <Button
+                ref={okBtn} variant={okVariant}
                 onClick={() => close(state.kind === 'prompt' ? text.trim() : true)}
                 disabled={promptInvalid}
               >
                 {state.confirmText}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
