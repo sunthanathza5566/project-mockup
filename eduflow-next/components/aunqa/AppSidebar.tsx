@@ -6,6 +6,9 @@
  * - drawer: focus trap, Esc ปิด, คลิก overlay ปิด, ปิดเองเมื่อเปลี่ยนหน้า, คืน focus ไปปุ่มเมนู (AppShell จัดการ)
  * - badge "รอท่าน" = todoTotal (หน้าหลัก) / reviewTotal (รอตรวจ) — คำนวณใหม่เมื่อเปลี่ยนหน้าและเมื่อมี `aunqa:todos-changed`
  * - เงื่อนไขแสดงเมนูคงเดิมทุกข้อ · testid nav-* เดิม
+ * TASK-0002 S2 (saas-spec §P4): Tailwind — hook ที่คงไว้ `#app-sidebar` + `is-open`, `a.aq-nav-item`, `.aq-nav-group`, `.aq-count`
+ *   ช่วงเปลี่ยนผ่าน (มี legacy.css): สถานะ active ใช้ variant `aria-[current=page]:` (specificity เท่ากฎเดิม + มาทีหลัง)
+ *   สีไอคอนใช้ `!` เพราะกฎสีไอคอนเมนูใน legacy.css แรงกว่า — ลบ `!` ได้หลัง S6 ลบ legacy.css
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
@@ -17,6 +20,26 @@ import Icon, { type IconName } from '@/components/ui/Icon';
 import { Brand } from '@/components/ui/BrandMark';
 import Term from '@/components/ui/Term';
 import { DisplayPrefsButton } from '@/components/ui/DisplayPrefs';
+import { Button } from '@/components/ui/primitives/button';
+
+/** drawer <1024 (ซ่อนนอกจอ + invisible จนมี is-open) · ≥1024 sticky เต็มความสูง (§P4) */
+const SIDEBAR =
+  'fixed inset-y-0 left-0 z-drawer flex w-[min(20rem,86vw)] flex-col border-r bg-background shadow-lg ' +
+  '-translate-x-full invisible transition-[transform,visibility] duration-fast ease-exit ' +
+  '[&.is-open]:visible [&.is-open]:translate-x-0 [&.is-open]:duration-base [&.is-open]:ease-enter ' +
+  'lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-auto lg:visible lg:translate-x-0 lg:shadow-none lg:transition-none';
+
+/** รายการเมนู (hook aq-nav-item — target audit 44px) */
+const NAV_ITEM =
+  'aq-nav-item group relative flex min-h-11 items-center gap-3 rounded-md px-3 text-base text-foreground no-underline ' +
+  'transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground ' +
+  'aria-[current=page]:bg-accent aria-[current=page]:font-medium aria-[current=page]:text-foreground ' +
+  'aria-[current=page]:before:absolute aria-[current=page]:before:inset-y-2 aria-[current=page]:before:left-0 ' +
+  'aria-[current=page]:before:w-0.5 aria-[current=page]:before:rounded-full ' +
+  'aria-[current=page]:before:bg-primary';
+
+/** ไอคอนเมนู: เทา · active = primary */
+const NAV_ICON = '!text-muted-foreground group-aria-[current=page]:!text-primary';
 
 interface MenuItem { path: string; label: string; testId: string; icon: IconName; show: boolean; badge?: number }
 interface MenuGroup { key: string; title: React.ReactNode; items: MenuItem[] }
@@ -87,39 +110,47 @@ export default function AppSidebar({ user, pathname, open, onClose, onLogout }: 
 
   return (
     <>
-      {open && <div className="aq-drawer-overlay" onClick={onClose} aria-hidden="true" />}
+      {open && (
+        <div className="fixed inset-0 z-drawer animate-fade-in bg-black/50 lg:hidden" onClick={onClose} aria-hidden="true" />
+      )}
       <aside
-        ref={ref} id="app-sidebar" className={`aq-sidebar${open ? ' is-open' : ''}`}
+        ref={ref} id="app-sidebar" className={`${SIDEBAR}${open ? ' is-open' : ''}`}
         aria-label="เมนูหลัก" onKeyDown={onKeyDown}
       >
-        <div className="aq-sidebar__brand">
-          <Link href="/app" aria-label="AUN-QA Copilot หน้าหลัก"><Brand size={20} /></Link>
-          <button type="button" className="aq-btn aq-btn-ghost aq-btn-icon aq-sidebar__close" aria-label="ปิดเมนู" onClick={onClose}>
+        <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 px-4">
+          <Link href="/app" aria-label="AUN-QA Copilot หน้าหลัก" className="inline-flex min-w-0 no-underline">
+            <Brand size={20} />
+          </Link>
+          <Button
+            variant="ghost" size="icon" className="border-transparent bg-transparent lg:hidden"
+            aria-label="ปิดเมนู" onClick={onClose}
+          >
             <Icon name="x" size={20} />
-          </button>
+          </Button>
         </div>
-        <nav className="aq-sidebar__nav" aria-label="เมนูหลัก">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label="เมนูหลัก">
           {groups.map(g => {
             const items = g.items.filter(i => i.show);
             if (!items.length) return null;
             return (
-              <div key={g.key}>
-                <p className="aq-nav-group" id={`navg-${g.key}`}>{g.title}</p>
-                <ul className="aq-nav-list" aria-labelledby={`navg-${g.key}`}>
+              <div key={g.key} className="mt-5 first:mt-2">
+                {/* !mt-0: กฎเดิม .aq-nav-group:first-child (legacy.css) — ระยะห่างอยู่ที่ div แทน */}
+                <p className="aq-nav-group !mt-0 flex items-center gap-1 px-3 pb-1" id={`navg-${g.key}`}>{g.title}</p>
+                <ul className="m-0 grid list-none gap-0.5 p-0" aria-labelledby={`navg-${g.key}`}>
                   {items.map(m => {
                     const active = m.path === '/app' ? pathname === '/app' : pathname.startsWith(m.path);
                     const badge = countLabel(m.badge ?? 0);
                     return (
                       <li key={m.path}>
                         <Link
-                          href={m.path} data-testid={m.testId} className="aq-nav-item"
+                          href={m.path} data-testid={m.testId} className={NAV_ITEM}
                           aria-current={active ? 'page' : undefined}
                           aria-label={badge ? `${m.label} — มีงานรอท่าน ${m.badge} งาน` : undefined}
                           onClick={onClose}
                         >
-                          <Icon name={m.icon} size={20} />
-                          <span className="aq-nav-item__label">{m.label}</span>
-                          {badge && <span className="aq-count" aria-hidden="true">{badge}</span>}
+                          <Icon name={m.icon} size={20} className={NAV_ICON} />
+                          <span className="min-w-0 flex-1">{m.label}</span>
+                          {badge && <span className="aq-count ml-auto" aria-hidden="true">{badge}</span>}
                         </Link>
                       </li>
                     );
@@ -129,11 +160,15 @@ export default function AppSidebar({ user, pathname, open, onClose, onLogout }: 
             );
           })}
         </nav>
-        <div className="aq-sidebar__foot">
+        {/* ปุ่มล่างเต็มความกว้างชิดซ้าย — DisplayPrefsButton (S1) ไม่รับ className จึงจัดผ่าน selector ลูก */}
+        <div className="sticky bottom-0 grid gap-1 border-t bg-background p-3 [&>*>.aq-btn]:w-full [&>*>.aq-btn]:justify-start [&>*]:w-full">
           <DisplayPrefsButton />
-          <button type="button" className="aq-btn aq-btn-ghost" data-testid="logout" onClick={onLogout}>
+          <Button
+            variant="ghost" className="w-full justify-start border-transparent bg-transparent"
+            data-testid="logout" onClick={onLogout}
+          >
             <Icon name="log-out" size={20} />ออกจากระบบ
-          </button>
+          </Button>
         </div>
       </aside>
     </>

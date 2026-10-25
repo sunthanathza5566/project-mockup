@@ -1,18 +1,24 @@
-/** CTA band (#contact) พื้นเข้ม aq-on-dark — ปุ่มบนพื้นเข้มตาม C1 (U1b F3) */
+/**
+ * CTA (#contact) — TASK-0002 saas-spec §P1: การ์ดกว้าง rounded-xl border bg-card กึ่งกลาง (ยกเลิกแถบพื้นเข้มแบบเดิม)
+ * ปุ่มหลัก default 1 ปุ่ม + ปุ่มรอง outline
+ */
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
+import { Button } from '@/components/ui/primitives/button';
 
 export default function CtaSection() {
   return (
-    <section className="aq-cta-band aq-on-dark" id="contact" aria-labelledby="cta-h">
-      <div className="aq-cta-band__inner">
-        <div>
-          <h2 className="aq-cta-band__title" id="cta-h">พร้อมเริ่มรอบประเมินแล้วหรือยัง</h2>
-          <p className="aq-on-dark-muted">ข้อมูลทั้งหมดเป็นข้อมูลสมมติ เก็บในเบราว์เซอร์ของคุณเท่านั้น · มีบัญชีทดสอบทุกบทบาท</p>
-        </div>
-        <div className="aq-cluster">
-          <Link href="/login" className="aq-btn aq-btn-primary">เข้าสู่ระบบ<Icon name="chevron-right" size={20} /></Link>
-          <Link href="/login" className="aq-btn">ลองบัญชีเดโม่</Link>
+    <section className="scroll-mt-16 px-4 pb-16 md:px-6 md:pb-24" id="contact" aria-labelledby="cta-h">
+      <div className="mx-auto max-w-screen-xl rounded-xl border bg-card p-8 text-center text-card-foreground shadow-sm dark:shadow-none md:p-12">
+        <h2 className="text-3xl font-semibold" id="cta-h">พร้อมเริ่มรอบประเมินแล้วหรือยัง</h2>
+        <p className="mx-auto mt-3 max-w-2xl text-lg text-muted-foreground">ข้อมูลทั้งหมดเป็นข้อมูลสมมติ เก็บในเบราว์เซอร์ของคุณเท่านั้น · มีบัญชีทดสอบทุกบทบาท</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button asChild className="visited:text-primary-foreground">
+            <Link href="/login">เข้าสู่ระบบ<Icon name="chevron-right" size={20} /></Link>
+          </Button>
+          <Button asChild variant="outline" className="visited:text-foreground">
+            <Link href="/login">ลองบัญชีเดโม่</Link>
+          </Button>
         </div>
       </div>
     </section>

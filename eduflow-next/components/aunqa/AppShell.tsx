@@ -8,6 +8,8 @@
  * U-1: กิจกรรมทั้งแอป (กด/พิมพ์/เปลี่ยนหน้า) = touchSession() (throttle 60 วิ ใน API) — ไม่ใช่แค่ใน SAR editor
  * U-2: ระหว่าง session-lost ซ่อนเมนู/แถบบน · เปลี่ยนหน้า หรือกดปุ่ม/ลิงก์ใด ๆ ในหน้า = ถามก่อนแล้ว endSession() ไป /login
  *      (กล่องข้อความยังเลือก/คัดลอกได้ ปุ่ม "คัดลอกข้อความ" ในแถบใช้ได้)
+ * TASK-0002 S2 (saas-spec §P4): หน้าตา Tailwind — ≥1024 grid [sidebar | เนื้อหา] · main max-w-screen-xl
+ *   hook ที่คงไว้: a.aq-skip, #main (tabIndex -1), testid shell-lost / session-lost / session-lost-login / readonly-banner
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -18,6 +20,8 @@ import { touchSession } from '@/lib/api';
 import { Brand } from '@/components/ui/BrandMark';
 import { useToast } from '@/context/ToastContext';
 import { isAssessorOnly } from '@/lib/ui/aunqa';
+import { cn } from '@/lib/ui/cn';
+import { Button } from '@/components/ui/primitives/button';
 import AppLoader from '@/components/ui/AppLoader';
 import AppSidebar from './AppSidebar';
 import AppTopbar from './AppTopbar';
@@ -112,20 +116,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // โครง DOM เดิมทุกชั้น (children อยู่ตำแหน่งเดิม) → หน้าไม่ถูก remount ข้อความที่พิมพ์ค้างยังอยู่ให้คัดลอก
   const lostBanners = sessionLost ? sessionLost.map(f => (
     <InlineMessage
-      key={f.label} tone="danger" testId="session-lost" className="aq-session-lost"
-      actions={<span data-session-lost-ok className="aq-cluster">
+      key={f.label} tone="danger" testId="session-lost"
+      className="sticky top-[calc(var(--topbar-h)+0.5rem)] z-sticky mb-4 shadow-md dark:shadow-none"
+      actions={<span data-session-lost-ok className="flex flex-wrap gap-2">
         {f.text !== undefined && (
-          <button
-            type="button" className="aq-btn"
+          <Button
+            variant="outline"
             onClick={async () => {
               try { await navigator.clipboard.writeText(f.text ?? ''); showToast('คัดลอกข้อความแล้ว', 'success'); }
               catch { showToast('คัดลอกไม่สำเร็จ — เลือกข้อความแล้วคัดลอกเอง', 'error'); }
             }}
           >
             คัดลอกข้อความ
-          </button>
+          </Button>
         )}
-        <button type="button" className="aq-btn aq-btn-primary" onClick={endSession} data-testid="session-lost-login">เข้าสู่ระบบใหม่</button>
+        <Button onClick={endSession} data-testid="session-lost-login">เข้าสู่ระบบใหม่</Button>
       </span>}
     >
       {`ออกจากระบบแล้ว แต่${f.label} ยังบันทึกไม่ได้: ${f.error ?? ''} — คัดลอกข้อความเก็บไว้ก่อน แล้วเข้าสู่ระบบใหม่`}
@@ -133,17 +138,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   )) : null;
 
   return (
-    <div className={lost ? 'aq-shell aq-shell--lost' : 'aq-shell'} data-testid={lost ? 'shell-lost' : undefined}>
+    <div
+      className={cn('min-h-screen', !lost && 'lg:grid lg:grid-cols-[var(--sidebar-w)_minmax(0,1fr)]')}
+      data-testid={lost ? 'shell-lost' : undefined}
+    >
       <a href="#main" className="aq-skip">ข้ามไปเนื้อหาหลัก</a>
       {!lost && <AppSidebar user={user} pathname={pathname} open={menuOpen} onClose={closeMenu} onLogout={logout} />}
-      <div className="aq-shell__body">
+      <div className="flex min-h-screen min-w-0 flex-col">
         {lost
-          ? <header className="aq-topbar"><Brand /></header>
+          ? (
+            <header className="sticky top-0 z-topbar flex min-h-14 items-center border-b bg-background/80 px-4 backdrop-blur md:px-6">
+              <Brand />
+            </header>
+          )
           : <AppTopbar ref={menuBtn} user={user} pathname={pathname} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />}
-        <main id="main" tabIndex={-1} className="aq-main" onClickCapture={lost ? onLostClickCapture : undefined} onKeyDownCapture={lost ? onLostKeyCapture : undefined}>
+        <main
+          id="main" tabIndex={-1}
+          className="mx-auto w-full min-w-0 max-w-screen-xl px-4 pb-16 pt-6 md:px-6 lg:px-8 lg:pt-8"
+          onClickCapture={lost ? onLostClickCapture : undefined} onKeyDownCapture={lost ? onLostKeyCapture : undefined}
+        >
           {lostBanners}
           {assessor && !lost && (
-            <InlineMessage tone="info" testId="readonly-banner">
+            <InlineMessage tone="info" testId="readonly-banner" className="mb-6">
               คุณเข้าในฐานะกรรมการประเมิน — เห็นเฉพาะรอบที่ได้รับมอบหมาย (อ่านอย่างเดียว)
             </InlineMessage>
           )}

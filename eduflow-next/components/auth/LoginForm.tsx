@@ -2,11 +2,12 @@
 
 /**
  * ฟอร์มเข้าสู่ระบบ (ADR-UI-001 pages.md P2/P3)
- * - label ไม่ uppercase · input 44 · ปุ่มแสดงรหัสผ่าน Icon eye/eye-off 44×44 · username ไม่แก้ตัวพิมพ์อัตโนมัติ (P7)
+ * - label ตัวพิมพ์ตามจริง · input 44 · ปุ่มแสดงรหัสผ่าน Icon eye/eye-off 44×44 · username ไม่แก้ตัวพิมพ์อัตโนมัติ (P7)
  * - ผิด: InlineMessage danger ที่หัวฟอร์ม + aria-invalid ทั้งสองช่อง + "เหลืออีก N ครั้ง…" ใต้ช่องรหัสผ่าน
  * - ?reason=expired|other-tab: ข้อความจาก ADR 6.4
  * - สำเร็จ: AppLoader "login" (รวม ≤700ms) → /app
  * - บัญชีทดสอบพับไว้เป็นค่าเริ่มต้น จำสถานะใน aunqa_ui_prefs.demoOpen · กดแล้วเติมฟอร์ม + focus ปุ่มเข้าสู่ระบบ
+ * - TASK-0002 S2 (saas-spec §P2, §C1, §C2): ฟอร์ม max-w-sm บนพื้นหน้า (ไม่มีการ์ด) · Input/Button primitives · details ตาม C2
  */
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -17,6 +18,8 @@ import { useUiPrefs } from '@/lib/ui/prefs';
 import { InlineMessage } from '@/components/aunqa/common';
 import Icon from '@/components/ui/Icon';
 import AppLoader from '@/components/ui/AppLoader';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
 
 /** บัญชีเดโม่ (ข้อมูลสมมติ) — กดเพื่อเติมในฟอร์ม */
 const DEMO_ACCOUNTS: { username: string; label: string }[] = [
@@ -104,81 +107,85 @@ export default function LoginForm() {
   const invalid = !!error;
   return (
     <>
-      <div className="aq-auth__card">
-        <h1 className="aq-h1">เข้าสู่ระบบ</h1>
-        <p className="aq-muted aq-auth__sub">ผู้ช่วยจัดทำ SAR ระดับหลักสูตร</p>
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-semibold text-foreground">เข้าสู่ระบบ</h1>
+        <p className="mt-1 text-base text-muted-foreground">ผู้ช่วยจัดทำ SAR ระดับหลักสูตร</p>
 
-        {REASON_TH[reason] && !error && <InlineMessage tone="info" testId="login-reason">{REASON_TH[reason]}</InlineMessage>}
-        {initError && <InlineMessage tone="danger">{initError}</InlineMessage>}
-        {error && <InlineMessage tone="danger" testId="login-error">{error}</InlineMessage>}
-        {lockMsg && <InlineMessage tone="warn">{lockMsg}</InlineMessage>}
+        <div className="mt-6 space-y-3 empty:hidden">
+          {REASON_TH[reason] && !error && <InlineMessage tone="info" testId="login-reason">{REASON_TH[reason]}</InlineMessage>}
+          {initError && <InlineMessage tone="danger">{initError}</InlineMessage>}
+          {error && <InlineMessage tone="danger" testId="login-error">{error}</InlineMessage>}
+          {lockMsg && <InlineMessage tone="warn">{lockMsg}</InlineMessage>}
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="aq-field">
-            <label htmlFor="login-username">ชื่อผู้ใช้ *</label>
-            <input
-              id="login-username" data-testid="login-username" className="aq-input" type="text"
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <div className="space-y-1.5">
+            <label htmlFor="login-username" className="block text-base font-medium text-foreground">ชื่อผู้ใช้ *</label>
+            <Input
+              id="login-username" data-testid="login-username" type="text"
               value={username} onChange={e => setUsername(e.target.value)}
               autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false}
               required aria-required="true" aria-invalid={invalid || undefined}
             />
           </div>
 
-          <div className="aq-field">
-            <label htmlFor="login-password">รหัสผ่าน *</label>
-            <div className="aq-pw">
-              <input
-                id="login-password" data-testid="login-password" className="aq-input"
+          <div className="space-y-1.5">
+            <label htmlFor="login-password" className="block text-base font-medium text-foreground">รหัสผ่าน *</label>
+            <div className="relative">
+              <Input
+                id="login-password" data-testid="login-password" className="pr-12"
                 type={showPw ? 'text' : 'password'}
                 value={password} onChange={e => setPassword(e.target.value)}
                 autoComplete="current-password" required aria-required="true"
                 aria-invalid={invalid || undefined} aria-describedby={hint ? 'login-hint' : undefined}
               />
-              <button
-                type="button" className="aq-btn aq-btn-ghost aq-btn-icon aq-pw__toggle"
+              <Button
+                variant="ghost" size="icon"
+                className="absolute right-0 top-0 border-transparent bg-transparent aria-pressed:border-transparent aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:shadow-none"
                 onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPw}
               >
                 <Icon name={showPw ? 'eye-off' : 'eye'} size={20} />
-              </button>
+              </Button>
             </div>
-            {hint && <p className="aq-help aq-help--warn" id="login-hint">{hint}</p>}
+            {hint && <p className="aq-help text-warning" id="login-hint">{hint}</p>}
           </div>
 
-          <button
-            ref={submitRef} type="submit" data-testid="login-submit" className="aq-btn aq-btn-primary aq-btn-block"
+          <Button
+            ref={submitRef} type="submit" data-testid="login-submit" className="w-full"
             disabled={busy || isLoading} aria-busy={busy || undefined}
           >
-            {busy ? <><span className="aq-spinner" aria-hidden="true" />กำลังตรวจสอบ…</>
+            {busy ? <><Icon name="loader" size={20} className="animate-spin" />กำลังตรวจสอบ…</>
               : isLoading ? 'กำลังเตรียมข้อมูล…' : 'เข้าสู่ระบบ'}
-          </button>
+          </Button>
         </form>
 
-        <Link href="/" className="aq-auth__back">
+        <Link href="/" className="mt-4 inline-flex min-h-11 items-center gap-1 text-base">
           <Icon name="chevron-left" size={20} />กลับหน้าแรก
         </Link>
       </div>
 
       <details
-        className="aq-collapse aq-auth__demo" open={prefs.demoOpen}
+        className="group w-full max-w-sm rounded-lg border bg-card text-card-foreground" open={prefs.demoOpen}
         onToggle={e => { const o = (e.currentTarget as HTMLDetailsElement).open; if (o !== prefs.demoOpen) setPrefs({ demoOpen: o }); }}
       >
-        <summary>
-          <Icon name="users" size={20} />
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-2 font-medium [&::-webkit-details-marker]:hidden">
+          <Icon name="users" size={20} className="text-muted-foreground" />
           {`บัญชีทดสอบ (${DEMO_ACCOUNTS.length}) — รหัสผ่าน demo1234`}
-          <Icon name="chevron-down" size={20} className="aq-collapse__chev" />
+          <Icon name="chevron-down" size={20} className="ml-auto text-muted-foreground transition-transform duration-fast ease-move group-open:rotate-180" />
         </summary>
-        <div className="aq-demo-grid" data-testid="demo-accounts">
+        <div className="grid gap-2 border-t p-4" data-testid="demo-accounts">
           {DEMO_ACCOUNTS.map(a => (
-            <button
-              key={a.username} type="button" className="aq-btn aq-demo-btn"
+            <Button
+              key={a.username} variant="outline"
+              className="w-full flex-col items-start justify-start gap-0 px-3 py-2 text-left visited:text-foreground"
               data-testid={`demo-${a.username}`}
               onClick={() => {
                 setUsername(a.username); setPassword('demo1234'); setError(''); setHint('');
                 submitRef.current?.focus();
               }}
             >
-              <code>{a.username}</code><span className="aq-meta">{a.label}</span>
-            </button>
+              <code className="font-semibold text-primary">{a.username}</code><span className="aq-meta font-normal">{a.label}</span>
+            </Button>
           ))}
         </div>
       </details>
