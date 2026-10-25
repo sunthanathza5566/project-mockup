@@ -2,7 +2,7 @@
  * Phase U — เช็ก acceptance criteria ของ UI อัตโนมัติ (ADR-UI-001 7.4) — TASK-0001 U2-Q
  * AC-02 ขนาดตัวอักษร · AC-03 ไม่มี horizontal scroll (390/768/1440) · AC-04(ก) fontScale 125% ไม่ล้น
  * AC-05 target size · AC-06 focus ring + ไม่มี keyboard trap + skip link · AC-08 reduced motion
- * AC-09 ฟอนต์ Sarabun จริง + grep ฟอนต์เก่า · AC-10 ไม่มี emoji (grep + ข้อความบนหน้า)
+ * AC-09 ฟอนต์ IBM Plex Sans Thai Looped (self-host, ไม่เรียก Google Fonts) + grep ฟอนต์เก่า (TASK-0002 Q0) · AC-10 ไม่มี emoji (grep + ข้อความบนหน้า)
  *
  * หมายเหตุ fixture: หน้า `/assess` ต้อง "หลัง lock" — ตั้งสถานะรอบใน localStorage ตรง ๆ (under_assessment + lockedAt)
  * เพื่อวัด layout เท่านั้น (flow จริงของการล็อก/ประเมินมีเทสต์ใน flows-b และ tests/phase-u.test.ts)
@@ -278,8 +278,11 @@ async function tabThrough(page: Page, n = 30) {
   return { bad, seq };
 }
 
-test.describe('AC-06 focus', () => {
-  test.use({ viewport: VP['1440'] });
+// TASK-0002 Q0 (ADR-UI-002 D8): ชุดเดียวกันทุกบรรทัดรันซ้ำในโหมดมืด (ธีมค่าเริ่ม `system` + prefers-color-scheme: dark)
+// dark = test.describe.fixme ไว้ก่อน — ช่วงเปลี่ยนผ่านหน้าที่ยังใช้ legacy.css มีพื้นสว่างในโหมดมืด ring จะตก · เปิดใน Q1 หลัง S6 cutover
+for (const scheme of ['light', 'dark'] as const) {
+(scheme === 'dark' ? test.describe.fixme : test.describe)(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
+  test.use({ viewport: VP['1440'], colorScheme: scheme });
 
   test('/login: ทุก element ที่โฟกัสมี outline ≥2px contrast ≥3 · ไม่ติดค้าง', async ({ page }) => {
     await page.goto('/login'); await settle(page);
@@ -335,6 +338,7 @@ test.describe('AC-06 focus', () => {
     await expect(page.getByTestId('nav-menu')).toBeFocused();
   });
 });
+}
 
 // ─────────────────────────── AC-08 reduced motion ───────────────────────────
 async function runningAnimations(page: Page): Promise<string[]> {
@@ -378,32 +382,55 @@ test.describe('AC-08 reduced motion', () => {
 });
 
 // ─────────────────────────── AC-09 ฟอนต์ ───────────────────────────
+// TASK-0002 Q0 (ADR-UI-002 D8 / AC-09 ใหม่): แทนฉบับ Sarabun — IBM Plex Sans Thai Looped ผ่าน next/font (self-host)
+// next/font ตั้งชื่อ family เป็น `__IBM_Plex_Sans_Thai_Looped_<hash>` + face `__…_Fallback_<hash>` (local()) → normalize ก่อนเทียบ ไม่ผูก hash
+const PLEX = 'IBM Plex Sans Thai Looped';
+const GOOGLE_FONTS_RE = /^https?:\/\/fonts\.(googleapis|gstatic)\.com\//i;
+/** `"__IBM_Plex_Sans_Thai_Looped_f9ab01"` → `IBM Plex Sans Thai Looped` (face Fallback รวมเป็นชื่อเดียวกัน) */
+function normalizeFamily(raw: string): string {
+  const s = raw.replace(/["']/g, '').trim();
+  const m = s.match(/^__(.+?)(?:_Fallback)?_[0-9a-f]+$/);
+  return m ? m[1].replace(/_/g, ' ') : s;
+}
+
 test.describe('AC-09 ฟอนต์ไทยจริง', () => {
+  test('normalizeFamily (ตัวช่วยของเทสต์นี้) แปลงชื่อ next/font ถูก', () => {
+    expect(normalizeFamily('"__IBM_Plex_Sans_Thai_Looped_f9ab01"')).toBe(PLEX);
+    expect(normalizeFamily('__IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01')).toBe(PLEX);
+    expect(normalizeFamily('Sarabun')).toBe('Sarabun');
+    expect(normalizeFamily('"Leelawadee UI"')).toBe('Leelawadee UI');
+  });
+
   for (const url of ['/', '/login', '/app']) {
-    test(`${url}: body ใช้ Sarabun และโหลดฟอนต์ Sarabun สำเร็จ`, async ({ page }) => {
+    test(`${url}: body ใช้ ${PLEX} โหลดสำเร็จ และไม่มี request ไป Google Fonts`, async ({ page }) => {
+      // ดักทุก request ตั้งแต่ก่อนเข้าหน้าแรก (รวมขั้น login ของ /app)
+      const googleReqs: string[] = [];
+      page.on('request', req => { if (GOOGLE_FONTS_RE.test(req.url())) googleReqs.push(req.url()); });
       if (url === '/app') await loginAs(page, 'chair1');
       await page.goto(url); await settle(page);
-      const r = await page.evaluate(async () => {
+      const first = await page.evaluate(() => getComputedStyle(document.body).fontFamily.split(',')[0].trim());
+      expect(normalizeFamily(first), `body font-family ตัวแรก = ${first}`).toBe(PLEX);
+      const raw = first.replace(/["']/g, '');
+      const r = await page.evaluate(async (fam) => {
         await document.fonts.ready;
-        const loaded = await document.fonts.load('16px Sarabun', 'ภาษาไทย');
+        const loaded = await document.fonts.load(`16px "${fam}"`, 'ภาษาไทย');
         return {
-          family: getComputedStyle(document.body).fontFamily,
-          check: document.fonts.check('16px Sarabun', 'ภาษาไทย'),
+          check: document.fonts.check(`16px "${fam}"`, 'ภาษาไทย'),
           faces: loaded.map(f => `${f.family}:${f.weight}:${f.status}`),
-          used: Array.from(document.fonts).filter(f => f.status === 'loaded').map(f => f.family.replace(/["']/g, '')),
+          used: Array.from(document.fonts).filter(f => f.status === 'loaded').map(f => f.family),
         };
-      });
-      expect(r.family.replace(/["']/g, '')).toMatch(/^Sarabun\b/);
+      }, raw);
       expect(r.check).toBe(true);
-      // check() คืน true ได้ถ้าไม่มี FontFace ชื่อนี้เลย → ยืนยันว่ามี face Sarabun โหลดจริง
-      expect(r.faces.length, 'FontFace Sarabun ต้องมีและโหลดได้').toBeGreaterThan(0);
-      expect(r.faces.every(f => f.endsWith(':loaded'))).toBe(true);
-      expect(Array.from(new Set(r.used))).toEqual(['Sarabun']);
+      // check() คืน true ได้ถ้าไม่มี FontFace ชื่อนี้เลย → ยืนยันว่ามี face โหลดจริง
+      expect(r.faces.length, `FontFace ${PLEX} ต้องมีและโหลดได้`).toBeGreaterThan(0);
+      expect(r.faces.every(f => f.endsWith(':loaded')), r.faces.join(', ')).toBe(true);
+      expect(Array.from(new Set(r.used.map(normalizeFamily))), r.used.join(', ')).toEqual([PLEX]);
+      expect(googleReqs, 'request ไป fonts.googleapis.com / fonts.gstatic.com ตอน runtime').toEqual([]);
     });
   }
 
-  test('grep: ไม่มี Cormorant / DM Sans ใน app/ components/ context/', () => {
-    const hits = grepTree(['app', 'components', 'context'], /\.(tsx?|css)$/, /Cormorant|DM Sans|DM\+Sans/);
+  test('grep: ไม่มี Sarabun / fonts.googleapis / Cormorant / DM Sans ใน app/ components/ context/', () => {
+    const hits = grepTree(['app', 'components', 'context'], /\.(tsx?|css)$/, /Sarabun|fonts\.googleapis|Cormorant|DM Sans|DM\+Sans/);
     expect(hits).toEqual([]);
   });
 });
