@@ -22,11 +22,11 @@ import Term from '@/components/ui/Term';
 import { DisplayPrefsButton } from '@/components/ui/DisplayPrefs';
 import { Button } from '@/components/ui/primitives/button';
 
-/** drawer <1024 (ซ่อนนอกจอ + invisible จนมี is-open) · ≥1024 sticky เต็มความสูง (§P4) */
+/** drawer <1024 (ซ่อนนอกจอ + invisible จนมี data-open; class is-open คงไว้เป็น hook เทสต์) · ≥1024 sticky เต็มความสูง (§P4) */
 const SIDEBAR =
   'fixed inset-y-0 left-0 z-drawer flex w-[min(20rem,86vw)] flex-col border-r bg-background shadow-lg ' +
   '-translate-x-full invisible transition-[transform,visibility] duration-fast ease-exit ' +
-  '[&.is-open]:visible [&.is-open]:translate-x-0 [&.is-open]:duration-base [&.is-open]:ease-enter ' +
+  'data-[open]:visible data-[open]:translate-x-0 data-[open]:duration-base data-[open]:ease-enter ' +
   'lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-auto lg:visible lg:translate-x-0 lg:shadow-none lg:transition-none';
 
 /** รายการเมนู (hook aq-nav-item — target audit 44px) */
@@ -114,7 +114,7 @@ export default function AppSidebar({ user, pathname, open, onClose, onLogout }: 
         <div className="fixed inset-0 z-drawer animate-fade-in bg-black/50 lg:hidden" onClick={onClose} aria-hidden="true" />
       )}
       <aside
-        ref={ref} id="app-sidebar" className={`${SIDEBAR}${open ? ' is-open' : ''}`}
+        ref={ref} id="app-sidebar" className={`${SIDEBAR}${open ? ' is-open' : ''}`} data-open={open || undefined}
         aria-label="เมนูหลัก" onKeyDown={onKeyDown}
       >
         <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 px-4">
