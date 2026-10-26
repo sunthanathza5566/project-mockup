@@ -3,7 +3,7 @@
 /**
  * Landing nav (ADR-UI-001 pages.md P1 · TASK-0002 saas-spec §P1) — sticky h-16 border-b bg-background/80 backdrop-blur
  * ≥768 ลิงก์ในแถว + ปุ่ม landing-login (outline) + ภาษา + "การแสดงผล" (display-menu, friendly-spec §F9)
- * <768 (V1 m5) แถวเดียว: แบรนด์ + ภาษา + ปุ่ม "☰ เมนู" (`landing-menu-btn` มีข้อความ — AC-21) → แผงเต็มจอ
+ * <768 (V1 m5) แถวเดียว: แบรนด์ + ภาษา + ปุ่ม "เมนู" (ไอคอน menu + ข้อความ) (`landing-menu-btn` มีข้อความ — AC-21) → แผงเต็มจอ
  *   แผงมี ลิงก์ + เข้าสู่ระบบ (`landing-menu-login`) + การแสดงผล (`landing-menu-display`, DisplayPrefsPanel)
  *   display-menu ยังอยู่ใน DOM แต่ซ่อนด้วย CSS ที่ <768 (testid เดียว ไม่ render ซ้ำ)
  * LangSwitch อยู่บนแถบ nav นอกเมนูทุกขนาดจอ (AC-22, BUG-0002-Q2C-1) — ไม่ซ้ำในแผงมือถือ
@@ -80,7 +80,7 @@ export default function LandingNav() {
             </li>
           </ul>
         </nav>
-        {/* <768 (V1 m5): แถวเดียว [แบรนด์][ไทย│EN][☰ เมนู] — "การแสดงผล" ย้ายเข้าแผงเมนู · ปุ่มภาษาอยู่นอกเมนูเสมอ (AC-22)
+        {/* <768 (V1 m5): แถวเดียว [แบรนด์][ไทย│EN][ปุ่ม เมนู] — "การแสดงผล" ย้ายเข้าแผงเมนู · ปุ่มภาษาอยู่นอกเมนูเสมอ (AC-22)
             ≥768 คงเดิม: ลิงก์ + เข้าสู่ระบบ + ภาษา + การแสดงผล */}
         <LangToggle className="shrink-0 max-md:[&_button]:px-2" />
         <DisplayMenuButton label="การแสดงผล" className="hidden md:block" />
