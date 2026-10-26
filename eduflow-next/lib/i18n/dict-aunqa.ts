@@ -531,6 +531,8 @@ export const EN_AUNQA: Record<string, string> = {
   'เปิดใช้อีกครั้ง': 'Reactivate',
   // ปุ่มอนุมัติคำขอ (R2-F6) — แยกจาก 'อนุมัติ' ที่เป็นป้ายสถานะ 'Approved'
   'อนุมัติคำขอ': 'Approve request',
+  // R2-F1 NotificationPanel
+  'โหลดการแจ้งเตือนไม่สำเร็จ': 'Could not load notifications',
   // ── TASK-0002 R2-F2b: ข้อความหน้าสาธารณะที่ R2-F2 เพิ่ม (login / ขอเข้าใช้งาน / รับคำเชิญ) ──
   'ชื่อ-สกุล': 'Full name',
   'มหาวิทยาลัย': 'University',
