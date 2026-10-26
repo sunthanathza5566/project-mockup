@@ -456,6 +456,53 @@ test.describe('AC-24 deep link จาก panel แจ้งเตือน', () 
     await expect(target).toBeInViewport();
   });
 
+  test('action (N9) กดแจ้งเตือนเดิมซ้ำขณะอยู่ /app/actions#action-{id} แล้ว → ไฮไลต์ซ้ำทุกครั้ง (R2-F8 minor, แก้ใน S6) · คลิกที่อื่นในหน้าไม่ไฮไลต์ซ้ำ', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await loginAs(page, 'chair1');
+    await page.goto('/app/actions');
+    await page.getByTestId('act-new').click();
+    await page.getByTestId('act-desc').fill('ทบทวน มคอ.3 ทุกรายวิชา (ทดสอบ Q1 ไฮไลต์ซ้ำ)');
+    await page.getByTestId('act-owner').selectOption({ label: 'อ.วิภา เขียนรายงาน' });
+    await page.getByTestId('act-save').click();
+    await expect(page.getByTestId('action-form')).toHaveCount(0);
+    const row = page.locator('tr[data-testid^="action-"]', { hasText: 'ทดสอบ Q1 ไฮไลต์ซ้ำ' });
+    await expect(row).toHaveCount(1);
+    const actionId = (await row.getAttribute('data-testid'))!.replace(/^action-/, '');
+
+    await goto(page, '/app', 'staff1');
+    await (await notiItem(page, /action item/)).click();
+    await page.waitForURL(/\/app\/actions#action-/);
+    const target = page.locator(`[id="action-${actionId}"]`);
+    await expect(target).toHaveClass(/animate-highlight/);
+    const hashBefore = await page.evaluate(() => window.location.hash);
+
+    // นับจังหวะ "ถอด animate-highlight" (= เริ่ม animation ใหม่: ลบ class → reflow → ใส่คืน) บนแถวเป้าหมาย
+    await page.evaluate((id) => {
+      const el = document.getElementById(`action-${id}`)!;
+      const w = window as unknown as { __hlRestarts: number };
+      w.__hlRestarts = 0;
+      new MutationObserver(recs => {
+        for (const r of recs) if (/\banimate-highlight\b/.test(r.oldValue ?? '')) w.__hlRestarts++;
+      }).observe(el, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    }, actionId);
+    const restarts = () => page.evaluate(() => (window as unknown as { __hlRestarts: number }).__hlRestarts);
+
+    // negative: คลิกพื้นที่อื่นในหน้า (click listener ทำงาน แต่ hash เดิม = จัดการแล้ว) → ไม่ไฮไลต์ซ้ำ
+    await page.locator('h1').first().click();
+    await page.waitForTimeout(300);
+    expect(await restarts()).toBe(0);
+
+    // กดแจ้งเตือนเดิมซ้ำ 2 ครั้ง (hash เดิม) → ไฮไลต์ใหม่ทุกครั้ง · URL ไม่เปลี่ยน
+    for (let i = 1; i <= 2; i++) {
+      await (await notiItem(page, /action item/)).click();
+      await expect(page.getByTestId('noti-panel')).toBeHidden();
+      await expect.poll(restarts, { message: `ครั้งที่ ${i}` }).toBeGreaterThanOrEqual(i);
+      await expect(target).toHaveClass(/animate-highlight/);
+      await expect(target).toBeInViewport();
+      expect(await page.evaluate(() => window.location.hash)).toBe(hashBefore);
+    }
+  });
+
   test('กรรมการ (N2): uadmin มอบ assess1 เข้ารอบใหม่ → assess1 กดแจ้งเตือน → /app/cycles/{id}/assess', async ({ page }) => {
     await page.setViewportSize(VP['1440']);
     await loginAs(page, 'chair1');

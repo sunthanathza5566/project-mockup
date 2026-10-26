@@ -283,10 +283,18 @@ async function tabThrough(page: Page, n = 30) {
 }
 
 // TASK-0002 Q0 (ADR-UI-002 D8): ชุดเดียวกันทุกบรรทัดรันซ้ำในโหมดมืด (ธีมค่าเริ่ม `system` + prefers-color-scheme: dark)
-// dark = test.describe.fixme ไว้ก่อน — ช่วงเปลี่ยนผ่านหน้าที่ยังใช้ legacy.css มีพื้นสว่างในโหมดมืด ring จะตก · เปิดใน Q1 หลัง S6 cutover
+// dark: เดิมเป็น test.describe.fixme ช่วงเปลี่ยนผ่าน legacy.css — เปิดแล้วใน Q1 หลัง S6 cutover
+// Q1: ADR-UI-003 เปลี่ยน defaultTheme เป็น light → prefers-color-scheme อย่างเดียวไม่ทำให้เป็น dark แล้ว
+//     จึงตั้ง aunqa_theme=dark ก่อนโหลดทุกหน้า + afterEach ยืนยันว่าหน้าอยู่ในธีมที่ตั้งใจจริง (กันผ่านเพราะวัดธีมผิด)
 for (const scheme of ['light', 'dark'] as const) {
-(scheme === 'dark' ? test.describe.fixme : test.describe)(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
+test.describe(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
   test.use({ viewport: VP['1440'], colorScheme: scheme });
+  test.beforeEach(async ({ page }) => {
+    if (scheme === 'dark') await page.addInitScript(() => { try { localStorage.setItem('aunqa_theme', 'dark'); } catch { /* about:blank */ } });
+  });
+  test.afterEach(async ({ page }) => {
+    expect(await page.evaluate(() => document.documentElement.classList.contains('dark')), `ธีมของหน้าต้องเป็น ${scheme}`).toBe(scheme === 'dark');
+  });
 
   test('/login: ทุก element ที่โฟกัสมี outline ≥2px contrast ≥3 · ไม่ติดค้าง', async ({ page }) => {
     await page.goto('/login'); await settle(page);
