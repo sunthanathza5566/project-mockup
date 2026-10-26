@@ -11,12 +11,6 @@ import { DEMO_CYCLE, loginAs, logoutViaMenu, openUserMenu, sectionUrl } from './
 const VP = { '1440': { width: 1440, height: 900 }, '390': { width: 390, height: 844 } } as const;
 const THAI = /[฀-๿]/;
 
-/** BUG ที่ยังเปิดอยู่ (จดใน TASK-0002 Log ของ Q2c) */
-const KNOWN_BUGS = {
-  /** BUG-0002-Q2C-1: landing `/` ที่ <768 LangSwitch อยู่ในแผง hamburger เท่านั้น (AC-22 ต้องมองเห็นนอกเมนูทุกจอ) — F2 */
-  landingLang390: 'BUG-0002-Q2C-1',
-};
-
 async function settle(page: Page) {
   await page.waitForLoadState('networkidle').catch(() => {});
   await expect(page.locator('h1').first()).toBeVisible({ timeout: 20_000 });
@@ -101,9 +95,7 @@ test.describe('AC-22 ปุ่มภาษา', () => {
 
   for (const w of ['1440', '390'] as const) {
     for (const url of ['/app', '/login', '/']) {
-      const known = url === '/' && w === '390';
-      test(`@${w} ${url}: lang-switch มองเห็นนอกเมนู · aria-pressed · lang="en" + ป้าย · กด EN → อังกฤษ · reload คงอยู่${known ? ` (${KNOWN_BUGS.landingLang390})` : ''}`, async ({ page }) => {
-        if (known) test.fail(true, KNOWN_BUGS.landingLang390);
+      test(`@${w} ${url}: lang-switch มองเห็นนอกเมนู · aria-pressed · lang="en" + ป้าย · กด EN → อังกฤษ · reload คงอยู่`, async ({ page }) => {
         await page.setViewportSize(VP[w]);
         await goto(page, url, url === '/app' ? 'chair1' : undefined);
         const sw = page.getByTestId('lang-switch');

@@ -2,7 +2,8 @@
 
 /**
  * Landing nav (ADR-UI-001 pages.md P1 · TASK-0002 saas-spec §P1) — sticky h-16 border-b bg-background/80 backdrop-blur
- * ≥768 ลิงก์ในแถว + LangToggle + ปุ่ม landing-login (outline) · <768 hamburger → แผงเต็มจอ
+ * ≥768 ลิงก์ในแถว + ปุ่ม landing-login (outline) · <768 hamburger → แผงเต็มจอ
+ * LangSwitch อยู่บนแถบ nav นอก hamburger ทุกขนาดจอ (AC-22, BUG-0002-Q2C-1) — ไม่ซ้ำในแผงมือถือ
  * ปุ่ม "การแสดงผล" (display-menu, friendly-spec §F9) อยู่นอก nav — มองเห็นทุกขนาดจอ มีตัวเดียวในหน้า · ป้ายสั้น "แสดงผล" ที่ <768
  * แผงมือถือ: ปุ่ม 44, Esc / ปุ่ม x ปิด, focus trap, คืน focus ปุ่มเมนู · ล็อกอินอยู่ = "เข้าสู่แอป →"
  */
@@ -63,8 +64,7 @@ export default function LandingNav() {
         <nav aria-label="เมนูหน้าแรก" className="hidden min-w-0 flex-1 md:block">
           <ul className="m-0 flex list-none flex-wrap items-center gap-1 p-0">
             {LINKS.map(l => <li key={l.href}><a href={l.href} className={LINK}>{l.label}</a></li>)}
-            <li className="ml-auto"><LangToggle /></li>
-            <li>
+            <li className="ml-auto">
               <Button asChild variant="outline" className="visited:text-foreground">
                 <a href={user ? '/app' : '/login'} data-testid="landing-login" onClick={go}>
                   {cta}<Icon name="chevron-right" size={20} />
@@ -73,7 +73,8 @@ export default function LandingNav() {
             </li>
           </ul>
         </nav>
-        {/* <768: ปุ่มชิดขึ้น (px-2) ให้ แบรนด์ + แสดงผล + เมนู อยู่แถวเดียวที่ 390 · ล้นเมื่อขยายตัวอักษร = ตกบรรทัด ไม่ h-scroll */}
+        {/* <768: ปุ่มชิดขึ้น (px-2) ให้ แบรนด์ + ภาษา + แสดงผล + เมนู อยู่แถวเดียวที่ 390 · ล้นเมื่อขยายตัวอักษร = ตกบรรทัด ไม่ h-scroll */}
+        <LangToggle className="max-md:[&_button]:px-2" />
         <DisplayMenuButton label="การแสดงผล" shortLabel="แสดงผล" className="max-md:[&_.aq-btn]:px-2" />
         <Button
           ref={burger} variant="ghost" size="icon" className={cn(GHOST_FIX, 'md:hidden')}
@@ -96,7 +97,6 @@ export default function LandingNav() {
           {LINKS.map(l => (
             <a key={l.href} href={l.href} onClick={() => setOpen(false)} className={PANEL_LINK}>{l.label}</a>
           ))}
-          <div className="mt-2"><LangToggle /></div>
           <Button asChild className="mt-2 visited:text-primary-foreground">
             <a href={user ? '/app' : '/login'} onClick={go}>
               {cta}<Icon name="chevron-right" size={20} />
