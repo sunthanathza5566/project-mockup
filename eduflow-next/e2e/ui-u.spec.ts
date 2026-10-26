@@ -491,17 +491,10 @@ test.describe('AC-09 ฟอนต์ไทยจริง', () => {
 });
 
 // ─────────────────────────── AC-10 emoji (grep) ───────────────────────────
-// TASK-0002 Q2c KNOWN_BUGS: BUG-0002-Q2C-2 — คอมเมนต์หัวไฟล์ AppTopbar.tsx มีอักขระ ☰ (U+2630) อยู่ในช่วงที่ AC-10 ห้าม (R2-F1)
-// แยกออกจากเทสต์หลัก (ยังจับ emoji ใหม่ทุกตัว) + test.fail ยืนยันว่ายังอยู่ → ขึ้น "unexpected pass" ทันทีเมื่อแก้แล้ว ให้ลบรายการนี้
-const isKnownEmojiHit = (h: string) => /^components[\\/]aunqa[\\/]AppTopbar\.tsx:\d+: \* \[☰ เมนู/.test(h);
+// BUG-0002-Q2C-2 (☰ ในคอมเมนต์ AppTopbar.tsx) แก้แล้ว — เลิกยกเว้น
 test('AC-10 grep: ไม่มี emoji (U+1F300–1FAFF, U+2600–27BF) ใน app/ components/ context/ *.tsx', () => {
   const hits = grepTree(['app', 'components', 'context'], /\.tsx$/, new RegExp(EMOJI_SRC, 'u'));
-  expect(hits.filter(h => !isKnownEmojiHit(h))).toEqual([]);
-});
-test('AC-10 grep (BUG-0002-Q2C-2): ไม่มี ☰ ในคอมเมนต์ AppTopbar.tsx', () => {
-  test.fail(true, 'BUG-0002-Q2C-2 ยังไม่ถูกแก้ (R2-F1)');
-  const hits = grepTree(['app', 'components', 'context'], /\.tsx$/, new RegExp(EMOJI_SRC, 'u'));
-  expect(hits.filter(isKnownEmojiHit)).toEqual([]);
+  expect(hits).toEqual([]);
 });
 
 function grepTree(dirs: string[], file: RegExp, re: RegExp): string[] {

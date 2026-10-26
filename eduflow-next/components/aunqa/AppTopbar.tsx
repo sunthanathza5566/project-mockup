@@ -2,7 +2,7 @@
 
 /**
  * Top bar (ADR-UI-003 D3 / friendly-spec §F1, §F2 — แทน saas-spec §P4)
- * [☰ เมนู (<1024)] [โลโก้ (<1024 และ ≥480)] … [LangSwitch] [แจ้งเตือน] [เมนูผู้ใช้]
+ * [ปุ่ม เมนู (<1024)] [โลโก้ (<1024 และ ≥480)] … [LangSwitch] [แจ้งเตือน] [เมนูผู้ใช้]
  * - ทุก control บน desktop มีข้อความที่มองเห็น · มือถือยกเว้นกระดิ่ง/avatar (มี aria-label / ชื่อ sr-only)
  * - ไม่มี h1 · สูง h-topbar (64) · เงา shadow-sm เมื่อ scroll > 0
  * - พื้น bg-card/90 + backdrop-blur อยู่บนชั้นลูก (absolute -z-10) ไม่ใช่บน <header>: backdrop-filter บน header
