@@ -194,3 +194,61 @@ P01, P02, P04, P05, P07–P10, P12, P13, P15–P18, P20, P21 ได้ผลเ�
 - C13 → **ผ่าน** · C12 → ผ่าน (เหลือ ข-13 เดิม) · C7 → ผ่าน (S-04 ปิดแล้ว)
 - qa-tester: เทสต์ถาวรตาม HANDOFF ของ backend-dev ครอบ P03/P11/P19/P06 แล้ว — แนะนำเพิ่ม P22 (legacy) และ P25 (ผู้เชิญถูกถอนสิทธิ์)
 - thesis-writer: ตาราง (ข) = ข-01..ข-19
+
+---
+
+## Re-check 2 (2026-10-27) — R2-B4 `c3c188d` (authz) + R2-F10 `f4f42ca` (แผงจัดการผู้ใช้/ScopeSelect) · HEAD `f4f42ca`
+
+### Verdict: **PASS**
+- Critical 0 · High 0 · Medium 0 · **Low 2 (ใหม่: S-08, S-09)** · Info 2 (I-04, I-05) · ไม่มี regression
+- ขอบเขต: `git diff 75b0f05..HEAD -- eduflow-next/lib eduflow-next/components/aunqa/admin` (อ่านโค้ดทุกไฟล์ใน lib/api ที่เปลี่ยน + UsersTab/ScopeSelect/shared/RequestsTab/NewUserForm) · diff ไม่แตะ package.json/lockfile → ไม่มี dependency ใหม่ · สแกนบรรทัด `+` หา secret/`console.*`/HTML sink/`localStorage.setItem` = 0
+- ไม่ได้รัน next build / e2e ตามกติกา (qa-tester ทำขนาน)
+
+### ตอบคำถาม 5 ข้อของ orchestrator
+
+| # | คำถาม | ผล | หลักฐาน |
+|---|---|---|---|
+| 1 | `validateRoleScopes` + role↔scope: ข้ามมหาวิทยาลัย / ยกระดับ / คงบทบาทเดิมผิดคู่ผ่าน `setUserRoles` | **ไม่มีช่องโหว่** — ข้อยกเว้น `existing` จับคู่ตรงทั้ง role+scopeType+scopeId และใช้เฉพาะบทบาทเดิม**ของเป้าหมายคนนั้น**; การตรวจ tenant/การมีอยู่จริงยังทำก่อนเสมอ; ข้อยกเว้นไม่ใช้กับ createUser/inviteUser/approve (ไม่ส่ง existing) | P27: 7 role × 4 scopeType × (uadmin createUser + sadmin inviteUser) = 56 กรณี ตรงตาราง `ROLE_SCOPE_TYPES` ทั้งหมด; approve ที่มีคู่ผิด 1 ตัวในรายการ = `invalid` ทั้งคำขอ ยัง pending; super_admin@faculty = invalid · P28: บทบาทเดิมผิดคู่คงไว้ได้ + เพิ่มคู่ถูกได้; คัดลอกคู่เดิมไปให้อีกคน = invalid; เปลี่ยน scopeId/role ของคู่เดิม = invalid; คู่เดิมที่ข้าม tenant = invalid (ถอดออกได้); แนบ super_admin มาด้วย = forbidden; เป้าหมายมี super_admin (แม้ผิดคู่) = forbidden |
+| 2 | ล็อกหลักฐานบน section ที่ล็อก — bypass ผ่าน createEvidence/ฟังก์ชันอื่นที่ผูกหลักฐาน | **การผูก/เลิกผูกไม่มีทาง bypass** — ทุก writer ของ `KEYS.links` (grep): `linkEvidence`/`unlinkEvidence` (มี guard), `createEvidence` และ `acceptAiRun` AI-1 (เรียก `linkEvidence`), `materializeActionEvidence` + การคัดลอกลิงก์ใน `createCycle` (เขียนลงรอบ**ใหม่**ที่ section ยังไม่ล็อก) · **แต่เนื้อหาของหลักฐานที่ข้อที่อนุมัติแล้วอ้างถึงยังแก้ได้** → **S-08** · AI-1 accept ไม่ atomic → I-05 | P30: createEvidence บนข้อ approved/ready_for_review (เดี่ยว และผสมกับข้อที่แก้ได้) = `locked` ×4 และจำนวน evidence/file/link ไม่เพิ่ม (ไม่มีกำพร้า); link ผสม [แก้ได้, ล็อก] = `locked` ไม่มีลิงก์บางส่วน; link source `ai` = locked; unlink ข้อ approved = locked ลิงก์ยังอยู่; ผูกซ้ำ = no-op; ส่งกลับแก้ (changes_requested) แล้ว unlink ได้ · AI-1 accept [1.3 แก้ได้, 1.1 ล็อก] = `locked` ไม่มีลิงก์ 1.1 · P31: addFileVersion / updateEvidence(title) บนหลักฐานที่ข้อ approved อ้าง = ok |
+| 3 | N12 mark read หลังอนุมัติ แตะแจ้งเตือนของผู้อื่น/ข้ามมหาวิทยาลัยไหม | **ไม่** — `markAccessRequestNoticesRead` เลือกด้วย `dedupeKey === access_request:<userId>` เท่านั้น (ผู้รับ = ผู้ดูแล uni เดียวกับผู้ขอ + super ตามที่ notify ไว้ตอนส่งคำขอ) · เรียกหลัง `managedTarget` + `validateGrantedRoles` + save → approve ที่ forbidden/invalid ไม่ mark อะไร · ไม่อยู่ใน facade | P32: คำขอ A, B (uni-demo), C (uni-demo-2) · approve C โดย uadmin = forbidden, approve A คู่ผิด = invalid → readAt = 0 แถว · approve A → แถวของ A ทั้ง u-uniadm และ u-super เป็นอ่านแล้ว; B และ C ยังไม่อ่าน; uadmin ไม่มีแถวของ C; แจ้งเตือนชนิดอื่นทุกแถว readAt ไม่เปลี่ยน; `'markAccessRequestNoticesRead' in api` = false |
+| 4 | export ใหม่ผ่าน facade เขียนข้อมูลโดยไม่มี guard ไหม (B7) | **export ใหม่ทั้ง 6 ตัวไม่เขียนข้อมูล** — `ROLE_SCOPE_TYPES`, `allowedScopeTypes`, `isRoleScopeCompatible`, `ScopeType` (type), `isSectionEditable` (pure), `assertSectionsEditable` (อ่าน + throw) · `ROLE_SCOPE_TYPES` แก้ได้ตอน runtime → I-04 · **สแกนใหม่ทั้ง facade (ไม่กรองเฉพาะฟังก์ชันที่รับ AppUser แบบรอบก่อน) เจอ writer ไม่มี guard ของเดิม 5 ตัว** → **S-09** | P33: เรียก export ใหม่ทุกตัวแล้ว `storageText()` ไม่เปลี่ยน · สคริปต์ `facade-scan.cjs` (scratchpad): writer ที่ไม่มี guard บน facade = `saveUsers`, `saveCycle`, `addReviewEvent`, `notify`, `appendAudit`(+`Throttled`) + `export*` 7 ตัว (S-03 เดิม) + `getSession/touchSession/loginUser/logoutUser` (ไม่ต้องมี actor โดยธรรมชาติ) + `nextEvidenceCode`/`getProvider` (ไม่เขียนข้อมูลผู้ใช้) — **ไม่มีตัวไหนมาจาก diff นี้** · P34 |
+| 5 | UI ซ่อนปุ่มให้ตัวเอง/super_admin — API ยังกันจริงไหม | **กันจริง** — `canManage` ใน UsersTab เป็นแค่ UX; ทุก action ตรวจซ้ำที่ store | P29 (uadmin): setUserRoles ตัวเอง (เพิ่ม/ล้าง) = forbidden · setUserRoles(sadmin) = forbidden ข้อความ "ไม่มีสิทธิ์แก้บัญชี super_admin" (ลำดับ P4 ถูก) · setUserStatus ตัวเอง = invalid, super = forbidden · deleteUser ตัวเอง = invalid, super = forbidden · reissue/cancel บน super = invalid · chair1 setUserRoles = forbidden · roles ของ sadmin/uadmin ใน store ไม่เปลี่ยน · UI: `UsersTab` สร้างตัวเลือกขอบเขตจาก uni ของผู้ใช้ปัจจุบัน + `listCycles(user)` และ `scopeOptions` กรอง `c.universityId` → ไม่โชว์หน่วยงานของ uni อื่น; ข้อความทั้งหมดเป็น React text |
+
+### Finding ใหม่
+
+| ID | ระดับ | ตำแหน่ง | ปัญหา / ผลกระทบ | หลักฐาน | วิธีแก้ | ผู้รับผิดชอบ |
+|---|---|---|---|---|---|---|
+| **S-08** | Low | `lib/api/evidence.store.ts:233` (`addFileVersion`), `:206` (`updateEvidence`) | กติกา R2-B4 "ข้อที่ส่งตรวจ/อนุมัติแล้ว = ล็อกเนื้อหา" ครอบตารางลิงก์แล้ว แต่**ไม่ครอบเนื้อหาของหลักฐานที่ข้อนั้นอ้าง** — ผู้มี `evidence.write` ในหลักสูตรอัปไฟล์เวอร์ชันใหม่/เปลี่ยนชื่อหลักฐานที่ข้อ approved อ้างได้ขณะรอบยัง in_progress → ประธานอนุมัติข้อจากไฟล์ v1 แต่เล่มที่ส่งอ้างไฟล์ v2 (integrity / ASVS 2.x business logic) · บรรเทาอยู่แล้ว: เวอร์ชันเก่าเก็บไว้, มี audit `evidence.new_version`/`evidence.update`, verified → tagged, `addFileVersion` กันรอบที่ล็อกแล้ว, `verifySnapshot` แจ้ง `evidenceChanged` หลังล็อกรอบ · ไม่ใช่ regression (พฤติกรรมเดิม) | P31: ข้อ 1.3 approved อ้างหลักฐาน → `addFileVersion` = ok, `updateEvidence({title})` = ok | architect ตัดสิน 1 ใน 3: (a) by-design → เขียนในเล่ม + UI หน้าหลักฐานเตือน "ข้อ X อนุมัติแล้วอ้างหลักฐานนี้"; (b) `addFileVersion`/`updateEvidence` เรียก `assertSectionsEditable` กับทุกข้อที่หลักฐานผูกอยู่ในรอบที่ยังเขียนได้; (c) ยอมให้แก้แต่ตั้งข้อที่อ้างกลับเป็น `changes_requested` + แจ้งประธาน | architect → backend-dev |
+| **S-09** | Low (ของเดิม — ไม่ได้มาจาก diff นี้) | `lib/api/workflow.ts:107` `saveCycle`, `:116` `addReviewEvent` · `lib/api/notification.store.ts:35` `notify` · `lib/api/audit.store.ts:19,38` `appendAudit*` · `lib/api/auth.api.ts:152` `saveUsers` — ทั้งหมดออก facade ผ่าน `export *` | ขัดกฎ B7 "ห้าม helper ไม่ตรวจสิทธิ์หลุด facade" — โค้ด UI ใดก็ปลดล็อกรอบที่ final_approved, ปลอมประวัติอนุมัติ, ส่งแจ้งเตือนในนามระบบถึงใครก็ได้ (รวมปลอม `dedupeKey: access_request:*`), เขียน audit ปลอม หรือเขียนทับตาราง users ได้ **โดยไม่มี actor** · ใน client-only มีผลเท่ากับแก้ localStorage (ข-01) จึงเป็น Low แต่ถ้า signature นี้ย้ายขึ้น server ตรง ๆ = ช่องโหว่ระดับ High · ไม่มี UI ใช้ตัวเหล่านี้ (grep `components/ app/ context/` = 0; `notify` ใน UI เป็นของ DialogContext คนละตัว) · รอบแรก/รอบ 1 ไม่เจอเพราะสคริปต์กรองเฉพาะฟังก์ชันที่รับ `AppUser` — **ความผิดพลาดของวิธีตรวจของ security-auditor เอง** | P34: `['saveCycle','addReviewEvent','notify','appendAudit','saveUsers'].filter(k => k in api)` = ครบ 5 · `api.saveCycle({...c, status:'final_approved', lockedAt})` → `assertCycleWritable` = locked แล้ว `saveCycle({... status:'in_progress', lockedAt: undefined})` → ok ไม่มี actor/audit | ย้ายไป `*.internal.ts` (แบบ S-05) หรือเปลี่ยน `export *` ของ workflow/notification.store/audit.store/auth.api เป็นรายชื่อ (แบบ action.store) · เพิ่มเทสต์ facade: ชื่อเหล่านี้ไม่อยู่ใน `@/lib/api` · ไม่บังคับก่อนปิด TASK-0002 (ไม่ใช่ regression) แต่**ต้องทำก่อนย้ายขึ้น server** | backend-dev (+ qa-tester เทสต์ facade) |
+
+### Info
+
+| ID | ตำแหน่ง | สาระ | หลักฐาน |
+|---|---|---|---|
+| I-04 | `lib/api/auth.api.ts:71` `ROLE_SCOPE_TYPES` | `Readonly<…>` เป็นแค่ type — object/array ไม่ได้ freeze; โค้ดใดที่ import จาก facade `push` เข้าไปได้แล้ว `validateRoleScopes` ยอมคู่ผิด (client-only = ข-01) · แนะนำ `Object.freeze` ทั้งตัวนอกและ array ด้านใน (2 บรรทัด) | P33: `isFrozen` = [false, false]; push 'university' เข้า dean → `validateRoleScopes(dean@university)` = ok (คืนค่าหลังทดสอบ) |
+| I-05 | `lib/api/ai.service.ts:403-420` `acceptAiRun` AI-1 | วนลูป `linkEvidence` ทีละข้อหลัง `setAiSummary` — ถ้าข้อหลัง ๆ ล็อก จะ throw หลังเขียน summary + ลิงก์ข้อก่อนหน้าไปแล้ว (`run.accepted` ยัง false) → **ไม่ใช่ bypass** (ข้อที่ล็อกไม่ถูกผูก) แต่ผลไม่ atomic · แนะนำตรวจ `assertCycleWritable` + `assertSectionsEditable(run.cycleId, wanted)` ก่อนเขียนอะไร (หรือข้ามข้อที่ล็อกแล้วรายงานกลับ) | P30: links ของหลักฐานหลัง accept ล้ม = ['1.3'], accepted = false |
+
+### ข้อจำกัดเพิ่ม → เล่มบท 5
+| ID | ข้อจำกัด | หมายเหตุ |
+|---|---|---|
+| ข-20 | ตาราง role↔ระดับขอบเขตบังคับที่ store เฉพาะการ**มอบใหม่** — บทบาทเดิมที่ผิดคู่ (ข้อมูลก่อนกติกา) คงอยู่จนถูกถอด และ `rbac.can` ยังประเมินตามที่เก็บไว้ | ระบบจริง: migration ตรวจ/ล้างคู่ผิดครั้งเดียว + CHECK constraint |
+
+### Probe รอบนี้ (ไฟล์เดิม `sec.probe.ts` ใน scratchpad — ไม่ commit) · **ผล: 34/34 ผ่าน**
+- รัน P01–P26 ซ้ำ: **25/26 ผ่านทันที; P05 ล้มเพราะ fixture** (`inviteUser(uadmin2, programme_staff@university)` ตอนนี้ = `invalid` ตามกติกา R2-B4 — เป็นหลักฐานว่ากติกาใหม่ทำงาน) → เปลี่ยน fixture เป็น `uni_admin@university` แล้วผ่าน; ผลของ P01–P26 ที่เหลือเหมือน Re-check 1 ทุกค่า (ไม่ regress)
+
+| Probe | ตรวจอะไร | ผลที่ได้ | ใช้กับ |
+|---|---|---|---|
+| P27 | ตาราง 7 role × 4 scopeType ผ่าน createUser (uadmin) + inviteUser (sadmin) = 56 กรณี; approve คู่ผิด/รายการผสม; super_admin@faculty | ตรง `isRoleScopeCompatible` ทั้ง 56; approve = invalid ยัง pending; super@faculty invalid | ข้อ 1 |
+| P28 | ข้อยกเว้น `existing`: คงไว้ / คัดลอกให้คนอื่น / เปลี่ยน scopeId / เปลี่ยน role / ข้าม tenant / แนบ super / เป้าหมายมี super ผิดคู่ | ok / invalid / invalid / invalid / invalid (ถอดได้) / forbidden / forbidden | ข้อ 1, ข-20 |
+| P29 | API ของปุ่มที่ UI ซ่อน: self / super / chair | forbidden หรือ invalid ทุกตัว, roles ใน store ไม่เปลี่ยน | ข้อ 5 |
+| P30 | createEvidence / link (ผสม, ai) / unlink / ผูกซ้ำ / AI-1 accept บนข้อ approved & ready_for_review (seed: approved 45, ready_for_review 5, drafting 3, รอบ in_progress) | locked ทุกทาง ไม่มีกำพร้า/ลิงก์บางส่วน; ผูกซ้ำ no-op; ส่งกลับแล้วแก้ได้; AI-1 ไม่ atomic | ข้อ 2, I-05 |
+| P31 | addFileVersion / updateEvidence บนหลักฐานที่ข้อ approved อ้าง | ok / ok | **S-08** |
+| P32 | N12 mark-read: 3 คำขอ 2 uni, approve ที่ล้มก่อน, แถวอื่น | เฉพาะแถวของผู้ขอที่อนุมัติ, ทุกผู้รับ, ล้ม = ไม่แตะ | ข้อ 3 |
+| P33 | export ใหม่เขียน store ไหม; `ROLE_SCOPE_TYPES` freeze | ไม่เขียน; ไม่ freeze → แก้ตาราง runtime ได้ | ข้อ 4, I-04 |
+| P34 | writer ไม่มี guard บน facade (ของเดิม) + `saveCycle` ปลดล็อกรอบ | 5 ตัวอยู่บน facade; ปลดล็อกได้โดยไม่มี actor | **S-09** |
+
+### ส่งต่อ
+- **architect:** S-08 ตัดสิน a/b/c (ถ้า a = เขียนเล่ม + เตือน UI)
+- **backend-dev:** S-09 (ย้าย/จำกัด export — ไม่บังคับก่อนปิด TASK แต่ต้องก่อน server) · I-04 freeze · I-05 ตรวจล่วงหน้าใน acceptAiRun (ไม่บังคับ)
+- **qa-tester:** แนะนำเทสต์ถาวรเพิ่ม — P28 (ข้อยกเว้น existing ไม่ข้ามคน/ไม่ข้าม tenant), P32 (mark-read ไม่แตะคำขออื่น/uni อื่น/approve ที่ล้ม), เทสต์ facade ไม่มี 5 ชื่อของ S-09 (หลังแก้)
+- **thesis-writer:** ตาราง (ข) = ข-01..ข-20 · กติกา role↔scope + ล็อกเนื้อหาข้อ (รวมขอบเขตที่ S-08 ตัดสิน)
