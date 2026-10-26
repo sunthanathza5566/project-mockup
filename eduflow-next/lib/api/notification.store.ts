@@ -3,26 +3,45 @@
  * deadline 7/3/1 วัน "คำนวณตอนโหลด" (syncDeadlineNotifications) แล้ว dedupe ด้วย dedupeKey
  * TODO(PostgreSQL): table notifications(id,user_id,kind,payload jsonb,read_at)
  */
-import type { AppNotification, AppUser, NotificationKind, SarSection } from '../types';
+import type { AppNotification, AppUser, NotificationKind, NotificationTarget, SarSection } from '../types';
 import { newId } from '../utils/hash';
+import { isActiveUser } from './auth.api';
 import { KEYS, load, save } from './db';
 import { getUserById } from './org.store';
 
+/**
+ * ADR-AUTH-001 A6: ทุกจุดต้องส่ง messageEn + target (ปลายทางเชิงความหมาย — frontend แปลงเป็น href เอง)
+ * messageTh ต้องคงข้อความเดิมทุกตัวอักษร (เทสต์ phase-u B3 เทียบตรง)
+ */
 export interface NotifyInput {
-  userId: string; kind: NotificationKind; messageTh: string;
+  userId: string; kind: NotificationKind; messageTh: string; messageEn: string; target: NotificationTarget;
   cycleId?: string; requirementId?: string; dedupeKey?: string;
 }
 
-/** internal — store อื่นเรียกใช้ (ไม่ผ่าน rbac เพราะเป็นผลข้างเคียงของ action ที่ตรวจสิทธิ์แล้ว) */
+/** ปลายทางของแจ้งเตือนที่อ้างหลายข้อ: 1 ข้อ → section · หลายข้อ → งานของฉัน */
+export function sectionsTarget(cycleId: string, requirementIds: string[]): NotificationTarget {
+  return requirementIds.length === 1 ? { type: 'section', cycleId, requirementId: requirementIds[0] } : { type: 'my_work' };
+}
+
+/** "Requirement 1.1" / "Requirements 1.1, 1.2" (ข้อความ EN ของ N1/N11) */
+export function requirementsEn(ids: string[]): string {
+  return `${ids.length === 1 ? 'Requirement' : 'Requirements'} ${ids.join(', ')}`;
+}
+
+/**
+ * internal — store อื่นเรียกใช้ (ไม่ผ่าน rbac เพราะเป็นผลข้างเคียงของ action ที่ตรวจสิทธิ์แล้ว)
+ * ผู้รับที่ไม่ active (invited/pending/suspended) → ข้าม (ADR-AUTH-001 A5)
+ */
 export function notify(input: NotifyInput): AppNotification | null {
   const target = getUserById(input.userId);
-  if (!target) return null;
+  if (!target || !isActiveUser(target)) return null;
   const rows = load<AppNotification>(KEYS.notifications);
   if (input.dedupeKey && rows.some(n => n.userId === input.userId && n.dedupeKey === input.dedupeKey)) return null;
   const n: AppNotification = {
     id: newId('ntf'), universityId: target.universityId, userId: input.userId, kind: input.kind,
     cycleId: input.cycleId, requirementId: input.requirementId, messageTh: input.messageTh,
     dedupeKey: input.dedupeKey, createdAt: Date.now(),
+    messageEn: input.messageEn, target: { ...input.target },
   };
   rows.push(n);
   save(KEYS.notifications, rows);
@@ -61,7 +80,13 @@ export function syncDeadlineNotifications(user: AppUser, now = Date.now()): numb
     const list = g.reqs.join(', ');
     const msg = g.b === 'overdue' ? `ข้อ ${list} เลยกำหนดส่งแล้ว (${g.due})`
       : `ข้อ ${list} ใกล้ถึงกำหนดส่ง (${g.due}) — เหลือไม่เกิน ${g.b} วัน`;
-    if (notify({ userId: user.id, kind: 'deadline', messageTh: msg, cycleId: g.cycleId, requirementId: g.reqs[0], dedupeKey: `deadline:${key}` })) added++;
+    const many = g.reqs.length > 1;
+    const en = g.b === 'overdue' ? `${requirementsEn(g.reqs)} ${many ? 'are' : 'is'} past due (${g.due})`
+      : `${requirementsEn(g.reqs)} ${many ? 'are' : 'is'} due soon (${g.due}) — ${g.b} ${g.b === '1' ? 'day' : 'days'} or less left`;
+    if (notify({
+      userId: user.id, kind: 'deadline', messageTh: msg, messageEn: en, target: sectionsTarget(g.cycleId, g.reqs),
+      cycleId: g.cycleId, requirementId: g.reqs[0], dedupeKey: `deadline:${key}`,
+    })) added++;
   });
   return added;
 }

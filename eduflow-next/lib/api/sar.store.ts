@@ -261,7 +261,11 @@ export function addComment(
   save(KEYS.comments, rows);
   appendAudit(actor, { action: 'comment.add', targetType: 'section', targetId: sec.id, programmeId: cycle.programmeId, after: { commentId: c.id } });
   if (sec.ownerUserId && sec.ownerUserId !== actor.id)
-    notify({ userId: sec.ownerUserId, kind: 'comment', cycleId, requirementId, messageTh: `มี comment ใหม่ที่ข้อ ${requirementId}` });
+    notify({
+      userId: sec.ownerUserId, kind: 'comment', cycleId, requirementId, messageTh: `มี comment ใหม่ที่ข้อ ${requirementId}`,
+      messageEn: `New comment on requirement ${requirementId}`,
+      target: { type: 'section', cycleId, requirementId, panel: 'comments' },
+    });
   return c;
 }
 

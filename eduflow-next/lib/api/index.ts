@@ -6,8 +6,9 @@
  */
 export * from './db';            // AunqaError, KEYS
 export * from './rbac';          // can, hasRole, isAssessorOf, Action, Scope
-export * from './auth.api';      // loginUser, logoutUser, getCurrentUser, createUser, setUserRoles, deleteUser
-export * from './org.store';     // getUniversity, getFaculties, getProgrammes, listUsers
+export * from './auth.api';      // loginUser, logoutUser, getCurrentUser, createUser, setUserRoles, deleteUser, setUserStatus, PASSWORD_MIN/MAX
+export * from './onboarding.store'; // ADR-AUTH-001: inviteUser, acceptInvitation, submitAccessRequest, approve/rejectAccessRequest …
+export * from './org.store';     // getUniversity, getFaculties, getProgrammes, listUsers, findUniversityByEmail
 export * from './framework';     // listCriteria, listRequirements, searchRequirements, listMetricDefinitions
 export * from './init';          // initAunqa, resetDemo
 export * from './cycle.store';   // createCycle, listCycles, assignSections, assignCriterion, assignAssessor

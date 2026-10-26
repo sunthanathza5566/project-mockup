@@ -25,9 +25,44 @@ export interface Programme {
   degreeLevel: 'bachelor'|'master'|'doctoral'; curriculumYear: number;
 }
 export interface RoleAssignment { role: RoleCode; scopeType: 'university'|'faculty'|'programme'|'cycle'; scopeId: string }
+/** สถานะบัญชี (ADR-AUTH-001 A1) — ไม่มี field = 'active' (ข้อมูลเดิม/seed ไม่ต้อง migrate) */
+export type UserStatus = 'active' | 'invited' | 'pending' | 'suspended';
+/** ข้อมูลคำขอเข้าใช้งาน (มีเฉพาะ status 'pending') — ไม่มี role: ผู้อนุมัติเป็นคนกำหนด */
+export interface AccessRequestInfo {
+  programmeId?: string; facultyId?: string;      // หน่วยงานที่ขอ (อย่างใดอย่างหนึ่งหรือไม่ระบุ = ทั้งมหาวิทยาลัย)
+  positionText?: string;                          // ≤100 ตัว — ข้อความประกอบ ไม่ใช่สิทธิ์
+  reason: string;                                 // 1–500 ตัว
+  requestedAt: number;
+}
 export interface AppUser {
-  id: string; username: string; password: string; /* plaintext (seed) หรือ 'sha256:…' */
+  id: string; username: string; password: string; /* plaintext (seed) หรือ 'sha256:…' · '' = ยังไม่ตั้ง (invited) */
   universityId: string; email: string; fullName: string; roles: RoleAssignment[];
+  /** ไม่มี = 'active' */
+  status?: UserStatus;
+  /** มีเฉพาะ status 'pending' — ลบทิ้งเมื่ออนุมัติ/ปฏิเสธ */
+  accessRequest?: AccessRequestInfo;
+}
+/** คำเชิญ (aunqa_invitations) — เก็บเฉพาะ hash ของ token · TODO(PostgreSQL): invitations(token_hash unique) */
+export interface Invitation {
+  id: string;               // newId('inv')
+  universityId: string;
+  userId: string;           // ผู้ใช้ status 'invited'
+  tokenHash: string;        // sha256Hex('aunqa-invite::' + token) — ไม่เก็บ token ดิบ
+  createdBy: string;        // userId ผู้เชิญ
+  createdAt: number;
+  expiresAt: number;        // createdAt + INVITE_TTL_MS (7 วัน)
+  usedAt?: number;
+  revokedAt?: number;
+}
+/** ข้อมูลที่หน้า /invite แสดงก่อนตั้งรหัสผ่าน (อ่านอย่างเดียว) */
+export interface InvitePreview {
+  fullName: string; username: string; universityNameTh: string; universityNameEn: string;
+  roles: RoleCode[]; expiresAt: number;
+}
+/** แถวคำขอเข้าใช้งานสำหรับหน้าผู้ดูแล (ไม่มีรหัสผ่าน) */
+export interface AccessRequestView {
+  userId: string; username: string; fullName: string; email: string; universityId: string;
+  programmeId?: string; facultyId?: string; positionText?: string; reason: string; requestedAt: number;
 }
 export interface MetricDefinition {
   code: string; nameTh: string; nameEn: string; unit: string;
@@ -168,11 +203,23 @@ export interface EvidenceFile {
 // ═══════════════════════ Notifications / Audit / AI ═══════════════════════
 
 export type NotificationKind =
-  | 'assigned' | 'comment' | 'changes_requested' | 'approved' | 'cycle_status' | 'deadline';
+  | 'assigned' | 'comment' | 'changes_requested' | 'approved' | 'cycle_status' | 'deadline'
+  | 'access_request' | 'account';
+/** ปลายทางเชิงความหมาย (ADR-AUTH-001 A6) — frontend แปลงเป็น href เอง (lib/ui/notification.ts) */
+export type NotificationTarget =
+  | { type: 'section'; cycleId: string; requirementId: string; panel?: 'comments' }
+  | { type: 'my_work' }
+  | { type: 'cycle'; cycleId: string }
+  | { type: 'assess'; cycleId: string }
+  | { type: 'action'; actionId: string }
+  | { type: 'admin'; tab: 'users' | 'requests' }
+  | { type: 'home' };
 export interface AppNotification {
   id: string; universityId: string; userId: string; kind: NotificationKind;
   cycleId?: string; requirementId?: string; messageTh: string;
   dedupeKey?: string; createdAt: number; readAt?: number;
+  /** ใหม่ (optional เพื่อให้แถวเก่าอ่านได้) */
+  messageEn?: string; target?: NotificationTarget;
 }
 
 export interface AuditLog {

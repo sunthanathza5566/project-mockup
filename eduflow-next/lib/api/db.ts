@@ -34,6 +34,7 @@ export const KEYS = {
   actionItems: 'aunqa_action_items',
   findings: 'aunqa_findings',
   verdicts: 'aunqa_verdicts',
+  invitations: 'aunqa_invitations', // ADR-AUTH-001 A2 — เก็บ tokenHash เท่านั้น
 } as const;
 
 export function load<T>(key: string): T[] { return readJSON<T[]>(key, []); }

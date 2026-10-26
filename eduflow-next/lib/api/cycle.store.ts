@@ -8,11 +8,11 @@ import { materializeActionEvidence } from './action.store';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { FRAMEWORK_CODE, compareReqId, listRequirements } from './framework';
-import { notify } from './notification.store';
+import { notify, sectionsTarget } from './notification.store';
 import { getAllUsers, getProgramme, getUserById, programmeScope } from './org.store';
 import { can } from './rbac';
 import { assertCycleWritable, cycleScope, getCycleRaw, saveCycle } from './workflow';
-import { saveUsers } from './auth.api';
+import { isActiveUser, saveUsers } from './auth.api';
 
 export const sectionId = (cycleId: string, requirementId: string) => `${cycleId}::${requirementId}`;
 
@@ -138,7 +138,8 @@ export function assignSections(
   let owner: AppUser | undefined;
   if (ownerUserId) {
     owner = getUserById(ownerUserId);
-    if (!owner || owner.universityId !== c.universityId) throw new AunqaError('invalid', 'ผู้รับผิดชอบไม่ถูกต้อง');
+    // ADR-AUTH-001 A5: มอบหมายได้เฉพาะบัญชี active
+    if (!owner || !isActiveUser(owner) || owner.universityId !== c.universityId) throw new AunqaError('invalid', 'ผู้รับผิดชอบไม่ถูกต้อง');
     if (!can(owner, 'sar.write', cycleScope(c, { ownerUserId: owner.id }))) throw new AunqaError('invalid', 'ผู้ใช้นี้ไม่มีสิทธิ์เขียน SAR ของหลักสูตรนี้');
   }
   const rows = load<SarSection>(KEYS.sections);
@@ -164,9 +165,12 @@ export function assignSections(
   save(KEYS.sections, rows);
   audits.forEach(a => appendAudit(actor, a));
   if (owner && owner.id !== actor.id && changed.length) {
+    const reqIds = changed.map(s => s.requirementId);
     notify({
       userId: owner.id, kind: 'assigned', cycleId,
       messageTh: `คุณได้รับมอบหมายข้อ ${changed.map(s => s.requirementId).join(', ')}${due ? ` กำหนดส่ง ${due}` : ''}`,
+      messageEn: `You were assigned ${reqIds.length === 1 ? 'requirement' : 'requirements'} ${reqIds.join(', ')}${due ? ` — due ${due}` : ''}`,
+      target: sectionsTarget(cycleId, reqIds),
       requirementId: changed[0].requirementId,
     });
   }
@@ -185,19 +189,23 @@ export function assignAssessor(actor: AppUser, cycleId: string, assessorUserId: 
   if (!can(actor, 'assessor.assign', cycleScope(c))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์มอบหมายกรรมการ');
   const users = getAllUsers();
   const target = users.find(u => u.id === assessorUserId);
-  if (!target || target.universityId !== c.universityId) throw new AunqaError('invalid', 'ผู้ใช้ไม่ถูกต้อง');
+  if (!target || !isActiveUser(target) || target.universityId !== c.universityId) throw new AunqaError('invalid', 'ผู้ใช้ไม่ถูกต้อง');
   if (target.roles.some(r => r.role === 'assessor' && r.scopeType === 'cycle' && r.scopeId === cycleId)) return;
   const before = target.roles;
   target.roles = [...target.roles, { role: 'assessor', scopeType: 'cycle', scopeId: cycleId }];
   saveUsers(users);
   appendAudit(actor, { action: 'cycle.assign_assessor', targetType: 'cycle', targetId: cycleId, programmeId: c.programmeId, before: { roles: before.length }, after: { assessorUserId } });
-  notify({ userId: target.id, kind: 'assigned', cycleId, messageTh: `คุณได้รับมอบหมายเป็นกรรมการประเมินรอบ ${c.academicYear}` });
+  notify({
+    userId: target.id, kind: 'assigned', cycleId, messageTh: `คุณได้รับมอบหมายเป็นกรรมการประเมินรอบ ${c.academicYear}`,
+    messageEn: `You were appointed as an assessor for the ${c.academicYear} assessment cycle`,
+    target: { type: 'assess', cycleId },
+  });
 }
 
-/** ผู้ใช้ที่มอบหมายงานเขียน SAR ให้ได้ในหลักสูตรนี้ (สำหรับ dropdown) */
+/** ผู้ใช้ที่มอบหมายงานเขียน SAR ให้ได้ในหลักสูตรนี้ (สำหรับ dropdown) — เฉพาะบัญชี active (ADR-AUTH-001 A5) */
 export function listAssignableUsers(actor: AppUser, cycleId: string): { id: string; fullName: string; email: string }[] {
   const c = getCycle(actor, cycleId);
   return getAllUsers()
-    .filter(u => u.universityId === c.universityId && can(u, 'sar.write', cycleScope(c, { ownerUserId: u.id })))
+    .filter(u => isActiveUser(u) && u.universityId === c.universityId && can(u, 'sar.write', cycleScope(c, { ownerUserId: u.id })))
     .map(u => ({ id: u.id, fullName: u.fullName, email: u.email }));
 }

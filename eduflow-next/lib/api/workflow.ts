@@ -10,13 +10,15 @@
  * TODO(PostgreSQL): trigger ห้าม UPDATE sar_sections เมื่อ cycle.locked_at IS NOT NULL
  */
 import type {
-  AppUser, AssessmentCycle, AssessmentVerdict, CycleStatus, Evidence, EvidenceLink, Rating, ReviewEvent, SarSection, SectionStatus,
+  AppUser, AssessmentCycle, AssessmentVerdict, CycleStatus, Evidence, EvidenceLink, NotificationTarget, Rating, ReviewEvent,
+  SarSection, SectionStatus,
 } from '../types';
 import { newId, sha256Hex, stableStringify } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { compareReqId, listCriteria } from './framework';
 import { notify } from './notification.store';
+import { isActiveUser } from './auth.api';
 import { getProgramme, programmeScope } from './org.store';
 import { can, isAssessorOf, type Action, type Scope } from './rbac';
 
@@ -172,10 +174,10 @@ function sectionsOf(cycleId: string): SarSection[] {
   return load<SarSection>(KEYS.sections).filter(s => s.cycleId === cycleId);
 }
 
-/** ผู้รับแจ้งฝั่งหลักสูตร: ประธานที่ดูแลหลักสูตรนี้ */
+/** ผู้รับแจ้งฝั่งหลักสูตร: ประธานที่ดูแลหลักสูตรนี้ (เฉพาะบัญชี active — ADR-AUTH-001 A5) */
 function chairsOf(programmeId: string): AppUser[] {
-  return load<AppUser>(KEYS.users).filter(u =>
-    u.roles.some(r => r.role === 'programme_chair' && (r.scopeType === 'university' || r.scopeId === programmeId)));
+  return load<AppUser>(KEYS.users).filter(u => isActiveUser(u)
+    && u.roles.some(r => r.role === 'programme_chair' && (r.scopeType === 'university' || r.scopeId === programmeId)));
 }
 
 export async function transitionCycle(actor: AppUser, cycleId: string, to: CycleStatus, note?: string): Promise<AssessmentCycle> {
@@ -229,18 +231,22 @@ export async function transitionCycle(actor: AppUser, cycleId: string, to: Cycle
 }
 
 function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStatus, note?: string) {
-  const msgs: Partial<Record<CycleStatus, { kind: 'cycle_status' | 'changes_requested' | 'approved'; text: string }>> = {
-    in_progress:        { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} เริ่มดำเนินการ` },
-    under_review:       { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} ส่งให้ QA คณะตรวจ` },
-    revision_requested: { kind: 'changes_requested', text: `รอบ ${cycle.academicYear} ถูกส่งกลับแก้ (โดย ${actor.fullName}): ${note ?? ''}` },
-    faculty_approved:   { kind: 'approved', text: `QA คณะอนุมัติรอบ ${cycle.academicYear} แล้ว รอคณบดี` },
-    final_approved:     { kind: 'approved', text: `คณบดีอนุมัติสุดท้ายและล็อกรอบ ${cycle.academicYear} แล้ว` },
-  };
   const year = cycle.academicYear;
+  // messageTh เดิมทุกตัวอักษร · en + target ใหม่ (ADR-AUTH-001 A6 N7)
+  const msgs: Partial<Record<CycleStatus, { kind: 'cycle_status' | 'changes_requested' | 'approved'; text: string; en: string }>> = {
+    in_progress:        { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} เริ่มดำเนินการ`, en: `Assessment cycle ${year} has started` },
+    under_review:       { kind: 'cycle_status', text: `รอบประเมิน ${cycle.academicYear} ส่งให้ QA คณะตรวจ`, en: `Assessment cycle ${year} was sent to faculty QA` },
+    revision_requested: { kind: 'changes_requested', text: `รอบ ${cycle.academicYear} ถูกส่งกลับแก้ (โดย ${actor.fullName}): ${note ?? ''}`, en: `Cycle ${year} was returned for revision (by ${actor.fullName}): ${note ?? ''}` },
+    faculty_approved:   { kind: 'approved', text: `QA คณะอนุมัติรอบ ${cycle.academicYear} แล้ว รอคณบดี`, en: `Faculty QA approved cycle ${year} — awaiting the dean` },
+    final_approved:     { kind: 'approved', text: `คณบดีอนุมัติสุดท้ายและล็อกรอบ ${cycle.academicYear} แล้ว`, en: `The dean gave final approval and locked cycle ${year}` },
+  };
   const code = getProgramme(cycle.programmeId)?.code ?? cycle.programmeId;
-  /** ผู้รับกลุ่มใหม่ (ADR-UI-001 B3) — userId → ข้อความ (kind 'cycle_status' เสมอ) */
-  const extra = new Map<string, string>();
-  const addByAction = (action: Action, text: string) => usersWhoCan(cycle, action).forEach(u => extra.set(u.id, text));
+  const toCycle: NotificationTarget = { type: 'cycle', cycleId: cycle.id };
+  const toAssess: NotificationTarget = { type: 'assess', cycleId: cycle.id };
+  /** ผู้รับกลุ่มใหม่ (ADR-UI-001 B3) — userId → ข้อความ (kind 'cycle_status' เสมอ) · ลำดับการทับเดิม */
+  type Msg = { th: string; en: string; target: NotificationTarget };
+  const extra = new Map<string, Msg>();
+  const addByAction = (action: Action, msg: Msg) => usersWhoCan(cycle, action).forEach(u => extra.set(u.id, msg));
   const ownersAndChairs = () => {
     const ids = new Set<string>(sectionsOf(cycle.id).map(s => s.ownerUserId).filter((x): x is string => !!x));
     chairsOf(cycle.programmeId).forEach(u => ids.add(u.id));
@@ -248,39 +254,60 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
   };
   switch (to) {
     case 'under_review':
-      addByAction('approve.faculty', `รอบประเมิน ${year} (${code}) ส่งมาให้ QA คณะตรวจแล้ว — รอการพิจารณาของท่าน`);
+      addByAction('approve.faculty', {
+        th: `รอบประเมิน ${year} (${code}) ส่งมาให้ QA คณะตรวจแล้ว — รอการพิจารณาของท่าน`,
+        en: `Cycle ${year} (${code}) was submitted for faculty QA review — awaiting your decision`, target: toCycle,
+      });
       break;
     case 'faculty_approved':
-      addByAction('approve.final', `QA คณะอนุมัติรอบ ${year} (${code}) แล้ว — รอคณบดีพิจารณาอนุมัติสุดท้าย`);
+      addByAction('approve.final', {
+        th: `QA คณะอนุมัติรอบ ${year} (${code}) แล้ว — รอคณบดีพิจารณาอนุมัติสุดท้าย`,
+        en: `Faculty QA approved cycle ${year} (${code}) — awaiting the dean's final approval`, target: toCycle,
+      });
       break;
     case 'final_approved':
-      addByAction('assessor.assign', `รอบ ${year} (${code}) อนุมัติสุดท้ายและล็อกแล้ว — เริ่มการประเมินและมอบหมายกรรมการได้`);
+      addByAction('assessor.assign', {
+        th: `รอบ ${year} (${code}) อนุมัติสุดท้ายและล็อกแล้ว — เริ่มการประเมินและมอบหมายกรรมการได้`,
+        en: `Cycle ${year} (${code}) received final approval and is locked — you can start the assessment and appoint assessors`, target: toCycle,
+      });
       break;
     case 'under_assessment': {
       // เจ้าของข้อ/ประธาน (เดิมไม่มีข้อความ) ก่อน แล้วกรรมการทับ (คนที่อยู่ทั้งสองกลุ่มได้ข้อความของกรรมการ)
-      ownersAndChairs().forEach(id => extra.set(id, `รอบ ${year} เข้าสู่ขั้นการประเมินโดยกรรมการแล้ว`));
-      load<AppUser>(KEYS.users).filter(u => isAssessorOf(u, cycle.id))
-        .forEach(u => extra.set(u.id, `รอบ ${year} (${code}) เปิดให้ประเมินแล้ว — เริ่มให้คะแนนได้ที่พื้นที่ทำงานกรรมการ`));
+      const forOwners: Msg = { th: `รอบ ${year} เข้าสู่ขั้นการประเมินโดยกรรมการแล้ว`, en: `Cycle ${year} has entered the assessment stage`, target: toCycle };
+      const forAssessors: Msg = {
+        th: `รอบ ${year} (${code}) เปิดให้ประเมินแล้ว — เริ่มให้คะแนนได้ที่พื้นที่ทำงานกรรมการ`,
+        en: `Cycle ${year} (${code}) is open for assessment — start scoring in the assessor workspace`, target: toAssess,
+      };
+      ownersAndChairs().forEach(id => extra.set(id, forOwners));
+      load<AppUser>(KEYS.users).filter(u => isActiveUser(u) && isAssessorOf(u, cycle.id))
+        .forEach(u => extra.set(u.id, forAssessors));
       break;
     }
     case 'assessed': {
-      const text = `กรรมการส่งผลประเมินรอบ ${year} (${code}) แล้ว — ดูผลได้ที่หน้าผลประเมิน`;
-      chairsOf(cycle.programmeId).forEach(u => extra.set(u.id, text));
-      addByAction('approve.faculty', text);
-      addByAction('cycle.close', text);
+      const msg: Msg = {
+        th: `กรรมการส่งผลประเมินรอบ ${year} (${code}) แล้ว — ดูผลได้ที่หน้าผลประเมิน`,
+        en: `Assessors submitted results for cycle ${year} (${code}) — see the assessment results page`, target: toAssess,
+      };
+      chairsOf(cycle.programmeId).forEach(u => extra.set(u.id, msg));
+      addByAction('approve.faculty', msg);
+      addByAction('cycle.close', msg);
       break;
     }
     default: break;
   }
   extra.delete(actor.id);
-  extra.forEach((text, uid) => notify({ userId: uid, kind: 'cycle_status', messageTh: text, cycleId: cycle.id }));
+  extra.forEach((msg, uid) => notify({
+    userId: uid, kind: 'cycle_status', messageTh: msg.th, messageEn: msg.en, target: msg.target, cycleId: cycle.id,
+  }));
 
   // ข้อความเดิมถึงเจ้าของข้อ + ประธาน — คงเดิม (ยกเว้นคนที่ได้ข้อความใหม่แล้ว: ได้ข้อความเดียว)
   const m = msgs[to];
   if (!m) return;
   const recipients = ownersAndChairs();
   recipients.delete(actor.id);
-  recipients.forEach(uid => { if (!extra.has(uid)) notify({ userId: uid, kind: m.kind, messageTh: m.text, cycleId: cycle.id }); });
+  recipients.forEach(uid => {
+    if (!extra.has(uid)) notify({ userId: uid, kind: m.kind, messageTh: m.text, messageEn: m.en, target: toCycle, cycleId: cycle.id });
+  });
 }
 
 /**
@@ -290,7 +317,8 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
 function usersWhoCan(cycle: AssessmentCycle, action: Action): AppUser[] {
   const scope = cycleScope(cycle);
   return load<AppUser>(KEYS.users).filter(u =>
-    u.universityId === cycle.universityId
+    isActiveUser(u)
+    && u.universityId === cycle.universityId
     && !(u.roles.length > 0 && u.roles.every(r => r.role === 'super_admin'))
     && can(u, action, scope));
 }
@@ -348,16 +376,21 @@ export function transitionSection(actor: AppUser, sectionId: string, to: Section
     before, after: { status: to, note },
   });
 
+  const toSection: NotificationTarget = { type: 'section', cycleId: sec.cycleId, requirementId: sec.requirementId };
   if ((to === 'changes_requested' || to === 'approved') && sec.ownerUserId && sec.ownerUserId !== actor.id) {
     notify({
       userId: sec.ownerUserId, kind: to === 'approved' ? 'approved' : 'changes_requested',
       messageTh: to === 'approved' ? `ข้อ ${sec.requirementId} ได้รับการอนุมัติแล้ว` : `ข้อ ${sec.requirementId} ถูกส่งกลับแก้: ${note ?? ''}`,
+      messageEn: to === 'approved' ? `Requirement ${sec.requirementId} was approved` : `Requirement ${sec.requirementId} was returned for changes: ${note ?? ''}`,
+      target: toSection,
       cycleId: sec.cycleId, requirementId: sec.requirementId,
     });
   }
   if (to === 'ready_for_review') {
     chairsOf(cycle.programmeId).filter(u => u.id !== actor.id).forEach(u => notify({
       userId: u.id, kind: 'cycle_status', messageTh: `ข้อ ${sec.requirementId} ส่งตรวจแล้ว รอประธานอนุมัติ`,
+      messageEn: `Requirement ${sec.requirementId} was submitted for review — awaiting chair approval`,
+      target: toSection,
       cycleId: sec.cycleId, requirementId: sec.requirementId,
     }));
   }
