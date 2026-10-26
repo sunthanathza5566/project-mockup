@@ -1,9 +1,11 @@
 # ADR-UI-002 ภาคผนวก T — Design tokens "Modern SaaS" (light + dark)
 
+> **SUPERSEDED บางส่วน (2026-10-26, ADR-UI-003):** §T1 (ค่าสีทั้งหมด), §T2 (ตาราง contrast), §T12 ค่า `defaultTheme` และค่า `--radius`/`--topbar-h`/`--sidebar-w` → ใช้ `ui/earth-tokens.md` (§E1, §E2, §E4) แทน · หัวข้ออื่น (§T3–§T11, โครง §T9/§T10) ยังมีผล
+
 > บังคับเท่า ADR-UI-002 · แทน `ui/tokens.md` (ADR-UI-001) ในเรื่อง สี/ฟอนต์/radius/shadow/z-index/focus/dark mode · เรื่องที่ **ยังใช้ตาม tokens.md เดิม**: T2.3 (รายการ class ที่ใช้ 13/14px — กลายเป็น role class ใน §T10), T2.4 (ปรับขนาดตัวอักษร), T3 (4px grid), T4 (target), T8 (duration/easing), T10 (breakpoints mobile-first)
 > ที่มาของตัวเลข contrast: **[A]** = architect คำนวณมือด้วยสูตร WCAG 2.x จาก hex ในตาราง (ทศนิยม 2 ตำแหน่ง) — **qa-tester ต้องวัดซ้ำด้วยสคริปต์ใน Q0 ก่อน S1 เริ่ม** (`tests/contrast.test.ts` คำนวณจากค่า HSL จริงใน CSS; ต่างจากตารางได้ ≤0.10 เพราะการปัดเศษ HSL) — ถ้าคู่ใดตกเกณฑ์ = BLOCKED กลับ architect ห้ามแก้ค่าเอง
 
-## T1. Token สี (ตัวแปร shadcn รูปแบบ HSL channel — ห้ามใส่ `hsl()` ในค่า)
+## T1. Token สี (ตัวแปร shadcn รูปแบบ HSL channel — ห้ามใส่ `hsl()` ในค่า) — **SUPERSEDED → earth-tokens §E1** (กติกา HSL channel ยังใช้)
 - **brand accent = `--primary` (indigo) สีเดียวทั้งระบบ** — ใช้กับสิ่งที่กดได้/สถานะเลือก/โฟกัส/ค่าความคืบหน้าเท่านั้น (ไม่เกิน ~10% พื้นที่)
 - `--accent` / `--secondary` ของ shadcn = **พื้นเทาสำหรับ hover/ปุ่มรอง** ไม่ใช่สีแบรนด์ (คงชื่อเพื่อให้ component shadcn ทำงาน)
 - ค่า hex ในวงเล็บ = ค่าอ้างอิงสำหรับคำนวณ contrast และสื่อสาร (โค้ดใช้ค่า HSL)
@@ -43,7 +45,7 @@
 Overlay dialog/drawer: `bg-black/50` (light) · `dark:bg-black/70`
 **Token parity:** ทุกตัวแปรสีใน `:root` ต้องมีใน `.dark` (เทสต์ตรวจ)
 
-## T2. ตาราง contrast ทุกคู่ที่อนุญาต (คู่ที่ไม่อยู่ในตาราง = ห้ามใช้เป็นข้อความ/ขอบที่มีความหมาย) [A]
+## T2. ตาราง contrast ทุกคู่ที่อนุญาต (คู่ที่ไม่อยู่ในตาราง = ห้ามใช้เป็นข้อความ/ขอบที่มีความหมาย) [A] — **SUPERSEDED → earth-tokens §E2** (ข้อห้ามสีท้ายหัวข้อนี้ยังใช้ + ข้อห้ามเพิ่มใน §E2)
 เกณฑ์: ข้อความ 4.5 · UI/กราฟิก/ขอบช่องกรอก 3.0
 | # | ตัวหน้า | พื้น | light | dark | เกณฑ์ | ใช้กับ |
 |---|---|---|---|---|---|---|
@@ -274,7 +276,7 @@ export default {
 - การ์ดที่ทั้งใบกดได้: ให้ `<a>`/`<button>` **เป็นตัวการ์ดเอง** (outline ของ base วาดรอบการ์ดพอดี) — ห้ามซ่อน outline ของลิงก์ด้านในแล้วไปวาดที่ ancestor ด้วย `focus-within`
 - ช่องกรอกที่มี border: base outline ทำงานอยู่แล้ว ไม่ต้องเพิ่ม ring
 
-## T12. Dark mode
+## T12. Dark mode — **`defaultTheme` SUPERSEDED → `"light"` (ADR-UI-003 D2)**; ที่เหลือยังใช้
 - `next-themes` 0.4.6: `<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange storageKey="aunqa_theme">` ห่อ children ใน `<body>` (client component `components/ui/ThemeProvider.tsx`) · `<html lang="th" suppressHydrationWarning className={font.variable}>` · ลบ `export const viewport = { colorScheme: 'light' }` (next-themes ตั้ง `color-scheme` ให้เองด้วย `enableColorScheme` ค่าเริ่ม true)
 - UI ที่ขึ้นกับธีม (ปุ่มสลับ) render placeholder ขนาดเท่ากันจน mounted (กัน hydration mismatch)
 - **ห้ามกลับสีอัตโนมัติ** (`filter: invert`) · SVG (TrendChart, ProgressRing, prereq, heatmap, BrandMark, ภาพเส้น empty state) ใช้ `currentColor`/`stroke-chart-*`/`fill-muted` เท่านั้น ห้าม hex ใน SVG

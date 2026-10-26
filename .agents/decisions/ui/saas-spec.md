@@ -1,5 +1,7 @@
 # ADR-UI-002 ภาคผนวก S — Component recipe + หน้าตาต่อหน้า (Modern SaaS)
 
+> **SUPERSEDED บางส่วน (2026-10-26, ADR-UI-003):** §0 ย่อหน้าสี indigo/โหมดมืด, §P2 Login, §P4 AppShell, §P5 หน้าหลัก, §C14 ย่อหน้า DisplayPrefs, §C16 ย่อหน้า LangToggle/ThemeToggle → ใช้ `ui/friendly-spec.md` (§F1–F9) + `ui/earth-tokens.md` แทน · ทุก recipe/หน้าอื่นยังมีผล โดยใช้ค่า token ใหม่และ radius ตาม earth-tokens §E4 · allowlist §H ยังมีผล (+ testid ที่ย้าย/ลบตาม friendly-spec §F11)
+
 > บังคับเท่า ADR-UI-002 · **เนื้อหา/ลำดับ/ข้อความ/testid/พฤติกรรม ยึด `ui/pages.md` + `ui/components.md` เดิม** — ไฟล์นี้กำหนดเฉพาะ "หน้าตา" (class Tailwind, layout, ความหนาแน่น) · token ทั้งหมดอ้าง `ui/saas-tokens.md` (§T…)
 > เจอสิ่งที่ไฟล์นี้ไม่ได้กำหนด → ใช้ recipe ที่ใกล้ที่สุดในไฟล์นี้ + จดใน Log ว่าเลือกอะไร (ไม่ต้อง BLOCKED ถ้าเป็นเรื่อง spacing/ขนาดรอง) · ถ้าต้องเปลี่ยนข้อความ/โครง DOM/testid/role = BLOCKED ถาม architect
 
@@ -121,7 +123,7 @@ nav.aq-crumbs   หน้าหลัก  ›  รอบประเมิน  �
 ### C13 Toast (คง `ToastContext` + `components/ui/Toast.tsx`)
 คอนเทนเนอร์ `fixed inset-x-4 bottom-4 z-toast flex flex-col gap-2 sm:left-auto sm:w-[24rem]` (`aria-live` เดิม) · ชิ้น `data-testid="toast"`: `relative overflow-hidden rounded-lg border bg-popover p-4 pr-12 shadow-lg animate-toast-in dark:shadow-none` · ไอคอนสถานะ 20 + `TONE_TEXT` · ข้อความ `text-base` · ปุ่ม action = Button outline compact · ปิด = ghost icon มุมขวาบน · แถบเวลา `absolute inset-x-0 bottom-0 h-0.5 origin-left bg-primary animate-toast-time` (duration inline เดิม) · ออก `animate-toast-out`
 
-### C14 Popover (Term, DisplayPrefs — คง logic เดิม)
+### C14 Popover (Term, DisplayPrefs — คง logic เดิม) — ย่อหน้า DisplayPrefs **SUPERSEDED → friendly-spec §F2.3/§F5** (ส่วน Term ยังใช้)
 แผง `absolute z-toast mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-lg border bg-popover p-4 text-popover-foreground shadow-lg animate-pop-in dark:shadow-none` · Term ปุ่ม `aq-term__btn inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground` · เนื้อ `aq-term__body`
 DisplayPrefs: หัว "การแสดงผล" `font-medium` · ขนาดตัวอักษร (FontScaleSeg segmented) · **ธีม (ThemeSegment ใหม่: สว่าง / มืด / ตามระบบ, role=radiogroup)** · สวิตช์เอฟเฟกต์ (checkbox native) — แต่ละแถว `space-y-2`, คั่น `border-t pt-3`
 
@@ -140,7 +142,7 @@ Empty (state-empty)                          Loading (state-loading, หลั�
 - ErrorBox (`state-error`) = InlineMessage danger + รหัส `aq-meta font-mono` + ปุ่ม "ลองใหม่" outline
 - AppLoader (`app-loader`, `data-mode` เดิม): `fixed inset-0 z-loader flex flex-col items-center justify-center gap-4 bg-background` · BrandMark · วง SVG 40px track `stroke-muted` + arc 25% `stroke-primary animate-spin` · ข้อความ `text-muted-foreground` · reduced-motion: arc ซ่อน (`motion-reduce:hidden`) เหลือข้อความ "…"
 
-### C16 BrandMark / Icon / LangToggle / ThemeToggle
+### C16 BrandMark / Icon / LangToggle / ThemeToggle — ย่อหน้า LangToggle/ThemeToggle **SUPERSEDED → friendly-spec §F2.1, ADR-UI-003 D5** (BrandMark/Icon ยังใช้)
 - BrandMark: โลโก้ `h-8 w-8 rounded-md bg-primary text-primary-foreground` + glyph SVG เดิม (currentColor) · wordmark `font-semibold text-foreground` ข้อความเดิม · ไม่มีสี accent อื่น
 - Icon.tsx: คง API `name/size/label` · `strokeWidth={1.75}` · `className` ต่อท้าย · **ต้องมี `inline-block shrink-0 align-[-0.125em]`** ใน base class (กัน preflight ทำ svg เป็น block ใน S6) · เพิ่มชื่อ `sun`, `moon`, `monitor`, `chevron-down` (ถ้ายังไม่มี), `loader` (ถ้ายังไม่มี) จาก Lucide (ISC)
 - LangToggle: segmented `inline-flex rounded-md border border-input p-0.5` · ปุ่ม `min-h-11 min-w-11 rounded-sm px-3 text-base font-medium text-muted-foreground aria-pressed:bg-accent aria-pressed:text-foreground`
@@ -171,7 +173,7 @@ Empty (state-empty)                          Loading (state-loading, หลั�
 ```
 section เว้น `py-16 md:py-24` · L1b hero fade-up คงไว้
 
-### P2 Login `/login`
+### P2 Login `/login` — **SUPERSEDED → friendly-spec §F5**
 ```
 ≥1024: grid 2 คอลัมน์ (lg:grid-cols-2) เต็มจอ            <1024: คอลัมน์เดียว ฟอร์มก่อน แผงแบรนด์ซ่อน (ข้อความสั้นอยู่ใต้ BrandMark)
 ┌──────────────────────────────┬──────────────────────────────────┐
@@ -192,7 +194,7 @@ section เว้น `py-16 md:py-24` · L1b hero fade-up คงไว้
 
 ### P3 AppLoader — C15 · P20 404 — `NotFoundView`: กลางจอ, ตัวเลข "404" `text-5xl font-semibold text-muted-foreground tabular-nums`, h1 text-2xl, ปุ่ม default "กลับหน้าหลัก" + outline ตามเดิม · P21 no-access = Empty
 
-### P4 AppShell
+### P4 AppShell — **SUPERSEDED → friendly-spec §F1–F3** (drawer/is-open/focus trap ยังใช้ตามนี้)
 ```
 ≥1024                                                    <1024: sidebar เป็น drawer (#app-sidebar.is-open)
 ┌ #app-sidebar w-sidebar border-r bg-background ┬ topbar sticky top-0 z-topbar h-14 border-b bg-background/80 backdrop-blur ┐
@@ -214,7 +216,7 @@ section เว้น `py-16 md:py-24` · L1b hero fade-up คงไว้
 - topbar: `is-scrolled` → `shadow-sm` · avatar `h-9 w-9 rounded-full bg-primary-muted text-primary font-medium` (ข้อความ initials 16px) · ชื่อ/บทบาทแสดง ≥768 (`nav-user` อยู่บน element เดิม) · ปุ่มทุกตัวเป็น ghost icon 44
 - **ไม่มี** ช่องค้นหา/command palette
 
-### P5 หน้าหลัก `/app`
+### P5 หน้าหลัก `/app` — **SUPERSEDED → friendly-spec §F4**
 ```
 PageHeader: h1 คำทักทายตามเวลา (L12) · sub วันที่ไทย
 ┌ การ์ด "สิ่งที่ต้องทำตอนนี้ (รวม N งาน)" ─────────────────────────────────────────┐
