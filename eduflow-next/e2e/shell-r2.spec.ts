@@ -6,7 +6,7 @@
  * KNOWN_BUGS: bug ที่พบระหว่างเขียนเทสต์ → `test.fail` ต่อ bug (ชุดเขียว แต่ขึ้น "expected to fail" ทันทีเมื่อถูกแก้)
  */
 import { test, expect, type Page } from '@playwright/test';
-import { DEMO_CYCLE, loginAs, logoutViaMenu, openUserMenu, sectionUrl } from './helpers';
+import { DEMO_CYCLE, createCycleUi, loginAs, logoutViaMenu, openSection, openUserMenu, sectionUrl } from './helpers';
 
 const VP = { '1440': { width: 1440, height: 900 }, '390': { width: 390, height: 844 } } as const;
 const THAI = /[฀-๿]/;
@@ -91,7 +91,8 @@ test.describe('AC-22 ปุ่มภาษา', () => {
   const enProbe = (url: string, w: '1440' | '390') =>
     url === '/app' ? (w === '1440' ? { id: 'nav-bell', text: 'Notifications' } : { id: 'nav-menu', text: 'Menu' })
       : url === '/login' ? { id: 'login-submit', text: 'Sign in' }
-        : { id: 'display-menu', text: 'Display' };
+        // Q2d (R2-F7 m5): <768 `display-menu` ถูกซ่อนด้วย CSS → ใช้ปุ่มที่มองเห็นจริง `landing-menu-btn`
+        : w === '1440' ? { id: 'display-menu', text: 'Display' } : { id: 'landing-menu-btn', text: 'Menu' };
 
   for (const w of ['1440', '390'] as const) {
     for (const url of ['/app', '/login', '/']) {
@@ -359,5 +360,247 @@ test.describe('AC-24 panel แจ้งเตือน', () => {
     await expect(item).toContainText('New');
     await expect(item).not.toContainText(ASSIGNED_TH);
     await expect(panel.getByTestId('noti-list')).not.toContainText('คุณได้รับมอบหมาย');
+  });
+});
+
+// ─────────────────── Q2d: deep link จาก panel แจ้งเตือน (AC-24 ส่วนที่เหลือ, R2-F4/F5/F8) ───────────────────
+/** เปิด panel (ถ้ายังไม่เปิด) แล้วคืนรายการแจ้งเตือนแรกที่มีข้อความนี้ */
+async function notiItem(page: Page, text: string | RegExp) {
+  if (!(await page.getByTestId('noti-panel').isVisible())) await page.getByTestId('nav-bell').click();
+  const item = page.getByTestId('noti-panel').locator('[data-testid^="noti-item-"]', { hasText: text }).first();
+  await expect(item).toBeVisible();
+  return item;
+}
+const COMMENT_TH = 'มี comment ใหม่ที่ข้อ 3.6';
+/** chair1 มอบ 3.6 ให้ staff1 แล้วเขียนความเห็นในข้อ 3.6 → staff1 ได้ N8 (target section + panel comments) */
+async function commentOn36(page: Page) {
+  await assign36ToStaff(page);
+  await openSection(page, DEMO_CYCLE, '3.6');
+  await page.getByTestId('sidetab-comments').click();
+  await page.getByTestId('comment-body').fill('ช่วยเพิ่มหลักฐานผลการประเมินรายวิชา (ทดสอบ Q2d)');
+  await page.getByTestId('comment-add').click();
+  await expect(page.getByTestId('comments')).toContainText('ทดสอบ Q2d');
+}
+
+test.describe('AC-24 deep link จาก panel แจ้งเตือน', () => {
+  test('ความเห็น (N8): จาก /app → section#comments แท็บ "ความเห็น" ถูกเลือก', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await commentOn36(page);
+    await goto(page, '/app', 'staff1');
+    const item = await notiItem(page, COMMENT_TH);
+    await expect(item).toHaveAttribute('href', `${sectionUrl(DEMO_CYCLE, '3.6')}#comments`);
+    await item.click();
+    await page.waitForURL(/#comments$/);
+    await expect(page.getByTestId('sidetab-comments')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#sidepanel-comments')).toBeVisible();
+    await expect(page.getByTestId('comments')).toContainText('ทดสอบ Q2d');
+  });
+
+  test('ความเห็น (N8) อยู่หน้าเดียวกันแล้ว (R2-F8): แท็บสลับเป็นความเห็น · สลับไปหลักฐานแล้วกดซ้ำ → กลับมาความเห็น · back ออกจาก #comments', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await commentOn36(page);
+    await loginAs(page, 'staff1');
+    await openSection(page, DEMO_CYCLE, '3.6');
+    await expect(page.getByTestId('sidetab-evidence')).toHaveAttribute('aria-selected', 'true');
+    await (await notiItem(page, COMMENT_TH)).click();
+    await expect(page).toHaveURL(/#comments$/);
+    await expect(page.getByTestId('sidetab-comments')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('noti-panel')).toHaveCount(0);
+    await expect(page.getByTestId('sar-editor')).toBeVisible();
+
+    await page.getByTestId('sidetab-evidence').click();
+    await expect(page.getByTestId('sidetab-evidence')).toHaveAttribute('aria-selected', 'true');
+    await (await notiItem(page, COMMENT_TH)).click();
+    await expect(page.getByTestId('sidetab-comments')).toHaveAttribute('aria-selected', 'true');
+
+    await page.goBack();
+    await expect(page).not.toHaveURL(/#comments$/);
+    await expect(page.getByTestId('sar-editor')).toBeVisible();
+  });
+
+  test('action (N9): จาก /app → /app/actions#action-{id} แถวไฮไลต์ + อยู่ในจอ · อยู่หน้าเดียวกันแล้วก็ไฮไลต์ · ?status= ที่ซ่อนแถว → act-filter = all', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await loginAs(page, 'chair1');
+    await page.goto('/app/actions');
+    await page.getByTestId('act-new').click();
+    await page.getByTestId('act-desc').fill('จัดอบรมการเขียน SAR ให้อาจารย์ใหม่ (ทดสอบ Q2d)');
+    await page.getByTestId('act-owner').selectOption({ label: 'อ.วิภา เขียนรายงาน' });
+    await page.getByTestId('act-save').click();
+    await expect(page.getByTestId('action-form')).toHaveCount(0);
+    const row = page.locator('tr[data-testid^="action-"]', { hasText: 'ทดสอบ Q2d' });
+    await expect(row).toHaveCount(1);
+    const actionId = (await row.getAttribute('data-testid'))!.replace(/^action-/, '');
+
+    // จากหน้าอื่น
+    await goto(page, '/app', 'staff1');
+    const item = await notiItem(page, /action item/);
+    await expect(item).toHaveAttribute('href', `/app/actions#action-${encodeURIComponent(actionId)}`);
+    await item.click();
+    await page.waitForURL(/\/app\/actions#action-/);
+    const target = page.locator(`[id="action-${actionId}"]`);
+    await expect(target).toHaveClass(/animate-highlight/);
+    await expect(target).toBeInViewport();
+
+    // อยู่ /app/actions (ไม่มี hash) แล้วกดแจ้งเตือน → ไฮไลต์ในหน้าเดิม
+    await page.goto('/app/actions'); await settle(page);
+    await expect(target).toBeVisible();
+    await expect(target).not.toHaveClass(/animate-highlight/);
+    await (await notiItem(page, /action item/)).click();
+    await expect(page).toHaveURL(/\/app\/actions#action-/);
+    await expect(target).toHaveClass(/animate-highlight/);
+
+    // ?status=done ซ่อนแถว open → hash ชี้แถวนี้ → ตัวกรองกลับเป็น all
+    await page.goto(`/app/actions?status=done#action-${encodeURIComponent(actionId)}`); await settle(page);
+    await expect(page.getByTestId('act-filter')).toHaveValue('all');
+    await expect(target).toHaveClass(/animate-highlight/);
+    await expect(target).toBeInViewport();
+  });
+
+  test('กรรมการ (N2): uadmin มอบ assess1 เข้ารอบใหม่ → assess1 กดแจ้งเตือน → /app/cycles/{id}/assess', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await loginAs(page, 'chair1');
+    const id = await createCycleUi(page, 2570);
+    await loginAs(page, 'uadmin');
+    await page.goto(`/app/cycles/${encodeURIComponent(id)}/assign`);
+    await page.getByTestId('assessor-select').selectOption({ label: 'ศ.ดร.วรรณา ผู้ประเมินภายนอก' });
+    await page.getByTestId('assessor-add').click();
+    await expect(page.getByText('มอบหมายกรรมการแล้ว').first()).toBeVisible();
+
+    await goto(page, '/app', 'assess1');
+    const item = await notiItem(page, 'กรรมการประเมินรอบ 2570');
+    const href = `/app/cycles/${encodeURIComponent(id)}/assess`;
+    await expect(item).toHaveAttribute('href', href);
+    await item.click();
+    await page.waitForURL(u => new URL(u).pathname === href);
+    await expect(page.locator('h1').first()).toBeVisible();
+    await expect(page.getByTestId('noti-panel')).toHaveCount(0);
+  });
+});
+
+// ─────────────────── Q2d: R2-F7 (minor จาก V1) ───────────────────
+test.describe('R2-F7 shell/landing/home/forms', () => {
+  test('m1 @1440: เมนูที่ active ไม่มี ::before ที่มองเห็น · ไม่มีสี rgb(59, 79, 160) ใน shell', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    await goto(page, '/app', 'chair1');
+    const home = page.getByTestId('nav-home');
+    await expect(home).toHaveAttribute('aria-current', 'page');
+    const before = await home.evaluate(e => {
+      const cs = getComputedStyle(e, '::before');
+      return { display: cs.display, content: cs.content };
+    });
+    expect(before.display === 'none' || before.content === 'none', JSON.stringify(before)).toBe(true);
+    const hits = await page.evaluate(() => {
+      const out: string[] = [];
+      document.querySelectorAll('header, header *, #app-sidebar, #app-sidebar *').forEach(el => {
+        for (const pseudo of [null, '::before', '::after']) {
+          const cs = getComputedStyle(el, pseudo);
+          if (pseudo && (cs.content === 'none' || cs.display === 'none')) continue;
+          for (const p of ['color', 'backgroundColor', 'borderLeftColor', 'borderTopColor', 'outlineColor'] as const) {
+            if (String(cs[p]).replace(/\s/g, '').startsWith('rgb(59,79,160')) out.push(`${(el as HTMLElement).dataset.testid ?? el.tagName}${pseudo ?? ''}.${p}`);
+          }
+        }
+      });
+      return out;
+    });
+    expect(hits).toEqual([]);
+  });
+
+  test('m2/m3 uadmin มีคำขอรอ: todo-access_requests → /app/admin?tab=requests · "(รวม N งาน)" = ตัวนับเมนูหน้าหลัก · home-summary · อนุมัติแล้วแถวหาย', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    const s = String(Date.now() % 100000);
+    await page.goto('/request-access');
+    await page.getByTestId('ra-name').fill(`ทดสอบ หน้าหลัก${s}`);
+    await page.getByTestId('ra-email').fill(`home${s}@sample-uni.example`);
+    await page.getByTestId('ra-reason').fill('ทดสอบตัวนับหน้าหลัก');
+    await page.getByTestId('ra-username').fill(`home${s}`);
+    await page.getByTestId('ra-password').fill('longpass3');
+    await page.getByTestId('ra-password2').fill('longpass3');
+    await page.getByTestId('ra-consent').check();
+    await page.getByTestId('ra-submit').click();
+    await expect(page.getByTestId('ra-success')).toBeVisible();
+
+    await goto(page, '/app', 'uadmin');
+    const todo = page.locator('[data-testid^="todo-access_requests-"]');
+    await expect(todo).toHaveCount(1);
+    await expect(todo).toContainText('อนุมัติคำขอเข้าใช้งาน 1 รายการ'); // ปุ่มในแถวใช้ "ไปทำ" ร่วมกับทุกแถว (TodoRow)
+    await expect(todo.getByRole('link')).toHaveAttribute('href', '/app/admin?tab=requests');
+    const totalOf = async () => {
+      const m = (await page.locator('main').innerText()).match(/\(รวม (\d+) งาน\)/);
+      return m ? Number(m[1]) : 0;
+    };
+    const n = await totalOf();
+    expect(n).toBeGreaterThanOrEqual(1);
+    await expect(page.getByTestId('nav-home')).toHaveAttribute('aria-label', `หน้าหลัก — มีงานรอท่าน ${n} งาน`);
+    const summary = page.getByTestId('home-summary');
+    await expect(summary).not.toHaveText('วันนี้ไม่มีงานค้าง');
+    const sum = await summary.innerText();
+    if (!sum.includes('ควรทำก่อน')) expect(sum).toContain(`มี ${n} งานรอท่าน`);
+
+    await todo.getByRole('link').click();
+    await page.waitForURL(/\/app\/admin\?tab=requests$/);
+    await expect(page.getByTestId('tab-requests')).toHaveAttribute('aria-selected', 'true');
+    const card = page.locator('li[data-testid^="req-"]', { hasText: `home${s}` });
+    const id = (await card.getAttribute('data-testid'))!.replace(/^req-/, '');
+    await page.getByTestId(`req-approve-${id}`).click();
+    await expect(card).toHaveCount(0);
+
+    await page.goto('/app'); await settle(page);
+    await expect(page.locator('[data-testid^="todo-access_requests-"]')).toHaveCount(0);
+    expect(await totalOf()).toBe(n - 1);
+  });
+
+  test('m5 @390 /: header แถวเดียว ≤64px · ปุ่ม "เมนู" · lang-switch อยู่นอกแผง · แผงมีการแสดงผล + ปุ่ม "ปิด" → ปิด + focus กลับ', async ({ page }) => {
+    await page.setViewportSize(VP['390']);
+    await goto(page, '/');
+    const header = page.locator('header').first();
+    expect((await header.boundingBox())!.height).toBeLessThanOrEqual(65);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    const btn = page.getByTestId('landing-menu-btn');
+    await expect(btn).toBeVisible();
+    expect(await btn.evaluate(e => (e as HTMLElement).innerText.trim())).toBe('เมนู');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByTestId('display-menu')).toBeHidden();
+    const sw = page.getByTestId('lang-switch');
+    await expect(sw).toBeVisible();
+    // ภาษา + เมนู อยู่แถวเดียวกัน (กึ่งกลางแนวตั้งตรงกัน)
+    const [a, b] = [await sw.boundingBox(), await btn.boundingBox()];
+    expect(Math.abs((a!.y + a!.height / 2) - (b!.y + b!.height / 2))).toBeLessThan(8);
+
+    await btn.click();
+    const menu = page.locator('#landing-menu');
+    await expect(menu).toBeVisible();
+    await expect(btn).toHaveAttribute('aria-expanded', 'true');
+    expect(await sw.evaluate(e => !!e.closest('#landing-menu'))).toBe(false);
+    await expect(page.getByTestId('landing-menu-display')).toBeVisible();
+    await expect(page.getByTestId('landing-menu-display').getByTestId('theme-segment-dark')).toBeVisible();
+    await expect(page.getByTestId('landing-menu-login')).toBeVisible();
+    const close = page.getByTestId('landing-menu-close');
+    expect(await close.evaluate(e => (e as HTMLElement).innerText.trim())).toBe('ปิด');
+    await close.click();
+    await expect(menu).toHaveCount(0);
+    await expect(btn).toBeFocused();
+
+    await btn.click();
+    await expect(menu).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(menu).toHaveCount(0);
+    await expect(btn).toBeFocused();
+  });
+
+  test('m6 /request-access ส่งว่าง → ra-error-summary + ลิงก์ต่อช่อง · คลิก ra-error-link-name → focus ra-name · แก้แล้วหายจากสรุป', async ({ page }) => {
+    await page.goto('/request-access');
+    await page.getByTestId('ra-submit').click();
+    const sum = page.getByTestId('ra-error-summary');
+    await expect(sum).toBeVisible();
+    await expect(sum).toContainText('ยังส่งคำขอไม่ได้ — กรุณาแก้ไขช่องต่อไปนี้');
+    await expect(page.getByTestId('ra-name')).toBeFocused(); // focus ช่องแรกเหมือนเดิม
+    for (const f of ['name', 'email', 'reason', 'username', 'password', 'consent'])
+      await expect(page.getByTestId(`ra-error-link-${f}`)).toBeVisible();
+    await page.getByTestId('ra-email').focus();
+    await page.getByTestId('ra-error-link-name').click();
+    await expect(page.getByTestId('ra-name')).toBeFocused();
+    await page.getByTestId('ra-name').fill('ทดสอบ สรุปข้อผิดพลาด');
+    await expect(page.getByTestId('ra-error-link-name')).toHaveCount(0);
+    await expect(page.getByTestId('ra-error-link-email')).toBeVisible();
   });
 });
