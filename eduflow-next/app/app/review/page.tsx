@@ -41,7 +41,7 @@ const STACK_BODY = 'max-md:block';
 const STACK_ROW = 'max-md:block max-md:p-4';
 const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
 const STACK_ACTIONS = 'max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3';
-const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 
 export default function ReviewPage() {
   const user = useMe();

@@ -252,7 +252,7 @@ export default function HomePage() {
                           <TableRow key={section.id}>
                             <TableCell className="min-w-[12rem]">
                               <Link
-                                className="font-semibold text-primary underline-offset-4 visited:text-primary hover:underline"
+                                className="font-semibold text-primary underline-offset-4 hover:underline"
                                 href={sectionHref(cycle.id, section.requirementId)} data-testid={`mywork-${section.requirementId}`}
                               >
                                 {section.requirementId}
@@ -288,7 +288,7 @@ export default function HomePage() {
                       return (
                         <li key={c.id} className="space-y-3 rounded-xl border bg-card p-4 shadow-sm dark:shadow-none">
                           <Link
-                            className="block font-semibold text-foreground no-underline visited:text-foreground hover:text-primary hover:underline"
+                            className="block font-semibold text-foreground no-underline hover:text-primary hover:underline"
                             href={`/app/cycles/${encodeURIComponent(c.id)}`} data-testid={`cycle-link-${c.id}`}
                           >
                             ปี {c.academicYear} · {getProgramme(c.programmeId)?.nameTh}

@@ -120,7 +120,7 @@ export default function Stepper({ steps, variant = 'nav', ariaLabel, summary, te
           );
           const interactive = variant === 'nav' && (s.href || s.onSelect);
           const hit = 'inline-flex min-h-11 min-w-0 items-center gap-2 rounded-md p-1 pr-2 text-left text-foreground no-underline';
-          const hitLive = cn(hit, 'bg-transparent transition-colors duration-fast hover:bg-accent visited:text-foreground');
+          const hitLive = cn(hit, 'transition-colors duration-fast hover:bg-accent');
           return (
             <li
               key={s.key}

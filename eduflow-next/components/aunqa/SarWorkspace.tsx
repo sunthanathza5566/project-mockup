@@ -548,14 +548,14 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
             {/* narrative: สลับ TH/EN ด้วย attribute hidden เท่านั้น — ห้ามใส่ block/flex (saas-spec §C2, D7.2) */}
             <Textarea
-              ref={thRef} className="aq-textarea--prose min-h-[24rem] leading-[1.75]" hidden={lang !== 'th'} value={th} readOnly={!editable}
+              ref={thRef} className="aq-textarea--prose max-h-[70vh] min-h-[24rem] leading-[1.75] [field-sizing:content]" hidden={lang !== 'th'} value={th} readOnly={!editable}
               aria-label="เนื้อหา SAR ภาษาไทย" data-testid="narrative-th"
               placeholder="บรรยายตามเกณฑ์ข้อนี้ พร้อมอ้างอิงหลักฐานด้วยรหัส เช่น [E-1.1-01]"
               onChange={e => { setTh(e.target.value); edited(); }}
               onBlur={() => { if (live.current.touched && editable) save('autosave'); }}
             />
             <Textarea
-              ref={enRef} className="aq-textarea--prose min-h-[24rem] leading-[1.75]" hidden={lang !== 'en'} value={en} readOnly={!editable}
+              ref={enRef} className="aq-textarea--prose max-h-[70vh] min-h-[24rem] leading-[1.75] [field-sizing:content]" hidden={lang !== 'en'} value={en} readOnly={!editable}
               aria-label="SAR narrative (English)" data-testid="narrative-en" lang="en"
               placeholder="Describe how the programme meets this criterion; cite evidence like [E-1.1-01]"
               onChange={e => { setEn(e.target.value); edited(); }}

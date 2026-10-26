@@ -207,7 +207,7 @@ export default function InviteAcceptForm() {
             />
             <Button
               variant="ghost" size="icon"
-              className="absolute right-0 top-0 border-transparent bg-transparent aria-pressed:border-transparent aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:shadow-none"
+              className="absolute right-0 top-0"
               onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPw}
             >
               <Icon name={showPw ? 'eye-off' : 'eye'} size={20} />

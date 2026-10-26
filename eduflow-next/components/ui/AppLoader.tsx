@@ -61,7 +61,7 @@ export default function AppLoader({ mode, name }: { mode: AppLoaderMode; name?: 
             <p className="text-lg font-semibold text-foreground">ใช้เวลานานกว่าปกติ</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button onClick={() => location.reload()}>ลองใหม่</Button>
-              <Button asChild variant="outline" className="visited:text-foreground"><a href="/">กลับหน้าแรก</a></Button>
+              <Button asChild variant="outline"><a href="/">กลับหน้าแรก</a></Button>
             </div>
           </>
         ) : (

@@ -7,8 +7,6 @@ import { DialogProvider } from '@/context/DialogContext';
 import Toast from '@/components/ui/Toast';
 import PrefsInit from '@/components/ui/PrefsInit';
 import ThemeProvider from '@/components/ui/ThemeProvider';
-// ADR-UI-002 D6: legacy ก่อน แล้ว globals (utility ของ Tailwind มาทีหลังจึงชนะ class เดิม) — S6 ลบ legacy
-import './legacy.css';
 import './globals.css';
 
 /** ADR-UI-002 D4 / saas-tokens §T3.1: ฟอนต์ไทยมีหัว ตระกูลเดียวครอบไทย+อังกฤษ — self-host ตอน build (เบราว์เซอร์ไม่เรียก Google) */

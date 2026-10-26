@@ -18,8 +18,8 @@ export default function NotFoundView() {
       <h1 className="mt-3 text-2xl font-semibold text-foreground">ไม่พบหน้าที่ต้องการ</h1>
       <p className="mt-2 max-w-md text-base text-muted-foreground">ลิงก์อาจพิมพ์ผิดหรือหน้านี้ถูกย้ายแล้ว</p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <Button asChild className="visited:text-primary-foreground"><Link href={user ? '/app' : '/'}>กลับหน้าหลัก</Link></Button>
-        <Button asChild variant="outline" className="visited:text-foreground"><Link href="/">ไปหน้าแรก</Link></Button>
+        <Button asChild><Link href={user ? '/app' : '/'}>กลับหน้าหลัก</Link></Button>
+        <Button asChild variant="outline"><Link href="/">ไปหน้าแรก</Link></Button>
       </div>
     </main>
   );

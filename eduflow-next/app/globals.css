@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    AUN-QA Copilot — "Modern SaaS" (ADR-UI-002, saas-tokens §T10) · ค่าสี "Earth / Friendly" (ADR-UI-003, earth-tokens §E1)
    Tailwind CSS 3.4 + token HSL channel (light :root / dark .dark)
-   ช่วงเปลี่ยนผ่าน: layout import ./legacy.css ก่อนไฟล์นี้ · preflight ปิด (S6 เปิด)
+   Tailwind preflight เปิด (TASK-0002 S6 cutover — legacy.css ถูกลบ) · @layer base ด้านล่างต่อท้าย preflight
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @tailwind base;
@@ -90,13 +90,8 @@
     --chart-5: 102.9 36.8% 66.5%;
   }
 
-  /* mini-base (แทน preflight ช่วงเปลี่ยนผ่าน — shadcn ต้องใช้; S6 ลบส่วนที่ซ้ำ preflight) */
-  *, ::before, ::after {
-    box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: hsl(var(--border));
-  }
+  /* สีขอบเริ่มต้น = token border (preflight ให้ box-sizing/border-width:0/border-style:solid แล้ว) */
+  *, ::before, ::after { border-color: hsl(var(--border)); }
 
   /* คงถาวร — narrative TH/EN ใช้ attribute hidden (regress-u3fix) */
   [hidden] { display: none !important; }
@@ -115,7 +110,9 @@
   strong, b { font-weight: 600; }
   /* ลิงก์ในเนื้อหาต้องมีขีดเส้นใต้ (WCAG 1.4.1); ลิงก์ที่เป็นปุ่ม/เมนูใส่ no-underline */
   a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 3px; }
-  ::placeholder { color: hsl(var(--muted-foreground)); opacity: 1; }
+  /* ต้องเจาะจงเท่า preflight (input::placeholder) ไม่งั้นแพ้สี gray-400 ของ preflight (contrast ต่ำ) */
+  input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)); opacity: 1; }
+  summary { cursor: pointer; }
   ::selection { background: hsl(var(--primary-muted)); color: hsl(var(--foreground)); }
   /* focus กลาง — ห้าม component ลบ (§T11) */
   :focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }

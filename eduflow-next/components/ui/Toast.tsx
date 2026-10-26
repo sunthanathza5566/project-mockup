@@ -49,7 +49,7 @@ export default function Toast() {
             )}
           </div>
           <Button
-            variant="ghost" size="icon" className="absolute right-1 top-1 border-transparent bg-transparent text-muted-foreground hover:text-foreground"
+            variant="ghost" size="icon" className="absolute right-1 top-1 text-muted-foreground hover:text-foreground"
             aria-label="ปิดข้อความ" onClick={() => dismiss(t.id)}
           >
             <Icon name="x" size={20} />

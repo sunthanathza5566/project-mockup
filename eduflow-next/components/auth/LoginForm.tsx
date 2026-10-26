@@ -156,7 +156,7 @@ export default function LoginForm() {
               />
               <Button
                 variant="ghost" size="icon"
-                className="absolute right-0 top-0 border-transparent bg-transparent aria-pressed:border-transparent aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:shadow-none"
+                className="absolute right-0 top-0"
                 onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPw}
               >
                 <Icon name={showPw ? 'eye-off' : 'eye'} size={20} />
@@ -211,7 +211,7 @@ export default function LoginForm() {
           {DEMO_ACCOUNTS.map(a => (
             <Button
               key={a.username} variant="outline"
-              className="w-full flex-col items-start justify-start gap-0 px-3 py-2 text-left visited:text-foreground"
+              className="w-full flex-col items-start justify-start gap-0 px-3 py-2 text-left"
               data-testid={`demo-${a.username}`}
               onClick={() => {
                 setUsername(a.username); setPassword('demo1234'); setError(''); setStatus(null); setHint('');

@@ -284,7 +284,7 @@ export function NotificationBell({ user }: { user: AppUser }) {
                             <Link
                               href={href} data-testid={`noti-item-${n.id}`} data-unread={isNew || undefined}
                               onClick={e => onItemClick(e, n, href)}
-                              className="flex items-start gap-3 px-4 py-3 text-foreground no-underline transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground"
+                              className="flex items-start gap-3 px-4 py-3 text-foreground no-underline transition-colors duration-fast ease-hover hover:bg-accent"
                             >
                               <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', v.box)} aria-hidden="true">
                                 <Icon name={v.icon} size={18} />

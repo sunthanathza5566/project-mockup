@@ -228,7 +228,7 @@ export default function RequestAccessForm() {
                 <li key={f}>
                   <a
                     href={`#${ids[f]}`} data-testid={`ra-error-link-${f}`}
-                    className="font-medium text-foreground underline underline-offset-4 visited:text-foreground hover:text-foreground hover:decoration-2"
+                    className="font-medium text-foreground underline underline-offset-4 hover:decoration-2"
                     onClick={e => { e.preventDefault(); document.getElementById(ids[f])?.focus(); }}
                   >
                     {errors[f]}
@@ -344,7 +344,7 @@ export default function RequestAccessForm() {
                 />
                 <Button
                   variant="ghost" size="icon"
-                  className="absolute right-0 top-0 border-transparent bg-transparent aria-pressed:border-transparent aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:shadow-none"
+                  className="absolute right-0 top-0"
                   onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPw}
                 >
                   <Icon name={showPw ? 'eye-off' : 'eye'} size={20} />

@@ -32,7 +32,7 @@ import { notifyTodosChanged } from '@/lib/ui/todo';
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
 const H2 = 'text-xl font-semibold text-foreground';
 const LABEL = 'block text-base font-medium text-foreground';
-const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 const SAVED = 'aq-saved inline-flex items-center gap-1 text-success';
 const FIELD_ERR = 'aq-field-error flex items-start gap-1';
 /** §C5 ตารางแบบ stack บนมือถือ (<768) — class literal ให้ JIT สแกนเจอ */

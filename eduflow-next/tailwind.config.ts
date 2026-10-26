@@ -15,7 +15,6 @@ export default {
     './lib/ui/**/*.{ts,tsx}',
     './lib/i18n/**/*.{ts,tsx}',
   ],
-  corePlugins: { preflight: false }, // ADR-UI-002 D6 — ลบบรรทัดนี้ใน S6 (cutover)
   theme: {
     screens: { sm: '480px', md: '768px', lg: '1024px', xl: '1280px', '2xl': '1536px' },
     fontSize: {

@@ -90,7 +90,7 @@ export default function ExportPage() {
               title={`มี ${r11.length} ข้อที่คำแปลยังไม่ได้ยืนยัน — ตรวจก่อนส่งเอกสารจริง`}>
               <p className="m-0 flex flex-wrap gap-x-4 gap-y-1">
                 {r11.map(g => (
-                  <Link key={g.id} className="inline-flex min-h-11 items-center font-medium tabular-nums text-foreground underline-offset-4 visited:text-foreground hover:underline" href={sectionHref(cycle!.id, g.requirementId)}>
+                  <Link key={g.id} className="inline-flex min-h-11 items-center font-medium tabular-nums text-foreground underline-offset-4 hover:underline" href={sectionHref(cycle!.id, g.requirementId)}>
                     {g.requirementId} ({g.refId === 'en' ? 'EN' : 'TH'})
                   </Link>
                 ))}

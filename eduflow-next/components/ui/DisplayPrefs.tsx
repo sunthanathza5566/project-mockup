@@ -7,7 +7,6 @@
  *     ไม่มีหัวข้อ/ปุ่มออกจากระบบในตัว (UserMenu ใส่หัวข้อ "การแสดงผล" เอง · DisplayMenuButton ใส่หัวข้อใน popover)
  *     เปลี่ยนค่าแล้วไม่ปิดอะไร — ผู้ใช้เห็นผลทันทีแล้วปรับต่อได้
  * - DisplayMenuButton: ปุ่มมีข้อความ "การแสดงผล" (ไอคอน type) เปิด popover DisplayPrefsPanel — ใช้ใน login/landing (testid `display-menu`)
- * - DisplayPrefsButton: ปุ่มเดิมท้าย sidebar (testid `display-prefs`) — **คงไว้ชั่วคราว** จน R2-F1 ย้ายไปเมนูผู้ใช้ (S6 ลบ)
  */
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type RefObject } from 'react';
 import { FONT_SCALES, useUiPrefs, type FontScale } from '@/lib/ui/prefs';
@@ -123,31 +122,6 @@ export function DisplayMenuButton({ label = 'การแสดงผล', short
       </Button>
       {open && (
         <div ref={pop} id={id} className={cn(POPOVER, 'right-0 top-full mt-2')} data-testid="display-menu-panel">
-          <p className="font-semibold text-foreground">การแสดงผล</p>
-          <DisplayPrefsPanel />
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** ปุ่มเดิมท้าย sidebar (รอบ 1) — เปิด popover ขึ้นด้านบน · ใช้ DisplayPrefsPanel ตัวเดียวกัน */
-export function DisplayPrefsButton() {
-  const id = useId();
-  const btn = useRef<HTMLButtonElement>(null);
-  const pop = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useDisclosure(btn, pop);
-
-  return (
-    <div className="relative">
-      <Button
-        ref={btn} variant="ghost" className="w-full justify-start border-transparent bg-transparent" aria-expanded={open} aria-controls={id}
-        onClick={() => setOpen(o => !o)} data-testid="display-prefs"
-      >
-        <Icon name="type" size={20} className="text-muted-foreground" />การแสดงผล
-      </Button>
-      {open && (
-        <div ref={pop} id={id} className={cn(POPOVER, 'bottom-full left-0 mb-2 max-w-[calc(100vw-2rem)]')}>
           <p className="font-semibold text-foreground">การแสดงผล</p>
           <DisplayPrefsPanel />
         </div>

@@ -76,7 +76,7 @@ function Inner() {
 
   // ─── deep link: ตรวจ hash ตอนโหลดเสร็จ, hashchange/popstate และหลังคลิกลิงก์ในหน้าเดียวกัน (router ไม่ยิง hashchange) ───
   const items = q.data?.items;
-  // `handled` = hash ล่าสุดที่จัดการแล้ว (ไฮไลต์แล้ว หรือหาไม่เจอในทุกหลักสูตร) — hash เดิมไม่ทำซ้ำ
+  // `handled` = hash ล่าสุดที่จัดการแล้ว (ไฮไลต์แล้ว หรือหาไม่เจอในทุกหลักสูตร) — hash เดิมไม่ทำซ้ำ (ยกเว้น hashchange ด้านล่าง)
   const checkHash = useCallback(() => {
     const key = window.location.hash;
     if (key === handled.current) return;
@@ -102,12 +102,14 @@ function Inner() {
   useEffect(() => {
     let t: ReturnType<typeof setTimeout> | undefined;
     const later = () => { if (t) clearTimeout(t); t = setTimeout(checkHash, 80); };
-    window.addEventListener('hashchange', later);
+    // hashchange = มีคนชี้มาที่แถวนี้จริง (รวมแจ้งเตือนที่ยิงซ้ำด้วย hash เดิม — R2-F8 minor) → ล้าง `handled` ให้ไฮไลต์ซ้ำได้
+    const again = () => { handled.current = ''; later(); };
+    window.addEventListener('hashchange', again);
     window.addEventListener('popstate', later);
     document.addEventListener('click', later, true);
     return () => {
       if (t) clearTimeout(t);
-      window.removeEventListener('hashchange', later);
+      window.removeEventListener('hashchange', again);
       window.removeEventListener('popstate', later);
       document.removeEventListener('click', later, true);
     };
@@ -205,7 +207,7 @@ function Inner() {
                         tabIndex={isHl ? -1 : undefined} data-highlight={isHl || undefined}
                         className={cn('scroll-mt-24 max-md:block max-md:p-4', isHl && 'animate-highlight')}>
                         <TableCell data-label="ข้อ" className={cn('whitespace-nowrap', STACK_TD)}>
-                          <Link className="inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline-offset-4 visited:text-primary hover:underline max-md:min-h-0" href="/app/requirements">{a.requirementId}</Link>
+                          <Link className="inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline-offset-4 hover:underline max-md:min-h-0" href="/app/requirements">{a.requirementId}</Link>
                         </TableCell>
                         <TableCell data-label="รายละเอียด" className={cn('min-w-[16rem]', STACK_TD)}>
                           <div className="space-y-1">

@@ -31,9 +31,9 @@ const TABS: [Tab, string][] = [
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
 /** ตารางในหน้านี้: กรอบ rounded-xl + เงาเหมือนการ์ด */
 const TABLE_WRAP = 'rounded-xl shadow-sm dark:shadow-none';
-/** saas-spec §C11 แท็บเส้นใต้ — `<button>` ดิบช่วง preflight ปิด ต้องใส่ bg-transparent เอง */
+/** saas-spec §C11 แท็บเส้นใต้ */
 const TAB_BTN =
-  '-mb-px inline-flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap border-0 border-b-2 border-solid border-transparent bg-transparent px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground';
+  '-mb-px inline-flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground';
 const FIELD = 'grid min-w-0 gap-1.5';
 const LABEL = 'font-medium text-foreground';
 const CHECK = 'flex min-h-11 cursor-pointer items-center gap-3 text-foreground';

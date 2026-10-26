@@ -97,7 +97,7 @@ export default function Icon({ name, size = 20, label, className }: IconProps) {
   const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': true as const, focusable: 'false' as const };
   return (
     <svg
-      className={cn('aq-icon inline-block shrink-0 align-[-0.125em]', className)}
+      className={cn('inline-block shrink-0 align-[-0.125em]', className)}
       width={size} height={size} viewBox="0 0 24 24"
       fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"
       {...a11y}

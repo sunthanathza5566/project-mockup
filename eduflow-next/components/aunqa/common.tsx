@@ -121,7 +121,7 @@ export function InlineMessage({ tone = 'info', title, children, actions, onClose
         {actions && <div className="flex flex-wrap gap-2 pt-2">{actions}</div>}
       </div>
       {onClose && (
-        <Button variant="ghost" size="icon" className="-my-2 -mr-2 shrink-0 border-transparent bg-transparent" aria-label="ปิดข้อความ" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="-my-2 -mr-2 shrink-0" aria-label="ปิดข้อความ" onClick={onClose}>
           <Icon name="x" size={20} />
         </Button>
       )}
@@ -211,7 +211,7 @@ export function ErrorBox({ message, onRetry, code }: { message: string; onRetry?
   const missing = code === 'not_found';
   const title = denied ? 'คุณไม่มีสิทธิ์ดูข้อมูลนี้' : missing ? 'ไม่พบข้อมูล' : 'โหลดข้อมูลไม่สำเร็จ';
   const action = denied || missing
-    ? <Button asChild variant="outline" className="visited:text-foreground"><Link href="/app">กลับหน้าหลัก</Link></Button>
+    ? <Button asChild variant="outline"><Link href="/app">กลับหน้าหลัก</Link></Button>
     : onRetry ? <Button variant="outline" onClick={onRetry}>ลองใหม่</Button> : undefined;
   return (
     <InlineMessage tone="danger" large title={title} testId="state-error" actions={action}>{message}</InlineMessage>
@@ -306,38 +306,21 @@ export function HeatLegend() {
 type BtnVariant = NonNullable<ButtonProps['variant']>;
 type BtnSize = NonNullable<ButtonProps['size']>;
 
-/** class ปุ่มแบบเดิม (ADR-UI-001) → variant/size ของ Button — ผู้เรียกที่ยังส่ง className เดิมได้หน้าตาใหม่ทันที */
-const LEGACY_BTN = /^aq-btn(?:-primary|-danger|-danger-solid|-ghost|-compact|-icon|-block)?$/;
-function fromLegacy(className: string): { variant: BtnVariant; size: BtnSize; rest: string } {
-  const cls = className.split(/\s+/).filter(Boolean);
-  const has = (c: string) => cls.includes(c);
-  const variant: BtnVariant = has('aq-btn-danger-solid') ? 'destructive'
-    : has('aq-btn-danger') ? 'destructiveOutline'
-    : has('aq-btn-primary') ? 'default'
-    : has('aq-btn-ghost') ? 'ghost'
-    : 'outline';
-  const size: BtnSize = has('aq-btn-icon') ? 'icon' : has('aq-btn-compact') ? 'compact' : 'default';
-  const rest = cls.filter(c => !LEGACY_BTN.test(c));
-  if (has('aq-btn-block')) rest.push('w-full');
-  return { variant, size, rest: rest.join(' ') };
-}
-
 /**
  * ปุ่ม + สถานะกำลังทำงาน (กันกดซ้ำ) · aria-busy + ไอคอน loader หมุน + ข้อความเฉพาะการกระทำ · ความกว้างไม่กระโดด
- * หน้าตา: ส่ง `variant`/`size` (ใหม่) หรือ className แบบเดิม (`aq-btn aq-btn-primary aq-btn-compact` …) ก็ได้
+ * หน้าตา: `variant`/`size` ของ Button (ค่าเริ่ม outline/default) · `className` ต่อท้าย class ของ Button
  */
-export function AsyncButton({ onClick, children, className = 'aq-btn', variant, size, disabled, testId, title, busyText = 'กำลังทำงาน…' }: {
+export function AsyncButton({ onClick, children, className, variant = 'outline', size = 'default', disabled, testId, title, busyText = 'กำลังทำงาน…' }: {
   onClick: () => Promise<void> | void; children: ReactNode; className?: string; disabled?: boolean;
   testId?: string; title?: string; busyText?: string; variant?: BtnVariant; size?: BtnSize;
 }) {
   const [busy, setBusy] = useState(false);
   const [minW, setMinW] = useState<number | undefined>(undefined);
   const ref = useRef<HTMLButtonElement>(null);
-  const legacy = fromLegacy(className);
   return (
     <Button
       ref={ref}
-      variant={variant ?? legacy.variant} size={size ?? legacy.size} className={legacy.rest}
+      variant={variant} size={size} className={className}
       disabled={disabled || busy} data-testid={testId} title={title}
       aria-busy={busy || undefined}
       style={busy && minW ? { minWidth: minW } : undefined}

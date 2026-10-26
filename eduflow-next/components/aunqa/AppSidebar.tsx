@@ -10,7 +10,7 @@
  *   คำนวณใหม่เมื่อเปลี่ยนหน้าและเมื่อมี `aunqa:todos-changed`
  * - ไม่มีส่วนล่าง (การแสดงผล/ออกจากระบบ ย้ายไปเมนูผู้ใช้ — §F11)
  * hook ที่คงไว้: `#app-sidebar` + class `is-open` + `data-open` (สไตล์ drawer อ่านจาก data-open), `a.aq-nav-item`, `.aq-nav-group`, `.aq-count`
- * ช่วงเปลี่ยนผ่าน (legacy.css ยังโหลด): active ใช้ variant `aria-[current=page]:` · สีไอคอนใช้ `!` (ลบได้หลัง S6)
+ * active ใช้ variant `aria-[current=page]:` (ไอคอนใช้ `group-aria-[current=page]:`)
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
@@ -31,15 +31,14 @@ const SIDEBAR =
 
 /**
  * รายการเมนู (hook aq-nav-item — target audit 44px) · active = พื้น primary-muted + ตัวหนา (คู่ #12) ไม่มีแถบซ้ายแล้ว
- * `before:!hidden` ปิดแถบ ::before สีน้ำเงินของ legacy.css (`.aq-nav-item[aria-current=page]::before` — V1 m1) ลบได้หลัง S6
  */
 const NAV_ITEM =
-  'aq-nav-item group flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-foreground no-underline before:!hidden ' +
-  'transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground ' +
+  'aq-nav-item group flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-foreground no-underline ' +
+  'transition-colors duration-fast ease-hover hover:bg-accent ' +
   'aria-[current=page]:bg-primary-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground';
 
 /** ไอคอนเมนู: เทา · active = primary (คู่ #11) */
-const NAV_ICON = '!text-muted-foreground group-aria-[current=page]:!text-primary';
+const NAV_ICON = 'text-muted-foreground group-aria-[current=page]:text-primary';
 
 interface MenuItem { path: string; label: string; testId: string; icon: IconName; show: boolean; badge?: number }
 interface MenuGroup { key: string; title: string; items: MenuItem[] }
@@ -139,8 +138,7 @@ export default function AppSidebar({ user, pathname, open, onClose }: {
             if (!items.length) return null;
             return (
               <div key={g.key} className="mt-6 first:mt-2">
-                {/* !mt-0: กฎเดิม .aq-nav-group:first-child (legacy.css) — ระยะห่างอยู่ที่ div แทน */}
-                <p className="aq-nav-group !mt-0 px-3 pb-1.5" id={`navg-${g.key}`}>{g.title}</p>
+                <p className="aq-nav-group px-3 pb-1.5" id={`navg-${g.key}`}>{g.title}</p>
                 <ul className="m-0 grid list-none gap-0.5 p-0" aria-labelledby={`navg-${g.key}`}>
                   {items.map(m => {
                     const active = m.path === '/app' ? pathname === '/app' : pathname.startsWith(m.path);

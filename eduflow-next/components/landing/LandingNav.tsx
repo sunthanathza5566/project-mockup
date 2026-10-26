@@ -18,7 +18,6 @@ import Icon from '@/components/ui/Icon';
 import BrandMark, { Brand } from '@/components/ui/BrandMark';
 import { DisplayMenuButton, DisplayPrefsPanel } from '@/components/ui/DisplayPrefs';
 import { Button } from '@/components/ui/primitives/button';
-import { cn } from '@/lib/ui/cn';
 
 const LINKS = [
   { href: '#about', label: 'จุดเด่น' },
@@ -26,14 +25,12 @@ const LINKS = [
   { href: '#trust', label: 'ทำไมเชื่อถือได้' },
 ];
 
-/** ปุ่ม ghost ช่วงเปลี่ยนผ่าน: กันพื้น/ขอบของกฎ .aq-btn ใน legacy.css (ลบได้หลัง S6) */
-const GHOST_FIX = 'border-transparent bg-transparent';
 const LINK =
   'inline-flex min-h-11 items-center rounded-md px-3 text-base font-medium text-muted-foreground no-underline ' +
-  'transition-colors duration-fast ease-hover visited:text-muted-foreground hover:bg-accent hover:text-foreground';
+  'transition-colors duration-fast ease-hover hover:bg-accent hover:text-foreground';
 const PANEL_LINK =
   'flex min-h-11 items-center rounded-md px-3 text-base font-medium text-foreground no-underline ' +
-  'visited:text-foreground hover:bg-accent hover:text-foreground';
+  'hover:bg-accent';
 
 export default function LandingNav() {
   const [open, setOpen] = useState(false);
@@ -72,7 +69,7 @@ export default function LandingNav() {
           <ul className="m-0 flex list-none flex-wrap items-center gap-1 p-0">
             {LINKS.map(l => <li key={l.href}><a href={l.href} className={LINK}>{l.label}</a></li>)}
             <li className="ml-auto">
-              <Button asChild variant="outline" className="visited:text-foreground">
+              <Button asChild variant="outline">
                 <a href={user ? '/app' : '/login'} data-testid="landing-login" onClick={go}>
                   {cta}<Icon name="chevron-right" size={20} />
                 </a>
@@ -85,7 +82,7 @@ export default function LandingNav() {
         <LangToggle className="shrink-0 max-md:[&_button]:px-2" />
         <DisplayMenuButton label="การแสดงผล" className="hidden md:block" />
         <Button
-          ref={burger} variant="ghost" className={cn(GHOST_FIX, 'shrink-0 gap-1.5 px-2 md:hidden')}
+          ref={burger} variant="ghost" className="shrink-0 gap-1.5 px-2 md:hidden"
           aria-expanded={open} aria-controls="landing-menu" onClick={() => setOpen(true)} data-testid="landing-menu-btn"
         >
           <Icon name="menu" size={20} />เมนู
@@ -98,14 +95,14 @@ export default function LandingNav() {
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <Brand size={24} />
-            <Button variant="ghost" className={cn(GHOST_FIX, 'shrink-0 gap-1.5 px-3')} onClick={close} data-testid="landing-menu-close">
+            <Button variant="ghost" className="shrink-0 gap-1.5 px-3" onClick={close} data-testid="landing-menu-close">
               <Icon name="x" size={20} />ปิด
             </Button>
           </div>
           {LINKS.map(l => (
             <a key={l.href} href={l.href} onClick={() => setOpen(false)} className={PANEL_LINK}>{l.label}</a>
           ))}
-          <Button asChild className="mt-2 visited:text-primary-foreground">
+          <Button asChild className="mt-2">
             <a href={user ? '/app' : '/login'} onClick={go} data-testid="landing-menu-login">
               {cta}<Icon name="chevron-right" size={20} />
             </a>

@@ -41,7 +41,7 @@ const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
 const H2 = 'text-xl font-semibold text-foreground';
 const H3 = 'text-lg font-semibold text-foreground';
 const LABEL = 'block text-base font-medium text-foreground';
-const LINK = 'text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+const LINK = 'text-primary underline underline-offset-4 hover:decoration-2';
 /** กล่องรองในการ์ด (SAR อ่านอย่างเดียว, ข้อค้นพบของกรรมการท่านอื่น, ผล AI) */
 const SUBBOX = 'rounded-lg border bg-muted/40 p-4';
 

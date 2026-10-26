@@ -19,7 +19,7 @@ import {
   getTransitionPreflight, isAssessorOf, listActionItems, listReviewEvents, listSections, listUsers, openRevision, transitionCycle,
   verifySnapshot,
 } from '@/lib/api';
-import type { CycleStatus, Gap, GapSeverity, HeatCell, HeatLevel, TransitionPreflight } from '@/lib/types';
+import type { CycleStatus, Gap, GapSeverity, HeatCell, TransitionPreflight } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import {
@@ -56,18 +56,9 @@ const CELEBRATED_KEY = 'aunqa_celebrated';
 function ruleTitle(ruleId: string): string { return GLOSSARY[`gap_rule_${ruleId}`]?.titleTh ?? ruleId; }
 function stripReq(msg: string, req: string): string { return msg.replace(new RegExp(`^ข้อ ${req.replace('.', '\\.')}:?\\s*`), ''); }
 
-/** สีลิงก์ช่อง heatmap ต้องชนะ `a:visited`/`a:hover` ของ legacy.css จนถึง S6 — literal ต่อระดับ (คู่สีเดียวกับ HEAT_CLASS) */
-const HEAT_LINK: Record<HeatLevel, string> = {
-  empty: 'visited:text-muted-foreground hover:text-muted-foreground',
-  critical: 'visited:text-destructive hover:text-destructive',
-  warning: 'visited:text-warning hover:text-warning',
-  ok: 'visited:text-primary hover:text-primary',
-  ready: 'visited:text-info hover:text-info',
-  approved: 'visited:text-success hover:text-success',
-};
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
 const H2 = 'text-xl font-semibold text-foreground';
-const CODE_LINK = 'inline-flex min-h-11 items-center rounded-md px-1 font-semibold tabular-nums text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+const CODE_LINK = 'inline-flex min-h-11 items-center rounded-md px-1 font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 
 /** แผงรายการกฎ R1–R11 (U1b m6) — คืน fragment 2 ชิ้นให้หัวการ์ดที่เป็น flex-wrap: [ตัวกรอง + ปุ่ม] และแผง (basis-full) */
 function GapRulesHelp({ children }: { children?: ReactNode }) {
@@ -121,7 +112,7 @@ function HeatCellLink({ h, cycleId, firstGap }: { h: HeatCell; cycleId: string; 
       href={sectionHref(cycleId, h.requirementId)}
       className={cn(
         'relative flex min-h-[4.25rem] min-w-0 flex-col justify-center rounded-md border px-2 py-1.5 no-underline transition-colors duration-fast hover:border-foreground/30 max-sm:min-h-16',
-        HEAT_CLASS[h.level], HEAT_LINK[h.level],
+        HEAT_CLASS[h.level],
       )}
       title={tip} aria-label={tip} data-testid={`heat-${h.requirementId}`} data-level={h.level}
     >
@@ -298,7 +289,7 @@ export default function CycleDashboardPage() {
               </div>
               {cycle.status === 'closed' ? (
                 <p className="text-foreground" data-testid="cycle-closed-next">
-                  รอบนี้ปิดแล้ว — <Link className="font-medium text-primary underline underline-offset-4 visited:text-primary" href={`/app/cycles/${encodeURIComponent(cycle.id)}/assess`}>ดูผลประเมิน</Link> หรือ <Link className="font-medium text-primary underline underline-offset-4 visited:text-primary" href="/app/export">ส่งออกเอกสาร</Link>
+                  รอบนี้ปิดแล้ว — <Link className="font-medium text-primary underline underline-offset-4" href={`/app/cycles/${encodeURIComponent(cycle.id)}/assess`}>ดูผลประเมิน</Link> หรือ <Link className="font-medium text-primary underline underline-offset-4" href="/app/export">ส่งออกเอกสาร</Link>
                 </p>
               ) : (
                 <p className="text-foreground">ตอนนี้รอ: <strong className="font-semibold">{NEXT_ACTOR_TH[cycle.status]}</strong>{youNext ? ' (คุณ)' : ''}</p>
@@ -502,7 +493,7 @@ export default function CycleDashboardPage() {
                               return (
                                 <li key={x.id} className="flex flex-wrap items-start gap-x-3 gap-y-1 px-4 py-3">
                                   <Badge tone={v.tone} icon={v.icon}>{v.label}</Badge>
-                                  <Link className="min-w-0 flex-1 basis-48 text-foreground underline underline-offset-4 visited:text-foreground hover:text-primary" href={sectionHref(cycle.id, x.requirementId)}>{x.messageTh}</Link>
+                                  <Link className="min-w-0 flex-1 basis-48 text-foreground underline underline-offset-4 hover:text-primary" href={sectionHref(cycle.id, x.requirementId)}>{x.messageTh}</Link>
                                   <span className="aq-meta" title={ruleTitle(x.ruleId)}>({x.ruleId})</span>
                                 </li>
                               );

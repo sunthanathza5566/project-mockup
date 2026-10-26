@@ -42,12 +42,12 @@ export default function HeroSection() {
             ผู้ช่วยจัดทำรายงานประเมินตนเองตามเกณฑ์ AUN-QA ครบ 8 เกณฑ์ 53 ข้อ — AI เป็นผู้ช่วยเสนอ ไม่ใช่ผู้ตัดสิน
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild className="visited:text-primary-foreground">
+            <Button asChild>
               <Link href="/login" data-testid="hero-start">
                 เริ่มใช้งาน<Icon name="chevron-right" size={20} />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="visited:text-foreground">
+            <Button asChild variant="outline">
               <a href="#flow">ดูขั้นตอน</a>
             </Button>
           </div>
