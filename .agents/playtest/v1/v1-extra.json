@@ -1,0 +1,54 @@
+{
+ "empty-light-1440": "uadmin",
+ "details": [
+  {
+   "open": true,
+   "text": "งานอื่น ๆ อีก 1 รายการ",
+   "inner": "งานอื่น ๆ อีก 1 รายการ\n\nตรวจรับแผนปรับปรุง 1 รายการ\n\nไปทำ"
+  }
+ ],
+ "activeNav": {
+  "bl": "0px rgb(226, 222, 211)",
+  "shadow": "none",
+  "before": "\"\" w=4px bg=rgb(59, 79, 160)",
+  "cls": "aq-nav-item group flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-foreground no-underline transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground aria-[current=page]:bg-primary-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground"
+ },
+ "navGroup": {
+  "fs": "14px",
+  "fw": "500",
+  "color": "rgb(86, 90, 75)",
+  "tt": "none",
+  "ls": "normal"
+ },
+ "roleMeta": [
+  {
+   "t": "ผศ",
+   "fs": "16px"
+  },
+  {
+   "t": "ผศ",
+   "fs": "16px"
+  },
+  {
+   "t": "ผศ.ดร.ปรีชา ตัวอย่าง",
+   "fs": "16px"
+  },
+  {
+   "t": "ผศ.ดร.ปรีชา ตัวอย่าง",
+   "fs": "16px"
+  },
+  {
+   "t": "ประธานหลักสูตร",
+   "fs": "14px"
+  }
+ ],
+ "bodyFont": {
+  "body": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawadee UI\", Tahoma, sans-serif",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped_f9ab01"
+  ]
+ },
+ "empty-light-390": "uadmin",
+ "empty-dark-1440": "uadmin",
+ "empty-dark-390": "uadmin"
+}
