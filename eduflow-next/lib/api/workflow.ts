@@ -18,7 +18,7 @@ import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { compareReqId, listCriteria } from './framework';
 import { notify } from './notification.store';
-import { isActiveUser } from './auth.api';
+import { isActiveUser, requireActiveActor } from './auth.api';
 import { getProgramme, programmeScope } from './org.store';
 import { can, isAssessorOf, type Action, type Scope } from './rbac';
 
@@ -174,13 +174,24 @@ function sectionsOf(cycleId: string): SarSection[] {
   return load<SarSection>(KEYS.sections).filter(s => s.cycleId === cycleId);
 }
 
-/** ผู้รับแจ้งฝั่งหลักสูตร: ประธานที่ดูแลหลักสูตรนี้ (เฉพาะบัญชี active — ADR-AUTH-001 A5) */
-function chairsOf(programmeId: string): AppUser[] {
+/**
+ * ผู้รับแจ้งฝั่งหลักสูตร: ประธานที่ดูแลหลักสูตรนี้ (เฉพาะบัญชี active — ADR-AUTH-001 A5)
+ * R2-B2: จำกัด tenant — ผู้ใช้ต้องอยู่ uni เดียวกับรอบ และ scope university ต้องเป็น uni ของรอบ
+ */
+function chairsOf(cycle: Pick<AssessmentCycle, 'universityId' | 'programmeId'>): AppUser[] {
   return load<AppUser>(KEYS.users).filter(u => isActiveUser(u)
-    && u.roles.some(r => r.role === 'programme_chair' && (r.scopeType === 'university' || r.scopeId === programmeId)));
+    && u.universityId === cycle.universityId
+    && u.roles.some(r => r.role === 'programme_chair'
+      && (r.scopeType === 'university' ? r.scopeId === cycle.universityId : r.scopeId === cycle.programmeId)));
+}
+
+/** กรรมการของรอบที่ยัง active (R2-B2: ผู้ถูกระงับไม่ถูกนับว่า "ยังรอให้คะแนน") — ภายในเท่านั้น (preflight/todo ใช้เงื่อนไขเดียวกัน) */
+function activeAssessorsOf(cycleId: string): AppUser[] {
+  return load<AppUser>(KEYS.users).filter(u => isActiveUser(u) && isAssessorOf(u, cycleId));
 }
 
 export async function transitionCycle(actor: AppUser, cycleId: string, to: CycleStatus, note?: string): Promise<AssessmentCycle> {
+  requireActiveActor(actor);
   const cycle = getCycleRaw(cycleId);
   const rule = CYCLE_TRANSITIONS.find(t => t.from === cycle.status && t.to === to);
   if (!rule) throw new AunqaError('bad_transition', `เปลี่ยนสถานะจาก "${cycle.status}" เป็น "${to}" ไม่ได้`);
@@ -194,7 +205,7 @@ export async function transitionCycle(actor: AppUser, cycleId: string, to: Cycle
   if (to === 'assessed') {
     // B8: กรรมการ "ทุกคน" ที่ได้รับมอบหมายในรอบต้องให้คะแนนครบทุกเกณฑ์ และต้องมี verdict อย่างน้อย 1 รายการ
     const criteriaNos = listCriteria().map(c => c.no);
-    const assessors = load<AppUser>(KEYS.users).filter(u => u.roles.some(r => r.role === 'assessor' && r.scopeType === 'cycle' && r.scopeId === cycleId));
+    const assessors = activeAssessorsOf(cycleId);
     const committee = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'committee');
     const waiting = assessors
       .map(u => ({ name: u.fullName, missing: criteriaNos.filter(n => !committee.some(r => r.raterUserId === u.id && r.criterionNo === n)) }))
@@ -249,7 +260,7 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
   const addByAction = (action: Action, msg: Msg) => usersWhoCan(cycle, action).forEach(u => extra.set(u.id, msg));
   const ownersAndChairs = () => {
     const ids = new Set<string>(sectionsOf(cycle.id).map(s => s.ownerUserId).filter((x): x is string => !!x));
-    chairsOf(cycle.programmeId).forEach(u => ids.add(u.id));
+    chairsOf(cycle).forEach(u => ids.add(u.id));
     return ids;
   };
   switch (to) {
@@ -288,7 +299,7 @@ function notifyCycleChange(actor: AppUser, cycle: AssessmentCycle, to: CycleStat
         th: `กรรมการส่งผลประเมินรอบ ${year} (${code}) แล้ว — ดูผลได้ที่หน้าผลประเมิน`,
         en: `Assessors submitted results for cycle ${year} (${code}) — see the assessment results page`, target: toAssess,
       };
-      chairsOf(cycle.programmeId).forEach(u => extra.set(u.id, msg));
+      chairsOf(cycle).forEach(u => extra.set(u.id, msg));
       addByAction('approve.faculty', msg);
       addByAction('cycle.close', msg);
       break;
@@ -325,6 +336,7 @@ function usersWhoCan(cycle: AssessmentCycle, action: Action): AppUser[] {
 
 /** เปิด revision ใหม่หลัง lock — เฉพาะคณบดี (cycle.reopen) จาก final_approved → in_progress */
 export function openRevision(actor: AppUser, cycleId: string, note: string): AssessmentCycle {
+  requireActiveActor(actor);
   const cycle = getCycleRaw(cycleId);
   if (!can(actor, 'cycle.reopen', cycleScope(cycle))) throw new AunqaError('forbidden', 'เฉพาะคณบดีเท่านั้นที่เปิด revision ใหม่ได้');
   if (cycle.status !== 'final_approved') throw new AunqaError('bad_transition', 'เปิด revision ได้เฉพาะรอบที่อนุมัติสุดท้ายแล้วและยังไม่เข้าสู่การประเมิน');
@@ -344,6 +356,7 @@ export function openRevision(actor: AppUser, cycleId: string, note: string): Ass
 
 /** เปลี่ยนสถานะ section ตามตาราง (sar.store เรียกซ้ำ) */
 export function transitionSection(actor: AppUser, sectionId: string, to: SectionStatus, note?: string): SarSection {
+  requireActiveActor(actor);
   const rows = load<SarSection>(KEYS.sections);
   const sec = rows.find(s => s.id === sectionId);
   if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
@@ -387,7 +400,7 @@ export function transitionSection(actor: AppUser, sectionId: string, to: Section
     });
   }
   if (to === 'ready_for_review') {
-    chairsOf(cycle.programmeId).filter(u => u.id !== actor.id).forEach(u => notify({
+    chairsOf(cycle).filter(u => u.id !== actor.id).forEach(u => notify({
       userId: u.id, kind: 'cycle_status', messageTh: `ข้อ ${sec.requirementId} ส่งตรวจแล้ว รอประธานอนุมัติ`,
       messageEn: `Requirement ${sec.requirementId} was submitted for review — awaiting chair approval`,
       target: toSection,

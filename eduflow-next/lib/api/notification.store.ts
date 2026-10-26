@@ -5,7 +5,7 @@
  */
 import type { AppNotification, AppUser, NotificationKind, NotificationTarget, SarSection } from '../types';
 import { newId } from '../utils/hash';
-import { isActiveUser } from './auth.api';
+import { isActiveUser, isActorActive } from './auth.api';
 import { KEYS, load, save } from './db';
 import { getUserById } from './org.store';
 
@@ -105,6 +105,8 @@ export function unreadCount(user: AppUser): number {
 }
 
 export function markRead(user: AppUser, id?: string): void {
+  // R2-B2 (C8): บัญชีไม่ active → ไม่เขียน (no-op เงียบ ไม่ throw เพื่อไม่ให้ UI แจ้งเตือนพังก่อนถูกพาไป /login)
+  if (!isActorActive(user)) return;
   const rows = load<AppNotification>(KEYS.notifications);
   const now = Date.now();
   let changed = false;

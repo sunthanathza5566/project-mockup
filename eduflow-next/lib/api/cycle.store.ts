@@ -12,7 +12,7 @@ import { notify, sectionsTarget } from './notification.store';
 import { getAllUsers, getProgramme, getUserById, programmeScope } from './org.store';
 import { can } from './rbac';
 import { assertCycleWritable, cycleScope, getCycleRaw, saveCycle } from './workflow';
-import { isActiveUser, saveUsers } from './auth.api';
+import { isActiveUser, requireActiveActor, saveUsers } from './auth.api';
 
 export const sectionId = (cycleId: string, requirementId: string) => `${cycleId}::${requirementId}`;
 
@@ -31,6 +31,7 @@ export interface CreateCycleInput {
 }
 
 export function createCycle(actor: AppUser, input: CreateCycleInput): AssessmentCycle {
+  requireActiveActor(actor);
   const prog = getProgramme(input.programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
   if (!can(actor, 'cycle.create', programmeScope(prog.id))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์สร้างรอบประเมิน');
@@ -115,6 +116,7 @@ export function getSection(user: AppUser, cycleId: string, requirementId: string
 }
 
 export function updateCycleDates(actor: AppUser, cycleId: string, dates: { submissionDue?: string; assessmentDate?: string }): AssessmentCycle {
+  requireActiveActor(actor);
   const c = getCycleRaw(cycleId);
   if (!can(actor, 'cycle.assign', cycleScope(c))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้วันที่ของรอบ');
   assertCycleWritable(c);
@@ -130,6 +132,7 @@ export function updateCycleDates(actor: AppUser, cycleId: string, dates: { submi
 export function assignSections(
   actor: AppUser, cycleId: string, requirementIds: string[], ownerUserId: string | null, due?: string,
 ): SarSection[] {
+  requireActiveActor(actor);
   const c = getCycleRaw(cycleId);
   if (!can(actor, 'cycle.assign', cycleScope(c))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์มอบหมายงาน');
   assertCycleWritable(c);
@@ -185,6 +188,7 @@ export function assignCriterion(actor: AppUser, cycleId: string, criterionNo: nu
 
 /** QA คณะ/uni_admin มอบหมายกรรมการ (assessor) เข้ารอบ — read-only ต่อ SAR/หลักฐาน */
 export function assignAssessor(actor: AppUser, cycleId: string, assessorUserId: string): void {
+  requireActiveActor(actor);
   const c = getCycleRaw(cycleId);
   if (!can(actor, 'assessor.assign', cycleScope(c))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์มอบหมายกรรมการ');
   const users = getAllUsers();

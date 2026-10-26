@@ -10,7 +10,7 @@ import type {
 import { newId } from '../utils/hash';
 import { scanPii } from '../utils/pii';
 import { appendAudit } from './audit.store';
-import { isActiveUser } from './auth.api';
+import { isActiveUser, requireActiveActor } from './auth.api';
 import { AunqaError, KEYS, load, save } from './db';
 import { nextEvidenceCode } from './evidence.store';
 import { getRequirement } from './framework';
@@ -76,6 +76,7 @@ export interface ActionItemInput {
 }
 
 export function createActionItem(actor: AppUser, input: ActionItemInput): ActionItem {
+  requireActiveActor(actor);
   const prog = getProgramme(input.programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
   if (!can(actor, 'action.write', programmeScope(prog.id, { ownerUserId: input.ownerUserId })))
@@ -106,6 +107,7 @@ export function createActionItem(actor: AppUser, input: ActionItemInput): Action
 export function updateActionItem(
   actor: AppUser, id: string, patch: Partial<Pick<ActionItemInput, 'description' | 'ownerUserId' | 'due' | 'kpi'>>,
 ): ActionItem {
+  requireActiveActor(actor);
   const rows = load<ActionItem>(KEYS.actionItems);
   const cur = rows.find(a => a.id === id);
   if (!cur) throw new AunqaError('not_found', 'ไม่พบ action item');
@@ -131,6 +133,7 @@ export function updateActionItem(
 }
 
 export function deleteActionItem(actor: AppUser, id: string): void {
+  requireActiveActor(actor);
   const cur = getRaw(id);
   if (!can(actor, 'action.write', programmeScope(cur.programmeId, { ownerUserId: cur.ownerUserId })))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ลบ action item นี้');
@@ -141,6 +144,7 @@ export function deleteActionItem(actor: AppUser, id: string): void {
 
 // ─── Status ──────────────────────────────────────────────────────────────
 export function setActionStatus(actor: AppUser, id: string, to: ActionStatus, note?: string): ActionItem {
+  requireActiveActor(actor);
   const rows = load<ActionItem>(KEYS.actionItems);
   const cur = rows.find(a => a.id === id);
   if (!cur) throw new AunqaError('not_found', 'ไม่พบ action item');
@@ -173,6 +177,7 @@ export function setActionStatus(actor: AppUser, id: string, to: ActionStatus, no
 // ─── จาก AFI ของกรรมการ ───────────────────────────────────────────────────
 /** สร้าง action item จาก AFI ในรายงานกรรมการ (รอบ assessed/closed) — ข้ามรายการที่เคยสร้างแล้ว คืนรายการใหม่ */
 export function createActionsFromAfi(actor: AppUser, cycleId: string): ActionItem[] {
+  requireActiveActor(actor);
   const cycle = getCycleRaw(cycleId);
   if (cycle.status !== 'assessed' && cycle.status !== 'closed') throw new AunqaError('invalid', 'สร้างจาก AFI ได้เมื่อรอบประเมินเสร็จสิ้นแล้ว');
   if (!can(actor, 'action.write', programmeScope(cycle.programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์สร้าง action item');

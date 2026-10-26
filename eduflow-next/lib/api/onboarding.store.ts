@@ -14,7 +14,7 @@ import type {
 import { newId, sha256Hex } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import {
-  EMAIL_RE, INVITE_TTL_MS, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, revokeInvitationsOf,
+  EMAIL_RE, INVITE_TTL_MS, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, requireActiveActor, revokeInvitationsOf,
   sanitizeRoles, saveUsers, userStatus, validatePassword, validateRoleScopes, type LoginResult,
 } from './auth.api';
 import { AunqaError, KEYS, load, save } from './db';
@@ -82,6 +82,7 @@ function validateGrantedRoles(actor: AppUser, universityId: string, roles: RoleA
 }
 /** หาเป้าหมาย + ตรวจสิทธิ์ user.manage ของ university เป้าหมาย + สถานะที่คาด */
 function managedTarget(actor: AppUser, userId: string, expect: 'invited' | 'pending'): AppUser {
+  requireActiveActor(actor);
   const target = getUsers().find(u => u.id === userId);
   if (!target) throw new AunqaError('not_found', expect === 'pending' ? 'ไม่พบคำขอเข้าใช้งาน' : 'ไม่พบผู้ใช้');
   if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
@@ -115,6 +116,7 @@ async function findValidInvitation(token: unknown): Promise<{ inv: Invitation; u
 // ─── O1: เชิญ ────────────────────────────────────────────────────────────
 /** เชิญผู้ใช้ใหม่ — บทบาทล็อกโดยผู้เชิญ · คืน token ดิบครั้งเดียว (ผู้ดูแลคัดลอกลิงก์ไปส่งเอง) */
 export async function inviteUser(actor: AppUser, input: InviteInput): Promise<InviteResult> {
+  requireActiveActor(actor);
   if (!can(actor, 'user.manage', { universityId: actor.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   const username = str(input?.username);
   const email = str(input?.email);

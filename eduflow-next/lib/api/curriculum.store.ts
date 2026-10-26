@@ -13,6 +13,7 @@ import { loadCurriculumRaw } from './curriculum-data.internal';
 import { AunqaError, KEYS, load, save } from './db';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 
 const MAX_TEXT = 1000;
 const CODE_RE = /^[A-Za-z0-9._-]{1,20}$/;
@@ -23,6 +24,7 @@ function assertProgramme(programmeId: string): void {
   if (!getProgramme(programmeId)) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
 }
 function assertWrite(actor: AppUser, programmeId: string): void {
+  requireActiveActor(actor);
   assertProgramme(programmeId);
   if (!can(actor, 'curriculum.write', programmeScope(programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้ไขข้อมูลหลักสูตร');
 }

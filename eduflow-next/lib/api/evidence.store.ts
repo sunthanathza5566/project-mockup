@@ -15,6 +15,7 @@ import { extractedTextOf } from './evidence-text.internal';
 import { getRequirement } from './framework';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 import { assertCycleWritable, cycleScope, getCycleRaw } from './workflow';
 
 export const MAX_DATAURL_BYTES = 1024 * 1024;
@@ -71,6 +72,7 @@ function saveOne(e: Evidence): void {
 }
 
 function assertWrite(actor: AppUser, e: { programmeId: string }): void {
+  requireActiveActor(actor);
   if (!can(actor, 'evidence.write', programmeScope(e.programmeId)))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการหลักฐานของหลักสูตรนี้');
 }
@@ -293,6 +295,7 @@ export function unlinkEvidence(actor: AppUser, evidenceId: string, cycleId: stri
 
 // ─── Verify / PII ────────────────────────────────────────────────────────
 export function verifyEvidence(actor: AppUser, id: string): Evidence {
+  requireActiveActor(actor);
   const e = getRaw(id);
   if (!can(actor, 'evidence.verify', programmeScope(e.programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ยืนยันหลักฐาน');
   if (e.containsPii && !e.piiResolved) throw new AunqaError('invalid', 'หลักฐานนี้ติดธงข้อมูลส่วนบุคคล ต้องจัดการ (ปิดบัง/ยืนยัน) ก่อน verify');

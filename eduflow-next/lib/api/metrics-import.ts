@@ -15,6 +15,7 @@ import { listMetricDefinitions } from './framework';
 import { getMetricDefinition, validateMetricValue } from './metrics.store';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -124,6 +125,7 @@ function pickSheet(wb: ExcelJS.Workbook, name: string): ExcelJS.Worksheet {
 }
 
 function assertWriter(actor: AppUser, programmeId: string) {
+  requireActiveActor(actor);
   const prog = getProgramme(programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
   if (!can(actor, 'metric.write', programmeScope(prog.id))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์กรอกข้อมูล metric');

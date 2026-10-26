@@ -33,6 +33,21 @@ const ROLE_CODES: readonly RoleCode[] = ['super_admin', 'uni_admin', 'programme_
 export function userStatus(u: Pick<AppUser, 'status'>): UserStatus { return u.status ?? 'active'; }
 export function isActiveUser(u: Pick<AppUser, 'status'> | null | undefined): boolean { return !!u && userStatus(u) === 'active'; }
 
+/**
+ * C8 / ASVS 5.0 §7.4.2: ผู้กระทำของ API ที่เขียนข้อมูลต้องยัง active ตาม store จริง
+ * (UI อาจถือ object ผู้ใช้เก่าไว้หลังถูกระงับ) → อ่านสถานะจากแถวใน store ไม่เชื่อ field ใน object ที่ส่งมา
+ * ใช้เฉพาะ status — role/สิทธิ์ยังตัดสินด้วย can() ตามเดิม
+ * ไม่พบแถว = ปล่อยผ่านให้ authz เดิมตัดสิน (ลบได้เฉพาะ invited/pending ซึ่งไม่เคยมี session — A8.2)
+ */
+export function isActorActive(actor: Pick<AppUser, 'id' | 'status'> | null | undefined): boolean {
+  if (!actor) return false;
+  const row = getUsers().find(u => u.id === actor.id);
+  return isActiveUser(row ?? actor);
+}
+export function requireActiveActor(actor: Pick<AppUser, 'id' | 'status'> | null | undefined): void {
+  if (!isActorActive(actor)) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์');
+}
+
 export function validatePassword(pw: unknown): void {
   if (typeof pw !== 'string' || pw.length < PASSWORD_MIN || pw.length > PASSWORD_MAX)
     throw new AunqaError('invalid', 'รหัสผ่านต้องยาว 8–128 ตัวอักษร');
@@ -267,6 +282,7 @@ export function logoutUser(): void {
 export interface NewUserInput { username: string; password: string; email: string; fullName: string; roles: RoleAssignment[] }
 
 export async function createUser(actor: AppUser, input: NewUserInput): Promise<AppUser> {
+  requireActiveActor(actor);
   const scope = { universityId: actor.universityId };
   if (!can(actor, 'user.manage', scope)) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   const username = input.username.trim();
@@ -298,6 +314,7 @@ export async function createUser(actor: AppUser, input: NewUserInput): Promise<A
 }
 
 export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignment[]): AppUser {
+  requireActiveActor(actor);
   const users = getUsers();
   const target = users.find(u => u.id === userId);
   if (!target) throw new AunqaError('not_found', 'ไม่พบผู้ใช้');
@@ -306,14 +323,18 @@ export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignme
   if (!isSuper && roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ให้บทบาท super_admin');
   if (!isSuper && target.id === actor.id) throw new AunqaError('forbidden', 'แก้บทบาทของตัวเองไม่ได้');
   if (!isSuper && target.roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้บัญชี super_admin');
+  // R2-B2: ขอบเขตต้องอยู่ใน uni ของผู้ใช้เป้าหมาย (เหมือน createUser/invite) — ตรวจก่อนแก้ object ใน cache
+  validateRoleScopes(target.universityId, roles);
   const before = target.roles;
-  target.roles = roles;
+  const next = sanitizeRoles(roles);
+  target.roles = next;
   saveUsers(users);
-  appendAudit(actor, { action: 'user.set_roles', targetType: 'user', targetId: userId, before, after: roles });
+  appendAudit(actor, { action: 'user.set_roles', targetType: 'user', targetId: userId, before, after: next });
   return target;
 }
 
 export function deleteUser(actor: AppUser, userId: string): void {
+  requireActiveActor(actor);
   const users = getUsers();
   const target = users.find(u => u.id === userId);
   if (!target) return;
@@ -347,6 +368,7 @@ export function revokeInvitationsOf(userId: string, now: number = Date.now()): n
  * ห้ามตัวเอง · non-super แตะบัญชี super_admin ไม่ได้ · session ของผู้ถูกระงับหมดผลที่ getCurrentUser ครั้งถัดไป
  */
 export function setUserStatus(actor: AppUser, userId: string, status: 'active' | 'suspended', reason?: string): AppUser {
+  requireActiveActor(actor);
   const users = getUsers();
   const target = users.find(u => u.id === userId);
   if (!target) throw new AunqaError('not_found', 'ไม่พบผู้ใช้');

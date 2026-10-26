@@ -23,6 +23,7 @@ import { getRequirement, listCriteria, listRequirements } from './framework';
 import { computeGaps } from './gap';
 import { getProgramme, getUniversity, programmeScope } from './org.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 import { citableCodes, saveSection, sectionIdOf } from './sar.store';
 import { assertCycleWritable, cycleScope, getCycleRaw } from './workflow';
 import { redactDeep } from './ai/redact';
@@ -113,6 +114,7 @@ function metricDigests(programmeId: string, relatedCodes: string[]): MetricDiges
 
 // ─── AI-1 ────────────────────────────────────────────────────────────────
 export async function runEvidenceTagger(actor: AppUser, evidenceId: string, cycleId?: string): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   const ev = load<Evidence>(KEYS.evidence).find(e => e.id === evidenceId);
   if (!ev) throw new AunqaError('not_found', 'ไม่พบหลักฐาน');
@@ -142,6 +144,7 @@ export async function runEvidenceTagger(actor: AppUser, evidenceId: string, cycl
 
 // ─── AI-2 ────────────────────────────────────────────────────────────────
 export async function runSarDrafter(actor: AppUser, cycleId: string, requirementId: string, language: 'th' | 'en' = 'th'): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   const cycle = getCycleRaw(cycleId);
   const req = getRequirement(requirementId);
@@ -168,6 +171,7 @@ export async function runSarDrafter(actor: AppUser, cycleId: string, requirement
 
 // ─── AI-3 ────────────────────────────────────────────────────────────────
 export async function runSarReviewer(actor: AppUser, cycleId: string, requirementId: string, language: 'th' | 'en' = 'th'): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   const cycle = getCycleRaw(cycleId);
   const req = getRequirement(requirementId);
@@ -233,6 +237,7 @@ function missingFrom(a: string[], b: string[]): string[] {
  * post-check: [E-…] และตัวเลขต้องคงครบเท่าต้นฉบับ (ขาด/เกิน = ติดธง ok=false)
  */
 export async function runTranslate(actor: AppUser, sectionId: string, to: 'en' | 'th'): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   if (to !== 'en' && to !== 'th') throw new AunqaError('invalid', 'ภาษาปลายทางไม่ถูกต้อง');
   const sec = load<SarSection>(KEYS.sections).find(s => s.id === sectionId);
@@ -283,6 +288,7 @@ const BLOOM_CONTEXT = '1 2 3 4 5 6'; // ระดับ Bloom ที่อนุ
 
 /** ตรวจคำกริยา PLO/CLO ของหลักสูตรตามระดับ Bloom (ทั้งหมด หรือเฉพาะ ids ที่ระบุ) — ข้อเสนอเท่านั้น ไม่แก้ PLO/CLO เอง */
 export async function runVerbChecker(actor: AppUser, programmeId: string, ids?: string[]): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   const prog = getProgramme(programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
@@ -325,6 +331,7 @@ export async function runVerbChecker(actor: AppUser, programmeId: string, ids?: 
 // ─── AI-9: assessor summary + interview questions (M12) ──────────────────
 /** สรุป SAR รายเกณฑ์ + คำถามสัมภาษณ์ 5W1H แยกกลุ่ม — เฉพาะกรรมการของรอบ (ai.summarize) · ไม่ให้คะแนน */
 export async function runAssessorSummary(actor: AppUser, cycleId: string, criterionNo: number): Promise<AiRun> {
+  requireActiveActor(actor);
   const started = Date.now();
   const cycle = getCycleRaw(cycleId);
   if (!can(actor, 'ai.summarize', cycleScope(cycle))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ใช้ AI สรุป');
@@ -394,6 +401,7 @@ export interface AcceptOptions {
 
 /** มนุษย์กดยอมรับ → ข้อเสนอจึงเข้าเอกสาร (ผ่านสิทธิ์/ตรวจ citation/lock ของ store ปกติ) */
 export function acceptAiRun(actor: AppUser, runId: string, opts: AcceptOptions = {}): AiRun {
+  requireActiveActor(actor);
   const rows = load<AiRun>(KEYS.aiRuns);
   const run = rows.find(r => r.id === runId);
   if (!run) throw new AunqaError('not_found', 'ไม่พบผลลัพธ์ AI');
