@@ -26,7 +26,9 @@ import { Button } from '@/components/ui/primitives/button';
 const SIDEBAR =
   'fixed inset-y-0 left-0 z-drawer flex w-[min(20rem,86vw)] flex-col border-r bg-card shadow-lg ' +
   '-translate-x-full invisible transition-[transform,visibility] duration-fast ease-exit ' +
-  'data-[open]:visible data-[open]:translate-x-0 data-[open]:duration-base data-[open]:ease-enter ' +
+  // ตอนเปิด transition เฉพาะ transform -> visibility เป็น visible ทันที (focus เข้า drawer ได้ในเฟรมเดียวกัน, BUG-0002-Q6-1)
+  // ตอนปิดยัง transition visibility ตามเดิม (คงมองเห็นระหว่างเลื่อนออก)
+  'data-[open]:visible data-[open]:translate-x-0 data-[open]:transition-transform data-[open]:duration-base data-[open]:ease-enter ' +
   'lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-auto lg:visible lg:translate-x-0 lg:shadow-none lg:transition-none';
 
 /**
@@ -66,11 +68,20 @@ export default function AppSidebar({ user, pathname, open, onClose }: {
     return () => window.removeEventListener(TODOS_CHANGED_EVENT, calc);
   }, [user, pathname]);
 
-  // drawer: focus รายการแรกเมื่อเปิด (ปุ่ม "ปิด" อยู่หลังลิงก์แบรนด์)
+  // drawer: focus รายการแรกเมื่อเปิด (ลิงก์แบรนด์ ตามด้วยปุ่ม "ปิด") ตาม WAI-ARIA APG dialog pattern
+  // BUG-0002-Q6-1: เดิม focus() ขณะ aside ยัง invisible จึงไม่ติด -> ตอนเปิดไม่ transition visibility แล้ว (SIDEBAR)
+  // และกันพลาดด้วยการลองซ้ำทุกเฟรม (สูงสุด 10 เฟรม) จนกว่า focus จะอยู่ใน drawer
   useEffect(() => {
     if (!open) return;
-    const first = ref.current?.querySelector<HTMLElement>('a, button');
-    first?.focus();
+    let raf = 0, tries = 0;
+    const tryFocus = () => {
+      const el = ref.current;
+      if (!el || el.contains(document.activeElement)) return;
+      el.querySelector<HTMLElement>('a[href], button:not([disabled])')?.focus();
+      if (!el.contains(document.activeElement) && ++tries < 10) raf = requestAnimationFrame(tryFocus);
+    };
+    tryFocus();
+    return () => cancelAnimationFrame(raf);
   }, [open]);
 
   function onKeyDown(e: KeyboardEvent<HTMLElement>) {

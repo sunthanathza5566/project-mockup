@@ -361,7 +361,6 @@ test.describe(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
   // KNOWN BUG BUG-0002-Q6-1: เปิด drawer แล้ว focus ค้างที่ปุ่มเมนู (AppSidebar ตั้งใจ focus รายการแรกเมื่อเปิด)
   // test.fail → ชุดเขียวแต่ bug ไม่หายเงียบ · เมื่อแก้แล้วจะขึ้น "expected to fail" ให้ลบ test.fail
   test('drawer มือถือ: เปิดแล้ว focus ย้ายเข้า drawer (BUG-0002-Q6-1)', async ({ page }) => {
-    test.fail(true, 'BUG-0002-Q6-1: focus ไม่ย้ายเข้า drawer เมื่อเปิด');
     await page.setViewportSize(VP['390']);
     await loginAs(page, 'chair1');
     await page.goto('/app'); await settle(page);
