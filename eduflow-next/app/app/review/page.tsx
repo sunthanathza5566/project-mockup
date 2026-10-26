@@ -167,8 +167,8 @@ export default function ReviewPage() {
                           {req && <p className="aq-meta line-clamp-2">{truncateTh(req.textTh, 60)}</p>}
                         </TableCell>
                         <TableCell data-label="รอบ" className={cn('whitespace-nowrap', STACK_CELL)}>{cycle.academicYear} · {getProgramme(cycle.programmeId)?.code}</TableCell>
-                        <TableCell data-label="เจ้าของ" className={STACK_CELL}>{names.get(section.ownerUserId || '') || '—'}</TableCell>
-                        <TableCell data-label="ส่งเมื่อ" className={cn('tabular-nums', STACK_CELL)}>{fmtDateTime(section.updatedAt)}</TableCell>
+                        <TableCell data-label="เจ้าของ" className={cn('md:whitespace-nowrap', STACK_CELL)}>{names.get(section.ownerUserId || '') || '—'}</TableCell>
+                        <TableCell data-label="ส่งเมื่อ" className={cn('tabular-nums md:whitespace-nowrap', STACK_CELL)}>{fmtDateTime(section.updatedAt)}</TableCell>
                         <TableCell data-label="สรุป" className={cn('min-w-[12rem]', STACK_CELL)}>
                           <p className="aq-meta">{`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}</p>
                           {gaps && (gaps.critical > 0 || gaps.high > 0) && (

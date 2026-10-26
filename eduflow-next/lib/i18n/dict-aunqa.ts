@@ -844,3 +844,47 @@ export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
   [/^(.+) \(มอบหมายไว้เดิม\)$/, m => `${m[1]} (previously assigned)`],
   ...PATTERNS_PHASE_U_LAST,
 ];
+
+// ── R2-F11 ──
+// หลักฐานล็อกตามสถานะข้อ (P1) · มอบหมายกรรมการ (P3) · เหตุผลส่งรอบกลับ (U1) · ศัพท์ไทยแทนอังกฤษ (P11) · polish
+Object.assign(EN_AUNQA, {
+  'คณบดีอนุมัติ': 'Dean approval',
+  'ฉบับที่': 'Revision',
+  'มอบหมายกรรมการ': 'Appoint assessors',
+  'มอบหมายกรรมการประเมิน': 'Appoint assessors',
+  'กรรมการดูเนื้อหา SAR ได้อย่างเดียว และให้คะแนนในพื้นที่ทำงานกรรมการ': 'Assessors can only read the SAR and give scores in the assessor workspace.',
+  'คุณมอบหมายกรรมการประเมินให้รอบนี้ได้ ส่วนการมอบหมายผู้เขียนรายข้อและกำหนดส่งเป็นหน้าที่ของประธานหลักสูตร (ดูได้อย่างเดียว)':
+    'You can appoint assessors for this cycle. Assigning writers and due dates is the programme chair’s job (view only).',
+  'ข้อนี้อนุมัติแล้ว จึงผูกหรือเลิกผูกหลักฐานไม่ได้ ถ้าต้องเปลี่ยนหลักฐาน ให้ประธานหลักสูตรส่งข้อนี้กลับแก้ไขก่อน':
+    'This requirement is approved, so evidence cannot be linked or unlinked. To change its evidence, the programme chair must return it for revision first.',
+  'ข้อนี้ส่งตรวจแล้ว จึงผูกหรือเลิกผูกหลักฐานไม่ได้ระหว่างรอประธานหลักสูตรตรวจ':
+    'This requirement has been submitted, so evidence cannot be linked or unlinked while it waits for the programme chair’s review.',
+  'คุณกำลังตรวจข้อนี้ อ่านเนื้อหาด้านล่าง แล้วเลือก “อนุมัติข้อนี้” หรือ “ส่งกลับแก้ไข” ที่แถบท้ายหน้า':
+    'You are reviewing this requirement. Read the content below, then choose “Approve” or “Return for revision” in the bar at the bottom.',
+  'คุณกำลังตรวจข้อนี้ อ่านเนื้อหาด้านล่าง ถ้าต้องให้แก้เพิ่ม กด “ส่งกลับแก้ไข” ที่แถบท้ายหน้า':
+    'You are reviewing this requirement. Read the content below. If it needs more work, press “Return for revision” in the bar at the bottom.',
+  'เปิดข้อที่ต้องแก้ แล้วกด “ส่งกลับแก้ไข” ที่ข้อนั้นให้ผู้เขียนแก้ (ข้อที่อนุมัติแล้วต้องส่งกลับก่อนจึงแก้ได้)':
+    'Open each requirement that needs changes and press “Return for revision” so its writer can edit it (approved requirements must be returned before they can be edited).',
+  'เริ่มทำ': 'Start',
+  'กลับไปทำต่อ': 'Back to in progress',
+  'วันที่นี้ผ่านมาแล้ว รายการจะขึ้นว่า “เลยกำหนด” ทันทีหลังบันทึก': 'This date has already passed — the item will show as “Overdue” right after saving.',
+  'เปลี่ยนภาษาทุกหน้า': 'Changes the language on every page',
+});
+// pattern เฉพาะเจาะจง (ยึด ^…$) — ใส่หน้าสุดเพื่อไม่ให้ pattern ทั่วไปท้ายรายการจับก่อน
+PATTERNS.unshift(
+  [/^(.+) ส่งรอบนี้กลับแก้ไขเมื่อ (.+)$/, (m, tr) => `${m[1] === 'ผู้ตรวจ' ? 'A reviewer' : m[1]} returned this cycle for revision on ${tr(m[2])}`],
+  [/^เหตุผล: “([\s\S]+)”$/, m => `Reason: “${m[1]}”`],
+  [/^กด “(.+)” เพื่อเปิดรอบให้แก้ไขได้( \(ทำแล้ว\))?$/, (m, tr) => `Press “${tr(m[1])}” to reopen the cycle for editing${m[2] ? ' (done)' : ''}`],
+  [/^เมื่อแก้ครบแล้ว กด “(.+)” อีกครั้ง$/, (m, tr) => `When all changes are done, press “${tr(m[1])}” again`],
+  [/^(.+) — เลิกผูกไม่ได้$/, (m, tr) => `${tr(m[1])} — cannot unlink`],
+  [/^ข้อ (\S+) อนุมัติแล้ว$/, m => `Req. ${m[1]} is approved`],
+  [/^ข้อ (\S+) ส่งตรวจแล้ว$/, m => `Req. ${m[1]} has been submitted`],
+  [/^รอบ (\d+) ถูกล็อกแล้ว$/, m => `Cycle ${m[1]} is locked`],
+  [/^รอบ (\d+) อยู่ระหว่างตรวจ\/อนุมัติ$/, m => `Cycle ${m[1]} is under review/approval`],
+  [/^(.+) จึงผูกหลักฐานเพิ่มในรอบนี้ไม่ได้$/, (m, tr) => `${tr(m[1])}, so no more evidence can be linked in this cycle`],
+  [/^ผูกไม่ได้: (.+) — ข้อที่ส่งตรวจหรืออนุมัติแล้วเปลี่ยนหลักฐานไม่ได้ เอาข้อนั้นออกจากรายการก่อน$/,
+    (m, tr) => `Cannot link: ${m[1].split(', ').map(tr).join(', ')} — submitted or approved requirements cannot change evidence. Remove them from the list first.`],
+  [/^ข้อ (\S+) ยังไม่มีเนื้อหา$/, m => `Req. ${m[1]} has no narrative yet`],
+  [/^ข้อ (\S+) เนื้อหาสั้นเกินไป \((\d+) คำ ต้องการอย่างน้อย (\d+)\)$/, m => `Req. ${m[1]} narrative is too short (${m[2]} words, at least ${m[3]} needed)`],
+  [/^วิชาบังคับก่อนวนซ้ำ: (.+)$/, m => `Circular prerequisite: ${m[1]}`],
+);

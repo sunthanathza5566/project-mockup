@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import {
   RATING_SCALE, TRANSLATE_MAX_CHARS, acceptAiRun, addComment, approveSection, can, citableCodes, confirmTranslationReviewed,
   cycleScope, getGaps, linkEvidence, listMyTodos, programmeScope, resolveComment, restoreVersion, returnSection,
-  runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSection, touchSession, unlinkEvidence,
+  isSectionEditable, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSection, touchSession, unlinkEvidence,
   validateCitations, AunqaError, listSections,
 } from '@/lib/api';
 import type {
@@ -38,7 +38,7 @@ import { Input } from '@/components/ui/primitives/input';
 import { NativeSelect } from '@/components/ui/primitives/native-select';
 import { Textarea } from '@/components/ui/primitives/textarea';
 import { cn } from '@/lib/ui/cn';
-import { PDCA_TH, SECTION_STATUS_TH, errMsg, fmtDateTime, sectionHref, truncateTh } from '@/lib/ui/aunqa';
+import { PDCA_TH, SECTION_STATUS_TH, errMsg, fmtDateTime, gapTextTh, sectionHref, truncateTh } from '@/lib/ui/aunqa';
 import { registerFlush } from '@/lib/ui/flush';
 // นับคำแบบเดียวกับ gap R4 / wordCount ของ section (ไทยใช้ Intl.Segmenter) — pure function อ่านอย่างเดียว
 import { countWords } from '@/lib/utils/text';
@@ -118,7 +118,13 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   const sectionEditable = EDITABLE_SECTION.includes(section.status);
   const canWrite = can(user, 'sar.write', scope);
   const editable = canWrite && cycleWritable && sectionEditable && !sessionLost;
+  /**
+   * P1 (R2-F11): ข้อที่ส่งตรวจแล้ว/อนุมัติแล้ว เปลี่ยนหลักฐานที่ผูกไม่ได้ (คู่กับ guard ฝั่ง API R2-B4)
+   * ซ่อนปุ่มเลิกผูก/ผูกเพิ่ม/อัปโหลดสำหรับข้อนี้ แล้วบอกเหตุผลแทน
+   */
+  const evidenceLockedBySection = !isSectionEditable(section);
   const canEvidenceWrite = can(user, 'evidence.write', programmeScope(cycle.programmeId)) && cycleWritable && !sessionLost;
+  const canEvidenceLink = canEvidenceWrite && !evidenceLockedBySection;
   const canAi = can(user, 'ai.use', scope) && aiEnabled && !sessionLost;
 
   // ─── editor state ───
@@ -266,7 +272,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     type Item = { ok: boolean; text: string };
     const items: Item[] = [];
     const r4 = g('R4');
-    items.push(r4.length ? { ok: false, text: r4[0].messageTh } : { ok: true, text: `มีเนื้อหา (${countWords(th)} คำ)` });
+    items.push(r4.length ? { ok: false, text: gapTextTh(r4[0].messageTh) } : { ok: true, text: `มีเนื้อหา (${countWords(th)} คำ)` });
     items.push(linked.length ? { ok: true, text: `ผูกหลักฐานแล้ว ${linked.length} ชิ้น` } : { ok: false, text: 'ยังไม่ได้ผูกหลักฐาน' });
     const r9 = g('R9');
     items.push(r9.length ? { ok: false, text: r9[0].messageTh } : { ok: true, text: 'อ้างอิงหลักฐานในเนื้อหาครบ' });
@@ -449,7 +455,11 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
   const readonlyText = cycle.lockedAt ? 'รอบถูกล็อกแล้ว แก้ไขไม่ได้'
     : !cycleWritable ? 'รอบอยู่ในสถานะที่แก้ไขเนื้อหาไม่ได้'
-      : !sectionEditable ? 'ข้อนี้อยู่ระหว่างตรวจหรืออนุมัติแล้ว แก้ไขไม่ได้'
+      : !sectionEditable ? (canApprove
+        ? 'คุณกำลังตรวจข้อนี้ อ่านเนื้อหาด้านล่าง แล้วเลือก “อนุมัติข้อนี้” หรือ “ส่งกลับแก้ไข” ที่แถบท้ายหน้า'
+        : canReturn && section.status === 'ready_for_review' && !selfAuthored
+          ? 'คุณกำลังตรวจข้อนี้ อ่านเนื้อหาด้านล่าง ถ้าต้องให้แก้เพิ่ม กด “ส่งกลับแก้ไข” ที่แถบท้ายหน้า'
+          : 'ข้อนี้อยู่ระหว่างตรวจหรืออนุมัติแล้ว แก้ไขไม่ได้')
         : sessionLost ? 'ออกจากระบบแล้ว — หน้านี้เป็นแบบอ่านอย่างเดียวจนกว่าจะเข้าสู่ระบบใหม่'
           : 'คุณไม่มีสิทธิ์แก้ไขข้อนี้ (ดูอย่างเดียว)';
   const needsReview = section.needsTranslationReview?.[lang];
@@ -631,7 +641,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
           <div className={SEG_LIST} role="tablist" aria-label="แผงข้าง" onKeyDown={onSideKey}>
             {sideTabs.map((t, i) => (
               <button key={t.k} ref={el => { sideRefs.current[i] = el; }} type="button" role="tab" id={`sidetab-${t.k}`}
-                className={cn(SEG_ITEM, 'flex-1 px-2')}
+                className={cn(SEG_ITEM, 'flex-1 whitespace-nowrap px-2')}
                 aria-selected={side === t.k} aria-controls={`sidepanel-${t.k}`} tabIndex={side === t.k ? 0 : -1}
                 onClick={() => setSide(t.k)} data-testid={`sidetab-${t.k}`}>
                 {t.label} <span className="aq-count bg-background text-foreground">{t.n}</span>
@@ -660,7 +670,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
                           <Button variant="outline" size="compact" onClick={() => insertCitation(e.code)} data-testid={`insert-${e.code}`}>แทรก [{e.code}]</Button>
                         )}
                       </div>
-                      {canEvidenceWrite && (
+                      {canEvidenceLink && (
                         <Button variant="ghost" size="icon" className="-mr-2 shrink-0 text-muted-foreground" aria-label={`เลิกผูก ${e.code}`} title={`เลิกผูก ${e.code}`} onClick={() => doUnlink(e.id)}>
                           <Icon name="x" size={20} />
                         </Button>
@@ -669,7 +679,14 @@ export default function SarWorkspace({ data, user, reload, remount }: {
                   ))}
                 </ul>
               )}
-              {canEvidenceWrite && linkable.length > 0 && (
+              {canEvidenceWrite && evidenceLockedBySection && (
+                <InlineMessage tone="info" icon="lock" testId="evidence-locked-reason">
+                  {section.status === 'approved'
+                    ? 'ข้อนี้อนุมัติแล้ว จึงผูกหรือเลิกผูกหลักฐานไม่ได้ ถ้าต้องเปลี่ยนหลักฐาน ให้ประธานหลักสูตรส่งข้อนี้กลับแก้ไขก่อน'
+                    : 'ข้อนี้ส่งตรวจแล้ว จึงผูกหรือเลิกผูกหลักฐานไม่ได้ระหว่างรอประธานหลักสูตรตรวจ'}
+                </InlineMessage>
+              )}
+              {canEvidenceLink && linkable.length > 0 && (
                 <div className="space-y-2 border-t pt-4">
                   <p className="m-0 text-base font-medium text-foreground">ผูกหลักฐานเพิ่ม</p>
                   <Input type="search" placeholder="ค้นหารหัสหรือชื่อหลักฐาน…" aria-label="ค้นหาหลักฐานที่จะผูก"
@@ -681,7 +698,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
                   <Button variant="outline" className="w-full" disabled={!linkId} onClick={doLink} data-testid="link-btn"><Icon name="link" size={20} />ผูก</Button>
                 </div>
               )}
-              {canEvidenceWrite && (
+              {canEvidenceLink && (
                 <Button asChild variant="ghost" className="w-full">
                   <Link href={`/app/evidence?new=1&cycle=${encodeURIComponent(cycle.id)}&req=${encodeURIComponent(req.id)}`}>
                     <Icon name="plus" size={20} />อัปโหลดหลักฐานใหม่สำหรับข้อนี้

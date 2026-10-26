@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/primitives/textarea';
 import { cn } from '@/lib/ui/cn';
 import { ACTION_STATUS_VIEW } from '@/lib/ui/status';
+import { TONE_TEXT } from '@/lib/ui/tone';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 import { useScope } from '@/components/aunqa/useScope';
 import { ACTION_BTN_TH, ACTION_STATUS_TH, errMsg, fmtDate } from '@/lib/ui/aunqa';
@@ -183,7 +184,9 @@ function Inner() {
         <>
           {form && <ActionForm user={user} programmeId={programmeId} item={form === 'new' ? null : form} people={d.people
             // review minor #3: เลือกได้เฉพาะบัญชี active · คงผู้รับผิดชอบเดิมที่ถูกระงับไว้ตอนแก้ ไม่ให้ select ว่าง
-            .filter(p => isActiveUser(p) || (form !== 'new' && p.id === form.ownerUserId))
+            // P8 (R2-F11): ผู้รับผิดชอบต้องทำรายการได้จริง (action.write ของตนในหลักสูตรนี้) — ไม่ใช่ผู้ดูแลระบบ/คณบดี
+            .filter(p => (isActiveUser(p) && can(p as AppUser, 'action.write', programmeScope(programmeId, { ownerUserId: p.id })))
+              || (form !== 'new' && p.id === form.ownerUserId))
             .map(p => ({ id: p.id, name: p.fullName }))}
             cycles={cycles.map(c => ({ id: c.id, label: `รอบ ${c.academicYear}` }))} onClose={() => setForm(null)} onDone={() => { setForm(null); q.reload(); }} />}
           {(() => {
@@ -229,7 +232,7 @@ function Inner() {
                         </TableCell>
                         <TableCell className="max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3">
                           <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                            {nexts.map(t => <Button key={t.to} size="compact" onClick={() => change(a, t.to)} data-testid={`action-to-${t.to}`}>{ACTION_BTN_TH[t.to]}</Button>)}
+                            {nexts.map(t => <Button key={t.to} size="compact" className="whitespace-nowrap" onClick={() => change(a, t.to)} data-testid={`action-to-${t.to}`}>{t.to === 'in_progress' ? (a.status === 'done' ? 'กลับไปทำต่อ' : 'เริ่มทำ') : ACTION_BTN_TH[t.to]}</Button>)}
                             {editable && <Button variant="outline" size="compact" onClick={() => setForm(a)}><Icon name="pencil" size={20} />แก้</Button>}
                             {a.status === 'open' && can(user, 'action.write', scope) && (
                               <Button variant="ghost" size="icon" onClick={() => del(a)} aria-label="ลบ" title="ลบ"><Icon name="trash" size={20} /></Button>
@@ -262,6 +265,10 @@ function ActionForm({ user, programmeId, item, people, cycles, onClose, onDone }
     req: item?.requirementId ?? reqs[0]?.id ?? '', desc: item?.description ?? '', owner: item?.ownerUserId ?? '',
     due: item?.due ?? '', kpi: item?.kpi ?? '', origin: item?.originCycleId ?? '',
   });
+  // P8 (R2-F11): เตือน (ไม่บล็อก) เมื่อเลือกวันกำหนดในอดีต — เทียบวันท้องถิ่น
+  const today = new Date();
+  const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const pastDue = !!f.due && f.due < todayIso && f.due !== (item?.due ?? '');
   function submit(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -286,7 +293,14 @@ function ActionForm({ user, programmeId, item, people, cycles, onClose, onDone }
             {people.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </NativeSelect>
         </label>
-        <label className={FIELD}><span className={LABEL}>กำหนดเสร็จ</span><Input type="date" value={f.due} onChange={e => setF({ ...f, due: e.target.value })} data-testid="act-due" /></label>
+        <div className={FIELD}>
+          <label className={FIELD}><span className={LABEL}>กำหนดเสร็จ</span><Input type="date" value={f.due} onChange={e => setF({ ...f, due: e.target.value })} data-testid="act-due" aria-describedby={pastDue ? 'act-due-past' : undefined} /></label>
+          {pastDue && (
+            <p id="act-due-past" className="aq-help m-0 flex items-start gap-1" data-testid="act-due-past">
+              <Icon name="alert-triangle" size={16} className={cn('mt-1 shrink-0', TONE_TEXT.warn)} />วันที่นี้ผ่านมาแล้ว รายการจะขึ้นว่า “เลยกำหนด” ทันทีหลังบันทึก
+            </p>
+          )}
+        </div>
         {!item && cycles.length > 0 && (
           <label className={FIELD}><span className={LABEL}>มาจากรอบ</span>
             <NativeSelect value={f.origin} onChange={e => setF({ ...f, origin: e.target.value })}>

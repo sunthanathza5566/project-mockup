@@ -36,7 +36,7 @@ import { cn } from '@/lib/ui/cn';
 import { HEAT_CLASS, TONE_TEXT } from '@/lib/ui/tone';
 import {
   CYCLE_ACTION_TH, CYCLE_STATUS_TH, SECTION_STATUS_TH, SEVERITY_ORDER, SEVERITY_TH, decodeParam, errMsg, fmtDate,
-  fmtDateTime, sectionHref,
+  fmtDateTime, gapTextTh, sectionHref,
 } from '@/lib/ui/aunqa';
 import { HEAT_VIEW, NEXT_ACTOR_TH, SECTION_STATUS_VIEW, SEVERITY_VIEW } from '@/lib/ui/status';
 import { GAP_RULE_KEYS, GLOSSARY } from '@/lib/ui/glossary';
@@ -45,7 +45,7 @@ import { useLang } from '@/context/LangContext';
 
 const TRACK: { key: string; label: string }[] = [
   { key: 'draft', label: 'ร่าง' }, { key: 'progress', label: 'ดำเนินการ' }, { key: 'qa', label: 'QA คณะตรวจ' },
-  { key: 'dean', label: 'คณบดีอนุมัติ/ล็อก' }, { key: 'assess', label: 'ประเมิน' }, { key: 'close', label: 'ปิดรอบ' },
+  { key: 'dean', label: 'คณบดีอนุมัติ' }, { key: 'assess', label: 'ประเมิน' }, { key: 'close', label: 'ปิดรอบ' },
 ];
 const TRACK_AT: Record<CycleStatus, number> = {
   draft: 0, in_progress: 1, revision_requested: 1, under_review: 2, faculty_approved: 3,
@@ -106,7 +106,7 @@ function HeatCellLink({ h, cycleId, firstGap }: { h: HeatCell; cycleId: string; 
   let tip = `ข้อ ${h.requirementId} · ${SECTION_STATUS_TH[h.sectionStatus]} · ${lv.label}`;
   if (g.critical > 0) tip += ` · ยังมีช่องว่างวิกฤต ${g.critical}`;
   else if (g.high + g.medium > 0) tip += ` · ช่องว่าง สูง ${g.high} กลาง ${g.medium}`;
-  if (firstGap && (g.critical > 0 || g.high > 0)) tip += ` (${stripReq(firstGap.messageTh, h.requirementId)})`;
+  if (firstGap && (g.critical > 0 || g.high > 0)) tip += ` (${stripReq(gapTextTh(firstGap.messageTh), h.requirementId)})`;
   return (
     <Link
       href={sectionHref(cycleId, h.requirementId)}
@@ -237,6 +237,13 @@ export default function CycleDashboardPage() {
       const isAssessor = isAssessorOf(user, cycle.id);
       const showAssess = isAssessor || cycle.status === 'assessed' || cycle.status === 'closed';
       const canAssign = can(user, 'cycle.assign', scope);
+      // P3 (R2-F11): QA คณะ/ผู้ดูแลมหาวิทยาลัยมี assessor.assign อย่างเดียว ก็ต้องเห็นทางไปหน้ามอบหมาย (มอบหมายกรรมการ)
+      const canAssignAssessor = can(user, 'assessor.assign', scope);
+      // U1 (R2-F11): เหตุผลที่รอบถูกส่งกลับล่าสุด — แสดงจนกว่าจะส่งให้ QA คณะตรวจอีกครั้ง
+      const cycleEvents = events.filter(e => e.targetType === 'cycle');
+      const lastCycleReturn = [...cycleEvents].reverse().find(e => e.toStatus === 'revision_requested');
+      const showReturn = !!lastCycleReturn && (cycle.status === 'revision_requested' || cycle.status === 'in_progress')
+        && !cycleEvents.some(e => e.at > lastCycleReturn.at && e.toStatus === 'under_review');
       const canReopen = cycle.status === 'final_approved' && can(user, 'cycle.reopen', scope);
       const a = sections.filter(s => s.status === 'approved').length;
       const c = readiness.heatmap.filter(h => h.gaps.critical > 0).length;
@@ -268,13 +275,37 @@ export default function CycleDashboardPage() {
             crumbs={[{ label: 'รอบประเมิน', href: '/app/cycles' }, { label: String(cycle.academicYear) }]}
             title={`รอบประเมิน ${cycle.academicYear}`}
             status={<CycleStatusBadge status={cycle.status} />}
-            sub={<>{prog?.nameTh} · <Term k="revision">revision</Term> {cycle.revision} · กำหนดส่ง {fmtDate(cycle.submissionDue)} · วันประเมิน {fmtDate(cycle.assessmentDate)}</>}
+            sub={<>{prog?.nameTh} · <Term k="revision">ฉบับที่</Term> {cycle.revision} · กำหนดส่ง {fmtDate(cycle.submissionDue)} · วันประเมิน {fmtDate(cycle.assessmentDate)}</>}
             actions={<>
               {showAssess && <Button asChild><Link href={`/app/cycles/${id}/assess`} data-testid="go-assess">{isAssessor ? 'พื้นที่ทำงานกรรมการ' : 'ดูผลประเมินของกรรมการ'}</Link></Button>}
-              {canAssign && <Button asChild variant="outline"><Link href={`/app/cycles/${id}/assign`} data-testid="go-assign"><Icon name="users" size={20} />มอบหมายงาน</Link></Button>}
+              {(canAssign || canAssignAssessor) && (
+                <Button asChild variant="outline" className="whitespace-nowrap">
+                  <Link href={`/app/cycles/${id}/assign`} data-testid="go-assign">
+                    <Icon name="users" size={20} />{canAssign ? 'มอบหมายงาน' : 'มอบหมายกรรมการ'}
+                  </Link>
+                </Button>
+              )}
               <Button asChild variant="outline"><Link href="/app/export" data-testid="go-export"><Icon name="download" size={20} />ส่งออก</Link></Button>
             </>}
           />
+
+          {showReturn && lastCycleReturn && (
+            <InlineMessage tone="warn" icon="undo" testId="cycle-return-reason" className="mb-6"
+              title={`${names.get(lastCycleReturn.actorId) || 'ผู้ตรวจ'} ส่งรอบนี้กลับแก้ไขเมื่อ ${fmtDateTime(lastCycleReturn.at)}`}>
+              <p className="whitespace-pre-wrap break-words">
+                {lastCycleReturn.note?.trim() ? `เหตุผล: “${lastCycleReturn.note.trim()}”` : 'ไม่ได้ระบุเหตุผล'}
+              </p>
+              {can(user, 'cycle.submit', scope) && (<ol className="mt-3 list-decimal space-y-1 pl-6" data-testid="cycle-return-steps">
+                <li className={cn(cycle.status === 'in_progress' && 'text-muted-foreground')}>
+                  {cycle.status === 'in_progress'
+                    ? `กด “${CYCLE_ACTION_TH.in_progress}” เพื่อเปิดรอบให้แก้ไขได้ (ทำแล้ว)`
+                    : `กด “${CYCLE_ACTION_TH.in_progress}” เพื่อเปิดรอบให้แก้ไขได้`}
+                </li>
+                <li>เปิดข้อที่ต้องแก้ แล้วกด “ส่งกลับแก้ไข” ที่ข้อนั้นให้ผู้เขียนแก้ (ข้อที่อนุมัติแล้วต้องส่งกลับก่อนจึงแก้ได้)</li>
+                <li>{`เมื่อแก้ครบแล้ว กด “${CYCLE_ACTION_TH.under_review}” อีกครั้ง`}</li>
+              </ol>)}
+            </InlineMessage>
+          )}
 
           <Stepper variant="track" ariaLabel="ขั้นของรอบประเมิน" steps={steps} />
 
@@ -493,7 +524,7 @@ export default function CycleDashboardPage() {
                               return (
                                 <li key={x.id} className="flex flex-wrap items-start gap-x-3 gap-y-1 px-4 py-3">
                                   <Badge tone={v.tone} icon={v.icon}>{v.label}</Badge>
-                                  <Link className="min-w-0 flex-1 basis-48 text-foreground underline underline-offset-4 hover:text-primary" href={sectionHref(cycle.id, x.requirementId)}>{x.messageTh}</Link>
+                                  <Link className="min-w-0 flex-1 basis-48 text-foreground underline underline-offset-4 hover:text-primary" href={sectionHref(cycle.id, x.requirementId)}>{gapTextTh(x.messageTh)}</Link>
                                   <span className="aq-meta" title={ruleTitle(x.ruleId)}>({x.ruleId})</span>
                                 </li>
                               );

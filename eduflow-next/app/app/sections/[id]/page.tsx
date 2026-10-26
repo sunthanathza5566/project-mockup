@@ -94,7 +94,7 @@ export default function SectionPage() {
           </>
         ) : undefined}
         actions={cycleId ? (
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="whitespace-nowrap">
             <Link href={`/app/cycles/${encodeURIComponent(cycleId)}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link>
           </Button>
         ) : undefined}

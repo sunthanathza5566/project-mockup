@@ -5,7 +5,7 @@
  * - ชื่อไฟล์/ default export เดิม (`LangToggle`) — ผู้เรียกเดิม (topbar, login, landing) ได้หน้าตาใหม่อัตโนมัติ
  * - ภาษาที่เลือก = พื้น primary-muted + ตัวหนา + aria-pressed=true · กดปุ่มที่เลือกอยู่ = ไม่ทำอะไร
  * - ป้ายเป็น autonym (ไม่ใช้ธง): `ไทย` lang="th" · `English` lang="en" (≥768) / `EN` + aria-label="English" (<768) — WCAG 3.1.2
- * - จำภาษาแยกรายหน้าเหมือนเดิม (LangContext) · ทั้งกลุ่ม data-no-i18n (ป้ายภาษาไม่ถูกแปล)
+ * - จำภาษาค่าเดียวทั้งระบบ (LangContext · R2-F11) · ทั้งกลุ่ม data-no-i18n (ป้ายภาษาไม่ถูกแปล)
  * testid: กลุ่ม `lang-switch`, ปุ่ม `lang-th`, `lang-en`
  */
 import { useLang } from '@/context/LangContext';
@@ -22,7 +22,7 @@ export default function LangToggle({ className }: { className?: string }) {
     <div
       role="group"
       aria-label="ภาษา / Language"
-      title={lang === 'th' ? 'เปลี่ยนภาษาเฉพาะหน้านี้' : 'Changes the language of this page only'}
+      title={lang === 'th' ? 'เปลี่ยนภาษาทุกหน้า' : 'Changes the language on every page'}
       className={cn(SEGMENT_WRAP, 'shrink-0', className)}
       data-no-i18n=""
       data-testid="lang-switch"

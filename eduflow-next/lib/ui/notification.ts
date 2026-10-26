@@ -6,7 +6,7 @@
  */
 import type { AppNotification, NotificationKind } from '@/lib/types';
 import type { Lang } from '@/lib/i18n/dict';
-import { fmtDateTime, sectionHref } from './aunqa';
+import { fmtDate, fmtDateTime, sectionHref } from './aunqa';
 
 /** ข้อความอังกฤษสำรองตามชนิด (แถวเก่าที่ไม่มี messageEn) — friendly-spec §F12 */
 export const NOTI_KIND_EN: Record<NotificationKind, string> = {
@@ -54,10 +54,35 @@ export function samePageHash(href: string, current: { pathname: string; search: 
   return href.slice(0, i) === current.pathname + current.search ? hash : null;
 }
 
-/** ข้อความแจ้งเตือนตามภาษา (friendly-spec §F3.1) */
+/** วันที่ ISO (YYYY-MM-DD) ที่ไม่ติดตัวเลขอื่น — ไม่จับส่วนวันที่ของ timestamp ที่มีเวลา (`T…`) */
+const ISO_DATE = /(?<![\d-])(\d{4})-(\d{2})-(\d{2})(?![\d-]|T\d)/g;
+/** ศัพท์อังกฤษใน messageTh เดิม → คำไทย (เฉพาะตอนแสดง) */
+const TH_TERMS: [RegExp, string][] = [
+  [/\baction items?\b/gi, 'แผนปรับปรุง'],
+  [/\bcomments?\b/gi, 'ความเห็น'],
+];
+
+/**
+ * ปรับ messageTh เพื่อแสดงผล (P6/P11 · R2-F11): วันที่ ISO ค.ศ. → วันที่ไทย พ.ศ. ("31 ต.ค. 2569") และศัพท์อังกฤษ → ไทย
+ * ไม่แก้ข้อมูลที่เก็บ (messageTh ถูกล็อกด้วยเทสต์ B3 / ADR-AUTH-001 A6)
+ */
+export function displayMessageTh(text: string): string {
+  let out = text.replace(ISO_DATE, (all, y: string, m: string, d: string) => {
+    const mm = Number(m), dd = Number(d);
+    if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return all;
+    const s = fmtDate(`${y}-${m}-${d}`);
+    return s === '—' ? all : s;
+  });
+  for (const [re, th] of TH_TERMS) out = out.replace(re, th);
+  // ภาษาไทยไม่เว้นวรรคระหว่างคำ — "มี ความเห็น ใหม่" → "มีความเห็นใหม่"
+  out = out.replace(/([฀-๿]) (ความเห็น|แผนปรับปรุง)/g, '$1$2').replace(/(ความเห็น|แผนปรับปรุง) ([฀-๿])/g, '$1$2');
+  return out;
+}
+
+/** ข้อความแจ้งเตือนตามภาษา (friendly-spec §F3.1) · ไทย = messageTh ผ่าน `displayMessageTh` */
 export function notificationText(n: Pick<AppNotification, 'kind' | 'messageTh' | 'messageEn'>, lang: Lang): string {
   if (lang === 'en') return n.messageEn || NOTI_KIND_EN[n.kind] || n.messageTh;
-  return n.messageTh;
+  return displayMessageTh(n.messageTh);
 }
 
 /** เวลาเที่ยงคืนของวันท้องถิ่นที่มี ts */

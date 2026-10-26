@@ -100,7 +100,7 @@ export default function AssessPage() {
             title={assessor ? 'พื้นที่ทำงานกรรมการ' : 'ผลการประเมินของกรรมการ'}
             status={<CycleStatusBadge status={cycle.status} />}
             sub={<>รอบ {cycle.academicYear} · {getProgramme(cycle.programmeId)?.nameTh} · {assessor ? 'อ่าน SAR/หลักฐานได้อย่างเดียว บันทึกได้เฉพาะข้อค้นพบและคะแนนของคุณ' : 'อ่านอย่างเดียว'}</>}
-            actions={<Button asChild variant="outline"><Link href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link></Button>}
+            actions={<Button asChild variant="outline" className="whitespace-nowrap"><Link href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link></Button>}
           />
           {!visible ? (
             <InlineMessage tone="info" icon="lock" testId="assess-hidden">ผลการประเมินของกรรมการจะแสดงเมื่อกรรมการส่งผลแล้ว (สถานะ “ประเมินแล้ว”) — ตอนนี้ยังไม่แสดงเพื่อความเป็นอิสระของการประเมิน</InlineMessage>

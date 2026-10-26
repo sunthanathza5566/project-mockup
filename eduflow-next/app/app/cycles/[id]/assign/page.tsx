@@ -116,9 +116,15 @@ export default function AssignPage() {
             title={`มอบหมายงาน — รอบ ${cycle.academicYear}`}
             status={<CycleStatusBadge status={cycle.status} />}
             sub="กำหนดส่งรายข้อต้องไม่เกินกำหนดส่งของรอบ"
-            actions={<Button asChild variant="outline"><Link href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link></Button>}
+            actions={<Button asChild variant="outline" className="whitespace-nowrap"><Link href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link></Button>}
           />
-          {!canAssign && <InlineMessage tone="info" className="mb-6">คุณไม่มีสิทธิ์มอบหมายงาน (ดูอย่างเดียว)</InlineMessage>}
+          {/* P3 (R2-F11): สิทธิ์แยก 2 ส่วนตาม API — cycle.assign (ผู้เขียน/วันที่) · assessor.assign (กรรมการ) */}
+          {!canAssign && canAssessor && (
+            <InlineMessage tone="info" className="mb-6" testId="assign-assessor-only">
+              คุณมอบหมายกรรมการประเมินให้รอบนี้ได้ ส่วนการมอบหมายผู้เขียนรายข้อและกำหนดส่งเป็นหน้าที่ของประธานหลักสูตร (ดูได้อย่างเดียว)
+            </InlineMessage>
+          )}
+          {!canAssign && !canAssessor && <InlineMessage tone="info" className="mb-6">คุณไม่มีสิทธิ์มอบหมายงาน (ดูอย่างเดียว)</InlineMessage>}
 
           {(canAssign || canAssessor) && (
             <div className="mb-6 grid gap-6 lg:grid-cols-2">
@@ -145,7 +151,8 @@ export default function AssignPage() {
               )}
               {canAssessor && (
                 <section className={cn(CARD, 'min-w-0')} aria-labelledby="asr-h">
-                  <h2 id="asr-h" className={cn(H2, 'mb-4')}>กรรมการประเมิน (อ่านอย่างเดียว)</h2>
+                  <h2 id="asr-h" className={cn(H2, 'mb-1')}>มอบหมายกรรมการประเมิน</h2>
+                  <p className="aq-help mb-4">กรรมการดูเนื้อหา SAR ได้อย่างเดียว และให้คะแนนในพื้นที่ทำงานกรรมการ</p>
                   <div className="space-y-1.5">
                     <label htmlFor="as-asr" className={LABEL}>เลือกผู้ใช้ที่มีบทบาทกรรมการ</label>
                     <NativeSelect id="as-asr" value={assessorId} onChange={e => setAssessorId(e.target.value)} data-testid="assessor-select">

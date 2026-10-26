@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   acceptAiRun, addFileVersion, can, getEvidence, getExtractedText, getRequirement, linkEvidence,
-  listCycles, listFileVersions, programmeScope, readFileInput, resolvePii, runEvidenceTagger, unlinkEvidence,
+  isSectionEditable, listCycles, listFileVersions, listSections, programmeScope, readFileInput, resolvePii, runEvidenceTagger, unlinkEvidence,
   updateEvidence, verifyEvidence,
 } from '@/lib/api';
-import type { AiRun, EvidenceKind, PdcaStage } from '@/lib/types';
+import type { AiRun, AppUser, AssessmentCycle, EvidenceKind, PdcaStage, SarSection } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import {
@@ -52,6 +52,32 @@ function fmtSize(n: number): string {
   return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${(n / 1024).toFixed(1)} KB`;
 }
 
+/**
+ * P1 (R2-F11): เหตุผลที่ข้อหนึ่งในรอบหนึ่ง "ผูก/เลิกผูกหลักฐานไม่ได้" — key `${cycleId}::${requirementId}`
+ * รอบล็อก/อยู่ระหว่างตรวจ = ทุกข้อ · ข้อที่ส่งตรวจแล้ว/อนุมัติแล้ว = เฉพาะข้อนั้น (คู่กับ guard ฝั่ง API R2-B4)
+ */
+const WRITABLE_CYCLE = ['draft', 'in_progress', 'revision_requested'];
+type LinkLocks = { cycle: Map<string, string>; section: Map<string, string> };
+function buildLinkLocks(user: AppUser, cycles: AssessmentCycle[]): LinkLocks {
+  const out: LinkLocks = { cycle: new Map(), section: new Map() };
+  for (const c of cycles) {
+    if (c.lockedAt || !WRITABLE_CYCLE.includes(c.status)) {
+      out.cycle.set(c.id, c.lockedAt ? `รอบ ${c.academicYear} ถูกล็อกแล้ว` : `รอบ ${c.academicYear} อยู่ระหว่างตรวจ/อนุมัติ`);
+      continue;
+    }
+    let secs: SarSection[] = [];
+    try { secs = listSections(user, c.id); } catch { /* อ่านรอบนี้ไม่ได้ — ปล่อยให้ API ตัดสิน */ }
+    for (const s of secs) {
+      if (isSectionEditable(s)) continue;
+      out.section.set(s.id, s.status === 'approved' ? `ข้อ ${s.requirementId} อนุมัติแล้ว` : `ข้อ ${s.requirementId} ส่งตรวจแล้ว`);
+    }
+  }
+  return out;
+}
+function linkLockReason(locks: LinkLocks, cycleId: string, requirementId: string): string | undefined {
+  return locks.cycle.get(cycleId) ?? locks.section.get(`${cycleId}::${requirementId}`);
+}
+
 function Inner() {
   const user = useMe();
   const id = decodeParam(useParams().id);
@@ -63,11 +89,13 @@ function Inner() {
   const q = useLoad(() => {
     const ev = getEvidence(user, id, cycleParam || undefined);
     const scope = programmeScope(ev.programmeId, { cycleId: cycleParam || undefined });
+    const cycles = listCycles(user, ev.programmeId);
     return {
       ev,
       files: listFileVersions(user, id),
       text: ev.containsPii && !ev.piiResolved ? '' : getExtractedText(user, id, cycleParam || undefined),
-      cycles: listCycles(user, ev.programmeId),
+      cycles,
+      linkLocks: buildLinkLocks(user, cycles),
       canWrite: !assessor && can(user, 'evidence.write', programmeScope(ev.programmeId)),
       canVerify: can(user, 'evidence.verify', programmeScope(ev.programmeId)),
       canAi: can(user, 'ai.check', scope) || can(user, 'ai.use', scope),
@@ -86,7 +114,7 @@ function Inner() {
   }
 
   return (
-    <Async q={q} skeleton="form">{({ ev, files, text, cycles, canWrite, canVerify, canAi }) => {
+    <Async q={q} skeleton="form">{({ ev, files, text, cycles, linkLocks, canWrite, canVerify, canAi }) => {
       const cid = linkCycle || cycleParam || cycles[0]?.id || '';
       const tagCycle = cycleParam || cycles[0]?.id || '';
       const latest = files.slice().sort((a, b) => b.version - a.version)[0];
@@ -174,24 +202,35 @@ function Inner() {
                 <h2 id="link-h" className={H2}>ข้อที่ผูก{cycleParam ? ' (ในรอบนี้)' : ' (ทุกรอบ)'}</h2>
                 {ev.links.length === 0 ? <Empty icon="link" title="ยังไม่ผูกกับข้อใด" /> : (
                   <ul className="m-0 list-none divide-y p-0" data-testid="ev-links">
-                    {ev.links.map(l => (
+                    {ev.links.map(l => {
+                      const locked = linkLockReason(linkLocks, l.cycleId, l.requirementId);
+                      return (
                       <li key={l.id} className="flex items-start gap-2 py-3 first:pt-0">
                         <div className="min-w-0 flex-1 space-y-1">
                           <Link className="font-medium tabular-nums text-primary" href={sectionHref(l.cycleId, l.requirementId)}>ข้อ {l.requirementId}</Link>
                           <p className="aq-meta m-0">{truncateTh(getRequirement(l.requirementId)?.textTh ?? '', 60)}</p>
                           {l.source === 'ai' && <Badge tone="info" icon="sparkle">AI แนะนำ</Badge>}
+                          {canWrite && locked && (
+                            <p className="aq-meta m-0 flex items-start gap-1" data-testid={`ev-link-locked-${l.requirementId}`}>
+                              <Icon name="lock" size={16} className="mt-1 shrink-0" />{`${locked} — เลิกผูกไม่ได้`}
+                            </p>
+                          )}
                         </div>
-                        {canWrite && (
+                        {canWrite && !locked && (
                           <Button variant="ghost" size="icon" className="-mr-2 shrink-0 text-muted-foreground" aria-label={`เลิกผูกข้อ ${l.requirementId}`} title={`เลิกผูกข้อ ${l.requirementId}`}
                             onClick={() => act(() => unlinkEvidence(user, id, l.cycleId, l.requirementId), 'เลิกผูกแล้ว')}>
                             <Icon name="x" size={20} />
                           </Button>
                         )}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 )}
-                {canWrite && cycles.length > 0 && (
+                {canWrite && cycles.length > 0 && (() => {
+                  const cycleLock = linkLocks.cycle.get(cid);
+                  const blocked = linkReqs.map(r => linkLockReason(linkLocks, cid, r)).filter((x): x is string => !!x);
+                  return (
                   <div className="space-y-4 border-t pt-4">
                     <div className="space-y-1.5">
                       <label htmlFor="ev-link-cycle" className={LABEL}>ผูกเพิ่มในรอบ</label>
@@ -199,11 +238,23 @@ function Inner() {
                         {cycles.map(c => <option key={c.id} value={c.id}>รอบ {c.academicYear}</option>)}
                       </NativeSelect>
                     </div>
-                    <RequirementPicker label="ข้อที่จะผูก" value={linkReqs} onChange={setLinkReqs} testIdPrefix="ev-link-req" />
-                    <Button variant="outline" className="w-full" disabled={!linkReqs.length || !cid} data-testid="ev-link-btn"
-                      onClick={() => act(() => { linkEvidence(user, id, cid, linkReqs); setLinkReqs([]); }, 'ผูกหลักฐานแล้ว')}><Icon name="link" size={20} />ผูกกับข้อที่เลือก</Button>
+                    {cycleLock ? (
+                      <InlineMessage tone="info" icon="lock" testId="ev-link-locked">{`${cycleLock} จึงผูกหลักฐานเพิ่มในรอบนี้ไม่ได้`}</InlineMessage>
+                    ) : (
+                      <>
+                        <RequirementPicker label="ข้อที่จะผูก" value={linkReqs} onChange={setLinkReqs} testIdPrefix="ev-link-req" />
+                        {blocked.length > 0 && (
+                          <InlineMessage tone="warn" testId="ev-link-blocked">
+                            {`ผูกไม่ได้: ${blocked.join(', ')} — ข้อที่ส่งตรวจหรืออนุมัติแล้วเปลี่ยนหลักฐานไม่ได้ เอาข้อนั้นออกจากรายการก่อน`}
+                          </InlineMessage>
+                        )}
+                        <Button variant="outline" className="w-full" disabled={!linkReqs.length || !cid || blocked.length > 0} data-testid="ev-link-btn"
+                          onClick={() => act(() => { linkEvidence(user, id, cid, linkReqs); setLinkReqs([]); }, 'ผูกหลักฐานแล้ว')}><Icon name="link" size={20} />ผูกกับข้อที่เลือก</Button>
+                      </>
+                    )}
                   </div>
-                )}
+                  );
+                })()}
               </section>
             </div>
 

@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/primitives/textarea';
 import { useScope } from '@/components/aunqa/useScope';
 import { cn } from '@/lib/ui/cn';
 import { MATRIX_LEVEL } from '@/lib/ui/tone';
-import { BLOOM_TH, MAP_LEVEL_TH, errMsg, truncateTh } from '@/lib/ui/aunqa';
+import { BLOOM_TH, MAP_LEVEL_TH, errMsg, gapTextTh, truncateTh } from '@/lib/ui/aunqa';
 
 type Tab = 'plo' | 'course' | 'matrix' | 'heat' | 'gaps' | 'prereq' | 'ai';
 const TABS: [Tab, string][] = [
@@ -418,7 +418,7 @@ function GapTab({ gaps }: { gaps: ReturnType<typeof getCurriculumGaps> }) {
         {gaps.map((g, i) => (
           <li key={`${g.kind}-${g.refId}-${i}`} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-4 md:px-6">
             <Badge tone={g.kind === 'prereq_cycle' ? 'bad' : 'warn'}>{GAP_KIND_TH[g.kind]}</Badge>
-            <span className="min-w-0 flex-1 basis-60 text-foreground">{g.messageTh}</span>
+            <span className="min-w-0 flex-1 basis-60 text-foreground">{gapTextTh(g.messageTh)}</span>
           </li>
         ))}
       </ul>

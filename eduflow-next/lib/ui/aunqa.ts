@@ -3,6 +3,7 @@ import type {
   AppUser, CycleStatus, EvidenceKind, GapSeverity, HeatLevel, PdcaStage, RoleCode, SectionStatus,
 } from '@/lib/types';
 import { AunqaError, can, getProgrammes, programmeScope, type Action } from '@/lib/api';
+import { nameInitials } from './name';
 
 export const ROLE_TH: Record<RoleCode, string> = {
   super_admin: 'ผู้ดูแลระบบสูงสุด', uni_admin: 'ผู้ดูแลมหาวิทยาลัย', programme_chair: 'ประธานหลักสูตร',
@@ -94,8 +95,9 @@ export function truncateTh(s: string, n: number): string {
   return chars.slice(0, cut).join('').trimEnd() + '…';
 }
 
+/** ตัวย่อบน avatar — ตัดคำนำหน้า (อ. ผศ.ดร. …) ก่อน (R2-F11 · ui m4) */
 export function initials(name: string): string {
-  return name.replace(/\s+/g, '').substring(0, 2);
+  return nameInitials(name);
 }
 
 /** ชื่อบทบาทหลักของ user (ไว้โชว์บน nav) */
@@ -144,4 +146,15 @@ export const GROUP_TH = { lecturer: 'อาจารย์', student: 'นัก
 /** ผู้ตอบของ AI run: Claude หรือโหมด offline (ไม่เรียกบริการภายนอก) */
 export function aiModelLabel(model: string): string {
   return model.startsWith('offline') ? 'ตอบโดยโหมด offline (กฎในเครื่อง)' : `ตอบโดย Claude (${model})`;
+}
+
+/**
+ * ข้อความช่องว่าง (gap) สำหรับแสดงผลภาษาไทย (P11 · R2-F11): แทนศัพท์อังกฤษใน messageTh จาก lib/api
+ * ("narrative" → "เนื้อหา", "prerequisite" → "วิชาบังคับก่อน") — ไม่แก้ข้อมูล · EN ใช้ PATTERNS ของรูปใหม่ใน dict-aunqa (R2-F11)
+ */
+export function gapTextTh(msg: string): string {
+  return msg
+    .replace(/^ข้อ (\S+) ยังไม่มี narrative$/, 'ข้อ $1 ยังไม่มีเนื้อหา')
+    .replace(/^ข้อ (\S+) narrative สั้นเกินไป/, 'ข้อ $1 เนื้อหาสั้นเกินไป')
+    .replace(/^prerequisite วนซ้ำ:/, 'วิชาบังคับก่อนวนซ้ำ:');
 }

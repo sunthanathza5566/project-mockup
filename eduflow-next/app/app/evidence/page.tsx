@@ -271,7 +271,7 @@ function Inner() {
             <label htmlFor="ev-f-title" className={cn(LABEL, 'flex items-center gap-2')}><StepNo n={1} />ชื่อหลักฐาน *</label>
             <Input id="ev-f-title" maxLength={200} value={f.title} aria-required="true"
               aria-invalid={errors.title ? true : undefined} aria-describedby={errors.title ? 'ev-f-title-err' : undefined}
-              onChange={e => setF({ ...f, title: e.target.value })} data-testid="ev-title" />
+              onChange={e => { setF({ ...f, title: e.target.value }); if (errors.title && e.target.value.trim()) setErrors(x => ({ ...x, title: undefined })); }} data-testid="ev-title" />
             {errors.title && <FieldError id="ev-f-title-err">{errors.title}</FieldError>}
           </div>
 
@@ -312,13 +312,13 @@ function Inner() {
               <div className="space-y-1.5">
                 <label htmlFor="ev-f-url" className={LABEL}>หรือ ลิงก์</label>
                 <Input id="ev-f-url" type="url" placeholder="https://…" value={f.url}
-                  aria-invalid={errors.url ? true : undefined} onChange={e => setF({ ...f, url: e.target.value })} />
+                  aria-invalid={errors.url ? true : undefined} onChange={e => { setF({ ...f, url: e.target.value }); if (errors.url || errors.attach) setErrors(x => ({ ...x, url: undefined, attach: undefined })); }} />
                 {errors.url && <FieldError>{errors.url}</FieldError>}
               </div>
               <div className="space-y-1.5 md:col-span-2">
                 <label htmlFor="ev-f-text" className={LABEL}>หรือ วางข้อความ</label>
                 <p className="aq-help m-0">ระบบใช้ตรวจข้อมูลส่วนบุคคลและให้ AI แนะนำข้อ</p>
-                <Textarea id="ev-f-text" rows={3} value={f.text} onChange={e => setF({ ...f, text: e.target.value })} data-testid="ev-text" />
+                <Textarea id="ev-f-text" rows={3} value={f.text} onChange={e => { setF({ ...f, text: e.target.value }); if (errors.attach && e.target.value.trim()) setErrors(x => ({ ...x, attach: undefined })); }} data-testid="ev-text" />
               </div>
             </div>
           </fieldset>
@@ -403,7 +403,7 @@ function Inner() {
                 <TableCell data-label="PDCA" className={STACK_CELL}>{e.pdcaStage}</TableCell>
                 <TableCell data-label="ปี" className={cn(STACK_CELL, 'tabular-nums')}>{e.academicYear}</TableCell>
                 <TableCell data-label="ข้อที่ผูก" className={cn(STACK_CELL, 'tabular-nums')}>{e.requirementIds.length ? e.requirementIds.join(', ') : <span className="text-muted-foreground">ยังไม่ผูก</span>}</TableCell>
-                <TableCell data-label="สถานะ" className={STACK_CELL}><EvidenceStatusBadge status={e.status} /></TableCell>
+                <TableCell data-label="สถานะ" className={cn('md:min-w-max', STACK_CELL)}><EvidenceStatusBadge status={e.status} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
