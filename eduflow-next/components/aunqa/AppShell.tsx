@@ -8,7 +8,8 @@
  * U-1: กิจกรรมทั้งแอป (กด/พิมพ์/เปลี่ยนหน้า) = touchSession() (throttle 60 วิ ใน API) — ไม่ใช่แค่ใน SAR editor
  * U-2: ระหว่าง session-lost ซ่อนเมนู/แถบบน · เปลี่ยนหน้า หรือกดปุ่ม/ลิงก์ใด ๆ ในหน้า = ถามก่อนแล้ว endSession() ไป /login
  *      (กล่องข้อความยังเลือก/คัดลอกได้ ปุ่ม "คัดลอกข้อความ" ในแถบใช้ได้)
- * TASK-0002 S2 (saas-spec §P4): หน้าตา Tailwind — ≥1024 grid [sidebar | เนื้อหา] · main max-w-screen-xl
+ * TASK-0002 S2 (saas-spec §P4) + R2-F1 (friendly-spec §F1): ≥1024 grid [sidebar | เนื้อหา] · main max-w-screen-xl
+ *   ออกจากระบบอยู่ในเมนูผู้ใช้ (AppTopbar → UserMenu) — sidebar ไม่มีส่วนล่างแล้ว
  *   hook ที่คงไว้: a.aq-skip, #main (tabIndex -1), testid shell-lost / session-lost / session-lost-login / readonly-banner
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -143,18 +144,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       data-testid={lost ? 'shell-lost' : undefined}
     >
       <a href="#main" className="aq-skip">ข้ามไปเนื้อหาหลัก</a>
-      {!lost && <AppSidebar user={user} pathname={pathname} open={menuOpen} onClose={closeMenu} onLogout={logout} />}
+      {!lost && <AppSidebar user={user} pathname={pathname} open={menuOpen} onClose={closeMenu} />}
       <div className="flex min-h-screen min-w-0 flex-col">
         {lost
           ? (
-            <header className="sticky top-0 z-topbar flex min-h-14 items-center border-b bg-background/80 px-4 backdrop-blur md:px-6">
+            <header className="sticky top-0 z-topbar flex h-topbar items-center border-b bg-card px-4 md:px-6">
               <Brand />
             </header>
           )
-          : <AppTopbar ref={menuBtn} user={user} pathname={pathname} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />}
+          : <AppTopbar ref={menuBtn} user={user} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} onLogout={logout} />}
         <main
           id="main" tabIndex={-1}
-          className="mx-auto w-full min-w-0 max-w-screen-xl px-4 pb-16 pt-6 md:px-6 lg:px-8 lg:pt-8"
+          className="mx-auto w-full min-w-0 max-w-screen-xl px-4 pb-16 pt-6 md:px-6 lg:px-10 lg:pt-8"
           onClickCapture={lost ? onLostClickCapture : undefined} onKeyDownCapture={lost ? onLostKeyCapture : undefined}
         >
           {lostBanners}
