@@ -127,15 +127,64 @@ test.describe('AC-22 ปุ่มภาษา', () => {
     }
   }
 
-  test('ภาษาจำรายหน้า: เปลี่ยน /app เป็น EN ไม่ทำให้ /login เปลี่ยน · กดปุ่มที่เลือกอยู่ไม่เปลี่ยนอะไร', async ({ page }) => {
+  // R2-F11 U3 (orchestrator ตัดสิน 2026-10-27): ภาษาค่าเดียวทั้งระบบ key `aunqa_lang` — แทนพฤติกรรมเดิม "จำรายหน้า"
+  test('U3 ภาษาค่าเดียวทั้งระบบ: เลือก EN ที่ /login → /app + หน้ารอบเป็น EN · aunqa_lang=en · กลับไทยที่ /app → /login ไทย · กดปุ่มที่เลือกอยู่ไม่เปลี่ยน', async ({ page }) => {
     await page.setViewportSize(VP['1440']);
-    await goto(page, '/app', 'chair1');
+    await goto(page, '/login');
     await page.getByTestId('lang-th').click(); // เลือกอยู่แล้ว
     await expect(page.getByTestId('lang-th')).toHaveAttribute('aria-pressed', 'true');
     await page.getByTestId('lang-en').click();
+    await expect(page.getByTestId('login-submit')).toContainText('Sign in');
+    expect(await page.evaluate(() => localStorage.getItem('aunqa_lang'))).toBe('en');
+
+    await loginAs(page, 'chair1');
+    await settle(page);
+    await expect(page.getByTestId('lang-en')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByTestId('nav-bell')).toContainText('Notifications');
+    await page.goto(`/app/cycles/${DEMO_CYCLE}`); await settle(page);
+    await expect(page.getByTestId('lang-en')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('h1').first()).not.toHaveText(THAI);
+
+    await page.getByTestId('lang-th').click();
+    await expect(page.getByTestId('nav-bell')).toHaveText('แจ้งเตือน');
+    expect(await page.evaluate(() => localStorage.getItem('aunqa_lang'))).toBe('th');
+    await logoutViaMenu(page);
+    await page.waitForURL(u => new URL(u).pathname === '/');
     await page.goto('/login'); await settle(page);
     await expect(page.getByTestId('lang-th')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('login-submit')).toHaveText(THAI);
+  });
+
+  test('U3 ย้ายค่าจาก key เดิม eduflow_lang_pages: ค่าของหน้าปัจจุบันก่อน · ไม่มีก็ใช้รายการท้ายสุด · ลบ key เก่า', async ({ page }) => {
+    await page.setViewportSize(VP['1440']);
+    // (ก) หน้าปัจจุบัน /login = en ใน map เก่า (รายการท้ายสุดเป็น th) → en
+    await page.goto('/login');
+    await page.evaluate(() => {
+      localStorage.removeItem('aunqa_lang');
+      localStorage.setItem('eduflow_lang_pages', JSON.stringify({ '/login': 'en', '/app': 'th' }));
+    });
+    await page.reload(); await settle(page);
+    await expect(page.getByTestId('lang-en')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('login-submit')).toContainText('Sign in');
+    expect(await page.evaluate(() => [localStorage.getItem('aunqa_lang'), localStorage.getItem('eduflow_lang_pages')])).toEqual(['en', null]);
+
+    // (ข) ไม่มีค่าของหน้าปัจจุบัน → รายการท้ายสุดของ map (en)
+    await page.evaluate(() => {
+      localStorage.removeItem('aunqa_lang');
+      localStorage.setItem('eduflow_lang_pages', JSON.stringify({ '/app': 'th', '/request-access': 'en' }));
+    });
+    await page.reload(); await settle(page);
+    await expect(page.getByTestId('lang-en')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => [localStorage.getItem('aunqa_lang'), localStorage.getItem('eduflow_lang_pages')])).toEqual(['en', null]);
+
+    // (ค) ค่าเก่าเสีย → ไทย + ลบ key เก่า
+    await page.evaluate(() => {
+      localStorage.removeItem('aunqa_lang');
+      localStorage.setItem('eduflow_lang_pages', '{not json');
+    });
+    await page.reload(); await settle(page);
+    await expect(page.getByTestId('lang-th')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => [localStorage.getItem('aunqa_lang'), localStorage.getItem('eduflow_lang_pages')])).toEqual(['th', null]);
   });
 });
 
@@ -371,7 +420,9 @@ async function notiItem(page: Page, text: string | RegExp) {
   await expect(item).toBeVisible();
   return item;
 }
-const COMMENT_TH = 'มี comment ใหม่ที่ข้อ 3.6';
+// R2-F11 P11: ข้อความไทยแสดงผ่าน displayMessageTh — "comment" → "ความเห็น", "action item" → "แผนปรับปรุง" (messageTh ที่เก็บไม่เปลี่ยน)
+const COMMENT_TH = 'มีความเห็นใหม่ที่ข้อ 3.6';
+const ACTION_TH = /คุณได้รับมอบหมายแผนปรับปรุงข้อ/;
 /** chair1 มอบ 3.6 ให้ staff1 แล้วเขียนความเห็นในข้อ 3.6 → staff1 ได้ N8 (target section + panel comments) */
 async function commentOn36(page: Page) {
   await assign36ToStaff(page);
@@ -433,7 +484,7 @@ test.describe('AC-24 deep link จาก panel แจ้งเตือน', () 
 
     // จากหน้าอื่น
     await goto(page, '/app', 'staff1');
-    const item = await notiItem(page, /action item/);
+    const item = await notiItem(page, ACTION_TH);
     await expect(item).toHaveAttribute('href', `/app/actions#action-${encodeURIComponent(actionId)}`);
     await item.click();
     await page.waitForURL(/\/app\/actions#action-/);
@@ -445,7 +496,7 @@ test.describe('AC-24 deep link จาก panel แจ้งเตือน', () 
     await page.goto('/app/actions'); await settle(page);
     await expect(target).toBeVisible();
     await expect(target).not.toHaveClass(/animate-highlight/);
-    await (await notiItem(page, /action item/)).click();
+    await (await notiItem(page, ACTION_TH)).click();
     await expect(page).toHaveURL(/\/app\/actions#action-/);
     await expect(target).toHaveClass(/animate-highlight/);
 
@@ -470,7 +521,7 @@ test.describe('AC-24 deep link จาก panel แจ้งเตือน', () 
     const actionId = (await row.getAttribute('data-testid'))!.replace(/^action-/, '');
 
     await goto(page, '/app', 'staff1');
-    await (await notiItem(page, /action item/)).click();
+    await (await notiItem(page, ACTION_TH)).click();
     await page.waitForURL(/\/app\/actions#action-/);
     const target = page.locator(`[id="action-${actionId}"]`);
     await expect(target).toHaveClass(/animate-highlight/);
@@ -494,7 +545,7 @@ test.describe('AC-24 deep link จาก panel แจ้งเตือน', () 
 
     // กดแจ้งเตือนเดิมซ้ำ 2 ครั้ง (hash เดิม) → ไฮไลต์ใหม่ทุกครั้ง · URL ไม่เปลี่ยน
     for (let i = 1; i <= 2; i++) {
-      await (await notiItem(page, /action item/)).click();
+      await (await notiItem(page, ACTION_TH)).click();
       await expect(page.getByTestId('noti-panel')).toBeHidden();
       await expect.poll(restarts, { message: `ครั้งที่ ${i}` }).toBeGreaterThanOrEqual(i);
       await expect(target).toHaveClass(/animate-highlight/);
@@ -588,6 +639,16 @@ test.describe('R2-F7 shell/landing/home/forms', () => {
     await expect(page.getByTestId('tab-requests')).toHaveAttribute('aria-selected', 'true');
     const card = page.locator('li[data-testid^="req-"]', { hasText: `home${s}` });
     const id = (await card.getAttribute('data-testid'))!.replace(/^req-/, '');
+    // R2-F10 P2: ผู้ขอไม่ได้ระบุหลักสูตร → ขอบเขตยังไม่เลือก · อนุมัติทันที = error ใต้ช่อง + focus + การ์ดยังอยู่
+    const scope = page.getByTestId(`req-scope-${id}`);
+    await expect(scope).toHaveValue('');
+    await page.getByTestId(`req-approve-${id}`).click();
+    await expect(card).toContainText('กรุณาเลือกขอบเขตให้ตรงกับบทบาทก่อนอนุมัติ');
+    await expect(scope).toHaveAttribute('aria-invalid', 'true');
+    await expect(scope).toBeFocused();
+    await expect(card).toBeVisible();
+    await scope.selectOption({ index: 1 });
+    await expect(card).not.toContainText('กรุณาเลือกขอบเขตให้ตรงกับบทบาทก่อนอนุมัติ');
     await page.getByTestId(`req-approve-${id}`).click();
     await expect(card).toHaveCount(0);
 

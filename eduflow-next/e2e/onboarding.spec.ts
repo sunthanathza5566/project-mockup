@@ -62,6 +62,15 @@ async function submitRequest(page: Page, r: Req) {
   await expect(page.getByTestId('ra-success')).toContainText(r.username);
 }
 
+/** R2-F10 (M1): ปุ่มจัดการบัญชีอยู่ในแผงใต้แถว — เปิดแผง `user-panel-{u}` ก่อน (idempotent: เปิดอยู่แล้วไม่กดซ้ำ) */
+async function manage(page: Page, username: string) {
+  const panel = page.getByTestId(`user-panel-${username}`);
+  if (!(await panel.isVisible())) await page.getByTestId(`user-manage-${username}`).click();
+  await expect(panel).toBeVisible();
+  await expect(page.getByTestId(`user-manage-${username}`)).toHaveAttribute('aria-expanded', 'true');
+  return panel;
+}
+
 const reqCard = (page: Page, name: string) => page.locator('li[data-testid^="req-"]', { hasText: name });
 
 // ─────────────────────────── AC-26 ───────────────────────────
@@ -137,10 +146,14 @@ test.describe('AC-26 เชิญผู้ใช้', () => {
     const fullName = `สมหญิง ทดสอบลิงก์ใหม่${s}`;
     await loginAs(page, 'uadmin');
     const oldLink = await inviteViaUi(page, username, fullName);
+    await expect(page.getByTestId(`user-reinvite-${username}`)).toHaveCount(0); // อยู่ในแผงจัดการ
+    await manage(page, username);
     await page.getByTestId(`user-reinvite-${username}`).click();
     await expect.poll(() => page.getByTestId('invite-link').inputValue()).not.toBe(oldLink);
     const newLink = await page.getByTestId('invite-link').inputValue();
 
+    // แผงยังเปิดหลังทำรายการ (R2-F10)
+    await expect(page.getByTestId(`user-panel-${username}`)).toBeVisible();
     await page.getByTestId(`user-cancel-invite-${username}`).click();
     await confirmDialog(page, 'ยืนยันยกเลิกคำเชิญ');
     await expect(page.getByTestId(`user-${username}`)).toHaveCount(0);
@@ -160,8 +173,11 @@ test.describe('AC-26 เชิญผู้ใช้', () => {
     const username = `inc${s}`;
     await loginAs(page, 'uadmin');
     await inviteViaUi(page, username, `สมชาย ทดสอบยกเลิก${s}`);
+    await manage(page, username);
     await page.getByTestId(`user-cancel-invite-${username}`).click();
-    await confirmDialog(page, 'ยกเลิก');
+    // U8: ปุ่มปิดไม่ใช้คำว่า "ยกเลิก" ซ้ำกับปุ่มยืนยัน
+    await expect(page.getByRole('dialog').getByRole('button', { name: 'ยกเลิก', exact: true })).toHaveCount(0);
+    await confirmDialog(page, 'เก็บคำเชิญไว้');
     await expect(page.getByTestId(`user-status-${username}`)).toHaveText('รอตั้งรหัสผ่าน');
   });
 });
@@ -261,7 +277,7 @@ test.describe('AC-27 ขอเข้าใช้งาน', () => {
     const id = (await card.getAttribute('data-testid'))!.replace(/^req-/, '');
     // ยกเลิกใน prompt → การ์ดยังอยู่
     await page.getByTestId(`req-reject-${id}`).click();
-    await confirmDialog(page, 'ยกเลิก');
+    await confirmDialog(page, 'ยังไม่ปฏิเสธ'); // U8
     await expect(card).toBeVisible();
     await page.getByTestId(`req-reject-${id}`).click();
     await confirmDialog(page, 'ยืนยันปฏิเสธ', 'ไม่ใช่บุคลากรของหลักสูตร (ทดสอบ)');
@@ -281,13 +297,23 @@ test.describe('AC-28 ระงับบัญชี', () => {
     await loginAs(page, 'uadmin');
     await page.goto('/app/admin');
     await expect(page.getByTestId('user-status-lect1')).toHaveText('ใช้งานอยู่');
-    // ตัวเอง = ไม่มีปุ่มจัดการ
+    // ตัวเอง = ไม่มีปุ่มจัดการ · P4: uadmin จัดการบัญชี super_admin ไม่ได้
     await expect(page.getByTestId('user-suspend-uadmin')).toHaveCount(0);
+    await expect(page.getByTestId('user-manage-uadmin')).toHaveCount(0);
+    await expect(page.getByTestId('user-uadmin')).toContainText('บัญชีของคุณ');
+    await expect(page.getByTestId('user-sadmin')).toBeVisible();
+    await expect(page.getByTestId('user-manage-sadmin')).toHaveCount(0);
+    // ปุ่มระงับไม่อยู่บนแถวจนกว่าจะเปิดแผง
+    await expect(page.getByTestId('user-suspend-lect1')).toHaveCount(0);
+    await manage(page, 'lect1');
     await page.getByTestId('user-suspend-lect1').click();
     await confirmDialog(page, 'ยืนยันระงับ');
     await expect(page.getByTestId('user-status-lect1')).toHaveText('ระงับ');
     await expect(page.getByTestId('user-suspend-lect1')).toHaveCount(0);
     await expect(page.getByTestId('user-reactivate-lect1')).toBeVisible();
+    // P5: บัญชีระงับ → เพิ่มบทบาทไม่ได้ (บอกเหตุผลแทนฟอร์ม)
+    await expect(page.getByTestId('user-add-blocked-lect1')).toBeVisible();
+    await expect(page.getByTestId('user-add-role-lect1')).toHaveCount(0);
 
     await logoutViaMenu(page);
     await tryLogin(page, 'lect1', 'demo1234');
@@ -300,8 +326,16 @@ test.describe('AC-28 ระงับบัญชี', () => {
 
     await loginAs(page, 'uadmin');
     await page.goto('/app/admin');
+    await manage(page, 'lect1');
     await page.getByTestId('user-reactivate-lect1').click();
+    // ข-18: เปิดใช้อีกครั้งต้องยืนยัน + เตือนเรื่องคำเชิญที่เคยออก · ปิดกล่อง = ยังระงับ
+    await expect(page.getByRole('dialog')).toContainText('คำเชิญที่บัญชีนี้เคยออกไว้');
+    await confirmDialog(page, 'ยกเลิก');
+    await expect(page.getByTestId('user-status-lect1')).toHaveText('ระงับ');
+    await page.getByTestId('user-reactivate-lect1').click();
+    await confirmDialog(page, 'ยืนยันเปิดใช้');
     await expect(page.getByTestId('user-status-lect1')).toHaveText('ใช้งานอยู่');
+    await expect(page.getByTestId('user-add-role-lect1')).toBeVisible();
     await loginAs(page, 'lect1');
     await expect(page.getByTestId('nav-user')).toBeVisible();
   });
@@ -309,6 +343,7 @@ test.describe('AC-28 ระงับบัญชี', () => {
   test('ยกเลิกในกล่องยืนยันระงับ → ยังใช้งานอยู่ (negative)', async ({ page }) => {
     await loginAs(page, 'uadmin');
     await page.goto('/app/admin');
+    await manage(page, 'lect1');
     await page.getByTestId('user-suspend-lect1').click();
     await confirmDialog(page, 'ยกเลิก');
     await expect(page.getByTestId('user-status-lect1')).toHaveText('ใช้งานอยู่');
@@ -388,6 +423,11 @@ test.describe('AC-30 ไม่มีปุ่มลบผู้ใช้ + แ�
     await expect(table).toBeVisible();
     const del = await table.evaluate(t => Array.from(t.querySelectorAll('button')).filter(b => /ลบ|delete/i.test((b as HTMLElement).innerText)).map(b => (b as HTMLElement).innerText));
     expect(del).toEqual([]);
+    // × ถอนบทบาทอยู่ในแผงจัดการ (R2-F10) — ยังไม่เปิดแผง = ไม่มี ×
+    expect(await table.locator('button[aria-label^="ลบบทบาท"]').count()).toBe(0);
+    await manage(page, 'lect1');
+    const delOpen = await table.evaluate(t => Array.from(t.querySelectorAll('button')).filter(b => /ลบ|delete/i.test((b as HTMLElement).innerText)).map(b => (b as HTMLElement).innerText));
+    expect(delOpen).toEqual([]);
     expect(await table.locator('button[aria-label^="ลบบทบาท"]').count()).toBeGreaterThan(0);
     await expect(page.getByTestId('tab-demo')).toHaveCount(0);
     await expect(page.getByTestId('reset-demo')).toHaveCount(0);

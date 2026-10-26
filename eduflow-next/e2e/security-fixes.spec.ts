@@ -139,6 +139,9 @@ test.describe('nit #7 ยกเลิกคำเชิญล้ม → กล�
     await expect(page.getByTestId('invite-result')).toBeVisible();
     const link = await page.getByTestId('invite-link').inputValue();
 
+    // R2-F10: ปุ่มยกเลิกคำเชิญอยู่ในแผงจัดการ — เปิดแผงก่อนลบแถวใน store (UI ยังไม่ reload)
+    await page.getByTestId(`user-manage-${username}`).click();
+    await expect(page.getByTestId(`user-panel-${username}`)).toBeVisible();
     await removeUser(page, username);
     await page.getByTestId(`user-cancel-invite-${username}`).click();
     const dlg = page.getByRole('dialog');
