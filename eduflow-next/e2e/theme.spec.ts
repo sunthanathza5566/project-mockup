@@ -1,9 +1,11 @@
 /**
- * TASK-0002 Q0 — dark mode (ADR-UI-002 D8, saas-tokens §T1/§T12)
- * AC-13 (1) `aunqa_theme='dark'` → <html class~=dark> ตั้งแต่ DOMContentLoaded และไม่กระพริบ · พื้น body = token dark
- *       (2) สลับผ่าน UI แล้ว reload ค่ายังอยู่ — fixme จนกว่า S1/S2 วาง theme-toggle / theme-segment
- *       (3) `system` ตาม prefers-color-scheme (ทั้งตอนโหลดและเปลี่ยนระหว่างใช้งาน)
- *       (4) หลังสลับธีม `--user-scale` และ `data-effects` บน <html> ยังอยู่ (PrefsInit ไม่ชนกับ next-themes)
+ * TASK-0002 Q2a — ธีม: ค่าเริ่มต้นสว่าง (AC-13 R2 · ADR-UI-003 D2 · earth-tokens §E5)
+ * AC-13 R2 (1) ไม่มี `aunqa_theme` + ระบบเป็น dark → <html> ไม่มี class dark ตลอดการโหลด · พื้น body = --background (light)
+ *          (2) `aunqa_theme='dark'` → <html class~=dark> ตั้งแต่ DOMContentLoaded และไม่กระพริบ · พื้น body = token dark (คงเดิม)
+ *          (3) สลับผ่าน UI: /app `user-menu` → `theme-segment-dark` · /login `display-menu` → `theme-segment-dark` → reload ค่ายังอยู่
+ *              — fixme จน R2-F1 (user-menu) / R2-F2 (display-menu บน login) วาง · Q2c เอา fixme ออก
+ *          (4) `theme-segment-system` (ป้าย "ตามเครื่อง") ตาม prefers-color-scheme ทั้งตอนโหลดและเปลี่ยนระหว่างใช้งาน
+ *          (5) หลังสลับธีม `--user-scale` และ `data-effects` บน <html> ยังอยู่ (PrefsInit ไม่ชนกับ next-themes) (คงเดิม)
  * AC-03 dark: ไม่มี horizontal scroll บน 5 หน้าใน dark ที่ 1440 และ 390
  * ค่าสีที่คาดอ่านจาก app/globals.css (:root / .dark) — ไม่ hard-code
  */
@@ -69,8 +71,62 @@ const readHtmlLog = (page: Page) => page.evaluate(() => {
   return { log: w.__themeLog, atDCL: w.__darkAtDCL };
 });
 
-// ─────────────────────────── AC-13 (1) ───────────────────────────
-test.describe('AC-13 (1) aunqa_theme=dark → dark ตั้งแต่ DOMContentLoaded ไม่กระพริบ', () => {
+
+/**
+ * เปิดชุดควบคุม "การแสดงผล" ใน /app ให้เห็น ThemeSegment (`theme-segment`)
+ * — รอบ 2 อยู่ในเมนูผู้ใช้ (`user-menu`, R2-F1) · ระหว่างเปลี่ยนผ่านยังอยู่ที่ปุ่มท้าย sidebar (`display-prefs`, R2-F0)
+ *   Q2c: ลบ fallback `display-prefs` เมื่อ F1 วาง user-menu แล้ว (S6 ลบ DisplayPrefsButton)
+ */
+async function openAppThemeSegment(page: Page) {
+  const userMenu = page.getByTestId('user-menu');
+  if (await userMenu.count()) await userMenu.first().click();
+  else await page.getByTestId('display-prefs').click();
+  const seg = page.getByTestId('theme-segment');
+  await expect(seg).toBeVisible();
+  return seg;
+}
+
+// ─────────────────────────── AC-13 R2 (1) ───────────────────────────
+test.describe('AC-13 R2 (1) ค่าเริ่มต้นสว่าง: ไม่มีค่าเก็บ + ระบบเป็น dark → ไม่มี class dark ตลอดการโหลด', () => {
+  for (const url of ['/', '/login', '/app']) {
+    test(`${url}: ไม่มี aunqa_theme + prefers-color-scheme dark → <html> ไม่เคยมี class dark · พื้น body = --background (light)`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: 'dark' });
+      if (url === '/app') {
+        await loginAs(page, 'chair1');
+        // loginAs ไม่แตะ aunqa_theme — ยืนยันว่าไม่มีค่าเก็บจริงก่อนโหลดหน้าที่วัด
+        await page.evaluate((k) => localStorage.removeItem(k), THEME_KEY);
+      }
+      await recordHtmlClass(page);
+      await page.goto(url); await settle(page);
+      await page.waitForTimeout(300); // เผื่อ effect ของ next-themes หลัง hydrate
+      const { log, atDCL } = await readHtmlLog(page);
+      expect(atDCL, 'class dark ณ DOMContentLoaded').toBe(false);
+      expect(log.some(Boolean), `ลำดับ class dark: ${JSON.stringify(log)}`).toBe(false);
+      const s = await htmlState(page);
+      expect(s.dark).toBe(false);
+      expect(s.bg).toBe(BG.light);
+      // ค่าเริ่มต้นไม่ใช่ "ตามเครื่อง": ไม่มีค่า system ถูกเขียนเก็บ
+      expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).not.toBe('system');
+    });
+  }
+
+  test('/app: ThemeSegment แสดงค่าเริ่มต้น "สว่าง" (aria-checked) แม้ระบบเป็น dark · ป้าย 3 ค่า สว่าง/มืด/ตามเครื่อง', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await loginAs(page, 'chair1');
+    await page.evaluate((k) => localStorage.removeItem(k), THEME_KEY);
+    await page.goto('/app'); await settle(page);
+    const seg = await openAppThemeSegment(page);
+    await expect(seg).toHaveAttribute('role', 'radiogroup');
+    await expect(seg.getByRole('radio')).toHaveText(['สว่าง', 'มืด', 'ตามเครื่อง']);
+    await expect(seg).not.toContainText('ตามระบบ');
+    await expect(page.getByTestId('theme-segment-light')).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByTestId('theme-segment-system')).toHaveAttribute('aria-checked', 'false');
+    expect((await htmlState(page)).dark).toBe(false);
+  });
+});
+
+// ─────────────────────────── AC-13 R2 (2) ───────────────────────────
+test.describe('AC-13 R2 (2) aunqa_theme=dark → dark ตั้งแต่ DOMContentLoaded ไม่กระพริบ', () => {
   for (const url of ['/', '/login', '/app']) {
     test(`${url}: <html class~=dark> ตั้งแต่ DOMContentLoaded · class ไม่ถูกถอดภายหลัง · พื้น body = --background (dark)`, async ({ page }) => {
       // prefers-color-scheme = light → ถ้าได้ dark แปลว่ามาจากค่าที่เก็บไว้จริง ไม่ใช่จากระบบ
@@ -113,37 +169,78 @@ test.describe('AC-13 (1) aunqa_theme=dark → dark ตั้งแต่ DOMCont
   });
 });
 
-// ─────────────────────────── AC-13 (2) ───────────────────────────
-// fixme: S0 สร้าง ThemeToggleButton (`theme-toggle`) / ThemeSegment (`theme-segment-*`) แล้วแต่ยังไม่ mount ในหน้าใด
-// → S2 วางในทอปบาร์/landing/login, S1 วางใน DisplayPrefs — qa-tester เอา fixme ออก (และเพิ่มเคส theme-segment) หลัง S1/S2
-test.describe.fixme('AC-13 (2) สลับธีมผ่าน UI แล้ว reload ค่ายังอยู่', () => {
-  test('/app topbar: theme-toggle สลับ light ↔ dark · เก็บใน aunqa_theme · reload ยังเป็นค่าเดิม', async ({ page }) => {
+// ─────────────────────────── AC-13 R2 (3) ───────────────────────────
+// fixme: user-menu (R2-F1) และ display-menu บน /login (R2-F2) ยังไม่ถูกวาง — Q2c เอา fixme ออก
+test.describe('AC-13 R2 (3) สลับธีมผ่าน UI แล้ว reload ค่ายังอยู่', () => {
+  test.fixme('/app: user-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark · กลับเป็นสว่างได้', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await loginAs(page, 'chair1');
     await page.goto('/app'); await settle(page);
     expect((await htmlState(page)).dark).toBe(false);
-    const toggle = page.getByTestId('theme-toggle');
-    await expect(toggle).toHaveAttribute('aria-label', 'สลับเป็นธีมมืด');
-    await toggle.click();
+    await page.getByTestId('user-menu').click();
+    await page.getByTestId('theme-segment-dark').click();
     await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
+    await expect(page.getByTestId('theme-segment-dark')).toHaveAttribute('aria-checked', 'true');
     expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('dark');
-    await expect(toggle).toHaveAttribute('aria-label', 'สลับเป็นธีมสว่าง');
     await page.reload(); await settle(page);
     const s = await htmlState(page);
     expect(s.dark).toBe(true);
     expect(s.bg).toBe(BG.dark);
-    await page.getByTestId('theme-toggle').click();
+    await page.getByTestId('user-menu').click();
+    await page.getByTestId('theme-segment-light').click();
     await expect.poll(async () => (await htmlState(page)).dark).toBe(false);
     await page.reload(); await settle(page);
     expect((await htmlState(page)).dark).toBe(false);
+    expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('light');
+  });
+
+  test.fixme('/login: display-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/login'); await settle(page);
+    expect((await htmlState(page)).dark).toBe(false);
+    await page.getByTestId('display-menu').click();
+    await expect(page.getByTestId('display-menu-panel')).toBeVisible();
+    await page.getByTestId('theme-segment-dark').click();
+    await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
+    // เปลี่ยนค่าไม่ปิด popover (§F2.3)
+    await expect(page.getByTestId('display-menu-panel')).toBeVisible();
+    expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('dark');
+    await page.reload(); await settle(page);
+    const s = await htmlState(page);
+    expect(s.dark).toBe(true);
+    expect(s.bg).toBe(BG.dark);
   });
 });
 
-// ─────────────────────────── AC-13 (3) ───────────────────────────
-test.describe('AC-13 (3) system ตาม prefers-color-scheme', () => {
+// ─────────────────────────── AC-13 R2 (4) ───────────────────────────
+test.describe('AC-13 R2 (4) "ตามเครื่อง" (system) ตาม prefers-color-scheme', () => {
+  test('/app: กด theme-segment-system ("ตามเครื่อง") ขณะระบบ dark → dark · เปลี่ยนระบบระหว่างใช้งานตามทันที · reload ยังเป็น system', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await loginAs(page, 'chair1');
+    await page.goto('/app'); await settle(page);
+    expect((await htmlState(page)).dark, 'ค่าเริ่มต้นสว่างแม้ระบบ dark').toBe(false);
+    await openAppThemeSegment(page);
+    const sys = page.getByTestId('theme-segment-system');
+    await expect(sys).toHaveText('ตามเครื่อง');
+    await sys.click();
+    await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
+    await expect(sys).toHaveAttribute('aria-checked', 'true');
+    expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('system');
+    expect((await htmlState(page)).bg).toBe(BG.dark);
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect.poll(async () => (await htmlState(page)).dark).toBe(false);
+    expect((await htmlState(page)).bg).toBe(BG.light);
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
+    await page.reload(); await settle(page);
+    expect((await htmlState(page)).dark).toBe(true);
+    expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('system');
+  });
+
   for (const scheme of ['dark', 'light'] as const) {
-    test(`ไม่มีค่าเก็บ (ค่าเริ่ม = system) + ระบบ ${scheme} → ธีม ${scheme}`, async ({ page }) => {
+    test(`aunqa_theme=system + ระบบ ${scheme} ตอนโหลด → ธีม ${scheme}`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme });
+      await presetStorage(page, { [THEME_KEY]: 'system' });
       await page.goto('/login'); await settle(page);
       const s = await htmlState(page);
       expect(s.dark).toBe(scheme === 'dark');
@@ -173,12 +270,14 @@ test.describe('AC-13 (3) system ตาม prefers-color-scheme', () => {
   });
 });
 
-// ─────────────────────────── AC-13 (4) ───────────────────────────
-test.describe('AC-13 (4) สลับธีมแล้ว --user-scale และ data-effects บน <html> ยังอยู่', () => {
+// ─────────────────────────── AC-13 R2 (5) ───────────────────────────
+test.describe('AC-13 R2 (5) สลับธีมแล้ว --user-scale และ data-effects บน <html> ยังอยู่', () => {
   test('fontScale 125% + effects off: คงอยู่หลังสลับผ่านระบบ (system), ผ่านอีกแท็บ (storage) และหลัง reload', async ({ page, context }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await presetStorage(page, { [PREFS_KEY]: JSON.stringify({ fontScale: 1.25, effects: false }) });
     await loginAs(page, 'chair1');
+    // ค่าเริ่มต้นเป็นสว่างแล้ว (R2) → ตั้ง system ครั้งเดียว (ไม่ใช้ init script เพราะจะทับค่าทุก reload)
+    await page.evaluate((k) => localStorage.setItem(k, 'system'), THEME_KEY);
     await page.goto('/app'); await settle(page);
     const expectPrefs = async (label: string) => {
       const s = await htmlState(page);
@@ -207,6 +306,12 @@ test.describe('AC-13 (4) สลับธีมแล้ว --user-scale แล�
     const s = await expectPrefs('หลัง reload');
     expect(s.dark).toBe(false);
     expect(s.bg).toBe(BG.light);
+
+    // สลับครั้งที่ 3 ผ่าน UI (ThemeSegment): เลือก "มืด" → prefs ยังอยู่
+    await openAppThemeSegment(page);
+    await page.getByTestId('theme-segment-dark').click();
+    await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
+    await expectPrefs('หลังเลือกมืดผ่าน ThemeSegment');
   });
 });
 
