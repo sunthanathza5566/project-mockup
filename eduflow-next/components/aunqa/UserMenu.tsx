@@ -67,7 +67,7 @@ export default function UserMenu({ user, onLogout }: { user: AppUser; onLogout: 
         ref={btn} id="user-menu-trigger" variant="ghost"
         className="w-11 min-w-0 max-w-full justify-start gap-2 px-0 py-1 text-left md:w-auto md:px-2"
         data-testid="user-menu"
-        aria-haspopup="true" aria-expanded={open} aria-controls="user-menu-panel"
+        aria-expanded={open} aria-controls="user-menu-panel"
         onClick={() => setOpen(o => !o)}
       >
         <span className="mx-auto inline-flex md:mx-0"><Avatar name={user.fullName} /></span>

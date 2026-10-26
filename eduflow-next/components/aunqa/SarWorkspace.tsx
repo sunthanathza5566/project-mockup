@@ -102,7 +102,6 @@ const DRAFT_BOX = 'max-h-96 overflow-y-auto whitespace-pre-wrap rounded-lg borde
 let commentsHashHandledFor = '';
 export function resetCommentsDeepLink(): void { commentsHashHandledFor = ''; }
 
-
 export default function SarWorkspace({ data, user, reload, remount }: {
   data: WorkspaceData; user: AppUser; reload: () => void; remount: () => void;
 }) {

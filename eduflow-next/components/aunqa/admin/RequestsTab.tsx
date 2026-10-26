@@ -17,7 +17,7 @@ import {
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { useLang } from '@/context/LangContext';
-import { Async, AsyncButton, Empty, useLoad } from '@/components/aunqa/common';
+import { Async, AsyncButton, Empty, InlineMessage, useLoad } from '@/components/aunqa/common';
 import Icon from '@/components/ui/Icon';
 import { NativeSelect } from '@/components/ui/primitives/native-select';
 import { ROLE_TH, errMsg } from '@/lib/ui/aunqa';
@@ -109,6 +109,10 @@ function RequestCard({ user, req, scopes, onDone }: {
         </span>
       </div>
       {otherUni && <p className="aq-meta mt-1">{lang === 'en' ? otherUni.nameEn : otherUni.nameTh}</p>}
+      {/* S-07: ระบบยังไม่ยืนยันอีเมล (ข-06) → เตือนผู้อนุมัติให้ตรวจตัวตนเอง */}
+      <InlineMessage tone="warn" className="mt-3" testId={`req-unverified-${id}`}>
+        อีเมลนี้ยังไม่ได้ยืนยัน — ตรวจสอบตัวตนผู้ขอก่อนอนุมัติ
+      </InlineMessage>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 text-base sm:grid-cols-[max-content_minmax(0,1fr)]">
         <dt className="text-muted-foreground">หน่วยงานที่ขอ</dt>

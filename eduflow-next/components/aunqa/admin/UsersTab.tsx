@@ -42,8 +42,9 @@ export default function UsersTab({ user }: { user: AppUser }) {
   const [invite, setInvite] = useState<InviteShown | null>(null);
   const [adding, setAdding] = useState<Record<string, { role: RoleCode; scope: string }>>({});
 
-  function act(fn: () => void, ok: string) {
-    try { fn(); showToast(ok, 'success'); q.reload(); } catch (e) { showToast(errMsg(e), 'error'); }
+  /** คืน true เมื่อสำเร็จ — ผู้เรียกที่ต้องทำต่อหลังสำเร็จ (เช่น ปิดกล่องลิงก์) ใช้ค่านี้ */
+  function act(fn: () => void, ok: string): boolean {
+    try { fn(); showToast(ok, 'success'); q.reload(); return true; } catch (e) { showToast(errMsg(e), 'error'); return false; }
   }
 
   function onFormDone(r: NewUserDone) {
@@ -77,8 +78,8 @@ export default function UsersTab({ user }: { user: AppUser }) {
       variant: 'danger', confirmText: 'ยืนยันยกเลิกคำเชิญ',
     });
     if (!ok) return;
-    act(() => cancelInvitation(user, u.id), 'ยกเลิกคำเชิญแล้ว');
-    if (invite?.userId === u.id) setInvite(null);
+    // review nit #7: ปิดกล่องลิงก์เฉพาะเมื่อยกเลิกสำเร็จ — ถ้าล้ม ลิงก์ยังใช้ได้ต้องไม่หายจากจอ
+    if (act(() => cancelInvitation(user, u.id), 'ยกเลิกคำเชิญแล้ว') && invite?.userId === u.id) setInvite(null);
   }
 
   function manageButtons(u: Row) {
@@ -95,7 +96,7 @@ export default function UsersTab({ user }: { user: AppUser }) {
     if (st === 'suspended') {
       return (
         <AsyncButton variant="outline" size="compact" testId={`user-reactivate-${u.username}`}
-          onClick={() => act(() => setUserStatus(user, u.id, 'active'), 'เปิดใช้บัญชีแล้ว')}>
+          onClick={() => { act(() => setUserStatus(user, u.id, 'active'), 'เปิดใช้บัญชีแล้ว'); }}>
           เปิดใช้อีกครั้ง
         </AsyncButton>
       );

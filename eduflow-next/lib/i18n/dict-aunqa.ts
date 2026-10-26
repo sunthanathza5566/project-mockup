@@ -554,7 +554,7 @@ export const EN_AUNQA: Record<string, string> = {
   'หากไม่ให้ข้อมูลที่จำเป็น (ช่องที่มี *) จะส่งคำขอใช้งานไม่ได้': 'Without the required information (fields marked *), the request cannot be sent',
   'ข้อมูลที่เก็บ: ชื่อ-สกุล อีเมล หน่วยงาน ตำแหน่ง เหตุผล และชื่อผู้ใช้ (รหัสผ่านเก็บแบบเข้ารหัสทางเดียว)': 'Data collected: full name, email, unit, position, reason and username (the password is stored as a one-way hash)',
   'ระยะเวลาเก็บ: ถ้าคำขอถูกปฏิเสธ ลบทันที · ถ้าอนุมัติ เก็บตลอดอายุบัญชี · บันทึกการใช้งานเก็บเฉพาะโดเมนอีเมล': 'Retention: deleted immediately if the request is rejected · kept for the life of the account if approved · activity logs keep only the email domain',
-  'ผู้ที่เห็นข้อมูล: ผู้ดูแลระบบของมหาวิทยาลัยที่คุณสังกัดเท่านั้น': 'Who can see it: only the administrators of your university',
+  'ผู้ที่เห็นข้อมูล: ผู้ดูแลระบบของมหาวิทยาลัยที่คุณสังกัด และผู้ดูแลระบบส่วนกลางของระบบ': 'Who can see it: the administrators of your university and the system-wide administrators',
   'สิทธิของคุณ: ขอดู แก้ไข หรือลบข้อมูล และสอบถามเรื่องข้อมูลส่วนบุคคลได้ที่ผู้ดูแลระบบของมหาวิทยาลัย': 'Your rights: you can ask your university administrator to view, correct or delete your data, or ask about your personal data',
   // ข้อความ error ฝั่ง client
   'กรุณากรอกชื่อ-สกุล': 'Please enter your full name',
@@ -611,6 +611,28 @@ export const EN_AUNQA: Record<string, string> = {
   'รีเซ็ตเรียบร้อย': 'Reset complete',
   'กรุณาเข้าสู่ระบบใหม่': 'Please sign in again',
   'รีเซ็ตไม่สำเร็จ': 'Reset failed',
+  // R2-F9 (review minor #6 · security S-07) — ข้อความ error ของ API ที่ผู้ดูแลเห็นใน toast + ป้ายเตือนการ์ดคำขอ
+  // ตรวจด้วยสคริปต์: ทุก AunqaError ใน auth.api / onboarding.store / init + ข้อความไทยใน components/aunqa/admin/**
+  'อีเมลนี้ยังไม่ได้ยืนยัน — ตรวจสอบตัวตนผู้ขอก่อนอนุมัติ': "This email hasn't been verified — confirm the requester's identity before approving",
+  'ไม่มีสิทธิ์': "You don't have permission",
+  'ไม่มีสิทธิ์จัดการผู้ใช้': "You don't have permission to manage users",
+  'ไม่มีสิทธิ์สร้างบัญชี super_admin': "You don't have permission to create a super_admin account",
+  'ไม่มีสิทธิ์ให้บทบาท super_admin': "You don't have permission to grant the super_admin role",
+  'ไม่มีสิทธิ์แก้บัญชี super_admin': "You don't have permission to change a super_admin account",
+  'ไม่มีสิทธิ์ลบบัญชี super_admin': "You don't have permission to delete a super_admin account",
+  'ขอบเขตบทบาทไม่ถูกต้อง': 'Invalid role scope',
+  'ต้องกำหนดบทบาทอย่างน้อย 1 บทบาท': 'Assign at least one role',
+  'แก้บทบาทของตัวเองไม่ได้': "You can't change your own roles",
+  'ลบบัญชีตัวเองไม่ได้': "You can't delete your own account",
+  'เปลี่ยนสถานะบัญชีของตัวเองไม่ได้': "You can't change the status of your own account",
+  'เปลี่ยนสถานะได้เฉพาะระหว่าง "ใช้งาน" กับ "ระงับ"': 'Status can only be switched between "Active" and "Suspended"',
+  'ผู้ใช้นี้เคยใช้งานแล้ว ให้ระงับบัญชีแทนการลบ': 'This user has already used the system — suspend the account instead of deleting it',
+  'ไม่พบผู้ใช้': 'User not found',
+  'อีเมลนี้ถูกใช้แล้ว': 'This email is already in use',
+  'กรุณากรอกชื่อ': 'Please enter a name',
+  'กรุณากรอกชื่อ (ไม่เกิน 100 ตัวอักษร)': 'Please enter a name (up to 100 characters)',
+  'หมายเหตุต้องไม่เกิน 500 ตัวอักษร': 'Note must be 500 characters or fewer',
+  'เฉพาะผู้ดูแลระบบสูงสุดเท่านั้นที่รีเซ็ตข้อมูลเดโม่ได้': 'Only the super administrator can reset the demo data',
 
   // R2-F8 — DICT HANDOFF ของ R2-F5 + ข้อความหน้าข้อมูลที่ยังไม่มีคำแปล (สคริปต์ตรวจไฟล์ของ F3–F7)
   'เพิ่ม PLO': 'Add PLO',

@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } f
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  ACTION_TRANSITIONS, can, createActionItem, createActionsFromAfi, deleteActionItem, listActionItems, listRequirements,
+  ACTION_TRANSITIONS, can, createActionItem, createActionsFromAfi, deleteActionItem, isActiveUser, listActionItems, listRequirements,
   listUsers, programmeScope, setActionStatus, updateActionItem,
 } from '@/lib/api';
 import type { ActionItem, ActionStatus, AppUser } from '@/lib/types';
@@ -181,7 +181,10 @@ function Inner() {
 
       <Async q={q}>{d => !d ? <Empty icon="book-open" title="ยังไม่มีหลักสูตรที่เข้าถึงได้" /> : (
         <>
-          {form && <ActionForm user={user} programmeId={programmeId} item={form === 'new' ? null : form} people={d.people.map(p => ({ id: p.id, name: p.fullName }))}
+          {form && <ActionForm user={user} programmeId={programmeId} item={form === 'new' ? null : form} people={d.people
+            // review minor #3: เลือกได้เฉพาะบัญชี active · คงผู้รับผิดชอบเดิมที่ถูกระงับไว้ตอนแก้ ไม่ให้ select ว่าง
+            .filter(p => isActiveUser(p) || (form !== 'new' && p.id === form.ownerUserId))
+            .map(p => ({ id: p.id, name: p.fullName }))}
             cycles={cycles.map(c => ({ id: c.id, label: `รอบ ${c.academicYear}` }))} onClose={() => setForm(null)} onDone={() => { setForm(null); q.reload(); }} />}
           {(() => {
             const shown = d.items.filter(a => statusF === 'all' || a.status === statusF);
