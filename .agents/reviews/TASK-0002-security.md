@@ -139,3 +139,58 @@
 - **qa-tester:** เทสต์ใหม่ — reject แล้ว storage ไม่มีชื่อ/อีเมลผู้ขอ (S-01); suspend admin แล้วคำเชิญที่เขาออกใช้ไม่ได้ (S-04 ถ้าแก้); facade ไม่มี `revokeInvitationsOf` (S-05)
 - **thesis-writer (เฟส 10):** ตาราง (ข) ทั้ง 16 ข้อ = เนื้อหาข้อจำกัดบท 5 ตาม C15 — ห้ามเขียน "ปลอดภัยตาม NIST/ASVS"
 - หลังแก้ S-01 (และ Low ที่เลือกทำ) → security-auditor ตรวจซ้ำเฉพาะจุด (re-run P03/P14 + เคสใหม่)
+
+---
+
+## Re-check หลังแก้ (2026-10-27) — commit `d54f93e` (R2-B3) + `195a7ce` (R2-F9) · HEAD `195a7ce`
+
+### Verdict ใหม่: **PASS**
+- Critical 0 · High 0 · Medium 0 (S-01 ปิด) · Low ที่ยังเปิด 0 — S-02/S-04/S-05/S-06/S-07 ปิด · S-03 = ข้อจำกัดที่ยอมรับใน MVP (ตัดสินไว้ตั้งแต่รอบแรก ไม่ได้แก้ในรอบนี้) · ข้อจำกัดใหม่ 3 ข้อ (ข-17..ข-19) ยอมรับได้ → ส่งให้เล่มบท 5
+- ไม่มี dependency ใหม่ (diff ไม่แตะ package.json/lockfile) · สแกนบรรทัด `+` ของ `git diff ea00d7b..HEAD -- eduflow-next/` หา secret/`console.*`/HTML sink = 0 · `npx tsc --noEmit` = 0 error (working tree ณ เวลาตรวจ รวมไฟล์เทสต์ที่ qa-tester กำลังแก้)
+
+### สถานะ finding
+
+| ID | สถานะ | หลักฐาน |
+|---|---|---|
+| **S-01** (Medium) | **closed** | N12 มี `dedupeKey: access_request:<id>` (`onboarding.store.ts:262-269`) · `rejectAccessRequest` และ `deleteUser` (pending) เรียก `purgeAccessRequestNotices` (`notification.internal.ts`) ลบให้ทุกผู้รับ · P03: เหลือ 0 แถว, storage ไม่มีชื่อ/อีเมล · P14: `storageText()` ไม่มี "Rej One"/`rej1@…` · P22: แถว legacy (ไม่มี dedupeKey) ถูกลบ, N12 ของคำขออื่น 2 แถวยังอยู่ · P24: deleteUser(pending) ไม่เหลือชื่อ · dedupe ของ `notify` เป็นราย userId → ยังได้ผู้รับครบ 2 คน (u-super, u-uniadm) |
+| S-02 | closed | `RequestAccessForm.tsx:376` + dict EN ระบุ "ผู้ดูแลระบบของมหาวิทยาลัยที่คุณสังกัด และผู้ดูแลระบบส่วนกลางของระบบ" ตรงกับ P04 (super เห็นคำขอ + ได้ N12) |
+| S-03 | accepted-limitation (MVP) | ไม่เปลี่ยน — P08 ผลเหมือนเดิม (เขียน = forbidden, อ่านได้) · คงอยู่ใน ข-09 |
+| S-04 | **closed** (เลือกทาง b) | `findValidInvitation` ตรวจว่าผู้เชิญยัง active และยังมี `user.manage` ของ uni ผู้รับเชิญ, ไม่พบผู้เชิญ = null · P11: ระงับผู้เชิญ → peek `null`, accept `invalid` ด้วยข้อความ**เดียวกับ** token มั่ว, บัญชียัง invited; เปิดใช้ผู้เชิญอีกครั้ง → accept สำเร็จ · P25: ถอน uni_admin ของผู้เชิญ → invalid; admin ที่ active ออกคำเชิญใหม่ (reissue, `createdBy` = ผู้ออกใหม่) → ใช้ได้; ผู้เชิญไม่มีในระบบ → invalid (fail-closed) · P26: สั่งระงับขณะ accept ยังค้างอยู่ → invalid, บัญชีไม่ถูกเปิดใช้ (`acceptInvitation` เรียก `findValidInvitation` ซ้ำหลัง await, `:198`) |
+| S-05 | closed | `revokeInvitationsOf` → `invitation.internal.ts`; `purgeAccessRequestNotices`/`accessRequestNoticeKey` → `notification.internal.ts` ไม่อยู่ใน facade · P19: `['revokeInvitationsOf','purgeAccessRequestNotices','accessRequestNoticeKey'].filter(k => k in api)` = `[]` |
+| S-06 | closed | `withoutPassword` ใช้ร่วมกันใน `createUser`/`setUserRoles`/`setUserStatus`/`approveAccessRequest` (+ `inviteUser` เดิม) · P06: ผลคืนทั้ง 4 ตัวไม่มี key `password`, store ยังเก็บ `sha256:` · แก้ `roles` ในผลคืนของ `setUserRoles` แล้วไม่กระทบ store (ไม่คืน reference ของ cache แล้ว) |
+| S-07 | closed | `RequestsTab.tsx:112-115` `InlineMessage tone="warn"` testid `req-unverified-{id}` + คำแปล EN ใน dict · render เป็น React text |
+| I-01..I-03 | ไม่เปลี่ยน | P07/P12/P21 ผลเหมือนเดิม |
+
+### ตัดสินข้อจำกัดที่ backend-dev แจ้ง
+- **ชื่อซ้ำ (fallback ของ S-01 สำหรับแถว legacy) → ยอมรับได้** (ข-17): แถวที่ไม่มี dedupeKey ถูกจับด้วย `kind==='access_request'` + `messageTh` ที่ตรงทุกตัวอักษร → P23: ถ้ามีคำขอค้างอีกคนชื่อเดียวกันพอดี แจ้งเตือน**แบบเก่า**ของคนนั้นหายไปด้วย แต่คำขอยัง pending ยังอยู่ใน `listAccessRequests` และ `countPendingAccessRequests` = 1 → กระทบแค่ availability ของการแจ้งเตือน ไม่มีข้อมูลรั่วและไม่ข้ามสิทธิ์ (ถูกเรียกหลัง guard ของ reject/delete เท่านั้น) · แถวที่สร้างหลัง fix มี dedupeKey ทุกแถว จึงไม่เกิดกรณีนี้ (P23 ส่วน keyed: ของอีกคนเหลือ 2) · ทางเลือกอื่นคือปล่อยชื่อค้างไว้ ซึ่งขัด PDPA → ทางที่เลือกถูกแล้ว
+- **เปิดใช้ผู้เชิญอีกครั้งแล้วคำเชิญกลับมาใช้ได้ → ยอมรับได้** (ข-18): การเปิดใช้เป็นการตัดสินใจโดยตรงของ admin ที่ active (มี audit `user.reactivate`) ซึ่งเท่ากับคืนความไว้วางใจให้ผู้เชิญ · คำเชิญยังจำกัดด้วยอายุ 7 วันเดิม (ไม่ต่ออายุ) และใช้ได้ครั้งเดียว · admin ยกเลิกคำเชิญรายตัวได้ (`cancelInvitation`) · สอดคล้อง ADR A3 (ระงับ↔เปิดใช้ย้อนกลับได้) และดีกว่า revoke ถาวรซึ่งย้อนกลับไม่ได้ · ข้อความเดียว `INVITE_INVALID_MESSAGE` ไม่บอกว่าผู้เชิญถูกระงับ (P11) · **ข้อแนะนำ (ไม่บังคับ):** ตอนเปิดใช้บัญชี UI แจ้ง admin ว่า "คำเชิญที่บัญชีนี้ออกไว้และยังไม่หมดอายุจะกลับมาใช้ได้"
+- **อนุมัติแล้วคง N12 → ยอมรับได้**: ตรงกับประกาศ "ถ้าอนุมัติ เก็บตลอดอายุบัญชี" (P24 คงไว้ 2 แถว)
+- **`isActorActive` fail-open เมื่อไม่พบแถว** = ข-01 เดิม (ไม่ใช่ finding ใหม่) → บันทึกเป็น ข-19 คู่กับ ข-01 ในเล่ม
+
+### ข้อจำกัดเพิ่มเติม → เล่มบท 5 (thesis-writer)
+| ID | ข้อจำกัด | หมายเหตุ |
+|---|---|---|
+| ข-17 | ลบแจ้งเตือน N12 แบบ legacy ด้วยการจับข้อความ — ชื่อซ้ำทำให้แจ้งเตือนเก่าของคำขออื่นหายไปด้วย | เกิดกับข้อมูลก่อน R2-B3 เท่านั้น; ระบบจริงใช้ FK notification→request + ON DELETE CASCADE |
+| ข-18 | คำเชิญใช้ได้หรือไม่ขึ้นกับสถานะและสิทธิ์ของผู้เชิญ ณ เวลาที่ใช้ (ระงับ = พักไว้, เปิดใช้ = กลับมาใช้ได้) | อธิบายใน state diagram ของคำเชิญ |
+| ข-19 | `isActorActive` fail-open เมื่อ actor ไม่มีแถวใน store | ส่วนหนึ่งของ ข-01 |
+
+### Probe รอบนี้ (ไฟล์เดิม `sec.probe.ts` ใน scratchpad ของ session — ไม่ commit; เปลี่ยน assert ของ P03/P06/P11/P14/P19 ให้ "ยืนยันว่าแก้แล้ว" + เพิ่ม P22–P26) · **ผล: 26/26 ผ่าน**
+| Probe | ตรวจอะไร | ผลที่ได้ | ใช้กับ |
+|---|---|---|---|
+| P03 | ส่งคำขอ (ชื่อไทย) → reject | แจ้งเตือนที่มีชื่อ = 0, storage ไม่มีชื่อ/อีเมล | S-01 |
+| P06 | ผลคืนของ approve/createUser/setUserRoles/setUserStatus | ไม่มี `password` ทั้ง 4 ตัว; store ยังมี hash; ผลคืนไม่ใช่ reference ของ cache | S-06 |
+| P11 | ระงับผู้เชิญ → peek/accept; เปิดใช้ → accept | null / `invalid` ข้อความเดียวกับ token มั่ว, ยัง invited / สำเร็จ | S-04 |
+| P14 | flow 9 ขั้น + ค้นทั้ง audit และ storage | audit ไม่มีความลับ (เหมือนเดิม) + storage ไม่มี "Rej One"/อีเมล | S-01, C11, C13 |
+| P19 | helper ที่ไม่มี guard บน facade | `[]` | S-05 |
+| P22 | แถว N12 legacy (ลบ dedupeKey ออก) → reject | ลบแล้ว; N12 ของคำขออื่นเหลือ 2 | S-01 |
+| P23 | 2 คำขอชื่อซ้ำ: แบบ legacy / แบบ keyed | legacy: N12 ของอีกคนหาย (คำขอยัง pending + นับได้ 1) · keyed: เหลือ 2 | ข-17 |
+| P24 | deleteUser(pending) / approve | ไม่เหลือชื่อ / คง N12 2 แถว | S-01 |
+| P25 | ผู้เชิญถูกถอน uni_admin / reissue โดย admin ที่ active / ผู้เชิญไม่มีในระบบ | invalid / สำเร็จ / invalid | S-04 |
+| P26 | สั่งระงับผู้เชิญขณะ accept ยังค้าง | invalid, บัญชียัง invited | S-04 (TOCTOU) |
+
+P01, P02, P04, P05, P07–P10, P12, P13, P15–P18, P20, P21 ได้ผลเหมือนรอบแรก (ไม่ regress)
+
+### ส่งต่อ
+- C13 → **ผ่าน** · C12 → ผ่าน (เหลือ ข-13 เดิม) · C7 → ผ่าน (S-04 ปิดแล้ว)
+- qa-tester: เทสต์ถาวรตาม HANDOFF ของ backend-dev ครอบ P03/P11/P19/P06 แล้ว — แนะนำเพิ่ม P22 (legacy) และ P25 (ผู้เชิญถูกถอนสิทธิ์)
+- thesis-writer: ตาราง (ข) = ข-01..ข-19
