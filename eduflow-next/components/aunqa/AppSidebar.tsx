@@ -6,7 +6,7 @@
  * - 4 กลุ่ม: งานของฉัน · จัดทำรายงาน SAR · ข้อมูลหลักสูตร (รวม "คลังเกณฑ์" เดิมของกลุ่มอ้างอิง) · ผู้ดูแล — กลุ่มว่างไม่แสดงหัว
  *   เงื่อนไขแสดงเมนูต่อ role เดิมทุกข้อ · testid nav-* เดิม
  * - drawer: focus trap, Esc ปิด, คลิก overlay ปิด, ปิดเองเมื่อเปลี่ยนหน้า, คืน focus ไปปุ่มเมนู (AppShell) · หัว drawer มีปุ่ม "ปิด" (`nav-drawer-close`)
- * - ตัวนับ: หน้าหลัก = todoTotal · รอตรวจ = reviewTotal · ผู้ดูแลระบบ = คำขอเข้าใช้งานรออนุมัติ (countPendingAccessRequests)
+ * - ตัวนับ: หน้าหลัก = homeTotal (todoTotal + คำขอรออนุมัติของผู้มี user.manage — V1 m2) ·รอตรวจ = reviewTotal · ผู้ดูแลระบบ = คำขอเข้าใช้งานรออนุมัติ (countPendingAccessRequests)
  *   คำนวณใหม่เมื่อเปลี่ยนหน้าและเมื่อมี `aunqa:todos-changed`
  * - ไม่มีส่วนล่าง (การแสดงผล/ออกจากระบบ ย้ายไปเมนูผู้ใช้ — §F11)
  * hook ที่คงไว้: `#app-sidebar` + class `is-open` + `data-open` (สไตล์ drawer อ่านจาก data-open), `a.aq-nav-item`, `.aq-nav-group`, `.aq-count`
@@ -17,7 +17,7 @@ import Link from 'next/link';
 import type { AppUser } from '@/lib/types';
 import { countPendingAccessRequests, listMyTodos } from '@/lib/api';
 import { canAny, isAssessorOnly } from '@/lib/ui/aunqa';
-import { TODOS_CHANGED_EVENT, countLabel, reviewTotal, todoTotal } from '@/lib/ui/todo';
+import { TODOS_CHANGED_EVENT, countLabel, homeTotal, reviewTotal } from '@/lib/ui/todo';
 import Icon, { type IconName } from '@/components/ui/Icon';
 import { Brand } from '@/components/ui/BrandMark';
 import { Button } from '@/components/ui/primitives/button';
@@ -29,9 +29,12 @@ const SIDEBAR =
   'data-[open]:visible data-[open]:translate-x-0 data-[open]:duration-base data-[open]:ease-enter ' +
   'lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-auto lg:visible lg:translate-x-0 lg:shadow-none lg:transition-none';
 
-/** รายการเมนู (hook aq-nav-item — target audit 44px) · active = พื้น primary-muted + ตัวหนา (คู่ #12) ไม่มีแถบซ้ายแล้ว */
+/**
+ * รายการเมนู (hook aq-nav-item — target audit 44px) · active = พื้น primary-muted + ตัวหนา (คู่ #12) ไม่มีแถบซ้ายแล้ว
+ * `before:!hidden` ปิดแถบ ::before สีน้ำเงินของ legacy.css (`.aq-nav-item[aria-current=page]::before` — V1 m1) ลบได้หลัง S6
+ */
 const NAV_ITEM =
-  'aq-nav-item group flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-foreground no-underline ' +
+  'aq-nav-item group flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-foreground no-underline before:!hidden ' +
   'transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground ' +
   'aria-[current=page]:bg-primary-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground';
 
@@ -51,12 +54,12 @@ export default function AppSidebar({ user, pathname, open, onClose }: {
   useEffect(() => {
     const calc = () => {
       let home = 0, review = 0, requests = 0;
+      try { requests = canAny(user, 'user.manage') ? countPendingAccessRequests(user) : 0; } catch { requests = 0; }
       try {
         const items = listMyTodos(user);
-        home = todoTotal(items);
+        home = homeTotal(items, requests); // รวมงาน "อนุมัติคำขอเข้าใช้งาน" บนหน้าหลัก (V1 m2) — ตรงกับ "(รวม N งาน)"
         review = reviewTotal(items);
       } catch { /* นับไม่ได้ = ไม่แสดงตัวนับ */ }
-      try { requests = countPendingAccessRequests(user); } catch { requests = 0; }
       setCounts({ home, review, requests });
     };
     calc();

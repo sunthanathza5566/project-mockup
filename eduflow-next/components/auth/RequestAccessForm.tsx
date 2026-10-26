@@ -5,6 +5,7 @@
  * - **ไม่มีช่อง/ค่าใดเกี่ยวกับบทบาท** (ไม่มี select role, ไม่มี hidden field) — ผู้ดูแลกำหนดบทบาทตอนอนุมัติ
  * - ส่งเฉพาะ field ใน allowlist ของ AccessRequestInput (backend ละเลย field อื่นอยู่แล้ว)
  * - ตรวจฝั่ง client ก่อนส่ง (ข้อความใต้ช่อง aq-field-error + aria-invalid + aria-describedby) แล้ว focus ช่องแรกที่ผิด
+ *   + กล่องสรุป error หัวฟอร์ม `ra-error-summary` (ลิงก์ `ra-error-link-<field>` → focus ช่อง) — V1 m6
  *   error จาก API ที่ผูกกับช่องได้ (username/อีเมลซ้ำ, โดเมน, หน่วยงาน) แสดงใต้ช่องนั้น ที่เหลือแสดงหัวฟอร์ม
  * - PDPA: กล่อง "ประกาศความเป็นส่วนตัว" แจ้ง 6 เรื่องตาม ม.23 ก่อนกดส่ง (P2) · checkbox = "รับทราบ" (ฐาน ม.24(3)
  *   ดำเนินการตามคำขอของเจ้าของข้อมูล) ไม่ใช่ "ยินยอม" (P4) · ฟิลด์เท่าที่จำเป็นตาม P1
@@ -88,6 +89,8 @@ export default function RequestAccessForm() {
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState('');
+  /** ช่องที่ผิดตอนกดส่งล่าสุด — กล่องสรุป error ด้านบน (V1 m6, GOV.UK error summary) แสดงเฉพาะช่องที่ยังผิดอยู่ */
+  const [summary, setSummary] = useState<Field[]>([]);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -145,7 +148,9 @@ export default function RequestAccessForm() {
     const { errs, found } = validate();
     setUni(found); setEmailChecked(!!email.trim());
     setErrors(errs);
-    if (ORDER.some(f => errs[f])) { focusFirst(errs); return; }
+    const bad = ORDER.filter(f => errs[f]);
+    setSummary(bad);
+    if (bad.length) { focusFirst(errs); return; }
 
     const [kind, unitId] = unit.split(':');
     const prog = kind === 'p' ? programmes.find(p => p.id === unitId) : undefined;
@@ -163,7 +168,7 @@ export default function RequestAccessForm() {
     } catch (err) {
       if (err instanceof AunqaError) {
         const f = fieldOfApiError(err);
-        if (f) { const next = { [f]: err.message } as Errors; setErrors(next); focusFirst(next); }
+        if (f) { const next = { [f]: err.message } as Errors; setErrors(next); setSummary([f]); focusFirst(next); }
         else setFormError(err.message);
       } else {
         setFormError('ส่งคำขอไม่สำเร็จ โปรดลองอีกครั้ง');
@@ -206,6 +211,7 @@ export default function RequestAccessForm() {
   }
 
   const unitDisabled = !uni;
+  const liveSummary = summary.filter(f => errors[f]);
   return (
     <>
       {head}
@@ -214,6 +220,24 @@ export default function RequestAccessForm() {
           ระบบสาธิต: คำขอถูกเก็บในเบราว์เซอร์นี้เท่านั้น — ผู้ดูแลต้องเข้าสู่ระบบจากเบราว์เซอร์เดียวกันเพื่ออนุมัติ
         </InlineMessage>
         {formError && <InlineMessage tone="danger" className="mt-4" testId="ra-error">{formError}</InlineMessage>}
+        {/* สรุป error (role=alert จาก tone danger) — ลิงก์ = ข้อความ error ของช่อง กดแล้ว focus ช่องนั้น · หัวข้อคงที่ ลดการประกาศซ้ำ */}
+        {liveSummary.length > 0 && (
+          <InlineMessage tone="danger" className="mt-4" testId="ra-error-summary" title="ยังส่งคำขอไม่ได้ — กรุณาแก้ไขช่องต่อไปนี้">
+            <ul className="m-0 list-disc space-y-1 pl-5">
+              {liveSummary.map(f => (
+                <li key={f}>
+                  <a
+                    href={`#${ids[f]}`} data-testid={`ra-error-link-${f}`}
+                    className="font-medium text-foreground underline underline-offset-4 visited:text-foreground hover:text-foreground hover:decoration-2"
+                    onClick={e => { e.preventDefault(); document.getElementById(ids[f])?.focus(); }}
+                  >
+                    {errors[f]}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </InlineMessage>
+        )}
 
         <form ref={formRef} noValidate onSubmit={onSubmit} className="mt-6 space-y-8">
           <fieldset className="m-0 min-w-0 space-y-5 border-0 p-0">

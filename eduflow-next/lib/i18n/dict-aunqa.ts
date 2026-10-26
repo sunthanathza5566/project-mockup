@@ -477,7 +477,9 @@ export const EN_AUNQA: Record<string, string> = {
   'ตามเครื่อง': 'Device',
   'เอฟเฟกต์ฉลอง (เมื่อรอบสำเร็จ)': 'Celebration effects',
   // หน้าหลัก
-  'ไม่มีงานเร่งด่วน — ทำต่อจากที่ค้างไว้ได้เลย': 'Nothing urgent — pick up where you left off',
+  // R2-F7 (V1 m2/m3): สรุปการ์ดทักทาย (ตัวแปร → PATTERNS) + งานผู้ดูแล
+  'วันนี้ไม่มีงานค้าง': 'Nothing waiting for you today',
+  'ดูคำขอเข้าใช้งาน': 'View access requests',
   'ทำงานถัดไป': 'Next task',
   'ไปทำ': 'Go',
   // login / ขอเข้าใช้งาน / รับคำเชิญ
@@ -498,6 +500,7 @@ export const EN_AUNQA: Record<string, string> = {
   'เหตุผลที่ขอใช้งาน': 'Reason for access',
   'ยืนยันรหัสผ่าน': 'Confirm password',
   'รหัสผ่านไม่ตรงกัน': 'Passwords do not match',
+  'ยังส่งคำขอไม่ได้ — กรุณาแก้ไขช่องต่อไปนี้': "Your request couldn't be sent — please fix the following",
   'ฉันรับทราบว่าข้อมูลนี้ใช้เพื่อพิจารณาให้สิทธิ์ใช้งานระบบเท่านั้น หากคำขอถูกปฏิเสธ ข้อมูลจะถูกลบ': 'I understand this information is used only to review my access request and will be deleted if the request is rejected',
   'ส่งคำขอ': 'Send request',
   'ส่งคำขอแล้ว': 'Request sent',
@@ -589,7 +592,12 @@ export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
   // TASK-0002 รอบ 2 (friendly-spec §F12) — การ์ดทักทายหน้าหลัก
   [/^วันนี้มี (\d+) งานที่ควรทำก่อน$/, m => `${m[1]} task${m[1] === '1' ? '' : 's'} to do first today`],
   [/^ความคืบหน้ารอบ (\d+)$/, m => `Cycle ${m[1]} progress`],
-  // R2-F2b — หน้ารับคำเชิญ / ขอเข้าใช้งานสำเร็จ
+  // R2-F7 (V1 m3) สรุปการ์ดทักทายเมื่อไม่มีงานเร่งด่วน · (V1 m2) งานอนุมัติคำขอเข้าใช้งาน
+  [/^มี (\d+) งานรอท่าน · ครบกำหนดส่งวันนี้$/, m => `${m[1]} task${m[1] === '1' ? '' : 's'} waiting · one is due today`],
+  [/^มี (\d+) งานรอท่าน · ใกล้กำหนดส่งที่สุดอีก (\d+) วัน$/, m => `${m[1]} task${m[1] === '1' ? '' : 's'} waiting · next due in ${m[2]} day${m[2] === '1' ? '' : 's'}`],
+  [/^มี (\d+) งานรอท่าน · ยังไม่มีงานเร่งด่วน$/, m => `${m[1]} task${m[1] === '1' ? '' : 's'} waiting · nothing urgent yet`],
+  [/^อนุมัติคำขอเข้าใช้งาน (\d+) รายการ$/, m => `Approve ${m[1]} access request${m[1] === '1' ? '' : 's'}`],
+  // R2-F2b — หน้ารับคำเชิญ / ขอเข้าใช้งานสำเร็จ · R2-F7 (V1 m4): ชื่อที่มีคำนำหน้าไม่มี "คุณ" (politeName) → รูปที่สองท้าย PATTERNS
   [/^ยินดีต้อนรับ คุณ(.+)$/, m => `Welcome, ${m[1]}`],
   [/^ผู้ดูแลระบบจะตรวจสอบคำขอของคุณ เมื่ออนุมัติแล้วเข้าสู่ระบบด้วยชื่อผู้ใช้ (\S+) ได้ทันที$/, m => `Your administrator will review your request. Once approved, sign in with username ${m[1]}.`],
   [/^สวัสดี (.+) — งานที่ได้รับมอบหมายและการแจ้งเตือนของคุณ$/, m => `Hello ${m[1]} — your assigned work and notifications`],
@@ -597,6 +605,8 @@ export const PATTERNS: [RegExp, (m: RegExpExecArray, tr: Tr) => string][] = [
   [/^เลย (\d+) วัน$/, m => `${m[1]} days overdue`],
   [/^อีก (\d+) วัน$/, m => `${m[1]} days left`],
   [/^ยินดีต้อนรับ (.+)!$/, m => `Welcome ${m[1]}!`],
+  // ต้องอยู่หลังรูป "ยินดีต้อนรับ …!" — หัวหน้ารับคำเชิญเมื่อชื่อมีคำนำหน้า เช่น "ยินดีต้อนรับ อ.สมศรี ขยันสอน"
+  [/^ยินดีต้อนรับ ([^!]+)$/, m => `Welcome, ${m[1]}`],
   [/^เหลืออีก (\d+) ครั้งก่อนถูกล็อก 5 นาที$/, m => `${m[1]} attempts left before a 5-minute lock`],
   [/^บัญชีถูกล็อก — โปรดรอ (\d+) นาที (\d+) วินาที$/, m => `Account locked — please wait ${m[1]} min ${m[2]} s`],
   [/^บันทึกแล้ว (.+)$/, m => `Saved ${m[1]}`],

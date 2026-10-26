@@ -13,7 +13,8 @@
 import Link from 'next/link';
 import type { AppUser, RoleCode, SarSection, TodoItem } from '@/lib/types';
 import {
-  can, daysUntil, getProgramme, getRequirement, listCycles, listMyTodos, listSections, programmeScope,
+  can, countPendingAccessRequests, daysUntil, getProgramme, getRequirement, listCycles, listMyTodos, listSections,
+  programmeScope,
 } from '@/lib/api';
 import { useLang } from '@/context/LangContext';
 import {
@@ -24,8 +25,8 @@ import ProgressRing, { ProgressBar } from '@/components/ui/ProgressRing';
 import { Button } from '@/components/ui/primitives/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/primitives/table';
 import { cn } from '@/lib/ui/cn';
-import { fmtDate, fmtDateLongTh, greetingTh, sectionHref } from '@/lib/ui/aunqa';
-import { groupForHome, todoTotal, type HomeTodo } from '@/lib/ui/todo';
+import { canAny, fmtDate, fmtDateLongTh, greetingTh, sectionHref } from '@/lib/ui/aunqa';
+import { greetingSummaryTh, groupForHome, homeTotal, withAccessRequests, type HomeTodo } from '@/lib/ui/todo';
 
 /** จำนวนข้อเกณฑ์ต่อรอบ (เดิม) */
 const REQ_TOTAL = 53;
@@ -80,6 +81,8 @@ function todoMeta(t: TodoItem): string {
   return t.academicYear && !t.titleTh.includes(String(t.academicYear)) ? `รอบ ${t.academicYear}` : '';
 }
 
+const rowKey = (h: HomeTodo) => (h.kind === 'item' ? h.item.id : h.kind);
+
 /** แถว todo — ทั้งแถวไม่ใช่ลิงก์ · ปุ่ม "ไปทำ" อ้างชื่องานด้วย aria-describedby */
 function TodoRow({ h, index }: { h: HomeTodo; index: number }) {
   const kind = h.kind === 'item' ? h.item.kind : h.kind;
@@ -128,7 +131,9 @@ export default function HomePage() {
       || (a.section.due || '9999').localeCompare(b.section.due || '9999'));
     const progress = new Map(cycles.map(c => [c.id, listSections(user, c.id).filter(s => s.status === 'approved').length]));
     const canUpload = cycles.some(c => can(user, 'evidence.write', programmeScope(c.programmeId)));
-    return { cycles, mine, progress, todos: listMyTodos(user), canUpload };
+    // V1 m2: ผู้มี user.manage เห็นงาน "อนุมัติคำขอเข้าใช้งาน" (ตัวเดียวกับตัวนับเมนูผู้ดูแลระบบ)
+    const requests = canAny(user, 'user.manage') ? countPendingAccessRequests(user) : 0;
+    return { cycles, mine, progress, todos: listMyTodos(user), canUpload, requests };
   }, [user.id]);
 
   const now = new Date();
@@ -145,12 +150,13 @@ export default function HomePage() {
           </Button>
         ) : undefined}
       />
-      <Async q={q} skeleton="cards">{({ cycles, mine, progress, todos }) => {
-        const home = groupForHome(todos);
-        const top = home.slice(0, 3);
-        const rest = home.slice(3);
+      <Async q={q} skeleton="cards">{({ cycles, mine, progress, todos, requests }) => {
+        const home = withAccessRequests(groupForHome(todos), requests);
+        // V1 m10: ถ้าเกิน 3 แถวมาเพียง 1 รายการ → แสดงตรง ๆ ไม่ต้องพับ "งานอื่น ๆ"
+        const top = home.length <= 4 ? home : home.slice(0, 3);
+        const rest = home.slice(top.length);
         const next = home[0];
-        const urgent = todos.filter(t => t.urgent).length;
+        const total = homeTotal(todos, requests);
         const first = cycles[0];
         const firstDone = first ? progress.get(first.id) ?? 0 : 0;
         return (
@@ -172,7 +178,7 @@ export default function HomePage() {
                     <p className="m-0 text-base text-muted-foreground">
                       <span>{fmtDateLongTh(now)}</span>
                       <span aria-hidden="true">{' · '}</span>
-                      <span>{urgent > 0 ? `วันนี้มี ${urgent} งานที่ควรทำก่อน` : 'ไม่มีงานเร่งด่วน — ทำต่อจากที่ค้างไว้ได้เลย'}</span>
+                      <span data-testid="home-summary">{greetingSummaryTh(todos, requests)}</span>
                     </p>
                   </div>
                 </div>
@@ -208,12 +214,12 @@ export default function HomePage() {
             <section className="mb-8" aria-labelledby="todo-h">
               <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <h2 id="todo-h" className="m-0 text-xl font-semibold text-foreground">สิ่งที่ต้องทำตอนนี้</h2>
-                {todos.length > 0 && <span className="aq-meta">{`(รวม ${todoTotal(todos)} งาน)`}</span>}
+                {total > 0 && <span className="aq-meta">{`(รวม ${total} งาน)`}</span>}
               </div>
               {home.length === 0 ? <EmptyTodos user={user} firstCycleId={cycles[0]?.id} /> : (
                 <div className="overflow-hidden rounded-xl border bg-card shadow-sm dark:shadow-none">
                   <ul className="m-0 list-none divide-y p-0">
-                    {top.map((h, i) => <TodoRow key={h.kind === 'item' ? h.item.id : 'group'} h={h} index={i} />)}
+                    {top.map((h, i) => <TodoRow key={rowKey(h)} h={h} index={i} />)}
                   </ul>
                   {rest.length > 0 && (
                     <details className="group/more border-t" open={rest.length <= 5}>
@@ -222,7 +228,7 @@ export default function HomePage() {
                         {`งานอื่น ๆ อีก ${rest.length} รายการ`}
                       </summary>
                       <ul className="m-0 list-none divide-y border-t p-0">
-                        {rest.map((h, i) => <TodoRow key={h.kind === 'item' ? h.item.id : 'group'} h={h} index={i + 3} />)}
+                        {rest.map((h, i) => <TodoRow key={rowKey(h)} h={h} index={i + top.length} />)}
                       </ul>
                     </details>
                   )}

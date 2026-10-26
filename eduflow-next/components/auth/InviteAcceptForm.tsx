@@ -18,6 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useLang } from '@/context/LangContext';
 import { ROLE_TH } from '@/lib/ui/aunqa';
+import { politeName } from '@/lib/ui/name';
 import { InlineMessage, Skeleton } from '@/components/aunqa/common';
 import Icon from '@/components/ui/Icon';
 import { Button } from '@/components/ui/primitives/button';
@@ -182,7 +183,7 @@ export default function InviteAcceptForm() {
   const DD = 'm-0 text-base font-medium text-foreground';
   return (
     <div className={CARD}>
-      <h1 className="text-2xl font-semibold text-foreground">{`ยินดีต้อนรับ คุณ${p.fullName}`}</h1>
+      <h1 className="text-2xl font-semibold text-foreground">{`ยินดีต้อนรับ ${politeName(p.fullName)}`}</h1>
       <dl className="mt-6 grid gap-3 rounded-lg border bg-muted p-4 sm:grid-cols-2" data-testid="inv-summary">
         <div><dt className={DT}>ชื่อผู้ใช้</dt><dd className={DD}><code data-no-i18n>{p.username}</code></dd></div>
         <div><dt className={DT}>มหาวิทยาลัย</dt><dd className={DD} data-no-i18n>{uniName}</dd></div>

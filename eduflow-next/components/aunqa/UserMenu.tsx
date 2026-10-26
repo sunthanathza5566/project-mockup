@@ -85,12 +85,13 @@ export default function UserMenu({ user, onLogout }: { user: AppUser; onLogout: 
         >
           <div className="flex items-center gap-3 px-3 py-3">
             <Avatar name={user.fullName} />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="m-0 break-words font-semibold text-foreground">{user.fullName}</p>
-              <p className="aq-meta m-0 break-words">
-                {role}
-                {user.email && <> · <span className="break-all">{user.email}</span></>}
-              </p>
+              <p className="aq-meta m-0 break-words">{role}</p>
+              {/* V1 m8: อีเมลบรรทัดเดียว ตัดท้ายด้วย … (ไม่ตัดกลางโดเมน) + title ให้เห็นเต็ม */}
+              {user.email && (
+                <p className="aq-meta m-0 truncate" title={user.email} data-no-i18n="" data-testid="user-menu-email">{user.email}</p>
+              )}
             </div>
           </div>
           <div className="border-t" />

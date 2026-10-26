@@ -223,7 +223,11 @@ export function NotificationBell({ user }: { user: AppUser }) {
             </h2>
             <span className="aq-meta" data-no-i18n="">{en ? `(${unread} unread)` : `(ยังไม่อ่าน ${unread})`}</span>
             <span className="flex-1" />
-            <Button variant="ghost" size="compact" disabled={unread === 0} onClick={readAll} data-testid="noti-read-all">
+            {/* V1 m7: disabled ของ ghost ไม่มีพื้น (เดิม bg-muted ทำให้เด่นกว่าปุ่ม "ปิด" ที่ใช้ได้) — เหลือแค่สีตัวอักษร muted */}
+            <Button
+              variant="ghost" size="compact" className="disabled:bg-transparent"
+              disabled={unread === 0} onClick={readAll} data-testid="noti-read-all"
+            >
               <Icon name="check" size={20} />อ่านทั้งหมด
             </Button>
             {!desktop && (
