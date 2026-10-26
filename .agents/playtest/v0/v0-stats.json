@@ -1,0 +1,1155 @@
+{
+ "landing-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600",
+   "__IBM_Plex_Sans_Thai_Looped_Fallback normal"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 500 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 30px | 600 | lh 1.35": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 6,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1
+  },
+  "contrastN": 60,
+  "minContrast": "4.79 \"ผ่านการตรวจอ้างอิง\" rgb(21, 128, 61) on rgb(240,253,244)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "404-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 7,
+  "minContrast": "6.29 \"กลับหน้าหลัก\" rgb(255, 255, 255) on rgb(79,70,229)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "p fvn=tabular-nums"
+  ]
+ },
+ "login-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 3
+  },
+  "contrastN": 41,
+  "minContrast": "6.02 \"กลับหน้าแรก\" rgb(79, 70, 229) on rgb(250,250,250)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "login-error-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 3
+  },
+  "contrastN": 43,
+  "minContrast": "4.81 \"เหลืออีก 4 ครั้งก่อนถูกล็อก \" rgb(180, 83, 9) on rgb(250,250,250)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "loader-light-1440": {
+  "captured": true
+ },
+ "app-shell-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 7,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.50": 1
+  },
+  "contrastN": 27,
+  "minContrast": "5.62 \"ผศ\" rgb(79, 70, 229) on rgb(238,242,255)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "a[ตรวจรับแผนปรับ] 216x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "prefs-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 12
+  },
+  "contrastN": 31,
+  "minContrast": "6.29 \"14\" rgb(255, 255, 255) on rgb(79,70,229)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "input[] 20x20",
+   "a[ตรวจรับแผนปรับ] 216x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "dialog-light-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 4,
+  "minContrast": "6.47 \"ยืนยันออกโดยไม่บันทึก\" rgb(255, 255, 255) on rgb(185,28,28)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "button[ai-draft] 171x41",
+   "button[ai-review] 139x41",
+   "button[ai-translate] 138x41",
+   "button[ความหมายของ PDCA] 32x32",
+   "input[pdca-P] 20x20",
+   "input[pdca-D] 20x20",
+   "input[pdca-C] 20x20",
+   "input[pdca-A] 20x20",
+   "button[ความหมายของ สเกล 1–7] 32x32",
+   "button[ลองบันทึกอีกคร] 159x40",
+   "button[insert-E-3.3-01] 155x40",
+   "button[เลิกผูก E-3.3-01] 40x40",
+   "button[insert-E-3.3-02] 155x40",
+   "button[เลิกผูก E-3.3-02] 40x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums"
+  ]
+ },
+ "landing-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600",
+   "__IBM_Plex_Sans_Thai_Looped_Fallback normal"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 500 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 36px | 600 | lh 1.35": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 30px | 600 | lh 1.35": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 6,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1
+  },
+  "contrastN": 54,
+  "minContrast": "4.79 \"ผ่านการตรวจอ้างอิง\" rgb(21, 128, 61) on rgb(240,253,244)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "404-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 7,
+  "minContrast": "6.29 \"กลับหน้าหลัก\" rgb(255, 255, 255) on rgb(79,70,229)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "p fvn=tabular-nums"
+  ]
+ },
+ "login-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11
+  },
+  "contrastN": 38,
+  "minContrast": "6.02 \"กลับหน้าแรก\" rgb(79, 70, 229) on rgb(250,250,250)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "login-error-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11
+  },
+  "contrastN": 40,
+  "minContrast": "4.81 \"เหลืออีก 4 ครั้งก่อนถูกล็อก \" rgb(180, 83, 9) on rgb(250,250,250)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "loader-light-390": {
+  "captured": true
+ },
+ "app-shell-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.50": 1
+  },
+  "contrastN": 4,
+  "minContrast": "5.62 \"ผศ\" rgb(79, 70, 229) on rgb(238,242,255)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "drawer-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 9
+  },
+  "contrastN": 21,
+  "minContrast": "6.29 \"14\" rgb(255, 255, 255) on rgb(79,70,229)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "prefs-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 12
+  },
+  "contrastN": 31,
+  "minContrast": "6.29 \"14\" rgb(255, 255, 255) on rgb(79,70,229)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "input[] 20x20"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "drawer-sar-light-390": {
+  "hit": "<button type=\"button\" class=\"aq-btn\" data-testid=\"save-manual\">บันทึกตอนนี้</button>",
+  "z": [
+   "fixed inset-0 z-drawer animate-fade-in bg-black/50 z=40",
+   "fixed inset-y-0 left-0 z-drawer flex w-[min(20rem, z=40"
+  ]
+ },
+ "dialog-light-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "light",
+  "bodyBg": "rgb(250, 250, 250)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 4,
+  "minContrast": "6.47 \"ยืนยันออกโดยไม่บันทึก\" rgb(255, 255, 255) on rgb(185,28,28)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "button[ความหมายของ PDCA] 32x32",
+   "input[pdca-P] 20x20",
+   "input[pdca-D] 20x20",
+   "input[pdca-C] 20x20",
+   "input[pdca-A] 20x20",
+   "button[ความหมายของ สเกล 1–7] 32x32"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums"
+  ]
+ },
+ "landing-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600",
+   "__IBM_Plex_Sans_Thai_Looped_Fallback normal"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 500 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 30px | 600 | lh 1.35": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 6,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1
+  },
+  "contrastN": 60,
+  "minContrast": "5.81 \"ตัวอย่างข้อมูลเดโม่\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "404-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 7,
+  "minContrast": "6.67 \"กลับหน้าหลัก\" rgb(9, 9, 11) on rgb(129,140,248)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "p fvn=tabular-nums"
+  ]
+ },
+ "login-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 3
+  },
+  "contrastN": 41,
+  "minContrast": "5.81 \"ก+\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "login-error-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 3
+  },
+  "contrastN": 43,
+  "minContrast": "5.81 \"ก+\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "loader-dark-1440": {
+  "captured": true
+ },
+ "app-shell-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 7,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.50": 1
+  },
+  "contrastN": 27,
+  "minContrast": "5.36 \"ผศ\" rgb(129, 140, 248) on rgb(30,27,75)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "a[ตรวจรับแผนปรับ] 216x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "prefs-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 12
+  },
+  "contrastN": 31,
+  "minContrast": "2.08 \"สว่าง\" rgb(161, 161, 170) on rgb(107,107,107)",
+  "low": [
+   "2.08 (<4.5) \"สว่าง\" rgb(161, 161, 170) on rgb(107,107,107)",
+   "2.08 (<4.5) \"ตามระบบ\" rgb(161, 161, 170) on rgb(107,107,107)"
+  ],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "input[] 20x20",
+   "a[ตรวจรับแผนปรับ] 216x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "dialog-dark-1440": {
+  "sw": 1440,
+  "iw": 1440,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 4,
+  "minContrast": "6.91 \"ข้อ 3.6: อ้างหลักฐานที่ไม่มี\" rgb(161, 161, 170) on rgb(24,24,27)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "button[ai-draft] 171x41",
+   "button[ai-review] 139x41",
+   "button[ai-translate] 138x41",
+   "button[ความหมายของ PDCA] 32x32",
+   "input[pdca-P] 20x20",
+   "input[pdca-D] 20x20",
+   "input[pdca-C] 20x20",
+   "input[pdca-A] 20x20",
+   "button[ความหมายของ สเกล 1–7] 32x32",
+   "button[ลองบันทึกอีกคร] 159x40",
+   "button[insert-E-3.3-01] 155x40",
+   "button[เลิกผูก E-3.3-01] 40x40",
+   "button[insert-E-3.3-02] 155x40",
+   "button[เลิกผูก E-3.3-02] 40x40"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums"
+  ]
+ },
+ "landing-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600",
+   "__IBM_Plex_Sans_Thai_Looped_Fallback normal"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 500 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 36px | 600 | lh 1.35": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 400 | lh 1.60": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
+   "__IBM_Plex_Sans_Thai_Looped | 30px | 600 | lh 1.35": 4,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 6,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1
+  },
+  "contrastN": 54,
+  "minContrast": "5.81 \"ตัวอย่างข้อมูลเดโม่\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "404-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 48px | 600 | lh 1.35": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 7,
+  "minContrast": "6.67 \"กลับหน้าหลัก\" rgb(9, 9, 11) on rgb(129,140,248)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "p fvn=tabular-nums"
+  ]
+ },
+ "login-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11
+  },
+  "contrastN": 38,
+  "minContrast": "5.81 \"ก+\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "login-error-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 600 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 22px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 11
+  },
+  "contrastN": 40,
+  "minContrast": "5.81 \"ก+\" rgb(161, 161, 170) on rgb(39,39,42)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": []
+ },
+ "loader-dark-390": {
+  "captured": true
+ },
+ "app-shell-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.50": 1
+  },
+  "contrastN": 4,
+  "minContrast": "5.36 \"ผศ\" rgb(129, 140, 248) on rgb(30,27,75)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "drawer-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 3,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 9
+  },
+  "contrastN": 21,
+  "minContrast": "6.67 \"14\" rgb(9, 9, 11) on rgb(129,140,248)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "prefs-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 20px | 500 | lh 1.50": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 10,
+   "__IBM_Plex_Sans_Thai_Looped | 13px | 600 | lh 1.50": 2,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 12
+  },
+  "contrastN": 31,
+  "minContrast": "2.08 \"สว่าง\" rgb(161, 161, 170) on rgb(107,107,107)",
+  "low": [
+   "2.08 (<4.5) \"สว่าง\" rgb(161, 161, 170) on rgb(107,107,107)",
+   "2.08 (<4.5) \"ตามระบบ\" rgb(161, 161, 170) on rgb(107,107,107)"
+  ],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "input[] 20x20"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums"
+  ]
+ },
+ "drawer-sar-dark-390": {
+  "hit": "<button type=\"button\" class=\"aq-btn\" data-testid=\"save-manual\">บันทึกตอนนี้</button>",
+  "z": [
+   "fixed inset-0 z-drawer animate-fade-in bg-black/50 z=40",
+   "fixed inset-y-0 left-0 z-drawer flex w-[min(20rem, z=40"
+  ]
+ },
+ "dialog-dark-390": {
+  "sw": 390,
+  "iw": 390,
+  "hscroll": false,
+  "htmlClass": "dark",
+  "bodyBg": "rgb(9, 9, 11)",
+  "bodyFF": "__IBM_Plex_Sans_Thai_Looped_f9ab01, __IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01, \"Leelawad",
+  "loaded": [
+   "__IBM_Plex_Sans_Thai_Looped 400",
+   "__IBM_Plex_Sans_Thai_Looped 500",
+   "__IBM_Plex_Sans_Thai_Looped 600"
+  ],
+  "plexThai": true,
+  "fonts": {
+   "__IBM_Plex_Sans_Thai_Looped | 18px | 600 | lh 1.60": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 1,
+   "__IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 2
+  },
+  "contrastN": 4,
+  "minContrast": "6.91 \"ข้อ 3.6: อ้างหลักฐานที่ไม่มี\" rgb(161, 161, 170) on rgb(24,24,27)",
+  "low": [],
+  "clip": [],
+  "small": [],
+  "lhLow": [],
+  "targets": [
+   "button[ความหมายของ SAR] 32x32",
+   "button[ความหมายของ PDCA] 32x32",
+   "input[pdca-P] 20x20",
+   "input[pdca-D] 20x20",
+   "input[pdca-C] 20x20",
+   "input[pdca-A] 20x20",
+   "button[ความหมายของ สเกล 1–7] 32x32"
+  ],
+  "tab": [
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "span fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums",
+   "aq-count fvn=tabular-nums"
+  ]
+ },
+ "tnum": {
+  "prop": {
+   "1111": 81,
+   "0000": 90
+  },
+  "tab": {
+   "1111": 81,
+   "4040": 90,
+   "0000": 90
+  }
+ }
+}
