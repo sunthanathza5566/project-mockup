@@ -343,11 +343,31 @@ test.describe(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
     await page.goto('/app'); await settle(page);
     await page.getByTestId('nav-menu').click();
     await expect(page.locator('#app-sidebar')).toHaveClass(/is-open/);
-    for (let i = 0; i < 25; i++) await page.keyboard.press('Tab');
+    // เฟส 6: เดิมกด Tab 25 ครั้งจากปุ่มเมนูแล้วหวังว่าจะเข้า drawer — ผ่าน/ล้มตามจำนวน element หลัง drawer (flaky)
+    // เพราะ focus แรกไม่เข้า drawer (BUG-0002-Q6-1 ทดสอบแยกด้านล่าง) → ที่นี่วาง focus ใน drawer เองแล้วตรวจ trap + Esc
+    await expect(page.locator('#app-sidebar a[href]').first()).toBeVisible();
+    await page.locator('#app-sidebar a[href]').first().focus();
+    for (let i = 0; i < 25; i++) {
+      await page.keyboard.press('Tab');
+      expect(await page.evaluate(() => !!document.activeElement?.closest('#app-sidebar')), `Tab ครั้งที่ ${i + 1} หลุด drawer`).toBe(true);
+    }
+    await page.keyboard.press('Shift+Tab');
     expect(await page.evaluate(() => !!document.activeElement?.closest('#app-sidebar'))).toBe(true);
     await page.keyboard.press('Escape');
     await expect(page.locator('#app-sidebar')).not.toHaveClass(/is-open/);
     await expect(page.getByTestId('nav-menu')).toBeFocused();
+  });
+
+  // KNOWN BUG BUG-0002-Q6-1: เปิด drawer แล้ว focus ค้างที่ปุ่มเมนู (AppSidebar ตั้งใจ focus รายการแรกเมื่อเปิด)
+  // test.fail → ชุดเขียวแต่ bug ไม่หายเงียบ · เมื่อแก้แล้วจะขึ้น "expected to fail" ให้ลบ test.fail
+  test('drawer มือถือ: เปิดแล้ว focus ย้ายเข้า drawer (BUG-0002-Q6-1)', async ({ page }) => {
+    test.fail(true, 'BUG-0002-Q6-1: focus ไม่ย้ายเข้า drawer เมื่อเปิด');
+    await page.setViewportSize(VP['390']);
+    await loginAs(page, 'chair1');
+    await page.goto('/app'); await settle(page);
+    await page.getByTestId('nav-menu').click();
+    await expect(page.locator('#app-sidebar')).toHaveClass(/is-open/);
+    await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest('#app-sidebar')), { timeout: 2000 }).toBe(true);
   });
 });
 }

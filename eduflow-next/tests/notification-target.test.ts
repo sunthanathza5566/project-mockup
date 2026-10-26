@@ -322,7 +322,7 @@ describe('AC-25 N12–N14 onboarding', () => {
     })]);
   });
 
-  it('N14 รับเชิญ → ผู้เชิญ target admin/users · ผู้เชิญถูกระงับแล้ว = ไม่ส่ง', async () => {
+  it('N14 รับเชิญ → ผู้เชิญ target admin/users · ผู้เชิญถูกระงับแล้ว = คำเชิญใช้ไม่ได้ (S-04) และไม่ส่ง', async () => {
     const ua = user('uadmin');
     const roles = [{ role: 'programme_staff' as const, scopeType: 'programme' as const, scopeId: PROG }];
     const r1 = await api.inviteUser(ua, { username: 'newbie1', email: `newbie1@${DOMAIN}`, fullName: 'น้องใหม่ หนึ่ง', roles });
@@ -334,7 +334,7 @@ describe('AC-25 N12–N14 onboarding', () => {
     clear();
     const r2 = await api.inviteUser(ua, { username: 'newbie2', email: `newbie2@${DOMAIN}`, fullName: 'น้องใหม่ สอง', roles });
     api.setUserStatus(user('sadmin'), ua.id, 'suspended');
-    expect((await api.acceptInvitation(r2.token, PW)).success).toBe(true);
+    await expect(api.acceptInvitation(r2.token, PW)).rejects.toMatchObject({ code: 'invalid', message: api.INVITE_INVALID_MESSAGE });
     expect(notesOf(ua)).toEqual([]);
   });
 });

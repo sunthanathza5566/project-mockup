@@ -161,10 +161,12 @@ describe('setUserRoles — validateRoleScopes + sanitize', () => {
 
 // ════════════════════ (6) กรรมการที่ถูกระงับ ════════════════════
 async function addAssessor2(): Promise<AppUser> {
-  return api.createUser(user('uadmin'), {
+  // S-06: createUser คืน Omit<AppUser,'password'> → อ่าน AppUser เต็มจาก store
+  await api.createUser(user('uadmin'), {
     username: 'assess2', password: PW, email: `assess2@${DOMAIN}`, fullName: 'ผู้ประเมินคนที่สอง ทดสอบ',
     roles: [{ role: 'assessor', scopeType: 'cycle', scopeId: CYCLE }],
   });
+  return user('assess2');
 }
 async function rateAllAndVerdict(a: AppUser) {
   for (const c of api.listCriteria()) api.setCriterionRating(a, CYCLE, c.no, 5, 'เหตุผลทดสอบ');
