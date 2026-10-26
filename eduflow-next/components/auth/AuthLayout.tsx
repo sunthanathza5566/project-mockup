@@ -4,15 +4,16 @@
  * Layout หน้า login แยกจาก landing nav (ADR-UI-001 pages.md P2 · TASK-0002 saas-spec §P2)
  * - <1024: คอลัมน์เดียว — แถวบน = แบรนด์ (ลิงก์ /) + ข้อความสั้นใต้แบรนด์ · tools ชิดขวา (ขึ้นบรรทัดใหม่ได้) · ฟอร์มตามมา
  * - ≥1024: grid 2 คอลัมน์ — ซ้าย = แบรนด์/tools/ฟอร์ม · ขวา = แผงแบรนด์ bg-muted border-l (ไม่มีพื้นสีเข้มแล้ว)
- * - tools: ตัวปรับขนาดตัวอักษร (login-fontscale) + LangToggle + ปุ่มสลับธีม (theme-toggle) — element ชุดเดียวทุกขนาดจอ
+ * - tools (friendly-spec §F5 รอบ 2): LangSwitch + DisplayMenuButton (`display-menu` ปุ่มมีข้อความ เปิด DisplayPrefsPanel
+ *   = ขนาดตัวอักษร + ธีม + เอฟเฟกต์) แทน segmented ก/ก+/ก++ และปุ่มธีมไอคอน `theme-toggle` เดิม · element ชุดเดียวทุกขนาดจอ
+ * - ใช้ร่วม 3 หน้าสาธารณะ (ไม่ต้องเข้าสู่ระบบ): /login, /request-access, /invite
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Brand } from '@/components/ui/BrandMark';
 import Icon from '@/components/ui/Icon';
 import LangToggle from '@/components/ui/LangToggle';
-import { FontScaleSeg } from '@/components/ui/DisplayPrefs';
-import { ThemeToggleButton } from '@/components/ui/ThemeToggle';
+import { DisplayMenuButton } from '@/components/ui/DisplayPrefs';
 
 const BRAND_TITLE = 'ทำ SAR อย่างมีหลักฐาน';
 
@@ -44,9 +45,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <p className="aq-meta lg:hidden">{BRAND_TITLE}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <FontScaleSeg testId="login-fontscale" />
             <LangToggle />
-            <ThemeToggleButton className="border-transparent bg-transparent" />
+            <DisplayMenuButton />
           </div>
         </div>
         <main id="main" tabIndex={-1} className="flex flex-1 flex-col items-center justify-center gap-6 px-4 pb-12 pt-6 md:px-6">

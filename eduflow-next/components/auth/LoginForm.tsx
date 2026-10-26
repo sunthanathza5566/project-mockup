@@ -7,7 +7,10 @@
  * - ?reason=expired|other-tab: ข้อความจาก ADR 6.4
  * - สำเร็จ: AppLoader "login" (รวม ≤700ms) → /app
  * - บัญชีทดสอบพับไว้เป็นค่าเริ่มต้น จำสถานะใน aunqa_ui_prefs.demoOpen · กดแล้วเติมฟอร์ม + focus ปุ่มเข้าสู่ระบบ
- * - TASK-0002 S2 (saas-spec §P2, §C1, §C2): ฟอร์ม max-w-sm บนพื้นหน้า (ไม่มีการ์ด) · Input/Button primitives · details ตาม C2
+ * - TASK-0002 S2 (saas-spec §P2, §C1, §C2): Input/Button primitives · details ตาม C2
+ * - TASK-0002 R2-F2 (friendly-spec §F5): ฟอร์มอยู่ในการ์ด rounded-xl max-w-md · เส้นคั่น "หรือ" + ปุ่ม `login-request-access`
+ *   (/request-access) และ `login-have-invite` (/invite) · LoginResult.error `pending` = info / `suspended` = danger
+ *   (testid `login-error` เดียวกัน — backend บอกสถานะเฉพาะเมื่อรหัสผ่านถูก จึงไม่เปิดเผยว่ามีบัญชีอยู่)
  */
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -41,6 +44,12 @@ const REASON_TH: Record<string, string> = {
   'other-tab': 'ออกจากระบบจากแท็บอื่นแล้ว งานที่ค้างถูกบันทึกแล้ว',
 };
 
+/** สถานะบัญชีที่รหัสผ่านถูกแต่ยังเข้าไม่ได้ (ADR-AUTH-001 A5) — friendly-spec §F5 */
+const STATUS_MSG: Record<'pending' | 'suspended', { tone: 'info' | 'danger'; text: string }> = {
+  pending: { tone: 'info', text: 'บัญชีนี้กำลังรอผู้ดูแลอนุมัติ — เมื่ออนุมัติแล้วจะเข้าสู่ระบบได้' },
+  suspended: { tone: 'danger', text: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบของมหาวิทยาลัย' },
+};
+
 const LOGIN_LOADER_MS = 500; // รวมกับการเปลี่ยนหน้า ≤ 700ms (C22)
 
 function lockText(until: number): string {
@@ -53,6 +62,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
   const [error,    setError]    = useState('');
+  const [status,   setStatus]   = useState<'pending' | 'suspended' | null>(null);
   const [lockMsg,  setLockMsg]  = useState('');
   const [hint,     setHint]     = useState('');
   const [busy, setBusy] = useState(false);
@@ -80,7 +90,7 @@ export default function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(''); setLockMsg(''); setHint('');
+    setError(''); setStatus(null); setLockMsg(''); setHint('');
     setBusy(true);
     try {
       const result = await loginUser(username.trim(), password);
@@ -95,6 +105,10 @@ export default function LoginForm() {
         setLockMsg(lockText(result.lockUntil || Date.now()));
         return;
       }
+      if (result.error === 'pending' || result.error === 'suspended') {
+        setStatus(result.error);
+        return;
+      }
       setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง โปรดตรวจสอบแล้วลองอีกครั้ง');
       if (result.error === 'invalid') setHint(`เหลืออีก ${result.remaining} ครั้งก่อนถูกล็อก 5 นาที`);
     } finally {
@@ -107,14 +121,15 @@ export default function LoginForm() {
   const invalid = !!error;
   return (
     <>
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md rounded-xl border bg-card p-6 text-card-foreground shadow-sm dark:shadow-none md:p-8">
         <h1 className="text-2xl font-semibold text-foreground">เข้าสู่ระบบ</h1>
         <p className="mt-1 text-base text-muted-foreground">ผู้ช่วยจัดทำ SAR ระดับหลักสูตร</p>
 
         <div className="mt-6 space-y-3 empty:hidden">
-          {REASON_TH[reason] && !error && <InlineMessage tone="info" testId="login-reason">{REASON_TH[reason]}</InlineMessage>}
+          {REASON_TH[reason] && !error && !status && <InlineMessage tone="info" testId="login-reason">{REASON_TH[reason]}</InlineMessage>}
           {initError && <InlineMessage tone="danger">{initError}</InlineMessage>}
           {error && <InlineMessage tone="danger" testId="login-error">{error}</InlineMessage>}
+          {status && <InlineMessage tone={STATUS_MSG[status].tone} testId="login-error">{STATUS_MSG[status].text}</InlineMessage>}
           {lockMsg && <InlineMessage tone="warn">{lockMsg}</InlineMessage>}
         </div>
 
@@ -159,13 +174,32 @@ export default function LoginForm() {
           </Button>
         </form>
 
+        {/* ผู้ที่ยังไม่มีบัญชี: ขอเข้าใช้งาน (O2) / มีคำเชิญ (O1) — ADR-AUTH-001 */}
+        <div className="mt-6 flex items-center gap-3" aria-hidden="true">
+          <span className="h-px flex-1 bg-border" />
+          <span className="aq-meta">หรือ</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <div className="mt-4 grid gap-3 min-[480px]:grid-cols-2">
+          <Button asChild variant="outline">
+            <Link href="/request-access" data-testid="login-request-access">
+              <Icon name="user-plus" size={20} />ขอเข้าใช้งาน
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/invite" data-testid="login-have-invite">
+              <Icon name="link" size={20} />มีรหัสเชิญ
+            </Link>
+          </Button>
+        </div>
+
         <Link href="/" className="mt-4 inline-flex min-h-11 items-center gap-1 text-base">
           <Icon name="chevron-left" size={20} />กลับหน้าแรก
         </Link>
       </div>
 
       <details
-        className="group w-full max-w-sm rounded-lg border bg-card text-card-foreground" open={prefs.demoOpen}
+        className="group w-full max-w-md rounded-lg border bg-card text-card-foreground" open={prefs.demoOpen}
         onToggle={e => { const o = (e.currentTarget as HTMLDetailsElement).open; if (o !== prefs.demoOpen) setPrefs({ demoOpen: o }); }}
       >
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-2 font-medium [&::-webkit-details-marker]:hidden">
@@ -180,7 +214,7 @@ export default function LoginForm() {
               className="w-full flex-col items-start justify-start gap-0 px-3 py-2 text-left visited:text-foreground"
               data-testid={`demo-${a.username}`}
               onClick={() => {
-                setUsername(a.username); setPassword('demo1234'); setError(''); setHint('');
+                setUsername(a.username); setPassword('demo1234'); setError(''); setStatus(null); setHint('');
                 submitRef.current?.focus();
               }}
             >

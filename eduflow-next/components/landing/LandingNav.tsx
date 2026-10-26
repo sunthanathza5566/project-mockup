@@ -3,7 +3,7 @@
 /**
  * Landing nav (ADR-UI-001 pages.md P1 · TASK-0002 saas-spec §P1) — sticky h-16 border-b bg-background/80 backdrop-blur
  * ≥768 ลิงก์ในแถว + LangToggle + ปุ่ม landing-login (outline) · <768 hamburger → แผงเต็มจอ
- * ปุ่มสลับธีม (theme-toggle) อยู่นอก nav — มองเห็นทุกขนาดจอ มีตัวเดียวในหน้า
+ * ปุ่ม "การแสดงผล" (display-menu, friendly-spec §F9) อยู่นอก nav — มองเห็นทุกขนาดจอ มีตัวเดียวในหน้า · ป้ายสั้น "แสดงผล" ที่ <768
  * แผงมือถือ: ปุ่ม 44, Esc / ปุ่ม x ปิด, focus trap, คืน focus ปุ่มเมนู · ล็อกอินอยู่ = "เข้าสู่แอป →"
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
@@ -13,7 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import LangToggle from '@/components/ui/LangToggle';
 import Icon from '@/components/ui/Icon';
 import { Brand } from '@/components/ui/BrandMark';
-import { ThemeToggleButton } from '@/components/ui/ThemeToggle';
+import { DisplayMenuButton } from '@/components/ui/DisplayPrefs';
 import { Button } from '@/components/ui/primitives/button';
 import { cn } from '@/lib/ui/cn';
 
@@ -56,7 +56,7 @@ export default function LandingNav() {
 
   return (
     <header className="sticky top-0 z-topbar border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex min-h-16 max-w-screen-xl items-center gap-2 px-4 md:px-6">
+      <div className="mx-auto flex min-h-16 max-w-screen-xl flex-wrap items-center justify-end gap-x-2 gap-y-1 px-4 py-1 md:flex-nowrap md:px-6 md:py-0">
         <Link href="/" aria-label="AUN-QA Copilot หน้าแรก" className="mr-auto inline-flex min-w-0 items-center no-underline md:mr-4">
           <Brand size={24} />
         </Link>
@@ -73,7 +73,8 @@ export default function LandingNav() {
             </li>
           </ul>
         </nav>
-        <ThemeToggleButton className={GHOST_FIX} />
+        {/* <768: ปุ่มชิดขึ้น (px-2) ให้ แบรนด์ + แสดงผล + เมนู อยู่แถวเดียวที่ 390 · ล้นเมื่อขยายตัวอักษร = ตกบรรทัด ไม่ h-scroll */}
+        <DisplayMenuButton label="การแสดงผล" shortLabel="แสดงผล" className="max-md:[&_.aq-btn]:px-2" />
         <Button
           ref={burger} variant="ghost" size="icon" className={cn(GHOST_FIX, 'md:hidden')}
           aria-label="เปิดเมนู" aria-expanded={open} aria-controls="landing-menu" onClick={() => setOpen(true)}
