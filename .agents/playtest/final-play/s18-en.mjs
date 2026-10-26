@@ -1,0 +1,13 @@
+import {session,B,txt,log} from './lib.mjs';
+const {br,p,as,shot,errs}=await session({state:'st-ra1.json'});
+await p.goto(B+'/login');await p.waitForTimeout(700);await p.getByTestId('lang-en').click();await p.waitForTimeout(400);
+await p.getByTestId('login-username').fill('newbie1');await p.getByTestId('login-password').fill('abcdefgh');await p.getByTestId('login-submit').click();await p.waitForTimeout(900);
+log('EN pending:',(await txt(p,900)).split('\n').filter(l=>/pending|approv|อนุมัติ/i.test(l)));
+await p.goto(B+'/request-access');await p.waitForTimeout(700);await p.getByTestId('ra-email').fill('x@gmail.com');await p.getByTestId('ra-name').fill('A');await p.getByTestId('ra-reason').fill('r');await p.getByTestId('ra-username').fill('abc9');await p.getByTestId('ra-password').fill('abcdefgh');await p.getByTestId('ra-password2').fill('abcdefgh');await p.getByTestId('ra-consent').check();await p.getByTestId('ra-submit').click();await p.waitForTimeout(700);
+log('EN domain err:',(await txt(p,1500)).split('\n').slice(5,14));
+await shot('80-en-request-error',false);
+await as('uadmin');await p.goto(B+'/app/admin?tab=requests');await p.waitForTimeout(1200);
+log('EN requests:',(await p.locator('main').innerText()).replace(/\s+/g,' ').slice(0,700));
+await p.getByTestId('nav-bell').click();await p.waitForTimeout(400);log('EN panel',(await p.getByTestId('noti-panel').innerText()).replace(/\s+/g,' '));
+await shot('81-en-requests',false);
+log('errs',errs);await br.close();
