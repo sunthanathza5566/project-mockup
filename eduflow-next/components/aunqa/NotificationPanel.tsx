@@ -12,7 +12,7 @@
  * - กล่องรายการ data-no-i18n: ข้อความ/เวลา/ป้ายกลุ่มสร้างตามภาษาของหน้าเอง (lib/ui/notification.ts)
  * - ไม่ใช้ portal: panel อยู่ใน <header> — header จึงไม่มี backdrop-filter บนตัวเอง (ดู AppTopbar) เพื่อให้ fixed อิง viewport
  */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { AppNotification, AppUser, NotificationKind } from '@/lib/types';
@@ -20,7 +20,7 @@ import { KEYS, listNotifications, markRead, unreadCount } from '@/lib/api';
 import { useLang } from '@/context/LangContext';
 import { errMsg } from '@/lib/ui/aunqa';
 import { cn } from '@/lib/ui/cn';
-import { groupByDay, notificationHref, notificationText, relativeTime } from '@/lib/ui/notification';
+import { groupByDay, notificationHref, notificationText, relativeTime, samePageHash } from '@/lib/ui/notification';
 import { TODOS_CHANGED_EVENT, countLabel, notifyTodosChanged } from '@/lib/ui/todo';
 import Icon, { type IconName } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/primitives/button';
@@ -175,6 +175,22 @@ export function NotificationBell({ user }: { user: AppUser }) {
     setOpen(false);
   }
 
+  /**
+   * ปลายทางเป็นหน้าเดิมต่างแค่ hash (เช่น อยู่ section แล้วกด noti ความเห็น → `#comments`, อยู่ /app/actions แล้วกด `#action-…`):
+   * Next 14 `<Link>` ไม่ยิง hashchange → ตั้ง hash เอง (history.pushState ที่ Next patch ไว้ = router ยังรู้ URL) แล้ว dispatch `hashchange`
+   * ให้ SarWorkspace / หน้า actions ที่ฟังอยู่ทำงาน · hash เดิมอยู่แล้วก็ยิงซ้ำ (เช่น สลับแท็บไปแล้วกดกลับมาที่ความเห็น)
+   */
+  function onItemClick(e: ReactMouseEvent<HTMLAnchorElement>, n: AppNotification, href: string) {
+    readOne(n);
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const hash = samePageHash(href, window.location);
+    if (!hash) return;
+    e.preventDefault();
+    const oldURL = window.location.href;
+    if (window.location.hash !== hash) window.history.pushState(null, '', href);
+    window.dispatchEvent(new HashChangeEvent('hashchange', { oldURL, newURL: window.location.href }));
+  }
+
   function readAll() {
     markRead(user);
     notifyTodosChanged();
@@ -262,11 +278,12 @@ export function NotificationBell({ user }: { user: AppUser }) {
                       {g.items.map(n => {
                         const isNew = !n.readAt;
                         const v = KIND_VIEW[n.kind] ?? KIND_VIEW.cycle_status;
+                        const href = notificationHref(n);
                         return (
                           <li key={n.id}>
                             <Link
-                              href={notificationHref(n)} data-testid={`noti-item-${n.id}`} data-unread={isNew || undefined}
-                              onClick={() => readOne(n)}
+                              href={href} data-testid={`noti-item-${n.id}`} data-unread={isNew || undefined}
+                              onClick={e => onItemClick(e, n, href)}
                               className="flex items-start gap-3 px-4 py-3 text-foreground no-underline transition-colors duration-fast ease-hover visited:text-foreground hover:bg-accent hover:text-foreground"
                             >
                               <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', v.box)} aria-hidden="true">

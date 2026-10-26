@@ -42,6 +42,18 @@ export function notificationHref(n: Pick<AppNotification, 'target' | 'cycleId' |
   return '/app';
 }
 
+/**
+ * ปลายทางเป็นหน้าเดิมแต่ต่างแค่ hash? — คืน hash (`#…`) ถ้า path+query ของ `href` ตรงกับหน้าปัจจุบันและมี hash, ไม่งั้น null
+ * ใช้แก้ Next 14: `<Link>` ไปหน้าเดิมแค่เปลี่ยน hash จะไม่ยิง `hashchange` (R2-F8)
+ */
+export function samePageHash(href: string, current: { pathname: string; search: string }): string | null {
+  const i = href.indexOf('#');
+  if (i < 0) return null;
+  const hash = href.slice(i);
+  if (hash.length < 2) return null;
+  return href.slice(0, i) === current.pathname + current.search ? hash : null;
+}
+
 /** ข้อความแจ้งเตือนตามภาษา (friendly-spec §F3.1) */
 export function notificationText(n: Pick<AppNotification, 'kind' | 'messageTh' | 'messageEn'>, lang: Lang): string {
   if (lang === 'en') return n.messageEn || NOTI_KIND_EN[n.kind] || n.messageTh;

@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
-  assignAssessor, assignCriterion, assignSections, can, cycleScope, getCycle, listAssignableUsers, listCriteria,
+  assignAssessor, assignCriterion, assignSections, can, cycleScope, getCycle, isActiveUser, listAssignableUsers, listCriteria,
   listRequirements, listSections, listUsers, updateCycleDates,
 } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
@@ -150,7 +150,7 @@ export default function AssignPage() {
                     <label htmlFor="as-asr" className={LABEL}>เลือกผู้ใช้ที่มีบทบาทกรรมการ</label>
                     <NativeSelect id="as-asr" value={assessorId} onChange={e => setAssessorId(e.target.value)} data-testid="assessor-select">
                       <option value="">— เลือก —</option>
-                      {assessors.map(a => <option key={a.id} value={a.id}>{a.fullName}</option>)}
+                      {assessors.filter(isActiveUser).map(a => <option key={a.id} value={a.id}>{a.fullName}</option>)}
                     </NativeSelect>
                   </div>
                   <Button type="button" variant="outline" className="mt-5" disabled={!assessorId} data-testid="assessor-add"
