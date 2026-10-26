@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * กราฟแนวโน้ม (ADR-UI-001 tokens.md T1.4, pages.md P13) — inline SVG ไม่พึ่งสีอย่างเดียว
- * ค่าจริง = primary ทึบ 2.5 + วงกลม r4 · เป้าหมาย = muted ประ 6 4 · benchmark = info ประจุด 2 4 + สี่เหลี่ยม 7px
+ * กราฟแนวโน้ม (ADR-UI-001 tokens.md T1.4, pages.md P13 · saas-spec §P13 · friendly-spec §F13 การ์ด rounded-xl) — inline SVG ไม่พึ่งสีอย่างเดียว
+ * ค่าจริง = chart-1 ทึบ 2.5 + วงกลม r4 · เป้าหมาย = chart-4 ประ 6 4 · benchmark = chart-2 ประจุด 2 4 + สี่เหลี่ยม 7px · กริด stroke-border
  * ป้ายชื่อที่ปลายเส้น (direct label, เลื่อนไม่ให้ซ้อน) · ชื่อแกน Y "{ชื่อ} ({หน่วย})" · แกน X "ปีการศึกษา (พ.ศ.)"
  * U3 (BUG-0001-U2Q-1 / UX-U3-2): วาดที่ขนาดจริงของกล่อง (viewBox = px จริง) → ป้าย 13px เห็นเป็น 13px ทุกจอ ·
  * tick ปัดเป็นเลขสวย (1/2/2.5/5 × 10^n) · หน่วยนับ (คน/ครั้ง/ชิ้น/บาท/ปี) และค่าที่เป็นจำนวนเต็มทั้งหมด → tick จำนวนเต็ม
@@ -10,9 +10,22 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import type { MetricValue } from '@/lib/types';
+import { cn } from '@/lib/ui/cn';
 import { InlineMessage } from './common';
 
 const H = 260, PT = 24, PB = 52, LABEL_GAP = 20;
+
+/**
+ * สีชุดข้อมูลตาม earth-tokens §E1 (normative): ค่าจริง = chart-1 (primary) · benchmark = chart-2 (info) ·
+ * เป้าหมาย = chart-4 (muted-foreground, เส้นประ) · chart-3 (clay) = ชุดที่ 3 ถ้ามีเส้นเพิ่ม (คู่ #40 clay/card)
+ * ทุกสีเป็น token จึงสลับธีมสว่าง/มืดเอง · literal เต็ม (JIT ต้องสแกนเจอ)
+ */
+type SeriesKey = 'actual' | 'target' | 'bm';
+const SERIES: Record<SeriesKey, { stroke: string; fill: string; dash?: string }> = {
+  actual: { stroke: 'stroke-chart-1', fill: 'fill-chart-1' },
+  bm: { stroke: 'stroke-chart-2', fill: 'fill-chart-2', dash: '2 4' },
+  target: { stroke: 'stroke-chart-4', fill: 'fill-chart-4', dash: '6 4' },
+};
 const COUNT_UNITS = new Set(['คน', 'ครั้ง', 'ชิ้น', 'บาท', 'ปี', 'รายการ', 'เรื่อง', 'วิชา']);
 
 /** ช่วงแกนและ tick แบบเลขสวย */
@@ -86,60 +99,72 @@ export default function TrendChart({ code, name, unit, rows }: { code: string; n
   const valueW = Math.max(...main.map(o => fmt(o.v, integer).length)) * 8;
   const showAllValues = spacing >= valueW + 8;
 
-  type EndLabel = { key: string; y: number; text: string; color: string; x: number };
+  type EndLabel = { key: SeriesKey; y: number; text: string; x: number };
   const endLabels: EndLabel[] = [];
-  if (main.length) endLabels.push({ key: 'a', y: y(end(main).v) + 4, text: 'ค่าจริง', color: 'var(--c-primary)', x: x(end(main).i) + 10 });
-  if (tgt.length) endLabels.push({ key: 't', y: y(end(tgt).v) + 4, text: 'เป้าหมาย', color: 'var(--c-muted)', x: x(end(tgt).i) + 10 });
-  if (bm.length) endLabels.push({ key: 'b', y: y(end(bm).v) + 4, text: 'benchmark', color: 'var(--c-info)', x: x(end(bm).i) + 10 });
+  if (main.length) endLabels.push({ key: 'actual', y: y(end(main).v) + 4, text: 'ค่าจริง', x: x(end(main).i) + 10 });
+  if (tgt.length) endLabels.push({ key: 'target', y: y(end(tgt).v) + 4, text: 'เป้าหมาย', x: x(end(tgt).i) + 10 });
+  if (bm.length) endLabels.push({ key: 'bm', y: y(end(bm).v) + 4, text: 'benchmark', x: x(end(bm).i) + 10 });
   const placed = spread(endLabels, PT + 4, H - PB);
 
   return (
-    <figure className="aq-chart" data-testid={`trend-${code}`}>
-      <figcaption className="aq-h3">{`${title}${unit ? ` (${unit})` : ''}`}</figcaption>
+    <figure className="m-0 min-w-0 space-y-4 rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6" data-testid={`trend-${code}`}>
+      <figcaption className="text-lg font-semibold text-foreground">{`${title}${unit ? ` (${unit})` : ''}`}</figcaption>
       {short && (
         <InlineMessage tone="warn" testId={`trend-warn-${code}`}>
           {`ข้อมูลมี ${pts.length} ปี (น้อยกว่า 3 ปี) แนวโน้มอาจยังไม่น่าเชื่อถือ ควรเพิ่มข้อมูลย้อนหลังให้ครบ 3–5 ปี`}
         </InlineMessage>
       )}
-      <div ref={box} className="aq-chart-box">
-        <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={desc} className="aq-chart-svg">
+      <div ref={box} className="w-full min-w-0 overflow-hidden">
+        <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={desc} className="block max-w-none">
           {ticks.map((t, i) => (
             <g key={i}>
-              <line x1={PL} x2={PL + plotW} y1={y(t)} y2={y(t)} strokeWidth="1" style={{ stroke: 'var(--c-border-subtle)' }} />
-              <text x={PL - 8} y={y(t) + 4} textAnchor="end" className="aq-chart-label aq-chart-text">{fmt(t, integer)}</text>
+              <line x1={PL} x2={PL + plotW} y1={y(t)} y2={y(t)} strokeWidth="1" className="stroke-border" />
+              <text x={PL - 8} y={y(t) + 4} textAnchor="end" className="aq-chart-label">{fmt(t, integer)}</text>
             </g>
           ))}
-          {pts.map((p, i) => <text key={p.period} x={x(i)} y={H - PB + 20} textAnchor="middle" className="aq-chart-label aq-chart-text">{p.period}</text>)}
-          <text x={PL + plotW / 2} y={H - 8} textAnchor="middle" className="aq-chart-label aq-chart-text">ปีการศึกษา (พ.ศ.)</text>
-          <text transform={`translate(14 ${(PT + H - PB) / 2}) rotate(-90)`} textAnchor="middle" className="aq-chart-label aq-chart-text">{yTitle}</text>
+          {pts.map((p, i) => <text key={p.period} x={x(i)} y={H - PB + 20} textAnchor="middle" className="aq-chart-label">{p.period}</text>)}
+          <text x={PL + plotW / 2} y={H - 8} textAnchor="middle" className="aq-chart-label">ปีการศึกษา (พ.ศ.)</text>
+          <text transform={`translate(14 ${(PT + H - PB) / 2}) rotate(-90)`} textAnchor="middle" className="aq-chart-label">{yTitle}</text>
 
           {bm.length > 0 && <>
-            <path d={path(bm)} fill="none" strokeWidth="2" strokeDasharray="2 4" style={{ stroke: 'var(--c-info)' }} data-testid={`trend-bm-${code}`} />
-            {bm.map(o => <rect key={o.i} x={x(o.i) - 3.5} y={y(o.v) - 3.5} width="7" height="7" style={{ fill: 'var(--c-info)' }} />)}
+            <path d={path(bm)} fill="none" strokeWidth="2" strokeDasharray="2 4" className={SERIES.bm.stroke} data-testid={`trend-bm-${code}`} />
+            {bm.map(o => <rect key={o.i} x={x(o.i) - 3.5} y={y(o.v) - 3.5} width="7" height="7" className={SERIES.bm.fill} />)}
           </>}
           {tgt.length > 0 && (
-            <path d={path(tgt)} fill="none" strokeWidth="2" strokeDasharray="6 4" style={{ stroke: 'var(--c-muted)' }} data-testid={`trend-target-${code}`} />
+            <path d={path(tgt)} fill="none" strokeWidth="2" strokeDasharray="6 4" className={SERIES.target.stroke} data-testid={`trend-target-${code}`} />
           )}
-          {main.length > 1 && <path d={path(main)} fill="none" strokeWidth="2.5" style={{ stroke: 'var(--c-primary)' }} />}
+          {main.length > 1 && <path d={path(main)} fill="none" strokeWidth="2.5" className={SERIES.actual.stroke} />}
           {main.map((o, k) => (
             <g key={o.i}>
-              <circle cx={x(o.i)} cy={y(o.v)} r="4" style={{ fill: 'var(--c-primary)' }}><title>{`ปี ${pts[o.i].period}: ${fmt(o.v, integer)}`}</title></circle>
+              <circle cx={x(o.i)} cy={y(o.v)} r="4" className={cn(SERIES.actual.fill, 'stroke-card')} strokeWidth="1.5"><title>{`ปี ${pts[o.i].period}: ${fmt(o.v, integer)}`}</title></circle>
               {(showAllValues || k === main.length - 1) && (
-                <text x={x(o.i)} y={y(o.v) - 10} textAnchor="middle" className="aq-chart-label aq-chart-value">{fmt(o.v, integer)}</text>
+                <text x={x(o.i)} y={y(o.v) - 10} textAnchor="middle" className="aq-chart-label fill-foreground">{fmt(o.v, integer)}</text>
               )}
             </g>
           ))}
-          {placed.map(l => <text key={l.key} x={l.x} y={l.y} className="aq-chart-label" style={{ fill: l.color }}>{l.text}</text>)}
+          {placed.map(l => <text key={l.key} x={l.x} y={l.y} className={cn('aq-chart-label', SERIES[l.key].fill)}>{l.text}</text>)}
         </svg>
       </div>
-      <div className="aq-legend">
-        <ul className="aq-legend__list">
-          <li><i className="aq-line-key aq-line-key--actual" />ค่าจริง</li>
-          {tgt.length > 0 && <li><i className="aq-line-key aq-line-key--target" />เป้าหมาย</li>}
-          {bm.length > 0 && <li><i className="aq-line-key aq-line-key--bm" />{`benchmark${bmSource ? ` (${bmSource})` : ''}`}</li>}
+      <div className="aq-legend m-0 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t pt-3">
+        <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1 p-0">
+          <li className="inline-flex items-center gap-2 text-foreground"><LineKey k="actual" />ค่าจริง</li>
+          {tgt.length > 0 && <li className="inline-flex items-center gap-2 text-foreground"><LineKey k="target" />เป้าหมาย</li>}
+          {bm.length > 0 && <li className="inline-flex items-center gap-2 text-foreground"><LineKey k="bm" />{`benchmark${bmSource ? ` (${bmSource})` : ''}`}</li>}
         </ul>
-        <p className="aq-meta">{`รหัสตัวชี้วัด ${code}`}</p>
+        <p className="aq-meta m-0">{`รหัสตัวชี้วัด ${code}`}</p>
       </div>
     </figure>
+  );
+}
+
+/** ตัวอย่างเส้นใน legend — รูปเส้นเดียวกับในกราฟ (ทึบ/ประ/จุด+สี่เหลี่ยม) ไม่พึ่งสีอย่างเดียว */
+function LineKey({ k }: { k: SeriesKey }) {
+  const s = SERIES[k];
+  return (
+    <svg width="28" height="10" viewBox="0 0 28 10" aria-hidden="true" className="shrink-0">
+      <line x1="1" x2="27" y1="5" y2="5" strokeWidth={k === 'actual' ? 2.5 : 2} strokeDasharray={s.dash} strokeLinecap="round" className={s.stroke} />
+      {k === 'actual' && <circle cx="14" cy="5" r="3.5" className={s.fill} />}
+      {k === 'bm' && <rect x="10.5" y="1.5" width="7" height="7" className={s.fill} />}
+    </svg>
   );
 }
