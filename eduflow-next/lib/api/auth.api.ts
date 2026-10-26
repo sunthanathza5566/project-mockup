@@ -7,13 +7,15 @@
  * PostgreSQL (อนาคต): users(id, university_id, email, full_name, locale) + role_assignments
  *   รหัสผ่าน → Supabase Auth / bcrypt ฝั่ง server
  */
-import type { AppUser, AssessmentCycle, Invitation, RoleAssignment, RoleCode, Session, UserStatus } from '../types';
+import type { AppUser, AssessmentCycle, RoleAssignment, RoleCode, Session, UserStatus } from '../types';
 import { AunqaError, KEYS, load, save } from './db';
 import { readJSON, writeJSON } from './storage-cache';
 import { appendAudit } from './audit.store';
 import { newId, sha256Hex } from '../utils/hash';
 import { can } from './rbac';
 import { getFaculties, getProgrammes } from './org.store';
+import { revokeInvitationsOf } from './invitation.internal';
+import { purgeAccessRequestNotices } from './notification.internal';
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 5 * 60 * 1000;
@@ -37,7 +39,13 @@ export function isActiveUser(u: Pick<AppUser, 'status'> | null | undefined): boo
  * C8 / ASVS 5.0 §7.4.2: ผู้กระทำของ API ที่เขียนข้อมูลต้องยัง active ตาม store จริง
  * (UI อาจถือ object ผู้ใช้เก่าไว้หลังถูกระงับ) → อ่านสถานะจากแถวใน store ไม่เชื่อ field ใน object ที่ส่งมา
  * ใช้เฉพาะ status — role/สิทธิ์ยังตัดสินด้วย can() ตามเดิม
- * ไม่พบแถว = ปล่อยผ่านให้ authz เดิมตัดสิน (ลบได้เฉพาะ invited/pending ซึ่งไม่เคยมี session — A8.2)
+ * ไม่พบแถว = fail-open โดยตั้งใจ (review minor #4 — security-auditor ไม่ยกเป็น finding จึงคงไว้):
+ *   - แถวที่ลบได้มีแค่ invited/pending (A8.2) ซึ่งไม่เคยมี session → ผู้กระทำจริงที่ไม่มีแถวเกิดได้เฉพาะ
+ *     หลัง resetDemo (แท็บอื่นถือ object ของผู้ใช้ที่สร้างหลัง seed) หรือเทสต์ที่ส่ง actor สังเคราะห์
+ *   - กรณีนั้นยังโดน can() ตาม role ใน object และ getCurrentUser() ตัด session ในการ render ถัดไป
+ *   - fail-closed จะทำให้เทสต์/flow ที่ใช้ actor นอก store พังทั้งชุด โดยไม่ได้เพิ่มความปลอดภัยจริง
+ *     เพราะ RBAC ทั้งหมดอยู่ในเบราว์เซอร์ (ข้อจำกัด MVP — ระบบจริงต้องอ่าน actor จาก session ฝั่ง server เท่านั้น)
+ * ข้อจำกัดนี้บันทึกไว้ใน TASK-0002 Log (R2-B3) ให้ thesis-writer ใส่บท 5
  */
 export function isActorActive(actor: Pick<AppUser, 'id' | 'status'> | null | undefined): boolean {
   if (!actor) return false;
@@ -78,6 +86,14 @@ export function validateRoleScopes(universityId: string, roles: RoleAssignment[]
       default: throw bad();
     }
   }
+}
+
+/**
+ * Security S-06 (ASVS 15.3.1): ค่าที่คืนให้ UI ห้ามมี password hash — สำเนาใหม่ (ไม่ใช่ reference ของ cache)
+ * pure function ไม่เขียน store จึงอยู่ใน facade ได้
+ */
+export function withoutPassword({ password: _pw, ...rest }: AppUser): Omit<AppUser, 'password'> {
+  return { ...rest, roles: sanitizeRoles(rest.roles) };
 }
 
 /** สำเนา role ที่มีเฉพาะ field ที่รู้จัก (กัน field แปลกปลอมติดเข้า store) */
@@ -281,7 +297,7 @@ export function logoutUser(): void {
 // ─── User management (super_admin / uni_admin) ───────────────────────────
 export interface NewUserInput { username: string; password: string; email: string; fullName: string; roles: RoleAssignment[] }
 
-export async function createUser(actor: AppUser, input: NewUserInput): Promise<AppUser> {
+export async function createUser(actor: AppUser, input: NewUserInput): Promise<Omit<AppUser, 'password'>> {
   requireActiveActor(actor);
   const scope = { universityId: actor.universityId };
   if (!can(actor, 'user.manage', scope)) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
@@ -310,10 +326,10 @@ export async function createUser(actor: AppUser, input: NewUserInput): Promise<A
   };
   saveUsers([...fresh, user]);
   appendAudit(actor, { action: 'user.create', targetType: 'user', targetId: user.id, after: { username, roles: user.roles } });
-  return user;
+  return withoutPassword(user);
 }
 
-export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignment[]): AppUser {
+export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignment[]): Omit<AppUser, 'password'> {
   requireActiveActor(actor);
   const users = getUsers();
   const target = users.find(u => u.id === userId);
@@ -330,7 +346,7 @@ export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignme
   target.roles = next;
   saveUsers(users);
   appendAudit(actor, { action: 'user.set_roles', targetType: 'user', targetId: userId, before, after: next });
-  return target;
+  return withoutPassword(target);
 }
 
 export function deleteUser(actor: AppUser, userId: string): void {
@@ -347,27 +363,16 @@ export function deleteUser(actor: AppUser, userId: string): void {
   if (st !== 'invited' && st !== 'pending') throw new AunqaError('conflict', 'ผู้ใช้นี้เคยใช้งานแล้ว ให้ระงับบัญชีแทนการลบ');
   saveUsers(users.filter(u => u.id !== userId));
   revokeInvitationsOf(userId);
+  // S-01: ลบคำขอ pending = ชื่อผู้ขอต้องไม่ค้างในแจ้งเตือน N12 ของผู้ดูแล (เหมือน rejectAccessRequest)
+  if (st === 'pending') purgeAccessRequestNotices(userId, target.fullName);
   appendAudit(actor, { action: 'user.delete', targetType: 'user', targetId: userId, before: { username: target.username, roles: target.roles } });
-}
-
-/** ยกเลิกคำเชิญที่ยังใช้ได้ทั้งหมดของผู้ใช้ (ใช้ร่วมกับ onboarding.store) · คืนจำนวนที่ยกเลิก */
-export function revokeInvitationsOf(userId: string, now: number = Date.now()): number {
-  const rows = load<Invitation>(KEYS.invitations);
-  let n = 0;
-  const next = rows.map(i => {
-    if (i.userId !== userId || i.usedAt || i.revokedAt) return i;
-    n++;
-    return { ...i, revokedAt: now };
-  });
-  if (n) save(KEYS.invitations, next);
-  return n;
 }
 
 /**
  * ระงับ / เปิดใช้บัญชี (ADR-AUTH-001 A3) — เปลี่ยนได้เฉพาะ active ↔ suspended
  * ห้ามตัวเอง · non-super แตะบัญชี super_admin ไม่ได้ · session ของผู้ถูกระงับหมดผลที่ getCurrentUser ครั้งถัดไป
  */
-export function setUserStatus(actor: AppUser, userId: string, status: 'active' | 'suspended', reason?: string): AppUser {
+export function setUserStatus(actor: AppUser, userId: string, status: 'active' | 'suspended', reason?: string): Omit<AppUser, 'password'> {
   requireActiveActor(actor);
   const users = getUsers();
   const target = users.find(u => u.id === userId);
@@ -387,7 +392,7 @@ export function setUserStatus(actor: AppUser, userId: string, status: 'active' |
     action: status === 'suspended' ? 'user.suspend' : 'user.reactivate', targetType: 'user', targetId: userId,
     before: { status: from }, after: { status, reason: why || undefined },
   });
-  return { ...updated };
+  return withoutPassword(updated);
 }
 
 /** รายชื่อผู้ใช้สำหรับ dropdown มอบหมาย (ไม่มี password) */

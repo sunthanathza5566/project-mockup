@@ -14,11 +14,13 @@ import type {
 import { newId, sha256Hex } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import {
-  EMAIL_RE, INVITE_TTL_MS, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, requireActiveActor, revokeInvitationsOf,
-  sanitizeRoles, saveUsers, userStatus, validatePassword, validateRoleScopes, type LoginResult,
+  EMAIL_RE, INVITE_TTL_MS, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, requireActiveActor,
+  sanitizeRoles, saveUsers, userStatus, validatePassword, validateRoleScopes, withoutPassword, type LoginResult,
 } from './auth.api';
 import { AunqaError, KEYS, load, save } from './db';
+import { revokeInvitationsOf } from './invitation.internal';
 import { notify } from './notification.store';
+import { accessRequestNoticeKey, purgeAccessRequestNotices } from './notification.internal';
 import { findUniversityByEmail, getFaculties, getProgramme, getUniversity } from './org.store';
 import { can } from './rbac';
 
@@ -41,7 +43,6 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 // ─── helpers ─────────────────────────────────────────────────────────────
 const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
 const isSuper = (u: AppUser) => u.roles.some(r => r.role === 'super_admin');
-const withoutPassword = ({ password: _pw, ...rest }: AppUser): Omit<AppUser, 'password'> => ({ ...rest, roles: sanitizeRoles(rest.roles) });
 
 const B64URL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 function base64url(b: Uint8Array): string {
@@ -101,15 +102,25 @@ async function createInvitation(actor: AppUser, user: AppUser, now: number): Pro
   return { inv, token };
 }
 
-/** token ใช้ได้ = มี Invitation ที่ hash ตรง, ไม่ used/revoked, ยังไม่หมดอายุ และ user ยัง 'invited' */
+/**
+ * token ใช้ได้ = มี Invitation ที่ hash ตรง, ไม่ used/revoked, ยังไม่หมดอายุ, user ยัง 'invited'
+ * และ (S-04) ผู้เชิญ ณ เวลาที่ใช้ยัง active และยังมี user.manage ของมหาวิทยาลัยนั้น
+ *   — อำนาจของคำเชิญมาจากผู้เชิญ ตรวจตอนใช้ตามหลักเดียวกับ requireActiveActor (C8: อ่านสถานะจาก store จริง)
+ *   — ไม่ revoke ตอนระงับ: ระงับ↔เปิดใช้ย้อนกลับได้ (A3) และ setUserStatus ไม่มีผลข้างเคียงอื่นตาม contract
+ *     → เปิดใช้ผู้เชิญอีกครั้ง คำเชิญที่ยังไม่หมดอายุกลับมาใช้ได้ · ผู้เชิญไม่พบในระบบ = ใช้ไม่ได้ (fail-closed)
+ *   — ผลลัพธ์ = null เหมือนกรณีอื่น (ข้อความเดียว INVITE_INVALID_MESSAGE ไม่บอกเหตุผล กัน enumeration)
+ */
 async function findValidInvitation(token: unknown): Promise<{ inv: Invitation; user: AppUser } | null> {
   if (typeof token !== 'string' || !TOKEN_RE.test(token)) return null;
   const h = await hashInviteToken(token);
   const now = Date.now();
   const inv = load<Invitation>(KEYS.invitations).find(i => i.tokenHash === h);
   if (!inv || inv.usedAt || inv.revokedAt || !(inv.expiresAt > now)) return null;
-  const user = getUsers().find(u => u.id === inv.userId);
+  const users = getUsers();
+  const user = users.find(u => u.id === inv.userId);
   if (!user || userStatus(user) !== 'invited') return null;
+  const inviter = users.find(u => u.id === inv.createdBy);
+  if (!inviter || !isActiveUser(inviter) || !can(inviter, 'user.manage', { universityId: user.universityId })) return null;
   return { inv, user };
 }
 
@@ -248,11 +259,13 @@ export async function submitAccessRequest(input: AccessRequestInput): Promise<{ 
     action: 'user.request', targetType: 'user', targetId: user.id, after: { programmeId, facultyId },
   }, uni.id);
   // N12 → ผู้มี user.manage ของมหาวิทยาลัยนั้น (รวม super_admin) ที่ active
+  // dedupeKey ผูกกับผู้ขอ → ปฏิเสธ/ลบคำขอแล้วลบแจ้งเตือนนี้ของทุกผู้รับได้ (S-01) · ข้อความเดิมไม่เปลี่ยน
   users.filter(u => isActiveUser(u) && can(u, 'user.manage', { universityId: uni.id })).forEach(u => notify({
     userId: u.id, kind: 'access_request',
     messageTh: `มีคำขอเข้าใช้งานใหม่จาก ${fullName}`,
     messageEn: `New access request from ${fullName}`,
     target: { type: 'admin', tab: 'requests' },
+    dedupeKey: accessRequestNoticeKey(user.id),
   }));
   return { username };
 }
@@ -288,8 +301,12 @@ export function countPendingAccessRequests(actor: AppUser | null | undefined): n
   return pendingVisibleTo(actor)?.length ?? 0;
 }
 
-/** อนุมัติคำขอ: กำหนดบทบาท → active · แจ้งผู้ขอ (N13) */
-export function approveAccessRequest(actor: AppUser, userId: string, roles: RoleAssignment[]): AppUser {
+/**
+ * อนุมัติคำขอ: กำหนดบทบาท → active · แจ้งผู้ขอ (N13)
+ * N12 ของผู้ดูแลคงไว้ (ต่างจาก reject): ผู้ขอกลายเป็นผู้ใช้ active ชื่อ-สกุลยังใช้อยู่ในระบบตามวัตถุประสงค์
+ * และแจ้งเตือนเป็นประวัติว่าใครส่งคำขอ — ไม่มีการเก็บเกินจำเป็น
+ */
+export function approveAccessRequest(actor: AppUser, userId: string, roles: RoleAssignment[]): Omit<AppUser, 'password'> {
   const target = managedTarget(actor, userId, 'pending');
   const granted = validateGrantedRoles(actor, target.universityId, roles);
   const { accessRequest: _req, ...rest } = target;
@@ -305,15 +322,19 @@ export function approveAccessRequest(actor: AppUser, userId: string, roles: Role
     messageEn: 'Your account has been approved — you can start using the system',
     target: { type: 'home' },
   });
-  return { ...approved, roles: sanitizeRoles(granted) };
+  return withoutPassword(approved);
 }
 
-/** ปฏิเสธคำขอ: ลบแถวผู้ใช้ทันที (ลดข้อมูลส่วนบุคคล) — audit เก็บแค่โดเมนอีเมล + หน่วยงาน */
+/**
+ * ปฏิเสธคำขอ: ลบแถวผู้ใช้ทันที (ลดข้อมูลส่วนบุคคล) — audit เก็บแค่โดเมนอีเมล + หน่วยงาน
+ * S-01: ลบแจ้งเตือน N12 ที่มีชื่อผู้ขอออกจากผู้รับทุกคนด้วย (ตรงประกาศ "ถูกปฏิเสธ = ลบทันที")
+ */
 export function rejectAccessRequest(actor: AppUser, userId: string, note?: string): void {
   const target = managedTarget(actor, userId, 'pending');
   const why = str(note);
   if (why.length > MAX_REASON) throw new AunqaError('invalid', 'หมายเหตุต้องไม่เกิน 500 ตัวอักษร');
   saveUsers(getUsers().filter(u => u.id !== userId));
+  purgeAccessRequestNotices(userId, target.fullName);
   const at = target.email.lastIndexOf('@');
   appendAudit(actor, {
     action: 'user.reject', targetType: 'user', targetId: userId,

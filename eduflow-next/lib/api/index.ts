@@ -36,4 +36,5 @@ export type { ActionTransition, ActionItemInput } from './action.store';
 export * from './assessor.store';     // findings / committee rating / verdict (M12)
 export * from './todo';               // listMyTodos (Phase U, ADR-UI-001 B2)
 export * from './preflight';          // getTransitionPreflight (Phase U, ADR-UI-001 B4)
-// หมายเหตุ: evidence-text.internal / curriculum-data.internal ไม่ถูก export ผ่าน facade โดยเจตนา (ไม่มี guard)
+// หมายเหตุ: evidence-text.internal / curriculum-data.internal / invitation.internal (revokeInvitationsOf, S-05)
+//   / notification.internal (purgeAccessRequestNotices, S-01) ไม่ถูก export ผ่าน facade โดยเจตนา (ไม่มี guard)
