@@ -2,7 +2,7 @@
 
 /**
  * พื้นที่ทำงานกรรมการ / ผลประเมินของกรรมการ (saas-spec §P15 + friendly-spec §F13)
- * - แท็บเกณฑ์แบบ segmented (`assess-crit-{n}` role=tab, ←/→ Home/End) · ✓ เมื่อให้คะแนนแล้ว
+ * - แท็บเกณฑ์แบบ segmented (`assess-crit-{n}` role=tab, ←/→ Home/End) · ไอคอน check เมื่อให้คะแนนแล้ว
  * - การ์ดคะแนนรายเกณฑ์: NativeSelect `crit-score`, Textarea `crit-why`, ปุ่ม `crit-save` (default) → `crit-next` (outline)
  * - การ์ดความคืบหน้า (`assess-progress`, `rated-count`) + verdict + ส่งผล (ปุ่มหลักเดียว) + Appendix B/D (outline)
  * - ต่อข้อ: SAR อ่านอย่างเดียว (กล่อง muted) | Appendix B ของคุณ (Textarea) — lg ขึ้นไป 2 คอลัมน์
