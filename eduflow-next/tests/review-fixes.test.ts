@@ -35,9 +35,10 @@ describe('review fixes TASK-0001', () => {
     expect(listAudit(user('uadmin')).length).toBe(auditN);
   });
 
-  it('#3 resetDemo ต้องมีสิทธิ์ user.manage', async () => {
+  it('#3 resetDemo เฉพาะ super_admin (ADR-AUTH-001 A8/A10)', async () => {
     await expect(resetDemo(user('chair1'))).rejects.toMatchObject({ code: 'forbidden' });
-    await expect(resetDemo(user('uadmin'))).resolves.toBeUndefined();
+    await expect(resetDemo(user('uadmin'))).rejects.toMatchObject({ code: 'forbidden' });
+    await expect(resetDemo(user('sadmin'))).resolves.toBeUndefined();
   });
 
   it('#6 uni_admin แก้ role ตัวเอง/แตะ super_admin ไม่ได้', () => {
