@@ -3,7 +3,6 @@
  * AC-13 R2 (1) ไม่มี `aunqa_theme` + ระบบเป็น dark → <html> ไม่มี class dark ตลอดการโหลด · พื้น body = --background (light)
  *          (2) `aunqa_theme='dark'` → <html class~=dark> ตั้งแต่ DOMContentLoaded และไม่กระพริบ · พื้น body = token dark (คงเดิม)
  *          (3) สลับผ่าน UI: /app `user-menu` → `theme-segment-dark` · /login `display-menu` → `theme-segment-dark` → reload ค่ายังอยู่
- *              — fixme จน R2-F1 (user-menu) / R2-F2 (display-menu บน login) วาง · Q2c เอา fixme ออก
  *          (4) `theme-segment-system` (ป้าย "ตามเครื่อง") ตาม prefers-color-scheme ทั้งตอนโหลดและเปลี่ยนระหว่างใช้งาน
  *          (5) หลังสลับธีม `--user-scale` และ `data-effects` บน <html> ยังอยู่ (PrefsInit ไม่ชนกับ next-themes) (คงเดิม)
  * AC-03 dark: ไม่มี horizontal scroll บน 5 หน้าใน dark ที่ 1440 และ 390
@@ -12,7 +11,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { DEMO_CYCLE, loginAs, sectionUrl } from './helpers';
+import { DEMO_CYCLE, loginAs, openUserMenu, sectionUrl } from './helpers';
 
 const THEME_KEY = 'aunqa_theme';
 const PREFS_KEY = 'aunqa_ui_prefs';
@@ -73,15 +72,12 @@ const readHtmlLog = (page: Page) => page.evaluate(() => {
 
 
 /**
- * เปิดชุดควบคุม "การแสดงผล" ใน /app ให้เห็น ThemeSegment (`theme-segment`)
- * — รอบ 2 อยู่ในเมนูผู้ใช้ (`user-menu`, R2-F1) · ระหว่างเปลี่ยนผ่านยังอยู่ที่ปุ่มท้าย sidebar (`display-prefs`, R2-F0)
- *   Q2c: ลบ fallback `display-prefs` เมื่อ F1 วาง user-menu แล้ว (S6 ลบ DisplayPrefsButton)
+ * เปิดชุดควบคุม "การแสดงผล" ใน /app ให้เห็น ThemeSegment (`theme-segment`) — รอบ 2 อยู่ในเมนูผู้ใช้ (`user-menu`, R2-F1)
+ * Q2c: ลบ fallback `display-prefs` แล้ว (F1 วาง user-menu · sidebar ไม่มีปุ่มการแสดงผลอีก)
  */
 async function openAppThemeSegment(page: Page) {
-  const userMenu = page.getByTestId('user-menu');
-  if (await userMenu.count()) await userMenu.first().click();
-  else await page.getByTestId('display-prefs').click();
-  const seg = page.getByTestId('theme-segment');
+  const panel = await openUserMenu(page);
+  const seg = panel.getByTestId('theme-segment');
   await expect(seg).toBeVisible();
   return seg;
 }
@@ -170,9 +166,9 @@ test.describe('AC-13 R2 (2) aunqa_theme=dark → dark ตั้งแต่ DOMC
 });
 
 // ─────────────────────────── AC-13 R2 (3) ───────────────────────────
-// fixme: user-menu (R2-F1) และ display-menu บน /login (R2-F2) ยังไม่ถูกวาง — Q2c เอา fixme ออก
+// Q2c: เปิดแล้ว (R2-F1 วาง user-menu · R2-F2 วาง display-menu บน /login)
 test.describe('AC-13 R2 (3) สลับธีมผ่าน UI แล้ว reload ค่ายังอยู่', () => {
-  test.fixme('/app: user-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark · กลับเป็นสว่างได้', async ({ page }) => {
+  test('/app: user-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark · กลับเป็นสว่างได้', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await loginAs(page, 'chair1');
     await page.goto('/app'); await settle(page);
@@ -181,6 +177,7 @@ test.describe('AC-13 R2 (3) สลับธีมผ่าน UI แล้ว re
     await page.getByTestId('theme-segment-dark').click();
     await expect.poll(async () => (await htmlState(page)).dark).toBe(true);
     await expect(page.getByTestId('theme-segment-dark')).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByTestId('user-menu-panel'), 'เปลี่ยนธีมแล้วเมนูไม่ปิด (§F2.3)').toBeVisible();
     expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('dark');
     await page.reload(); await settle(page);
     const s = await htmlState(page);
@@ -194,7 +191,7 @@ test.describe('AC-13 R2 (3) สลับธีมผ่าน UI แล้ว re
     expect(await page.evaluate((k) => localStorage.getItem(k), THEME_KEY)).toBe('light');
   });
 
-  test.fixme('/login: display-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark', async ({ page }) => {
+  test('/login: display-menu → theme-segment-dark → dark + เก็บ aunqa_theme · reload ยังเป็น dark', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/login'); await settle(page);
     expect((await htmlState(page)).dark).toBe(false);

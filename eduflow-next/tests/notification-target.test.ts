@@ -2,14 +2,15 @@
  * TASK-0002 Q2b — AC-25 (ส่วน backend): แจ้งเตือนทุกจุด notify (ADR-AUTH-001 A6 N1–N14)
  * - ทุกแถวที่สร้างมี `target` ตามตาราง + `messageEn` ไม่ว่าง · `messageTh` เดิมทุกตัวอักษร
  * - ผู้รับที่ไม่ active (invited / pending / suspended) ไม่ได้แจ้งเตือน
- * - ส่วน `notificationHref` (lib/ui/notification.ts) → Q2c (รอ R2-F1)
+ * - Q2c: `notificationHref` ทุก type + แถวเก่า + กัน open redirect · `notificationText` · `relativeTime`/`groupByDay` (lib/ui/notification.ts — ท้ายไฟล์)
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as api from '@/lib/api';
 import { KEYS, load, save } from '@/lib/api/db';
 import { getUsers, saveUsers } from '@/lib/api/auth.api';
 import { notify } from '@/lib/api/notification.store';
-import type { AppNotification, AppUser, AssessmentCycle, SarSection } from '@/lib/types';
+import type { AppNotification, AppUser, AssessmentCycle, NotificationTarget, SarSection } from '@/lib/types';
+import { NOTI_KIND_EN, groupByDay, notificationHref, notificationText, relativeTime } from '@/lib/ui/notification';
 import { CYCLE, PROG, driveToAssessment, driveToLocked, freshDemo, freshSeededDemo, user } from './helpers';
 
 const PW = 'secret-pass-8';
@@ -370,5 +371,115 @@ describe('AC-25 / AC-28 notify ข้ามผู้รับที่ไม่ 
     api.setUserStatus(user('uadmin'), 'u-lect1', 'suspended');
     expect(api.syncDeadlineNotifications(user('lect1'))).toBe(0);
     expect(notesOf('u-lect1')).toEqual([]);
+  });
+});
+
+// ════════════════════ Q2c: lib/ui/notification.ts (friendly-spec §F3) ════════════════════
+describe('notificationHref — ปลายทางตาม §F3.3 (ทุก type + แถวเก่า)', () => {
+  const href = (target?: NotificationTarget, legacy: { cycleId?: string; requirementId?: string } = {}) =>
+    notificationHref({ target, ...legacy });
+  const SEC = `/app/sections/${encodeURIComponent(`${CYCLE}::3.6`)}`;
+
+  it('section → หน้าข้อ · panel comments → #comments', () => {
+    expect(href(toSec('3.6') as NotificationTarget)).toBe(SEC);
+    expect(href(toSec('3.6', { panel: 'comments' }) as NotificationTarget)).toBe(`${SEC}#comments`);
+  });
+  it('my_work → /app#mywork · cycle → แดชบอร์ดรอบ · assess → หน้าประเมิน · home → /app', () => {
+    expect(href({ type: 'my_work' } as NotificationTarget)).toBe('/app#mywork');
+    expect(href(toCycle as NotificationTarget)).toBe(`/app/cycles/${CYCLE}`);
+    expect(href(toAssess as NotificationTarget)).toBe(`/app/cycles/${CYCLE}/assess`);
+    expect(href({ type: 'home' } as NotificationTarget)).toBe('/app');
+  });
+  it('action → /app/actions#action-{id} (encode)', () => {
+    expect(href({ type: 'action', actionId: 'act-1' } as NotificationTarget)).toBe('/app/actions#action-act-1');
+    expect(href({ type: 'action', actionId: 'a b/../x' } as NotificationTarget)).toBe(`/app/actions#action-${encodeURIComponent('a b/../x')}`);
+  });
+  it('admin → tab requests / users · tab ที่ไม่รู้จัก → users', () => {
+    expect(href({ type: 'admin', tab: 'requests' } as NotificationTarget)).toBe('/app/admin?tab=requests');
+    expect(href({ type: 'admin', tab: 'users' } as NotificationTarget)).toBe('/app/admin?tab=users');
+    expect(href({ type: 'admin', tab: 'evil"><script>' } as unknown as NotificationTarget)).toBe('/app/admin?tab=users');
+  });
+  it('แถวเก่าไม่มี target: cycleId+requirementId → section · cycleId → รอบ · ไม่มีอะไร → /app', () => {
+    expect(href(undefined, { cycleId: CYCLE, requirementId: '3.6' })).toBe(SEC);
+    expect(href(undefined, { cycleId: CYCLE })).toBe(`/app/cycles/${CYCLE}`);
+    expect(href(undefined)).toBe('/app');
+  });
+  it('กัน open redirect: id ที่มี "//", "https:" ถูก encode อยู่ใต้ /app เสมอ', () => {
+    const evil = 'https://evil.example/x';
+    const outs = [
+      href({ type: 'cycle', cycleId: evil } as NotificationTarget),
+      href({ type: 'assess', cycleId: '//evil.example' } as NotificationTarget),
+      href({ type: 'section', cycleId: evil, requirementId: '//x' } as NotificationTarget),
+      href(undefined, { cycleId: evil }),
+    ];
+    for (const o of outs) {
+      expect(o.startsWith('/app')).toBe(true);
+      expect(o.startsWith('//')).toBe(false);
+      expect(o).not.toContain('://');
+    }
+  });
+  it('type ที่ไม่รู้จัก (ข้อมูลเสีย) → ตกไปกติกาแถวเก่า ไม่ throw', () => {
+    expect(href({ type: 'weird' } as unknown as NotificationTarget, { cycleId: CYCLE })).toBe(`/app/cycles/${CYCLE}`);
+    expect(href({ type: 'weird' } as unknown as NotificationTarget)).toBe('/app');
+  });
+  it('ทุกแถวที่ backend สร้างจริง (เดินจน lock) แปลงเป็น path ภายใน /app ได้', async () => {
+    await driveToLocked();
+    const rows = allNotes();
+    expect(rows.length).toBeGreaterThan(0);
+    for (const n of rows) expect(notificationHref(n)).toMatch(/^\/app(\/|#|\?|$)/);
+  });
+});
+
+describe('notificationText / NOTI_KIND_EN', () => {
+  const base = { kind: 'comment' as const, messageTh: 'มีความเห็นใหม่' };
+  it('th = messageTh · en = messageEn → NOTI_KIND_EN[kind] → messageTh', () => {
+    expect(notificationText({ ...base, messageEn: 'New comment on 1.1' }, 'th')).toBe('มีความเห็นใหม่');
+    expect(notificationText({ ...base, messageEn: 'New comment on 1.1' }, 'en')).toBe('New comment on 1.1');
+    expect(notificationText({ ...base, messageEn: '' }, 'en')).toBe(NOTI_KIND_EN.comment);
+    expect(notificationText({ kind: 'nope' as never, messageTh: 'ไทยล้วน' }, 'en')).toBe('ไทยล้วน');
+  });
+  it('NOTI_KIND_EN ครบทุก kind และไม่มีอักษรไทย', () => {
+    const kinds = ['assigned', 'comment', 'changes_requested', 'approved', 'cycle_status', 'deadline', 'access_request', 'account'];
+    expect(Object.keys(NOTI_KIND_EN).sort()).toEqual([...kinds].sort());
+    for (const v of Object.values(NOTI_KIND_EN)) expect(v).not.toMatch(/[฀-๿]/);
+  });
+});
+
+describe('relativeTime / groupByDay (now คงที่ — เวลาท้องถิ่น)', () => {
+  const NOW = new Date(2026, 9, 26, 15, 30, 0).getTime(); // 26 ต.ค. 2026 15:30 ท้องถิ่น
+  const at = (d: number, h: number, m = 0) => new Date(2026, 9, d, h, m, 0).getTime();
+
+  it('< 1 นาที / < 60 นาที / วันนี้ / เมื่อวาน / เก่ากว่า (th + en)', () => {
+    expect(relativeTime(NOW - 30_000, NOW)).toBe('เมื่อสักครู่');
+    expect(relativeTime(NOW - 30_000, NOW, 'en')).toBe('Just now');
+    expect(relativeTime(NOW - 5 * 60_000, NOW)).toBe('5 นาทีที่แล้ว');
+    expect(relativeTime(NOW - 59 * 60_000, NOW, 'en')).toBe('59 min ago');
+    expect(relativeTime(at(26, 9, 5), NOW)).toBe('วันนี้ 09:05');
+    expect(relativeTime(at(26, 9, 5), NOW, 'en')).toBe('Today 09:05');
+    expect(relativeTime(at(25, 23, 59), NOW)).toBe('เมื่อวาน 23:59');
+    expect(relativeTime(at(25, 0, 0), NOW, 'en')).toBe('Yesterday 00:00');
+    const old = relativeTime(at(24, 23, 59), NOW);
+    expect(old).not.toMatch(/^(วันนี้|เมื่อวาน)/);
+    expect(old.length).toBeGreaterThan(0);
+    expect(relativeTime(at(24, 23, 59), NOW, 'en')).not.toMatch(/[฀-๿]/);
+  });
+  it('ขอบเที่ยงคืน: 00:00 วันนี้ = วันนี้ · 1 วินาทีก่อนเที่ยงคืน = เมื่อวาน · อนาคต = เมื่อสักครู่', () => {
+    expect(relativeTime(at(26, 0, 0), NOW)).toBe('วันนี้ 00:00');
+    expect(relativeTime(at(26, 0, 0) - 1000, NOW)).toBe('เมื่อวาน 23:59');
+    expect(relativeTime(NOW + 60_000, NOW)).toBe('เมื่อสักครู่');
+  });
+  it('groupByDay: ลำดับ วันนี้/เมื่อวาน/ก่อนหน้านี้ · คงลำดับในกลุ่ม · ข้ามกลุ่มว่าง · ป้าย th/en', () => {
+    const items = [
+      { id: 'a', createdAt: at(26, 15) }, { id: 'b', createdAt: at(25, 10) }, { id: 'c', createdAt: at(26, 1) },
+      { id: 'd', createdAt: at(1, 1) }, { id: 'e', createdAt: at(26, 0) - 1 },
+    ];
+    const g = groupByDay(items, NOW);
+    expect(g.map(x => x.key)).toEqual(['today', 'yesterday', 'earlier']);
+    expect(g[0].items.map(x => x.id)).toEqual(['a', 'c']);
+    expect(g[1].items.map(x => x.id)).toEqual(['b', 'e']);
+    expect(g[2].items.map(x => x.id)).toEqual(['d']);
+    expect(g.map(x => [x.labelTh, x.labelEn])).toEqual([['วันนี้', 'Today'], ['เมื่อวาน', 'Yesterday'], ['ก่อนหน้านี้', 'Earlier']]);
+    expect(groupByDay([{ createdAt: at(1, 1) }], NOW).map(x => x.key)).toEqual(['earlier']);
+    expect(groupByDay([], NOW)).toEqual([]);
   });
 });

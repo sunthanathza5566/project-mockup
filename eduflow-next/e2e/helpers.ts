@@ -18,6 +18,23 @@ export async function loginAs(page: Page, username: string, password = PASSWORD)
   await expect(page.getByTestId('nav-user')).toBeVisible();
 }
 
+/**
+ * TASK-0002 Q2c (friendly-spec §F2.3/§F11): ธีม/ขนาดตัวอักษร/ออกจากระบบ ย้ายเข้าเมนูผู้ใช้ `user-menu`
+ * เปิด panel `user-menu-panel` ถ้ายังไม่เปิด (idempotent) แล้วคืน locator ของ panel
+ */
+export async function openUserMenu(page: Page): Promise<Locator> {
+  const panel = page.getByTestId('user-menu-panel');
+  if (!(await panel.isVisible())) await page.getByTestId('user-menu').click();
+  await expect(panel).toBeVisible();
+  return panel;
+}
+
+/** ออกจากระบบผ่านเมนูผู้ใช้ (logout เดิมของ AuthContext — dialog flush/conflict เดิม) */
+export async function logoutViaMenu(page: Page) {
+  const panel = await openUserMenu(page);
+  await panel.getByTestId('logout').click();
+}
+
 /** ปุ่มใน dialog ของแอป (confirm/prompt) */
 export async function dialogOk(page: Page, note?: string) {
   const dlg = page.getByRole('dialog');

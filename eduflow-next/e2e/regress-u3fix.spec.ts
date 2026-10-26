@@ -10,7 +10,7 @@
  * U-3    dialog สองตัวเกิดพร้อมกัน (logout ที่ flush ไม่ผ่าน + conflict) → เข้าคิว แสดงทีละตัว ไม่ทับ
  */
 import { test, expect, type Page } from '@playwright/test';
-import { DEMO_CYCLE, loginAs, openSection, sectionUrl } from './helpers';
+import { DEMO_CYCLE, loginAs, logoutViaMenu, openSection, openUserMenu, sectionUrl } from './helpers';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -99,7 +99,7 @@ async function enterSessionLost(page: Page) {
   const b = await page.context().newPage();
   await b.goto('/app');
   await expect(b.getByTestId('nav-user')).toBeVisible();
-  await b.getByTestId('logout').click();
+  await logoutViaMenu(b);
   await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
   await b.close();
 
@@ -114,6 +114,7 @@ test('U-2 sessionLost: เมนูหาย ข้อความค้าง�
   await expect(page.getByTestId('nav-user')).toHaveCount(0);
   await expect(page.getByTestId('nav-home')).toHaveCount(0);
   await expect(page.getByTestId('logout')).toHaveCount(0);
+  await expect(page.getByTestId('user-menu')).toHaveCount(0);           // R2: logout อยู่ในเมนูผู้ใช้ — เมนูต้องหายด้วย
   await expect(page.getByTestId('narrative-th')).toHaveValue(text);
 
   // คลิกลิงก์ในเนื้อหา → dialog ถามก่อน · ยกเลิก = อยู่หน้าเดิม ข้อความครบ
@@ -301,8 +302,11 @@ test('U-3 dialog เกิดพร้อมกัน (logout flush ไม่ผ
   await expect.poll(() => storedNarrative(b, SID36)).toBe(textB);
   await b.close();
 
+  // R2 (Q2c): logout อยู่ในเมนูผู้ใช้ — การคลิกเปิดเมนูหลังพิมพ์ทำให้ textarea blur → autosave เจอ conflict ก่อนถึงปุ่ม logout
+  // (พฤติกรรมถูกต้อง: blur = บันทึกทันที) → เปิดเมนูก่อนพิมพ์ (fill ไม่ส่ง mousedown เมนูจึงยังเปิด) แล้วกด logout = กลไกเดียวกับปุ่มเดิมใน sidebar
+  await openUserMenu(page);
   await page.getByTestId('narrative-th').fill(`U-3 แท็บ A ${Date.now()}`);
-  await page.getByTestId('logout').click();   // ก่อน autosave → flush เจอ conflict → dialog logout + dialog conflict
+  await logoutViaMenu(page);   // ก่อน autosave → flush เจอ conflict → dialog logout + dialog conflict
 
   const seen: string[] = [];
   const dialogs = page.getByRole('dialog');
@@ -342,7 +346,7 @@ test('U2-1 dialog conflict เปิดอยู่ แล้วออกจา�
 
   // แท็บ B ออกจากระบบ ขณะ dialog conflict ของแท็บ A ยังเปิดอยู่
   await b.goto('/app');
-  await b.getByTestId('logout').click();
+  await logoutViaMenu(b);
   await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
   await b.close();
 
