@@ -75,7 +75,7 @@ export default function NewUserForm({ user, scopes, onDone, onCancel }: {
     <form className={`${CARD} mb-6 animate-fade-in`} data-testid="user-form" onSubmit={onSubmit}>
       <h2 className="text-lg font-semibold text-foreground">เพิ่มผู้ใช้</h2>
       {error && (
-        <div ref={errRef} tabIndex={-1} className="mt-4 outline-none">
+        <div ref={errRef} tabIndex={-1} className="mt-4">
           <InlineMessage tone="danger" title="บันทึกไม่สำเร็จ">{error}</InlineMessage>
         </div>
       )}

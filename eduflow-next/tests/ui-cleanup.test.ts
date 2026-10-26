@@ -48,10 +48,8 @@ function grep(files: string[], re: RegExp, skipLine?: (l: string) => boolean): H
 const fmt = (h: Hit[]) => h.map(x => `${x.file}:${x.line}  ${x.text}`);
 
 /** bug ที่พบตอนเขียน Q1 — key = `<file>:<regex-id>` */
-const KNOWN_BUGS = {
-  /** BUG-0002-Q1-1: NewUserForm กล่องสรุป error (tabIndex -1) ใส่ `outline-none` — ขัด §T11 (grep ต้อง = 0) */
-  'components/aunqa/admin/NewUserForm.tsx:focus': 'BUG-0002-Q1-1',
-} as const;
+// BUG-0002-Q1-1 (outline-none ใน NewUserForm) แก้แล้ว — รายการว่าง
+const KNOWN_BUGS: Record<string, string> = {};
 const isKnown = (h: Hit, id: string) => `${h.file}:${id}` in KNOWN_BUGS;
 
 // ─────────────────────────── AC-14: allowlist §H ───────────────────────────
@@ -166,10 +164,6 @@ describe('AC-14 focus / ขนาด px / สีตายตัว (tsx)', () =>
   it('ไม่มี outline-none / focus-visible:ring / focus:ring ใน tsx (§T11 — grep = 0) · ยกเว้น KNOWN_BUGS', () => {
     const hits = grep(TSX_FILES, FOCUS_RE).filter(h => !isKnown(h, 'focus'));
     expect(fmt(hits)).toEqual([]);
-  });
-
-  it.fails('BUG-0002-Q1-1: NewUserForm ไม่ใส่ outline-none ที่กล่องสรุป error (ล้ม = ยังเป็นบั๊ก; ถ้าเคสนี้ "ผ่านโดยไม่คาด" ให้ถอดออกจาก KNOWN_BUGS)', () => {
-    expect(fmt(grep(['components/aunqa/admin/NewUserForm.tsx'], FOCUS_RE))).toEqual([]);
   });
 
   it('ไม่มีค่า px ตายตัวกับ text/leading/h/min-h/max-h', () => {
