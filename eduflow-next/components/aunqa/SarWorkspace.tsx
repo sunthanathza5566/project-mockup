@@ -33,6 +33,11 @@ import TranslateResult from './TranslateResult';
 import Icon from '@/components/ui/Icon';
 import Stepper, { type StepItem } from '@/components/ui/Stepper';
 import Term from '@/components/ui/Term';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { NativeSelect } from '@/components/ui/primitives/native-select';
+import { Textarea } from '@/components/ui/primitives/textarea';
+import { cn } from '@/lib/ui/cn';
 import { PDCA_TH, SECTION_STATUS_TH, errMsg, fmtDateTime, sectionHref, truncateTh } from '@/lib/ui/aunqa';
 import { registerFlush } from '@/lib/ui/flush';
 // นับคำแบบเดียวกับ gap R4 / wordCount ของ section (ไทยใช้ Intl.Segmenter) — pure function อ่านอย่างเดียว
@@ -72,6 +77,30 @@ function conflictReason(base: SarSection, saved: { th: string; en: string; pdca:
 }
 
 type SaveState = { kind: 'idle' | 'dirty' | 'saved' | 'error'; at?: number; msg?: string };
+
+// ─── หน้าตา (saas-spec §P9, §C2, §C11 + friendly-spec §F13 — earth) ───
+const CARD = 'rounded-xl border bg-card p-5 text-card-foreground shadow-sm dark:shadow-none md:p-6';
+const H2 = 'm-0 text-lg font-semibold text-foreground';
+const LIST = 'm-0 list-none divide-y p-0';
+const CHECK_ROW = 'flex min-h-11 cursor-pointer items-center gap-3 text-base text-foreground';
+const CHECK_INPUT = 'h-5 w-5 shrink-0 accent-primary';
+/** C11 แบบ segmented (แผงข้าง / ตัวเลือกเล็ก) — ใช้ได้ทั้ง role=tab (aria-selected) และ role=radio (aria-checked) */
+const SEG_LIST = 'flex flex-wrap gap-1 rounded-lg bg-muted p-1';
+const SEG_ITEM = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground '
+  + 'aria-selected:bg-card aria-selected:text-foreground aria-selected:shadow-sm aria-checked:bg-card aria-checked:text-foreground aria-checked:shadow-sm';
+/** C11 แบบเส้นใต้ (TH/EN ใน editor) */
+const LINE_TAB = '-mb-px inline-flex min-h-11 items-center border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground';
+/** กล่องผล AI (ร่าง/ตรวจ/แปล) */
+const AI_BOX = 'mt-4 space-y-4 rounded-xl border bg-muted/40 p-4 animate-fade-in md:p-5';
+const DRAFT_BOX = 'max-h-96 overflow-y-auto whitespace-pre-wrap rounded-lg border bg-card p-4 text-base leading-relaxed text-foreground';
+
+/**
+ * ปลายทาง deep link ของแจ้งเตือนความเห็น (friendly-spec §F3.3): URL `…#comments` → เปิดแท็บข้าง "ความเห็น"
+ * จำ href ที่จัดการแล้วระดับโมดูล — SarWorkspace ถูก remount หลังบันทึก/ส่งตรวจ (key rev) ไม่ให้ดึงแท็บกลับซ้ำทุกครั้ง
+ * หน้า section เรียก `resetCommentsDeepLink()` ตอน unmount (ออกจากหน้า) → กดแจ้งเตือนเดิมซ้ำภายหลังก็เปิดแท็บอีกครั้ง
+ */
+let commentsHashHandledFor = '';
+export function resetCommentsDeepLink(): void { commentsHashHandledFor = ''; }
 
 
 export default function SarWorkspace({ data, user, reload, remount }: {
@@ -252,9 +281,9 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       title: `ส่งข้อ ${req.id} ให้ประธานหลักสูตรตรวจ`,
       message: 'หลังส่งแล้วจะแก้ไขไม่ได้จนกว่าจะถูกส่งกลับ',
       details: (
-        <ul>{items.map((i, n) => (
-          <li key={n} className={`aq-checkitem aq-checkitem--${i.ok ? 'ok' : 'warn'}`}>
-            <Icon name={i.ok ? 'check-circle' : 'alert-triangle'} size={20} />{i.text}
+        <ul className="m-0 list-none space-y-2 p-0">{items.map((i, n) => (
+          <li key={n} className="flex items-start gap-2 text-base text-foreground">
+            <Icon name={i.ok ? 'check-circle' : 'alert-triangle'} size={20} className={cn('mt-0.5', i.ok ? 'text-success' : 'text-warning')} />{i.text}
           </li>
         ))}</ul>
       ),
@@ -374,6 +403,20 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   }
   const unresolved = comments.filter(c => !c.resolvedAt).length;
   const [side, setSide] = useState<SideTab>('evidence');
+  // §F3.3: hash #comments → แท็บ "ความเห็น" (ตอนเปิดหน้า + hashchange) แล้วเลื่อนแผงให้เห็น (ไม่ย้าย focus)
+  useEffect(() => {
+    function openComments(force: boolean) {
+      if (window.location.hash !== '#comments') return;
+      if (!force && commentsHashHandledFor === window.location.href) return;
+      commentsHashHandledFor = window.location.href;
+      setSide('comments');
+      requestAnimationFrame(() => document.getElementById('sidepanel-comments')?.scrollIntoView({ block: 'nearest' }));
+    }
+    openComments(false);
+    const onHash = () => openComments(true);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
   const sideTabs: { k: SideTab; label: string; n: number }[] = [
     { k: 'evidence', label: 'หลักฐาน', n: linked.length },
     { k: 'comments', label: 'ความเห็น', n: unresolved },
@@ -417,7 +460,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       : section.status === 'ready_for_review' ? 'ส่งตรวจแล้ว — รอประธานหลักสูตรตรวจ' : undefined;
 
   return (
-    <div data-testid="sar-editor">
+    <div data-testid="sar-editor" className="space-y-4">
       {lastReturn && section.status === 'changes_requested' && (
         <InlineMessage tone="warn" icon="undo" testId="return-reason"
           title={`${names[lastReturn.actorId] || 'ประธานหลักสูตร'} ส่งกลับแก้ไขเมื่อ ${fmtDateTime(lastReturn.at)}`}>
@@ -427,13 +470,15 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       {conflict && (
         <InlineMessage tone="danger" testId="save-conflict" title="ข้อนี้ถูกแก้จากที่อื่น — ข้อความล่าสุดของคุณยังไม่ถูกบันทึก"
           actions={<>
-            <button type="button" className="aq-btn" onClick={() => void copyMine()}>คัดลอกข้อความของฉัน</button>
-            <button type="button" className="aq-btn aq-btn-primary" onClick={remount} data-testid="conflict-reload">โหลดฉบับล่าสุด</button>
+            <Button variant="outline" onClick={() => void copyMine()}>คัดลอกข้อความของฉัน</Button>
+            <Button onClick={remount} data-testid="conflict-reload">โหลดฉบับล่าสุด</Button>
           </>}>
           {conflict.reason}
         </InlineMessage>
       )}
-      <Stepper ariaLabel="ขั้นตอนของข้อนี้" steps={steps} summary={stepSummary} />
+      <div className={cn(CARD, 'py-4 md:py-5')}>
+        <Stepper ariaLabel="ขั้นตอนของข้อนี้" steps={steps} summary={stepSummary} />
+      </div>
       {!editable && <InlineMessage tone="info" icon={cycle.lockedAt ? 'lock' : 'info'} testId="readonly-reason">{readonlyText}</InlineMessage>}
       {selfAuthored && (
         <InlineMessage tone="warn" testId="segregation-note" title={<>คุณเป็นผู้เขียนเนื้อหาล่าสุดของข้อนี้ จึงอนุมัติเองไม่ได้ <Term k="segregation" label="การแยกหน้าที่" /></>}>
@@ -441,46 +486,49 @@ export default function SarWorkspace({ data, user, reload, remount }: {
         </InlineMessage>
       )}
 
-      <div className="aq-sar-layout">
+      <div className="grid items-start gap-6 pt-2 xl:grid-cols-[minmax(0,1fr)_24rem]">
         {/* ── คอลัมน์หลัก ── */}
-        <div className="aq-sar-main">
-          <details className="aq-card aq-collapse">
-            <summary>
-              <span className="aq-flex-1">ข้อกำหนด: <span className="aq-muted">{truncateTh(req.textTh, 90)}</span></span>
-              <Icon name="chevron-down" size={20} className="aq-collapse__chev" />
+        <div className="min-w-0 space-y-6">
+          <details className="group rounded-xl border bg-card shadow-sm dark:shadow-none">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-5 py-2.5 text-base text-foreground [&::-webkit-details-marker]:hidden">
+              <Icon name="book-open" size={20} className="shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1"><span className="font-medium">ข้อกำหนด:</span> <span className="text-muted-foreground">{truncateTh(req.textTh, 90)}</span></span>
+              <Icon name="chevron-down" size={20} className="shrink-0 text-muted-foreground transition-transform duration-fast group-open:rotate-180" />
             </summary>
-            <RequirementCard req={req} embedded />
+            <div className="border-t p-5 md:p-6">
+              <RequirementCard req={req} embedded />
+            </div>
           </details>
 
-          <section className="aq-card" id="step-write" aria-labelledby="write-h">
-            <div className="aq-card__head">
-              <h2 id="write-h" className="aq-h3">เนื้อหา SAR</h2>
-              <div className="aq-seg" role="tablist" aria-label="ภาษา">
-                <button type="button" role="tab" aria-selected={lang === 'th'} onClick={() => switchLang('th')} data-testid="tab-th">ภาษาไทย</button>
-                <button type="button" role="tab" aria-selected={lang === 'en'} onClick={() => switchLang('en')} data-testid="tab-en">English</button>
-              </div>
-              <span className="aq-meta aq-tnum">{words} คำ</span>
+          <section className={CARD} id="step-write" aria-labelledby="write-h">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+              <h2 id="write-h" className={H2}>เนื้อหา SAR</h2>
+              <span className="aq-meta tabular-nums">{words} คำ</span>
+            </div>
+            <div className="mb-4 mt-2 flex flex-wrap gap-1 border-b" role="tablist" aria-label="ภาษา">
+              <button type="button" role="tab" className={LINE_TAB} aria-selected={lang === 'th'} onClick={() => switchLang('th')} data-testid="tab-th">ภาษาไทย</button>
+              <button type="button" role="tab" className={LINE_TAB} aria-selected={lang === 'en'} onClick={() => switchLang('en')} data-testid="tab-en">English</button>
             </div>
 
             {canAi && (
-              <div className="aq-ai-toolbar">
-                <div className="aq-cluster">
+              <div className="mb-4 space-y-2">
+                <div className="flex flex-wrap gap-2">
                   {editable && (
-                    <AsyncButton className="aq-btn aq-btn-compact" testId="ai-draft" busyText="กำลังร่าง…" onClick={() => doAi('draft')}>
+                    <AsyncButton variant="outline" size="compact" testId="ai-draft" busyText="กำลังร่าง…" onClick={() => doAi('draft')}>
                       <Icon name="sparkle" size={20} />ร่างจากหลักฐาน
                     </AsyncButton>
                   )}
-                  <AsyncButton className="aq-btn aq-btn-compact" testId="ai-review" busyText="กำลังตรวจ…" onClick={() => doAi('review')}>
+                  <AsyncButton variant="outline" size="compact" testId="ai-review" busyText="กำลังตรวจ…" onClick={() => doAi('review')}>
                     <Icon name="list-check" size={20} />ตรวจเนื้อหา
                   </AsyncButton>
                   {editable && (
-                    <AsyncButton className="aq-btn aq-btn-compact" testId="ai-translate" busyText="กำลังแปล…" disabled={tooLong} onClick={doTranslate}>
+                    <AsyncButton variant="outline" size="compact" testId="ai-translate" busyText="กำลังแปล…" disabled={tooLong} onClick={doTranslate}>
                       <Icon name="languages" size={20} />{lang === 'th' ? 'แปลเป็น EN' : 'แปลเป็น TH'}
                     </AsyncButton>
                   )}
                 </div>
                 {editable && tooLong && (
-                  <p className="aq-btn-reason" data-testid="translate-too-long">
+                  <p className="aq-btn-reason m-0" data-testid="translate-too-long">
                     เนื้อหายาว {text.length.toLocaleString('th-TH')} ตัวอักษร เกินที่แปลอัตโนมัติได้ครั้งละ {TRANSLATE_MAX_CHARS.toLocaleString('th-TH')} ตัวอักษร — แปลด้วยตนเอง หรือแบ่งเนื้อหาเป็นช่วงแล้วแปลทีละช่วงโดยย้ายส่วนที่ยังไม่แปลออกชั่วคราว
                   </p>
                 )}
@@ -488,25 +536,26 @@ export default function SarWorkspace({ data, user, reload, remount }: {
             )}
 
             {needsReview && (
-              <InlineMessage tone="info" testId={`translation-review-${lang}`} title="ข้อความส่วนนี้มาจากคำแปลอัตโนมัติแบบแทนศัพท์"
+              <InlineMessage tone="info" className="mb-4" testId={`translation-review-${lang}`} title="ข้อความส่วนนี้มาจากคำแปลอัตโนมัติแบบแทนศัพท์"
                 actions={editable ? (
-                  <button type="button" className="aq-btn" data-testid={`translation-confirm-${lang}`} onClick={() => doConfirmTranslation(lang)}>
+                  <Button variant="outline" data-testid={`translation-confirm-${lang}`} onClick={() => doConfirmTranslation(lang)}>
                     ยืนยันว่าตรวจคำแปลแล้ว
-                  </button>
+                  </Button>
                 ) : undefined}>
                 แปลประโยคที่เหลือให้ครบแล้วกดยืนยัน ระบบจะเลิกเตือน (กฎ R11)
               </InlineMessage>
             )}
 
-            <textarea
-              ref={thRef} className="aq-textarea aq-textarea--prose" hidden={lang !== 'th'} value={th} readOnly={!editable}
+            {/* narrative: สลับ TH/EN ด้วย attribute hidden เท่านั้น — ห้ามใส่ block/flex (saas-spec §C2, D7.2) */}
+            <Textarea
+              ref={thRef} className="aq-textarea--prose min-h-[24rem] leading-[1.75]" hidden={lang !== 'th'} value={th} readOnly={!editable}
               aria-label="เนื้อหา SAR ภาษาไทย" data-testid="narrative-th"
               placeholder="บรรยายตามเกณฑ์ข้อนี้ พร้อมอ้างอิงหลักฐานด้วยรหัส เช่น [E-1.1-01]"
               onChange={e => { setTh(e.target.value); edited(); }}
               onBlur={() => { if (live.current.touched && editable) save('autosave'); }}
             />
-            <textarea
-              ref={enRef} className="aq-textarea aq-textarea--prose" hidden={lang !== 'en'} value={en} readOnly={!editable}
+            <Textarea
+              ref={enRef} className="aq-textarea--prose min-h-[24rem] leading-[1.75]" hidden={lang !== 'en'} value={en} readOnly={!editable}
               aria-label="SAR narrative (English)" data-testid="narrative-en" lang="en"
               placeholder="Describe how the programme meets this criterion; cite evidence like [E-1.1-01]"
               onChange={e => { setEn(e.target.value); edited(); }}
@@ -514,15 +563,15 @@ export default function SarWorkspace({ data, user, reload, remount }: {
             />
 
             {citations.invalid.length > 0 && (
-              <InlineMessage tone="danger" testId="citation-warn" title={`อ้างอิงหลักฐานที่ไม่มีอยู่ในรอบนี้: ${citations.invalid.map(c => `[${c}]`).join(' ')} — ระบบจะไม่บันทึกจนกว่าจะแก้`}>
-                <p>ลบหรือแก้รหัสที่ไม่มีอยู่ หรือผูกหลักฐานนั้นกับรอบนี้ก่อน</p>
-                <p className="aq-muted">
+              <InlineMessage tone="danger" className="mt-3" testId="citation-warn" title={`อ้างอิงหลักฐานที่ไม่มีอยู่ในรอบนี้: ${citations.invalid.map(c => `[${c}]`).join(' ')} — ระบบจะไม่บันทึกจนกว่าจะแก้`}>
+                <p className="m-0">ลบหรือแก้รหัสที่ไม่มีอยู่ หรือผูกหลักฐานนั้นกับรอบนี้ก่อน</p>
+                <p className="aq-meta m-0 mt-1">
                   รหัสที่อ้างได้ในรอบนี้: {citable.length ? citable.slice(0, 12).join(', ') : 'ยังไม่มี'}
                   {citable.length > 12 ? ` และอีก ${citable.length - 12}` : ''}
                 </p>
               </InlineMessage>
             )}
-            {citations.valid.length > 0 && <p className="aq-meta aq-mt-2">อ้างอิงแล้ว: {citations.valid.map(c => `[${c}]`).join(' ')}</p>}
+            {citations.valid.length > 0 && <p className="aq-meta m-0 mt-2">อ้างอิงแล้ว: {citations.valid.map(c => `[${c}]`).join(' ')}</p>}
 
             {canAi && run && run.feature === 'AI-4' && (
               <TranslateResult run={run} source={(run.output as { from?: string }).from === 'en' ? en : th} mode={aiMode} setMode={setAiMode}
@@ -531,165 +580,192 @@ export default function SarWorkspace({ data, user, reload, remount }: {
             {canAi && run && run.feature !== 'AI-4' && (
               <AiResult run={run} aiMode={aiMode} setAiMode={setAiMode} onAccept={doAccept} onDiscard={() => setRun(null)} canAccept={run.feature === 'AI-3' || editable} />
             )}
-            {canAi && <p className="aq-help aq-mt-2">AI เสนอเท่านั้น — ข้อมูลส่วนบุคคลถูกปกปิดก่อนส่ง และต้องกด “ยอมรับ” จึงเข้าเอกสาร (ไม่ให้คะแนนทางการ)</p>}
+            {canAi && <p className="aq-help m-0 mt-3">AI เสนอเท่านั้น — ข้อมูลส่วนบุคคลถูกปกปิดก่อนส่ง และต้องกด “ยอมรับ” จึงเข้าเอกสาร (ไม่ให้คะแนนทางการ)</p>}
           </section>
 
-          <div id="step-rating">
-            <fieldset className="aq-card aq-pdca" disabled={!editable}>
-              <legend className="aq-h3">PDCA ที่ครอบคลุมในเนื้อหา <Term k="pdca" label="PDCA" /></legend>
-              {([['plan', 'P', 'Plan — มีแผน/นโยบาย'], ['do', 'D', 'Do — ดำเนินการจริง'], ['check', 'C', 'Check — ติดตามตรวจสอบ'], ['act', 'A', 'Act — ปรับปรุงจากผล']] as const).map(([k, l, t]) => (
-                <label key={k} className="aq-check">
-                  <input type="checkbox" checked={pdca[k]} data-testid={`pdca-${l}`}
-                    onChange={e => { setPdca(p => ({ ...p, [k]: e.target.checked })); edited(); }} /> {t}
-                </label>
-              ))}
-            </fieldset>
+          <div id="step-rating" className="space-y-6">
+            <div className={CARD}>
+              <fieldset className="m-0 min-w-0 border-0 p-0" disabled={!editable}>
+                <legend className="mb-2 flex items-center p-0 text-lg font-semibold text-foreground">PDCA ที่ครอบคลุมในเนื้อหา <Term k="pdca" label="PDCA" /></legend>
+                <div className="grid gap-x-6 sm:grid-cols-2">
+                  {([['plan', 'P', 'Plan — มีแผน/นโยบาย'], ['do', 'D', 'Do — ดำเนินการจริง'], ['check', 'C', 'Check — ติดตามตรวจสอบ'], ['act', 'A', 'Act — ปรับปรุงจากผล']] as const).map(([k, l, t]) => (
+                    <label key={k} className={cn(CHECK_ROW, !editable && 'cursor-default')}>
+                      <input type="checkbox" className={CHECK_INPUT} checked={pdca[k]} data-testid={`pdca-${l}`}
+                        onChange={e => { setPdca(p => ({ ...p, [k]: e.target.checked })); edited(); }} /> {t}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
             <RatingPanel user={user} cycle={cycle} section={section} ratings={ratings} scope={scope}
               cycleWritable={cycleWritable && !sessionLost} sectionEditable={sectionEditable} reload={reload} />
           </div>
 
-          {/* sticky action bar (C23) */}
-          <div className="aq-actionbar" id="section-actionbar">
-            <SaveIndicator state={saveState} editable={editable} onRetry={() => save('manual')} />
-            <div className="aq-actionbar__actions">
-              {editable && (
-                <button type="button" className="aq-btn" onClick={() => save('manual')} data-testid="save-manual">บันทึกตอนนี้</button>
-              )}
-              <div className="aq-cluster" data-testid="section-actions">
-                {canSubmit && <AsyncButton className="aq-btn aq-btn-primary" testId="section-submit" busyText="กำลังส่งตรวจ…" onClick={doSubmit}>ส่งตรวจ<Icon name="chevron-right" size={20} /></AsyncButton>}
-                {canApprove && <AsyncButton className="aq-btn aq-btn-primary" testId="section-approve" busyText="กำลังอนุมัติ…" onClick={doApprove}><Icon name="check" size={20} />อนุมัติข้อนี้</AsyncButton>}
-                {canReturn && <AsyncButton className="aq-btn aq-btn-danger aq-actionbar__danger" testId="section-return" onClick={doReturn}><Icon name="undo" size={20} />ส่งกลับแก้ไข</AsyncButton>}
-                {!canSubmit && !canApprove && !canReturn && !editable && <span className="aq-meta">ไม่มีการดำเนินการที่ทำได้ในสถานะนี้</span>}
+          {/* sticky action bar (saas-spec §P9) — ปุ่ม primary เดียว · ส่งกลับ (อันตราย) แยกซ้าย */}
+          <div className="sticky bottom-0 z-sticky border-t bg-background/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80" id="section-actionbar">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SaveIndicator state={saveState} editable={editable} onRetry={() => save('manual')} />
+              <div className="flex flex-wrap items-center gap-2">
+                {editable && (
+                  <Button variant="outline" onClick={() => save('manual')} data-testid="save-manual">บันทึกตอนนี้</Button>
+                )}
+                <div className="flex flex-wrap items-center gap-2" data-testid="section-actions">
+                  {canSubmit && <AsyncButton testId="section-submit" busyText="กำลังส่งตรวจ…" onClick={doSubmit}>ส่งตรวจ<Icon name="chevron-right" size={20} /></AsyncButton>}
+                  {canApprove && <AsyncButton testId="section-approve" busyText="กำลังอนุมัติ…" onClick={doApprove}><Icon name="check" size={20} />อนุมัติข้อนี้</AsyncButton>}
+                  {canReturn && (
+                    <span className="sm:order-first sm:mr-4">
+                      <AsyncButton variant="destructiveOutline" testId="section-return" onClick={doReturn}><Icon name="undo" size={20} />ส่งกลับแก้ไข</AsyncButton>
+                    </span>
+                  )}
+                  {!canSubmit && !canApprove && !canReturn && !editable && <span className="aq-meta">ไม่มีการดำเนินการที่ทำได้ในสถานะนี้</span>}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── แผงข้าง ── */}
-        <aside className="aq-sidepanel aq-card" aria-label="หลักฐาน ความเห็น และประวัติ">
-          <div className="aq-tabs" role="tablist" aria-label="แผงข้าง" onKeyDown={onSideKey}>
+        {/* ── แผงข้าง (sticky ที่ ≥1280 · ต่ำกว่านั้นอยู่ใต้ editor) ── */}
+        <aside
+          className={cn(CARD, 'min-w-0 space-y-5 xl:sticky xl:top-[calc(var(--topbar-h)+1rem)] xl:max-h-[calc(100vh-var(--topbar-h)-2rem)] xl:overflow-y-auto')}
+          aria-label="หลักฐาน ความเห็น และประวัติ"
+        >
+          <div className={SEG_LIST} role="tablist" aria-label="แผงข้าง" onKeyDown={onSideKey}>
             {sideTabs.map((t, i) => (
               <button key={t.k} ref={el => { sideRefs.current[i] = el; }} type="button" role="tab" id={`sidetab-${t.k}`}
+                className={cn(SEG_ITEM, 'flex-1 px-2')}
                 aria-selected={side === t.k} aria-controls={`sidepanel-${t.k}`} tabIndex={side === t.k ? 0 : -1}
                 onClick={() => setSide(t.k)} data-testid={`sidetab-${t.k}`}>
-                {t.label} <span className="aq-count aq-count--muted">{t.n}</span>
+                {t.label} <span className="aq-count bg-background text-foreground">{t.n}</span>
               </button>
             ))}
           </div>
 
           {side === 'evidence' && (
-            <div id="sidepanel-evidence" role="tabpanel" aria-labelledby="sidetab-evidence" className="aq-tabpanel">
-              <h2 id="step-evidence" className="aq-h3" tabIndex={-1}>{`หลักฐานที่ผูกกับข้อนี้ (${linked.length})`}</h2>
+            <div id="sidepanel-evidence" role="tabpanel" aria-labelledby="sidetab-evidence" className="space-y-4">
+              <h2 id="step-evidence" className={H2} tabIndex={-1}>{`หลักฐานที่ผูกกับข้อนี้ (${linked.length})`}</h2>
               {linked.length === 0 ? <Empty icon="link" title="ยังไม่มีหลักฐานที่ผูก" /> : (
-                <ul className="aq-ev-list" data-testid="linked-evidence">
+                <ul className={LIST} data-testid="linked-evidence">
                   {linked.map(e => (
-                    <li key={e.id}>
-                      <div className="aq-flex-1">
-                        <Link className="aq-link aq-code" href={`/app/evidence/${e.id}?cycle=${cycle.id}`}><strong>{e.code}</strong></Link>{' '}
-                        <span>{e.title}</span>
-                        <div className="aq-cluster aq-mt-2">
+                    <li key={e.id} className="flex items-start gap-2 py-3 first:pt-0">
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <p className="m-0 break-words text-base text-foreground">
+                          <Link className="font-medium tabular-nums text-primary" href={`/app/evidence/${e.id}?cycle=${cycle.id}`}><strong>{e.code}</strong></Link>{' '}
+                          <span>{e.title}</span>
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
                           <Badge tone="neutral" icon={false}>{PDCA_TH[e.pdcaStage]}</Badge>
                           {e.containsPii && !e.piiResolved && <Badge tone="bad" title="พบข้อมูลส่วนบุคคลที่ยังไม่จัดการ">PII</Badge>}
                           {e.status === 'verified' && <Badge tone="ok">ตรวจแล้ว</Badge>}
                         </div>
-                      </div>
-                      <div className="aq-cluster">
-                        {editable && <button type="button" className="aq-btn aq-btn-compact" onClick={() => insertCitation(e.code)} data-testid={`insert-${e.code}`}>แทรก [{e.code}]</button>}
-                        {canEvidenceWrite && (
-                          <button type="button" className="aq-btn aq-btn-ghost aq-btn-icon aq-btn-compact" aria-label={`เลิกผูก ${e.code}`} title={`เลิกผูก ${e.code}`} onClick={() => doUnlink(e.id)}>
-                            <Icon name="x" size={20} />
-                          </button>
+                        {editable && (
+                          <Button variant="outline" size="compact" onClick={() => insertCitation(e.code)} data-testid={`insert-${e.code}`}>แทรก [{e.code}]</Button>
                         )}
                       </div>
+                      {canEvidenceWrite && (
+                        <Button variant="ghost" size="icon" className="-mr-2 shrink-0 text-muted-foreground" aria-label={`เลิกผูก ${e.code}`} title={`เลิกผูก ${e.code}`} onClick={() => doUnlink(e.id)}>
+                          <Icon name="x" size={20} />
+                        </Button>
+                      )}
                     </li>
                   ))}
                 </ul>
               )}
               {canEvidenceWrite && linkable.length > 0 && (
-                <div className="aq-link-more">
-                  <p className="aq-label">ผูกหลักฐานเพิ่ม</p>
-                  <input className="aq-input" type="search" placeholder="ค้นหารหัสหรือชื่อหลักฐาน…" aria-label="ค้นหาหลักฐานที่จะผูก"
+                <div className="space-y-2 border-t pt-4">
+                  <p className="m-0 text-base font-medium text-foreground">ผูกหลักฐานเพิ่ม</p>
+                  <Input type="search" placeholder="ค้นหารหัสหรือชื่อหลักฐาน…" aria-label="ค้นหาหลักฐานที่จะผูก"
                     value={linkQ} onChange={e => setLinkQ(e.target.value)} data-testid="link-search" />
-                  <select className="aq-input" value={linkId} onChange={e => setLinkId(e.target.value)} aria-label="เลือกหลักฐานที่จะผูก" data-testid="link-select">
+                  <NativeSelect value={linkId} onChange={e => setLinkId(e.target.value)} aria-label="เลือกหลักฐานที่จะผูก" data-testid="link-select">
                     <option value="">{`— เลือกหลักฐาน (${linkOptions.length}) —`}</option>
                     {linkOptions.map(e => <option key={e.id} value={e.id}>{e.code} · {e.title}</option>)}
-                  </select>
-                  <button type="button" className="aq-btn" disabled={!linkId} onClick={doLink} data-testid="link-btn"><Icon name="link" size={20} />ผูก</button>
+                  </NativeSelect>
+                  <Button variant="outline" className="w-full" disabled={!linkId} onClick={doLink} data-testid="link-btn"><Icon name="link" size={20} />ผูก</Button>
                 </div>
               )}
               {canEvidenceWrite && (
-                <Link className="aq-btn aq-btn-ghost aq-mt-4" href={`/app/evidence?new=1&cycle=${encodeURIComponent(cycle.id)}&req=${encodeURIComponent(req.id)}`}>
-                  <Icon name="plus" size={20} />อัปโหลดหลักฐานใหม่สำหรับข้อนี้
-                </Link>
+                <Button asChild variant="ghost" className="w-full">
+                  <Link href={`/app/evidence?new=1&cycle=${encodeURIComponent(cycle.id)}&req=${encodeURIComponent(req.id)}`}>
+                    <Icon name="plus" size={20} />อัปโหลดหลักฐานใหม่สำหรับข้อนี้
+                  </Link>
+                </Button>
               )}
             </div>
           )}
 
           {side === 'comments' && (
-            <div id="sidepanel-comments" role="tabpanel" aria-labelledby="sidetab-comments" className="aq-tabpanel">
-              <h2 className="aq-h3">{`ความเห็น (${unresolved} ค้าง)`}</h2>
+            <div id="sidepanel-comments" role="tabpanel" aria-labelledby="sidetab-comments" className="scroll-mt-[calc(var(--topbar-h)+1rem)] space-y-4">
+              <h2 className={H2}>{`ความเห็น (${unresolved} ค้าง)`}</h2>
               {comments.length === 0 ? <Empty icon="inbox-check" title="ยังไม่มีความเห็น" /> : (
-                <ul className="aq-list" data-testid="comments">
+                <ul className={LIST} data-testid="comments">
                   {comments.map(c => (
-                    <li key={c.id} className={c.resolvedAt ? 'aq-resolved' : ''}>
-                      <div className="aq-flex-1">
-                        <strong>{names[c.authorId] || c.authorId}</strong> <span className="aq-meta">{fmtDateTime(c.at)}</span>
-                        <p>{c.body}</p>
+                    <li key={c.id} className={cn('flex items-start gap-3 py-3 first:pt-0', c.resolvedAt && 'text-muted-foreground')}>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="m-0 flex flex-wrap items-baseline gap-x-2">
+                          <strong className="font-semibold text-foreground">{names[c.authorId] || c.authorId}</strong>
+                          <span className="aq-meta">{fmtDateTime(c.at)}</span>
+                        </p>
+                        <p className="m-0 whitespace-pre-wrap break-words text-base">{c.body}</p>
                       </div>
                       {!c.resolvedAt && can(user, 'comment', scope) && (
-                        <button type="button" className="aq-btn aq-btn-compact" onClick={() => { try { resolveComment(user, c.id); reload(); } catch (e) { showToast(errMsg(e), 'error'); } }}>แก้แล้ว</button>
+                        <Button variant="outline" size="compact" className="shrink-0" onClick={() => { try { resolveComment(user, c.id); reload(); } catch (e) { showToast(errMsg(e), 'error'); } }}>แก้แล้ว</Button>
                       )}
-                      {c.resolvedAt && <Badge tone="ok">แก้แล้ว</Badge>}
+                      {c.resolvedAt && <span className="shrink-0"><Badge tone="ok">แก้แล้ว</Badge></span>}
                     </li>
                   ))}
                 </ul>
               )}
               {can(user, 'comment', scope) && !sessionLost && (
-                <div className="aq-field aq-mt-4">
-                  <label htmlFor="comment-body">ความเห็นใหม่</label>
-                  <textarea id="comment-body" className="aq-textarea" rows={3} value={cBody} onChange={e => setCBody(e.target.value)} data-testid="comment-body" />
-                  <button type="button" className="aq-btn aq-mt-2" disabled={!cBody.trim()} onClick={doComment} data-testid="comment-add">ส่งความเห็น</button>
+                <div className="space-y-1.5 border-t pt-4">
+                  <label htmlFor="comment-body" className="text-base font-medium text-foreground">ความเห็นใหม่</label>
+                  <Textarea id="comment-body" rows={3} value={cBody} onChange={e => setCBody(e.target.value)} data-testid="comment-body" />
+                  <div className="pt-1">
+                    <Button variant="outline" disabled={!cBody.trim()} onClick={doComment} data-testid="comment-add"><Icon name="message" size={20} />ส่งความเห็น</Button>
+                  </div>
                 </div>
               )}
             </div>
           )}
 
           {side === 'history' && (
-            <div id="sidepanel-history" role="tabpanel" aria-labelledby="sidetab-history" className="aq-tabpanel" data-testid="versions">
+            <div id="sidepanel-history" role="tabpanel" aria-labelledby="sidetab-history" className="space-y-4" data-testid="versions">
               {reviewEvents.length > 0 && (
-                <>
-                  <h2 className="aq-h3">{`ประวัติการตรวจ (${reviewEvents.length})`}</h2>
-                  <ul className="aq-list aq-mb-4" data-testid="review-history">
+                <div className="space-y-2">
+                  <h2 className={H2}>{`ประวัติการตรวจ (${reviewEvents.length})`}</h2>
+                  <ul className={LIST} data-testid="review-history">
                     {[...reviewEvents].reverse().map(ev => (
-                      <li key={ev.id}>
-                        <div className="aq-flex-1">
-                          <span>{fmtDateTime(ev.at)}</span>{' '}
+                      <li key={ev.id} className="space-y-1 py-3 first:pt-0">
+                        <p className="m-0 flex flex-wrap items-center gap-2 text-base text-foreground">
+                          <span className="tabular-nums">{fmtDateTime(ev.at)}</span>{' '}
                           <Badge icon={false} tone={ev.toStatus === 'changes_requested' ? 'warn' : ev.toStatus === 'approved' ? 'ok' : 'neutral'}>
                             {SECTION_STATUS_TH[ev.toStatus as SarSection['status']] ?? ev.toStatus}
                           </Badge>
-                          <div className="aq-meta">{names[ev.actorId] || ev.actorId}</div>
-                          {ev.note?.trim() && <p className="aq-mt-2">{`“${ev.note.trim()}”`}</p>}
-                        </div>
+                        </p>
+                        <div className="aq-meta">{names[ev.actorId] || ev.actorId}</div>
+                        {ev.note?.trim() && <p className="m-0 rounded-lg bg-muted px-3 py-2 text-base text-foreground">{`“${ev.note.trim()}”`}</p>}
                       </li>
                     ))}
                   </ul>
-                </>
+                </div>
               )}
-              <h2 className="aq-h3">{`ประวัติเวอร์ชัน (${versions.length})`}</h2>
-              {versions.length === 0 ? <Empty icon="clock" title="ยังไม่มีเวอร์ชันที่บันทึก" /> : (
-                <ul className="aq-list">
-                  {versions.map(v => (
-                    <li key={v.id}>
-                      <div className="aq-flex-1">
-                        <span>{fmtDateTime(v.savedAt)}</span>{' '}
-                        <Badge icon={false}>{v.reason === 'autosave' ? 'อัตโนมัติ' : v.reason === 'manual' ? 'บันทึกเอง' : v.reason === 'ai_accept' ? 'จาก AI' : 'ส่งตรวจ'}</Badge>
-                        <div className="aq-meta">{names[v.savedBy] || v.savedBy}</div>
-                      </div>
-                      {editable && <button type="button" className="aq-btn aq-btn-compact" onClick={() => doRestore(v)}>กู้คืน</button>}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="space-y-2">
+                <h2 className={H2}>{`ประวัติเวอร์ชัน (${versions.length})`}</h2>
+                {versions.length === 0 ? <Empty icon="clock" title="ยังไม่มีเวอร์ชันที่บันทึก" /> : (
+                  <ul className={LIST}>
+                    {versions.map(v => (
+                      <li key={v.id} className="flex items-center gap-3 py-3 first:pt-0">
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <p className="m-0 flex flex-wrap items-center gap-2 text-base text-foreground">
+                            <span className="tabular-nums">{fmtDateTime(v.savedAt)}</span>{' '}
+                            <Badge icon={false}>{v.reason === 'autosave' ? 'อัตโนมัติ' : v.reason === 'manual' ? 'บันทึกเอง' : v.reason === 'ai_accept' ? 'จาก AI' : 'ส่งตรวจ'}</Badge>
+                          </p>
+                          <div className="aq-meta">{names[v.savedBy] || v.savedBy}</div>
+                        </div>
+                        {editable && <Button variant="outline" size="compact" className="shrink-0" onClick={() => doRestore(v)}>กู้คืน</Button>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
         </aside>
@@ -700,22 +776,24 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 
 // ─────────────────────────── C24 Save indicator ───────────────────────────
 
+const SAVED = 'aq-saved inline-flex flex-wrap items-center gap-2';
+
 function SaveIndicator({ state, editable, onRetry }: { state: SaveState; editable: boolean; onRetry: () => void }) {
-  if (!editable) return <span className="aq-saved" role="status" data-testid="save-status"><Icon name="eye" size={16} />อ่านอย่างเดียว</span>;
-  if (state.kind === 'dirty') return <span className="aq-saved aq-saved--dirty" role="status" data-testid="save-status"><Icon name="clock" size={16} />ยังไม่บันทึก — กำลังพิมพ์…</span>;
+  if (!editable) return <span className={SAVED} role="status" data-testid="save-status"><Icon name="eye" size={16} />อ่านอย่างเดียว</span>;
+  if (state.kind === 'dirty') return <span className={cn(SAVED, 'text-warning')} role="status" data-testid="save-status"><Icon name="clock" size={16} />ยังไม่บันทึก — กำลังพิมพ์…</span>;
   if (state.kind === 'saved') {
     const t = new Date(state.at!).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-    return <span className="aq-saved aq-saved--saved" role="status" data-testid="save-status"><Icon name="check-circle" size={16} />บันทึกแล้ว {t}</span>;
+    return <span className={cn(SAVED, 'animate-fade-in text-success')} role="status" data-testid="save-status"><Icon name="check-circle" size={16} />บันทึกแล้ว {t}</span>;
   }
   if (state.kind === 'error') {
     return (
-      <span className="aq-saved aq-saved--error" role="status" data-testid="save-status">
+      <span className={cn(SAVED, 'font-semibold text-destructive')} role="status" data-testid="save-status">
         <Icon name="x-circle" size={16} />ยังไม่ได้บันทึก: {state.msg}
-        <button type="button" className="aq-btn aq-btn-ghost aq-btn-compact" onClick={onRetry}>ลองบันทึกอีกครั้ง</button>
+        <Button variant="ghost" size="compact" onClick={onRetry}>ลองบันทึกอีกครั้ง</Button>
       </span>
     );
   }
-  return <span className="aq-saved" role="status" data-testid="save-status"><Icon name="pencil" size={16} />พร้อมแก้ไข</span>;
+  return <span className={SAVED} role="status" data-testid="save-status"><Icon name="pencil" size={16} />พร้อมแก้ไข</span>;
 }
 
 // ─────────────────────────── ผล AI ───────────────────────────
@@ -729,18 +807,18 @@ function AiResult({ run, aiMode, setAiMode, onAccept, onDiscard, canAccept }: {
   const offline = run.model.startsWith('offline');
   const emptyDraft = run.feature === 'AI-2' && !out.draft?.trim();
   return (
-    <div className="aq-ai-result" data-testid="ai-result">
-      <div className="aq-cluster">
+    <div className={AI_BOX} data-testid="ai-result">
+      <div className="flex flex-wrap items-center gap-2">
         <Badge tone="info" icon="sparkle">{run.feature === 'AI-2' ? 'ร่างเนื้อหา' : 'ตรวจเนื้อหา'}</Badge>
-        <span><ModelBadge run={run} />{offline && <Term k="offline" label="โหมดในเครื่อง" />}</span>
-        <span><Badge tone="neutral" icon={false}>ปกปิดข้อมูลส่วนบุคคล {run.redactionCount} จุด</Badge><Term k="redaction" label="การปกปิดข้อมูลส่วนบุคคล" /></span>
+        <span className="inline-flex items-center"><ModelBadge run={run} />{offline && <Term k="offline" label="โหมดในเครื่อง" />}</span>
+        <span className="inline-flex items-center"><Badge tone="neutral" icon={false}>ปกปิดข้อมูลส่วนบุคคล {run.redactionCount} จุด</Badge><Term k="redaction" label="การปกปิดข้อมูลส่วนบุคคล" /></span>
         {!emptyDraft && <Badge tone={pc.ok ? 'ok' : 'warn'} testId="postcheck">{pc.ok ? 'ผ่านการตรวจอ้างอิง/ตัวเลข' : 'พบข้อควรระวัง'}</Badge>}
       </div>
       {offline && run.feature === 'AI-2' && (
-        <p className="aq-help" data-testid="ai-offline-note">โหมดในเครื่องสร้างเป็นโครงร่างหัวข้อจากหลักฐานที่ผูก ไม่ใช่ร่างฉบับเต็ม — ใช้เป็นจุดเริ่มแล้วเขียนต่อเอง</p>
+        <p className="aq-help m-0" data-testid="ai-offline-note">โหมดในเครื่องสร้างเป็นโครงร่างหัวข้อจากหลักฐานที่ผูก ไม่ใช่ร่างฉบับเต็ม — ใช้เป็นจุดเริ่มแล้วเขียนต่อเอง</p>
       )}
       {!pc.ok && !emptyDraft && (
-        <ul className="aq-warnlist">
+        <ul className="m-0 list-disc space-y-1 rounded-lg border border-warning/30 bg-warning-muted py-3 pl-9 pr-4 text-base text-foreground">
           {pc.removedCitations.length > 0 && <li>ตัดการอ้างอิงที่ไม่มีจริงออกแล้ว: {pc.removedCitations.join(', ')}</li>}
           {pc.unknownNumbers.length > 0 && <li>ตัวเลขที่ไม่พบในข้อมูลต้นทาง (ตรวจสอบก่อนใช้): {pc.unknownNumbers.join(', ')}</li>}
           {pc.flaggedSentences.map((s, i) => <li key={i}>ประโยคที่ติดธง: {s}</li>)}
@@ -750,13 +828,18 @@ function AiResult({ run, aiMode, setAiMode, onAccept, onDiscard, canAccept }: {
         <>
           {emptyDraft
             ? <InlineMessage tone="info">ยังร่างไม่ได้เพราะยังไม่มีหลักฐานที่ผูก — ผูกหลักฐานในแท็บหลักฐานก่อน</InlineMessage>
-            : <div className="aq-ai-draft aq-prose aq-prose--pre" data-testid="ai-draft-text">{out.draft}</div>}
-          {out.missing && out.missing.length > 0 && <div><strong>ยังขาด:</strong><ul>{out.missing.map((m, i) => <li key={i}>{m}</li>)}</ul></div>}
+            : <div className={DRAFT_BOX} data-testid="ai-draft-text">{out.draft}</div>}
+          {out.missing && out.missing.length > 0 && (
+            <div className="text-base text-foreground">
+              <strong className="font-semibold">ยังขาด:</strong>
+              <ul className="m-0 mt-1 list-disc space-y-1 pl-5">{out.missing.map((m, i) => <li key={i}>{m}</li>)}</ul>
+            </div>
+          )}
           {!emptyDraft && (
-            <div className="aq-cluster">
-              <div className="aq-seg" role="radiogroup" aria-label="วิธีใส่ร่าง">
-                <button type="button" role="radio" aria-checked={aiMode === 'append'} onClick={() => setAiMode('append')}>ต่อท้ายข้อความเดิม</button>
-                <button type="button" role="radio" aria-checked={aiMode === 'replace'} onClick={() => setAiMode('replace')}>แทนที่ทั้งหมด</button>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className={cn(SEG_LIST, 'inline-flex')} role="radiogroup" aria-label="วิธีใส่ร่าง">
+                <button type="button" role="radio" className={SEG_ITEM} aria-checked={aiMode === 'append'} onClick={() => setAiMode('append')}>ต่อท้ายข้อความเดิม</button>
+                <button type="button" role="radio" className={SEG_ITEM} aria-checked={aiMode === 'replace'} onClick={() => setAiMode('replace')}>แทนที่ทั้งหมด</button>
               </div>
               <Term k="append_replace" label="ต่อท้าย / แทนที่" />
             </div>
@@ -764,16 +847,21 @@ function AiResult({ run, aiMode, setAiMode, onAccept, onDiscard, canAccept }: {
         </>
       )}
       {run.feature === 'AI-3' && (
-        <div data-testid="ai-review-result">
+        <div className="space-y-3 text-base text-foreground" data-testid="ai-review-result">
           {([['ยังไม่ได้ตอบ', out.unanswered], ['ประโยคที่ไม่มีอ้างอิง', out.uncitedSentences], ['ข้อเสนอแนะ', out.suggestions]] as const).map(([t, list]) =>
-            list && list.length > 0 ? <div key={t}><strong>{t}</strong><ul>{list.map((x, i) => <li key={i}>{x}</li>)}</ul></div> : null)}
+            list && list.length > 0 ? (
+              <div key={t}>
+                <strong className="font-semibold">{t}</strong>
+                <ul className="m-0 mt-1 list-disc space-y-1 pl-5">{list.map((x, i) => <li key={i}>{x}</li>)}</ul>
+              </div>
+            ) : null)}
         </div>
       )}
-      <div className="aq-actions aq-mt-4">
-        <button type="button" className="aq-btn aq-btn-primary" onClick={onAccept} disabled={!canAccept || emptyDraft} data-testid="ai-accept">
+      <div className="flex flex-wrap gap-2 border-t pt-4">
+        <Button onClick={onAccept} disabled={!canAccept || emptyDraft} data-testid="ai-accept">
           {run.feature === 'AI-2' ? 'ยอมรับและใส่ในเอกสาร' : 'รับทราบ'}
-        </button>
-        <button type="button" className="aq-btn aq-btn-ghost" onClick={onDiscard} data-testid="ai-discard">ทิ้ง</button>
+        </Button>
+        <Button variant="ghost" onClick={onDiscard} data-testid="ai-discard">ทิ้ง</Button>
       </div>
     </div>
   );
@@ -802,30 +890,30 @@ function RatingPanel({ user, cycle, section, ratings, scope, cycleWritable, sect
     } catch (e) { showToast(errMsg(e), 'error'); }
   }
   return (
-    <section className="aq-card" aria-labelledby="rate-h" data-testid="rating-panel">
-      <h2 id="rate-h" className="aq-h3">คะแนนประเมินตนเอง (1–7) <Term k="self_rating" label="สเกล 1–7" /></h2>
-      <div className="aq-form-inline">
-        <div className="aq-field">
-          <label htmlFor="self-score">คะแนน</label>
-          <select id="self-score" className="aq-input" value={score} disabled={!canSelf}
+    <section className={cn(CARD, 'space-y-4')} aria-labelledby="rate-h" data-testid="rating-panel">
+      <h2 id="rate-h" className={cn(H2, 'flex items-center')}>คะแนนประเมินตนเอง (1–7) <Term k="self_rating" label="สเกล 1–7" /></h2>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        <div className="space-y-1.5 md:w-72">
+          <label htmlFor="self-score" className="text-base font-medium text-foreground">คะแนน</label>
+          <NativeSelect id="self-score" value={score} disabled={!canSelf}
             onChange={e => { setScore(e.target.value); touchSession(); }} data-testid="self-score">
             <option value="">— ยังไม่ให้คะแนน —</option>
             {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
-          </select>
+          </NativeSelect>
         </div>
-        <div className="aq-field aq-flex-1">
-          <label htmlFor="self-why">เหตุผลประกอบ</label>
-          <input id="self-why" className="aq-input" value={why} disabled={!canSelf}
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <label htmlFor="self-why" className="text-base font-medium text-foreground">เหตุผลประกอบ</label>
+          <Input id="self-why" value={why} disabled={!canSelf}
             onChange={e => { setWhy(e.target.value); touchSession(); }} data-testid="self-why" />
         </div>
-        {canSelf && <button type="button" className="aq-btn" disabled={!score} onClick={saveSelf} data-testid="self-save">บันทึกคะแนน</button>}
+        {canSelf && <Button variant="outline" className="shrink-0" disabled={!score} onClick={saveSelf} data-testid="self-save">บันทึกคะแนน</Button>}
       </div>
-      {mayRate && !sectionEditable && <p className="aq-btn-reason aq-mt-2">ข้อนี้อยู่ระหว่างตรวจหรืออนุมัติแล้ว จึงแก้คะแนนไม่ได้</p>}
-      {self && <p className="aq-meta aq-mt-2">ล่าสุด: {self.score} คะแนน ({fmtDateTime(self.at)})</p>}
+      {mayRate && !sectionEditable && <p className="aq-btn-reason m-0">ข้อนี้อยู่ระหว่างตรวจหรืออนุมัติแล้ว จึงแก้คะแนนไม่ได้</p>}
+      {self && <p className="aq-meta m-0">ล่าสุด: {self.score} คะแนน ({fmtDateTime(self.at)})</p>}
       {committee && (
-        <div className="aq-mt-4">
-          <h3 className="aq-h3">คะแนนกรรมการประเมิน (รายข้อเดิม)</h3>
-          <p>คะแนน {committee.score} — {committee.rationale || 'ไม่มีเหตุผล'}</p>
+        <div className="space-y-1 border-t pt-4">
+          <h3 className="m-0 text-base font-semibold text-foreground">คะแนนกรรมการประเมิน (รายข้อเดิม)</h3>
+          <p className="m-0 text-base text-foreground">คะแนน {committee.score} — {committee.rationale || 'ไม่มีเหตุผล'}</p>
         </div>
       )}
     </section>

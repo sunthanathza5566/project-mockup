@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * คลังหลักฐาน (ADR-UI-001 pages.md P10)
+ * คลังหลักฐาน (saas-spec §P10 + friendly-spec §F13 — earth: การ์ด rounded-xl, ตาราง C5 + การ์ดย่อยบนมือถือ, dropzone §C2)
  * - ev-new ใน PageHeader · toolbar หลัก (หลักสูตร/รอบ/ค้นหา) + "ตัวกรองเพิ่มเติม (n)" พับไว้
  * - ฟอร์ม 3 ช่อง: ① ชื่อ ② แนบ (dropzone / ลิงก์ / ข้อความ อย่างน้อย 1) ③ ผูกกับข้อ (ev-f-cycle + RequirementPicker)
  *   + รายละเอียดเพิ่มเติมพับไว้ · inline validate + error summary (P4) · แจ้งไฟล์ใหญ่ (P9) · บรรทัด "บันทึกเข้าหลักสูตร" (UX-8)
@@ -23,11 +23,45 @@ import { useScope } from '@/components/aunqa/useScope';
 import RequirementPicker from '@/components/aunqa/RequirementPicker';
 import Icon from '@/components/ui/Icon';
 import Term from '@/components/ui/Term';
+import { Button, buttonVariants } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { NativeSelect } from '@/components/ui/primitives/native-select';
+import { Textarea } from '@/components/ui/primitives/textarea';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/primitives/table';
+import { cn } from '@/lib/ui/cn';
 import { KIND_LIST, KIND_TH, PDCA_TH, errMsg, isAssessorOnly } from '@/lib/ui/aunqa';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 
 const WRITABLE = ['draft', 'in_progress', 'revision_requested'];
 type Errors = { title?: string; attach?: string; url?: string; file?: string; api?: string };
+
+// ─── หน้าตา (saas-spec §C2, §C5 + friendly-spec §F13) ───
+const CARD = 'rounded-xl border bg-card p-5 text-card-foreground shadow-sm dark:shadow-none md:p-6';
+const LABEL = 'text-base font-medium text-foreground';
+const CHECK_ROW = 'flex min-h-11 cursor-pointer items-center gap-3 text-base text-foreground';
+const CHECK_INPUT = 'h-5 w-5 shrink-0 accent-primary';
+/** ตาราง C5 มือถือ <768: ทุกแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label (ลำดับคอลัมน์/<strong> รหัสคงเดิม) */
+const STACK_TABLE = 'max-md:block';
+const STACK_HEAD = 'max-md:sr-only';
+const STACK_BODY = 'max-md:block';
+const STACK_ROW = 'max-md:block max-md:p-4';
+const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+
+/** เลขขั้นของฟอร์ม (① ② ③) — ตกแต่ง ซ่อนจาก screen reader */
+function StepNo({ n }: { n: number }) {
+  return (
+    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-muted font-semibold tabular-nums text-primary" aria-hidden="true">{n}</span>
+  );
+}
+
+/** ข้อความผิดพลาดใต้ช่อง (saas-spec §C2: ไอคอน x-circle 16 + "ข้อผิดพลาด:" สำหรับ screen reader) */
+function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {
+  return (
+    <p className="aq-field-error m-0 flex items-start gap-1.5" id={id}>
+      <Icon name="x-circle" size={16} className="mt-0.5" /><span className="sr-only">ข้อผิดพลาด:</span><span>{children}</span>
+    </p>
+  );
+}
 
 function fmtSize(n: number): string {
   return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
@@ -75,6 +109,7 @@ function Inner() {
   const [reqIds, setReqIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
+  const [over, setOver] = useState(false); // ลากไฟล์อยู่เหนือ dropzone
   const summaryRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -175,116 +210,132 @@ function Inner() {
         title="คลังหลักฐาน"
         sub={<>หลักฐานชิ้นเดียวผูกได้หลายข้อ โดยไม่ต้องคัดลอก — รหัส E-x.x-nn ใช้อ้างอิงใน SAR <Term k="evidence_code" label="รหัสหลักฐาน" /></>}
         actions={canWrite && !open ? (
-          <button type="button" className="aq-btn aq-btn-primary" onClick={openForm} data-testid="ev-new"><Icon name="plus" size={20} />เพิ่มหลักฐาน</button>
+          <Button onClick={openForm} data-testid="ev-new"><Icon name="plus" size={20} />เพิ่มหลักฐาน</Button>
         ) : undefined}
       />
 
-      <div className="aq-toolbar">
-        <select className="aq-input" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="ev-programme">
+      {/* แถบเครื่องมือ (saas-spec §P10) */}
+      <div className={cn(CARD, 'mb-4 flex flex-col gap-3 py-4 md:flex-row md:flex-wrap md:items-center md:py-4')}>
+        <NativeSelect wrapperClassName="md:w-64" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="ev-programme">
           {programmes.map(p => <option key={p.id} value={p.id}>{p.code} — {p.nameTh}</option>)}
-        </select>
-        <select className="aq-input" value={cycleId} onChange={e => setCycleId(e.target.value)} aria-label="รอบประเมิน" data-testid="ev-cycle">
+        </NativeSelect>
+        <NativeSelect wrapperClassName="md:w-48" value={cycleId} onChange={e => setCycleId(e.target.value)} aria-label="รอบประเมิน" data-testid="ev-cycle">
           {!assessor && <option value="">ทุกรอบ / ไม่ระบุรอบ</option>}
           {cycles.map(c => <option key={c.id} value={c.id}>รอบ {c.academicYear}</option>)}
-        </select>
-        <input className="aq-input" type="search" placeholder="ค้นหาชื่อ/รหัส/เนื้อหา…" aria-label="ค้นหาหลักฐาน" value={q} onChange={e => setQ(e.target.value)} data-testid="ev-search" />
-        <button type="button" className="aq-btn" aria-expanded={moreOpen} aria-controls="ev-more" onClick={() => setMoreOpen(o => !o)}>
+        </NativeSelect>
+        <div className="relative min-w-0 md:w-80 md:flex-1 lg:flex-none">
+          <Icon name="search" size={20} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input className="pl-10" type="search" placeholder="ค้นหาชื่อ/รหัส/เนื้อหา…" aria-label="ค้นหาหลักฐาน" value={q} onChange={e => setQ(e.target.value)} data-testid="ev-search" />
+        </div>
+        <Button variant="outline" className={cn('md:ml-auto', moreOpen && 'border-primary bg-primary-muted')} aria-expanded={moreOpen} aria-controls="ev-more" onClick={() => setMoreOpen(o => !o)}>
           <Icon name="filter" size={20} />ตัวกรองเพิ่มเติม{extraFilters ? ` (${extraFilters})` : ''}
-        </button>
+        </Button>
       </div>
       {moreOpen && (
-        <div id="ev-more" className="aq-card aq-filter-panel">
-          <div className="aq-field"><label htmlFor="ev-year">ปีการศึกษา</label>
-            <input id="ev-year" className="aq-input" type="number" placeholder="พ.ศ." value={year} onChange={e => setYear(e.target.value)} data-testid="ev-year" /></div>
-          <div className="aq-field"><label htmlFor="ev-kind">ประเภท</label>
-            <select id="ev-kind" className="aq-input" value={kind} onChange={e => setKind(e.target.value as EvidenceKind | '')} data-testid="ev-kind">
+        <div id="ev-more" className={cn(CARD, 'mb-4 grid animate-fade-in items-end gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
+          <div className="space-y-1.5"><label htmlFor="ev-year" className={LABEL}>ปีการศึกษา</label>
+            <Input id="ev-year" type="number" placeholder="พ.ศ." value={year} onChange={e => setYear(e.target.value)} data-testid="ev-year" /></div>
+          <div className="space-y-1.5"><label htmlFor="ev-kind" className={LABEL}>ประเภท</label>
+            <NativeSelect id="ev-kind" value={kind} onChange={e => setKind(e.target.value as EvidenceKind | '')} data-testid="ev-kind">
               <option value="">ทุกประเภท</option>{KIND_LIST.map(k => <option key={k} value={k}>{KIND_TH[k]}</option>)}
-            </select></div>
-          <div className="aq-field"><label htmlFor="ev-pdca">ขั้น PDCA</label>
-            <select id="ev-pdca" className="aq-input" value={stage} onChange={e => setStage(e.target.value as PdcaStage | '')} data-testid="ev-pdca">
+            </NativeSelect></div>
+          <div className="space-y-1.5"><label htmlFor="ev-pdca" className={LABEL}>ขั้น PDCA</label>
+            <NativeSelect id="ev-pdca" value={stage} onChange={e => setStage(e.target.value as PdcaStage | '')} data-testid="ev-pdca">
               <option value="">PDCA ทั้งหมด</option>{(['P', 'D', 'C', 'A'] as PdcaStage[]).map(s => <option key={s} value={s}>{PDCA_TH[s]}</option>)}
-            </select></div>
-          <div className="aq-field"><label htmlFor="ev-req">ข้อ</label>
-            <select id="ev-req" className="aq-input" value={reqFilter} onChange={e => setReqFilter(e.target.value)} disabled={!cycleId} data-testid="ev-req">
+            </NativeSelect></div>
+          <div className="space-y-1.5"><label htmlFor="ev-req" className={LABEL}>ข้อ</label>
+            <NativeSelect id="ev-req" value={reqFilter} onChange={e => setReqFilter(e.target.value)} disabled={!cycleId} data-testid="ev-req">
               <option value="">ทุกข้อ</option>{reqs.map(r => <option key={r.id} value={r.id}>ข้อ {r.id}</option>)}
-            </select></div>
-          <label className="aq-check"><input type="checkbox" checked={piiOnly} onChange={e => setPiiOnly(e.target.checked)} data-testid="ev-pii" /> เฉพาะที่พบ PII</label>
-          <button type="button" className="aq-btn aq-btn-ghost" onClick={clearFilters}>ล้างตัวกรอง</button>
+            </NativeSelect></div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:col-span-2 lg:col-span-4">
+            <label className={CHECK_ROW}><input type="checkbox" className={CHECK_INPUT} checked={piiOnly} onChange={e => setPiiOnly(e.target.checked)} data-testid="ev-pii" /> เฉพาะที่พบ PII</label>
+            <Button variant="ghost" onClick={clearFilters}>ล้างตัวกรอง</Button>
+          </div>
         </div>
       )}
 
       {canWrite && open && (
-        <form className="aq-card aq-ev-form" onSubmit={submit} noValidate data-testid="ev-form" aria-labelledby="ev-form-h">
-          <h2 id="ev-form-h" className="aq-h2">เพิ่มหลักฐานใหม่</h2>
+        <form className={cn(CARD, 'mb-6 animate-fade-in space-y-6')} onSubmit={submit} noValidate data-testid="ev-form" aria-labelledby="ev-form-h">
+          <h2 id="ev-form-h" className="m-0 text-xl font-semibold text-foreground">เพิ่มหลักฐานใหม่</h2>
           {errList.length > 0 && (
-            <div className="aq-error-summary" role="alert" tabIndex={-1} ref={summaryRef} data-testid="ev-error-summary">
-              <p className="aq-error-summary__title">{`ยังบันทึกไม่ได้ — โปรดแก้ ${errList.length} จุด`}</p>
-              <ul>{errList.map(([k, m]) => <li key={k}><a href={`#${fieldOf[k]}`}>{m}</a></li>)}</ul>
+            <div className="flex gap-3 rounded-lg border border-destructive/30 bg-destructive-muted p-4 text-foreground" role="alert" tabIndex={-1} ref={summaryRef} data-testid="ev-error-summary">
+              <Icon name="x-circle" size={20} className="mt-0.5 text-destructive" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="m-0 font-medium text-foreground">{`ยังบันทึกไม่ได้ — โปรดแก้ ${errList.length} จุด`}</p>
+                <ul className="m-0 list-disc space-y-1 pl-5 text-base">{errList.map(([k, m]) => <li key={k}><a className="text-foreground" href={`#${fieldOf[k]}`}>{m}</a></li>)}</ul>
+              </div>
             </div>
           )}
 
-          <div className="aq-field aq-ev-step">
-            <label htmlFor="ev-f-title"><span className="aq-step-badge" aria-hidden="true">1</span>ชื่อหลักฐาน *</label>
-            <input id="ev-f-title" className="aq-input" maxLength={200} value={f.title} aria-required="true"
+          <div className="space-y-1.5">
+            <label htmlFor="ev-f-title" className={cn(LABEL, 'flex items-center gap-2')}><StepNo n={1} />ชื่อหลักฐาน *</label>
+            <Input id="ev-f-title" maxLength={200} value={f.title} aria-required="true"
               aria-invalid={errors.title ? true : undefined} aria-describedby={errors.title ? 'ev-f-title-err' : undefined}
               onChange={e => setF({ ...f, title: e.target.value })} data-testid="ev-title" />
-            {errors.title && <p className="aq-field-error" id="ev-f-title-err"><Icon name="x-circle" size={16} /><span className="aq-sr-only">ข้อผิดพลาด:</span>{errors.title}</p>}
+            {errors.title && <FieldError id="ev-f-title-err">{errors.title}</FieldError>}
           </div>
 
-          <fieldset className="aq-ev-step" id="ev-f-attach" aria-describedby={errors.attach ? 'ev-f-attach-err' : undefined}>
-            <legend className="aq-label"><span className="aq-step-badge" aria-hidden="true">2</span>แนบหลักฐาน * (อย่างน้อย 1 อย่าง)</legend>
-            {errors.attach && <p className="aq-field-error" id="ev-f-attach-err"><Icon name="x-circle" size={16} /><span className="aq-sr-only">ข้อผิดพลาด:</span>{errors.attach}</p>}
+          <fieldset className="m-0 min-w-0 space-y-4 border-0 p-0" id="ev-f-attach" aria-describedby={errors.attach ? 'ev-f-attach-err' : undefined}>
+            <legend className={cn(LABEL, 'mb-1.5 flex items-center gap-2 p-0')}><StepNo n={2} />แนบหลักฐาน * (อย่างน้อย 1 อย่าง)</legend>
+            {errors.attach && <FieldError id="ev-f-attach-err">{errors.attach}</FieldError>}
             {!file ? (
-              <label className="aq-dropzone" id="ev-f-file"
-                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('is-over'); }}
-                onDragLeave={e => e.currentTarget.classList.remove('is-over')}
-                onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove('is-over'); pickFile(e.dataTransfer.files?.[0] ?? null); }}>
-                <Icon name="upload" size={24} />
-                <span><strong>ลากไฟล์มาวาง หรือ เลือกไฟล์</strong></span>
+              <label
+                className={cn(
+                  'flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-input bg-muted/40 px-6 py-8 text-center text-foreground transition-colors duration-fast hover:bg-muted focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
+                  over && 'border-primary bg-primary-muted',
+                )}
+                id="ev-f-file"
+                onDragOver={e => { e.preventDefault(); setOver(true); }}
+                onDragLeave={() => setOver(false)}
+                onDrop={e => { e.preventDefault(); setOver(false); pickFile(e.dataTransfer.files?.[0] ?? null); }}>
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-card text-primary shadow-sm dark:shadow-none" aria-hidden="true"><Icon name="upload" size={24} /></span>
+                <span><strong className="font-semibold">ลากไฟล์มาวาง หรือ เลือกไฟล์</strong></span>
                 <span className="aq-help">PDF, DOCX, XLSX, PNG, JPG, TXT, CSV ไม่เกิน 50 MB</span>
-                <input ref={fileRef} type="file" className="aq-sr-only" onChange={e => pickFile(e.target.files?.[0] ?? null)} data-testid="ev-file"
+                <input ref={fileRef} type="file" className="sr-only" onChange={e => pickFile(e.target.files?.[0] ?? null)} data-testid="ev-file"
                   aria-invalid={errors.file ? true : undefined} />
               </label>
             ) : (
-              <div className="aq-file-chosen">
-                <Icon name="file-text" size={20} />
-                <span className="aq-flex-1"><strong>{file.name}</strong> · {fmtSize(file.size)}</span>
-                <label className="aq-btn aq-btn-compact">เปลี่ยนไฟล์
-                  <input type="file" className="aq-sr-only" onChange={e => pickFile(e.target.files?.[0] ?? null)} data-testid="ev-file" />
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 p-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-card text-muted-foreground" aria-hidden="true"><Icon name="file-text" size={20} /></span>
+                <span className="min-w-0 flex-1 break-words text-base text-foreground"><strong className="font-semibold">{file.name}</strong> · {fmtSize(file.size)}</span>
+                <label className={cn(buttonVariants({ variant: 'outline', size: 'compact' }), 'cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring')}>เปลี่ยนไฟล์
+                  <input type="file" className="sr-only" onChange={e => pickFile(e.target.files?.[0] ?? null)} data-testid="ev-file" />
                 </label>
-                <button type="button" className="aq-btn aq-btn-ghost aq-btn-compact" onClick={() => pickFile(null)}>เอาออก</button>
+                <Button variant="ghost" size="compact" onClick={() => pickFile(null)}>เอาออก</Button>
               </div>
             )}
             {file && file.size > MAX_DATAURL_BYTES && (
               <InlineMessage tone="info">ไฟล์ใหญ่กว่า 1 MB: ระบบเดโม่เก็บเฉพาะชื่อไฟล์ ขนาด และลายนิ้วมือ (hash) ไม่เก็บตัวไฟล์ จึงเปิดดาวน์โหลดภายหลังไม่ได้</InlineMessage>
             )}
-            {errors.file && <p className="aq-field-error"><Icon name="x-circle" size={16} /><span className="aq-sr-only">ข้อผิดพลาด:</span>{errors.file}</p>}
-            <div className="aq-field">
-              <label htmlFor="ev-f-url">หรือ ลิงก์</label>
-              <input id="ev-f-url" className="aq-input" type="url" placeholder="https://…" value={f.url}
-                aria-invalid={errors.url ? true : undefined} onChange={e => setF({ ...f, url: e.target.value })} />
-              {errors.url && <p className="aq-field-error"><Icon name="x-circle" size={16} /><span className="aq-sr-only">ข้อผิดพลาด:</span>{errors.url}</p>}
-            </div>
-            <div className="aq-field">
-              <label htmlFor="ev-f-text">หรือ วางข้อความ</label>
-              <p className="aq-help">ระบบใช้ตรวจข้อมูลส่วนบุคคลและให้ AI แนะนำข้อ</p>
-              <textarea id="ev-f-text" className="aq-textarea" rows={3} value={f.text} onChange={e => setF({ ...f, text: e.target.value })} data-testid="ev-text" />
+            {errors.file && <FieldError>{errors.file}</FieldError>}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="ev-f-url" className={LABEL}>หรือ ลิงก์</label>
+                <Input id="ev-f-url" type="url" placeholder="https://…" value={f.url}
+                  aria-invalid={errors.url ? true : undefined} onChange={e => setF({ ...f, url: e.target.value })} />
+                {errors.url && <FieldError>{errors.url}</FieldError>}
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <label htmlFor="ev-f-text" className={LABEL}>หรือ วางข้อความ</label>
+                <p className="aq-help m-0">ระบบใช้ตรวจข้อมูลส่วนบุคคลและให้ AI แนะนำข้อ</p>
+                <Textarea id="ev-f-text" rows={3} value={f.text} onChange={e => setF({ ...f, text: e.target.value })} data-testid="ev-text" />
+              </div>
             </div>
           </fieldset>
 
-          <fieldset className="aq-ev-step">
-            <legend className="aq-label"><span className="aq-step-badge" aria-hidden="true">3</span>ผูกกับข้อ</legend>
-            <p className="aq-meta">บันทึกเข้าหลักสูตร: {prog?.code} — {prog?.nameTh}</p>
+          <fieldset className="m-0 min-w-0 space-y-3 border-0 p-0">
+            <legend className={cn(LABEL, 'mb-1.5 flex items-center gap-2 p-0')}><StepNo n={3} />ผูกกับข้อ</legend>
+            <p className="aq-meta m-0">บันทึกเข้าหลักสูตร: {prog?.code} — {prog?.nameTh}</p>
             {writableCycles.length === 0 ? (
               <InlineMessage tone="info">ยังไม่มีรอบที่เปิดเขียน — บันทึกหลักฐานไว้ในคลังก่อน แล้วผูกกับข้อภายหลังจากหน้าข้อได้</InlineMessage>
             ) : (
-              <div className="aq-ev-link">
-                <div className="aq-field">
-                  <label htmlFor="ev-f-cycle">รอบ</label>
-                  <select id="ev-f-cycle" className="aq-input" value={formCycle} onChange={e => setFormCycle(e.target.value)} data-testid="ev-f-cycle">
+              <div className="grid items-start gap-4 md:grid-cols-[14rem_minmax(0,1fr)]">
+                <div className="space-y-1.5">
+                  <label htmlFor="ev-f-cycle" className={LABEL}>รอบ</label>
+                  <NativeSelect id="ev-f-cycle" value={formCycle} onChange={e => setFormCycle(e.target.value)} data-testid="ev-f-cycle">
                     <option value="">— ไม่ผูกรอบ —</option>
                     {writableCycles.map(c => <option key={c.id} value={c.id}>รอบ {c.academicYear}</option>)}
-                  </select>
+                  </NativeSelect>
                 </div>
                 <RequirementPicker
                   label="ข้อที่เกี่ยวข้อง" value={reqIds} onChange={setReqIds} disabled={!formCycle}
@@ -295,31 +346,34 @@ function Inner() {
             )}
           </fieldset>
 
-          <details className="aq-collapse">
-            <summary>รายละเอียดเพิ่มเติม (ไม่บังคับ)<Icon name="chevron-down" size={20} className="aq-collapse__chev" /></summary>
-            <div className="aq-form-grid aq-mt-2">
-              <div className="aq-field aq-span-all">
-                <label htmlFor="ev-f-desc">คำอธิบาย</label>
-                <textarea id="ev-f-desc" className="aq-textarea" rows={2} value={f.description} onChange={e => setF({ ...f, description: e.target.value })} />
+          <details className="group rounded-lg border bg-card">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 font-medium text-foreground [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 flex-1">รายละเอียดเพิ่มเติม (ไม่บังคับ)</span>
+              <Icon name="chevron-down" size={20} className="text-muted-foreground transition-transform duration-fast group-open:rotate-180" />
+            </summary>
+            <div className="grid gap-4 border-t p-4 sm:grid-cols-3">
+              <div className="space-y-1.5 sm:col-span-3">
+                <label htmlFor="ev-f-desc" className={LABEL}>คำอธิบาย</label>
+                <Textarea id="ev-f-desc" rows={2} value={f.description} onChange={e => setF({ ...f, description: e.target.value })} />
               </div>
-              <div className="aq-field"><label htmlFor="ev-f-kind">ประเภท</label>
-                <select id="ev-f-kind" className="aq-input" value={f.kind} onChange={e => setF({ ...f, kind: e.target.value as EvidenceKind })} data-testid="ev-f-kind">
+              <div className="space-y-1.5"><label htmlFor="ev-f-kind" className={LABEL}>ประเภท</label>
+                <NativeSelect id="ev-f-kind" value={f.kind} onChange={e => setF({ ...f, kind: e.target.value as EvidenceKind })} data-testid="ev-f-kind">
                   {KIND_LIST.map(k => <option key={k} value={k}>{KIND_TH[k]}</option>)}
-                </select></div>
-              <div className="aq-field"><label htmlFor="ev-f-pdca">ขั้น PDCA</label>
-                <select id="ev-f-pdca" className="aq-input" value={f.stage} onChange={e => setF({ ...f, stage: e.target.value as PdcaStage })}>
+                </NativeSelect></div>
+              <div className="space-y-1.5"><label htmlFor="ev-f-pdca" className={LABEL}>ขั้น PDCA</label>
+                <NativeSelect id="ev-f-pdca" value={f.stage} onChange={e => setF({ ...f, stage: e.target.value as PdcaStage })}>
                   {(['P', 'D', 'C', 'A'] as PdcaStage[]).map(s => <option key={s} value={s}>{PDCA_TH[s]}</option>)}
-                </select></div>
-              <div className="aq-field"><label htmlFor="ev-f-year">ปีการศึกษา (พ.ศ.)</label>
-                <input id="ev-f-year" className="aq-input" type="number" value={f.year} onChange={e => setF({ ...f, year: e.target.value })} /></div>
+                </NativeSelect></div>
+              <div className="space-y-1.5"><label htmlFor="ev-f-year" className={LABEL}>ปีการศึกษา (พ.ศ.)</label>
+                <Input id="ev-f-year" type="number" value={f.year} onChange={e => setF({ ...f, year: e.target.value })} /></div>
             </div>
           </details>
 
-          <div className="aq-actions">
-            <button className="aq-btn aq-btn-primary" disabled={busy} aria-busy={busy || undefined} data-testid="ev-submit">
-              {busy ? <><span className="aq-spinner" aria-hidden="true" />กำลังบันทึก…</> : 'บันทึกหลักฐาน'}
-            </button>
-            <button type="button" className="aq-btn aq-btn-ghost" onClick={() => setOpen(false)}>ยกเลิก</button>
+          <div className="flex flex-wrap gap-2 border-t pt-5">
+            <Button type="submit" disabled={busy} aria-busy={busy || undefined} data-testid="ev-submit">
+              {busy ? <><Icon name="loader" size={16} className="animate-spin" />กำลังบันทึก…</> : 'บันทึกหลักฐาน'}
+            </Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>ยกเลิก</Button>
           </div>
         </form>
       )}
@@ -327,35 +381,33 @@ function Inner() {
       <Async q={list} skeleton="table">{rows => rows.length === 0 ? (
         (q || extraFilters)
           ? <Empty icon="search" title="ยังไม่มีหลักฐานตามเงื่อนไขนี้" text="ลองล้างตัวกรอง"
-              action={<button type="button" className="aq-btn" onClick={clearFilters}>ล้างตัวกรอง</button>} />
+              action={<Button variant="outline" onClick={clearFilters}>ล้างตัวกรอง</Button>} />
           : <Empty icon="folder" title="ยังไม่มีหลักฐานตามเงื่อนไขนี้" text="เพิ่มหลักฐานชิ้นแรก เช่น รายงานการประชุม แผนพัฒนา หรือผลสำรวจ"
-              action={canWrite && !open ? <button type="button" className="aq-btn aq-btn-primary" onClick={openForm}><Icon name="plus" size={20} />เพิ่มหลักฐาน</button> : undefined} />
+              action={canWrite && !open ? <Button onClick={openForm}><Icon name="plus" size={20} />เพิ่มหลักฐาน</Button> : undefined} />
       ) : (
-        <div className="aq-card">
-          <div className="aq-table-wrap">
-            <table className="aq-table aq-table--stack" data-testid="ev-table">
-              <thead><tr><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>PDCA</th><th>ปี</th><th>ข้อที่ผูก</th><th>สถานะ</th></tr></thead>
-              <tbody>
-                {rows.map(e => (
-                  <tr key={e.id} data-testid={`ev-row-${e.code}`} data-row-id={e.id} className={newId === e.id ? 'aq-row-new' : undefined}>
-                    <td data-label="รหัส">
-                      <span>
-                        <Link className="aq-link aq-code" href={`/app/evidence/${e.id}${cycleId ? `?cycle=${cycleId}` : ''}`}><strong>{e.code}</strong></Link>
-                        {e.code.startsWith('E-0.0') && <Term k="evidence_code" label="รหัส E-0.0" />}
-                      </span>
-                    </td>
-                    <td data-label="ชื่อ">{e.title}{e.containsPii && !e.piiResolved && <> <Badge tone="bad" title="พบข้อมูลส่วนบุคคล">PII</Badge></>}</td>
-                    <td data-label="ประเภท">{KIND_TH[e.kind]}</td>
-                    <td data-label="PDCA">{e.pdcaStage}</td>
-                    <td data-label="ปี" className="aq-tnum">{e.academicYear}</td>
-                    <td data-label="ข้อที่ผูก">{e.requirementIds.length ? e.requirementIds.join(', ') : <span className="aq-muted">ยังไม่ผูก</span>}</td>
-                    <td data-label="สถานะ"><EvidenceStatusBadge status={e.status} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none" data-testid="ev-table">
+          <TableHeader className={STACK_HEAD}>
+            <TableRow><TableHead>รหัส</TableHead><TableHead>ชื่อ</TableHead><TableHead>ประเภท</TableHead><TableHead>PDCA</TableHead><TableHead>ปี</TableHead><TableHead>ข้อที่ผูก</TableHead><TableHead>สถานะ</TableHead></TableRow>
+          </TableHeader>
+          <TableBody className={STACK_BODY}>
+            {rows.map(e => (
+              <TableRow key={e.id} data-testid={`ev-row-${e.code}`} data-row-id={e.id} className={cn(STACK_ROW, newId === e.id && 'animate-highlight')}>
+                <TableCell data-label="รหัส" className={cn(STACK_CELL, 'whitespace-nowrap')}>
+                  <span className="inline-flex items-center">
+                    <Link className="font-medium tabular-nums text-primary" href={`/app/evidence/${e.id}${cycleId ? `?cycle=${cycleId}` : ''}`}><strong>{e.code}</strong></Link>
+                    {e.code.startsWith('E-0.0') && <Term k="evidence_code" label="รหัส E-0.0" />}
+                  </span>
+                </TableCell>
+                <TableCell data-label="ชื่อ" className={cn(STACK_CELL, 'min-w-[14rem]')}>{e.title}{e.containsPii && !e.piiResolved && <> <Badge tone="bad" title="พบข้อมูลส่วนบุคคล">PII</Badge></>}</TableCell>
+                <TableCell data-label="ประเภท" className={STACK_CELL}>{KIND_TH[e.kind]}</TableCell>
+                <TableCell data-label="PDCA" className={STACK_CELL}>{e.pdcaStage}</TableCell>
+                <TableCell data-label="ปี" className={cn(STACK_CELL, 'tabular-nums')}>{e.academicYear}</TableCell>
+                <TableCell data-label="ข้อที่ผูก" className={cn(STACK_CELL, 'tabular-nums')}>{e.requirementIds.length ? e.requirementIds.join(', ') : <span className="text-muted-foreground">ยังไม่ผูก</span>}</TableCell>
+                <TableCell data-label="สถานะ" className={STACK_CELL}><EvidenceStatusBadge status={e.status} /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}</Async>
     </>
   );
