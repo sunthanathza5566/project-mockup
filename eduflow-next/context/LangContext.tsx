@@ -4,7 +4,7 @@
  * ระบบเปลี่ยนภาษา ไทย/English — เปลี่ยน "เฉพาะหน้าที่เลือก" เท่านั้น
  *
  * กติกา:
- *   - 1 คลิกที่ปุ่มเปลี่ยนภาษา (ไอคอน languages) = สลับภาษาของหน้านั้นทันที (ไม่มี dropdown ไม่ต้อง reload)
+ *   - 1 คลิกที่ปุ่มภาษา (segmented ไทย│English — ADR-UI-003 D4) = เปลี่ยนภาษาของหน้านั้นทันที (ไม่มี dropdown ไม่ต้อง reload)
  *   - ภาษาถูกจำแยกราย "หน้า" (ใช้ pathname เป็น key) เก็บใน localStorage
  *     เช่น เปลี่ยนหน้า /teacher เป็น EN แล้ว /student ยังเป็นไทยอยู่
  *
@@ -22,12 +22,14 @@ interface LangContextValue {
   lang: Lang;
   /** สลับภาษาของหน้าปัจจุบัน (1 คลิก) */
   toggleLang: () => void;
+  /** ตั้งภาษาของหน้าปัจจุบันเป็นค่าที่ระบุ (ADR-UI-003 D4 — ปุ่ม segmented ไทย│English) · ค่าเดิมอยู่แล้ว = ไม่ทำอะไร */
+  setLang: (lang: Lang) => void;
   /** แปลข้อความ — ใส่ข้อความไทยเป็น key */
   t: (text: string) => string;
 }
 
 const LangContext = createContext<LangContextValue>({
-  lang: 'th', toggleLang: () => {}, t: (s) => s,
+  lang: 'th', toggleLang: () => {}, setLang: () => {}, t: (s) => s,
 });
 
 function loadMap(): Record<string, Lang> {
@@ -44,6 +46,15 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   const lang: Lang = map[pathname] || 'th';
 
+  const setLang = useCallback((value: Lang) => {
+    setMap(prev => {
+      if ((prev[pathname] || 'th') === value) return prev;
+      const next = { ...prev, [pathname]: value };
+      if (typeof window !== 'undefined') localStorage.setItem(STORE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, [pathname]);
+
   const toggleLang = useCallback(() => {
     setMap(prev => {
       const next = { ...prev, [pathname]: (prev[pathname] || 'th') === 'th' ? 'en' as Lang : 'th' as Lang };
@@ -58,7 +69,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const t = useCallback((text: string) => translate(text, lang), [lang]);
 
   return (
-    <LangContext.Provider value={{ lang, toggleLang, t }}>
+    <LangContext.Provider value={{ lang, toggleLang, setLang, t }}>
       {children}
     </LangContext.Provider>
   );

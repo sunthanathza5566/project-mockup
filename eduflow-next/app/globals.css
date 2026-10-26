@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   AUN-QA Copilot — "Modern SaaS" (ADR-UI-002, saas-tokens §T10)
+   AUN-QA Copilot — "Modern SaaS" (ADR-UI-002, saas-tokens §T10) · ค่าสี "Earth / Friendly" (ADR-UI-003, earth-tokens §E1)
    Tailwind CSS 3.4 + token HSL channel (light :root / dark .dark)
    ช่วงเปลี่ยนผ่าน: layout import ./legacy.css ก่อนไฟล์นี้ · preflight ปิด (S6 เปิด)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -9,81 +9,85 @@
 @tailwind utilities;
 
 @layer base {
-  /* §T1 token — light */
+  /* ADR-UI-003 earth-tokens §E1 — light (ค่าเริ่มต้น) · hex อ้างอิงในตาราง §E1 → HSL แปลงด้วยสคริปต์ (round-trip 8 บิตตรงทุกตัว) */
   :root {
-    --background: 0 0% 98%;
-    --foreground: 240 5.9% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 5.9% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 5.9% 10%;
-    --primary: 243.4 75.4% 58.6%;
+    --background: 46.7 36% 95.1%;
+    --foreground: 80 12% 14.7%;
+    --card: 60 100% 99.4%;
+    --card-foreground: 80 12% 14.7%;
+    --popover: 60 100% 99.4%;
+    --popover-foreground: 80 12% 14.7%;
+    --primary: 159.5 25.9% 33.3%;
     --primary-foreground: 0 0% 100%;
-    --primary-muted: 225.9 100% 96.7%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 5.2% 33.9%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --border: 240 5.9% 90%;
-    --input: 240 3.4% 53.7%;
-    --ring: 243.4 75.4% 58.6%;
-    --destructive: 0 73.7% 41.8%;
+    --primary-muted: 150 26.1% 91%;
+    --secondary: 45 27.3% 91.4%;
+    --secondary-foreground: 80 12% 14.7%;
+    --muted: 45 27.3% 91.4%;
+    --muted-foreground: 76 9.1% 32.4%;
+    --accent: 45 27.3% 91.4%;
+    --accent-foreground: 80 12% 14.7%;
+    --border: 44 20.5% 85.7%;
+    --input: 73.3 7.4% 47.5%;
+    --ring: 159.5 25.9% 33.3%;
+    --destructive: 4.5 68.4% 38.4%;
     --destructive-foreground: 0 0% 100%;
-    --destructive-muted: 0 85.7% 97.3%;
-    --success: 142.4 71.8% 29.2%;
-    --success-muted: 138.5 76.5% 96.7%;
-    --warning: 26 90.5% 37.1%;
-    --warning-muted: 48 100% 96.1%;
-    --info: 192.9 82.3% 31%;
-    --info-muted: 183.2 100% 96.3%;
-    --chart-1: 243.4 75.4% 58.6%;
-    --chart-2: 192.9 82.3% 31%;
-    --chart-3: 26 90.5% 37.1%;
-    --chart-4: 240 5.2% 33.9%;
-    --chart-5: 142.4 71.8% 29.2%;
+    --destructive-muted: 9.6 75.8% 93.5%;
+    --success: 125.6 33.8% 31.4%;
+    --success-muted: 115 28.6% 91.8%;
+    --warning: 37.3 85.2% 29.2%;
+    --warning-muted: 41.1 82.6% 91%;
+    --info: 206.9 48.1% 35.5%;
+    --info-muted: 204.7 45.9% 92.7%;
+    --clay: 14.4 58.5% 40.6%;
+    --clay-muted: 21.4 60.9% 91%;
+    --chart-1: 159.5 25.9% 33.3%;
+    --chart-2: 206.9 48.1% 35.5%;
+    --chart-3: 14.4 58.5% 40.6%;
+    --chart-4: 76 9.1% 32.4%;
+    --chart-5: 125.6 33.8% 31.4%;
 
-    /* ค่าที่ไม่ใช่สี (เฉพาะ :root) */
-    --radius: 0.5rem;
-    --topbar-h: 3.5rem;
-    --sidebar-w: 16rem;
+    /* ค่าที่ไม่ใช่สี (เฉพาะ :root) — §E1 */
+    --radius: 0.625rem;
+    --topbar-h: 4rem;
+    --sidebar-w: 16.5rem;
   }
 
-  /* §T1 token — dark */
+  /* §E1 — dark แบบ warm dim (พื้นถ่านอุ่น ไม่ดำ · ตัวอักษรครีม ไม่ขาว) */
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 5.9% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 5.9% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 234.5 89.5% 73.9%;
-    --primary-foreground: 240 10% 3.9%;
-    --primary-muted: 243.8 47.1% 20%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.8% 46.1%;
-    --ring: 234.5 89.5% 73.9%;
-    --destructive: 0 90.6% 70.8%;
-    --destructive-foreground: 240 10% 3.9%;
-    --destructive-muted: 0 74.7% 15.5%;
-    --success: 141.9 69.2% 58%;
-    --success-muted: 144.9 80.4% 10%;
-    --warning: 43.3 96.4% 56.3%;
-    --warning-muted: 20.9 91.7% 14.1%;
-    --info: 187.9 85.7% 53.3%;
-    --info-muted: 197 78.9% 14.9%;
-    --chart-1: 234.5 89.5% 73.9%;
-    --chart-2: 187.9 85.7% 53.3%;
-    --chart-3: 43.3 96.4% 56.3%;
-    --chart-4: 240 5% 64.9%;
-    --chart-5: 141.9 69.2% 58%;
+    --background: 30 15.2% 12.9%;
+    --foreground: 34.3 36.8% 88.8%;
+    --card: 30 14.6% 16.1%;
+    --card-foreground: 34.3 36.8% 88.8%;
+    --popover: 30 14.6% 16.1%;
+    --popover-foreground: 34.3 36.8% 88.8%;
+    --primary: 154.8 28.7% 65.9%;
+    --primary-foreground: 30 15.2% 12.9%;
+    --primary-muted: 154.3 13.2% 20.8%;
+    --secondary: 30 14% 19.6%;
+    --secondary-foreground: 34.3 36.8% 88.8%;
+    --muted: 30 14% 19.6%;
+    --muted-foreground: 32.1 18.7% 70.6%;
+    --accent: 30 14% 19.6%;
+    --accent-foreground: 34.3 36.8% 88.8%;
+    --border: 30 12.9% 24.3%;
+    --input: 30 11.1% 49.4%;
+    --ring: 154.8 28.7% 65.9%;
+    --destructive: 7.6 79.7% 74.9%;
+    --destructive-foreground: 30 15.2% 12.9%;
+    --destructive-muted: 6 37% 21.2%;
+    --success: 102.9 36.8% 66.5%;
+    --success-muted: 96.7 18.4% 19.2%;
+    --warning: 40 69.7% 63.7%;
+    --warning-muted: 39.5 42.3% 19%;
+    --info: 208.4 59.7% 75.7%;
+    --info-muted: 210 29.6% 21.2%;
+    --clay: 18.5 65% 68.6%;
+    --clay-muted: 14.4 22.9% 21.4%;
+    --chart-1: 154.8 28.7% 65.9%;
+    --chart-2: 208.4 59.7% 75.7%;
+    --chart-3: 18.5 65% 68.6%;
+    --chart-4: 32.1 18.7% 70.6%;
+    --chart-5: 102.9 36.8% 66.5%;
   }
 
   /* mini-base (แทน preflight ช่วงเปลี่ยนผ่าน — shadcn ต้องใช้; S6 ลบส่วนที่ซ้ำ preflight) */

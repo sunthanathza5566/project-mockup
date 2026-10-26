@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * ตัวสลับธีม (ADR-UI-002 saas-spec §C16, §C14)
- * - ThemeToggleButton: ปุ่มไอคอน ghost 44×44 สลับ สว่าง↔มืด (ตาม resolvedTheme ปัจจุบัน)
- * - ThemeSegment: radiogroup 3 ค่า "สว่าง" / "มืด" / "ตามระบบ" (ใช้ใน DisplayPrefs) — ลูกศรเลื่อนค่าได้แบบ FontScaleSeg
+ * ตัวสลับธีม (ADR-UI-002 saas-spec §C16, §C14 · ADR-UI-003 D5 / friendly-spec §F2.3)
+ * - ThemeToggleButton: ปุ่มไอคอน ghost 44×44 สลับ สว่าง↔มืด — **เลิกใช้แล้วในรอบ 2** (คง export ไว้จน R2-F2 เอาออกจาก login/landing)
+ * - ThemeSegment: radiogroup 3 ค่า "สว่าง" / "มืด" / "ตามเครื่อง" (ใช้ใน DisplayPrefsPanel) — ลูกศรเลื่อนค่าได้แบบ FontScaleSeg
  * ทั้งสองแสดง placeholder ขนาดเท่ากันจน mounted (ธีมจริงรู้ได้เฉพาะฝั่ง client — กัน hydration mismatch)
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
@@ -17,7 +17,7 @@ type ThemeValue = 'light' | 'dark' | 'system';
 const THEMES: { value: ThemeValue; label: string; icon: IconName }[] = [
   { value: 'light', label: 'สว่าง', icon: 'sun' },
   { value: 'dark', label: 'มืด', icon: 'moon' },
-  { value: 'system', label: 'ตามระบบ', icon: 'monitor' },
+  { value: 'system', label: 'ตามเครื่อง', icon: 'monitor' }, // ADR-UI-003 §F12 (เดิม "ตามระบบ")
 ];
 
 function useMounted() {
@@ -51,9 +51,18 @@ export function ThemeToggleButton({ className, testId = 'theme-toggle' }: { clas
   );
 }
 
-const SEG_WRAP = 'inline-flex flex-wrap gap-1 rounded-lg bg-muted p-1';
-const SEG_ITEM =
-  'inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-checked:bg-card aria-checked:text-foreground aria-checked:shadow-sm';
+/**
+ * segmented กลางของรอบ 2 (friendly-spec §F2.1/§F2.3) — ใช้ร่วม ThemeSegment, FontScaleSeg, LangSwitch
+ * กรอบ border-input บน card (คู่ #15) · ที่เลือก = พื้น primary-muted + ตัวหนา (คู่ #12) ทั้ง aria-checked (radio) และ aria-pressed (ปุ่มภาษา)
+ * ไม่ตกบรรทัดภายในตัวเอง (flex-nowrap + whitespace-nowrap) · ปุ่มย่อยสูง 44 (target audit วัดรายปุ่ม — §F10)
+ * bg-transparent/py-0/border-0: กัน UA style ของ <button> ช่วง preflight ปิด
+ */
+export const SEGMENT_WRAP =
+  'inline-flex max-w-full flex-nowrap items-center gap-1 rounded-lg border border-input bg-card p-1';
+export const SEGMENT_ITEM =
+  'inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border-0 bg-transparent px-2.5 py-0 text-base font-medium text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-foreground aria-checked:bg-primary-muted aria-checked:font-semibold aria-checked:text-foreground aria-pressed:bg-primary-muted aria-pressed:font-semibold aria-pressed:text-foreground';
+const SEG_WRAP = SEGMENT_WRAP;
+const SEG_ITEM = SEGMENT_ITEM;
 
 export function ThemeSegment({ testId = 'theme-segment' }: { testId?: string }) {
   const mounted = useMounted();

@@ -63,15 +63,24 @@ const P: Record<string, ReactNode> = {
   moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
   monitor: <><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></>,
   loader: <path d="M21 12a9 9 0 1 1-6.219-8.56" />,
+  // ADR-UI-003 (TASK-0002 รอบ 2 R2-F0) — Lucide ISC
+  globe: <><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></>,
+  'user-plus': <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></>,
+  message: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+  calendar: <><path d="M8 2v4M16 2v4" /><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M3 10h18" /></>,
+  'shield-check': <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>,
+  inbox: <><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>,
 };
 
-/** ชื่อไอคอนทั้งหมด (C0 เดิม + sun/moon/monitor/loader ของ ADR-UI-002 §C16) */
+/** ชื่อไอคอนทั้งหมด (C0 เดิม + sun/moon/monitor/loader ของ ADR-UI-002 §C16 + ชุด R2-F0 ของ ADR-UI-003) */
 export const ICON_NAMES = [
   'home', 'inbox-check', 'calendar-cycle', 'folder', 'book-open', 'chart-line', 'list-check', 'library', 'download',
   'shield-user', 'bell', 'user', 'log-out', 'menu', 'x', 'chevron-down', 'chevron-right', 'chevron-left', 'check',
   'check-circle', 'alert-triangle', 'x-circle', 'info', 'clock', 'lock', 'pencil', 'undo', 'upload', 'link', 'search',
   'filter', 'sparkle', 'languages', 'eye', 'eye-off', 'plus', 'trash', 'external', 'help-circle', 'circle-dashed',
   'settings', 'type', 'file-text', 'users', 'sun', 'moon', 'monitor', 'loader',
+  // R2-F0 (clock, undo, type มีแล้ว)
+  'globe', 'user-plus', 'message', 'calendar', 'shield-check', 'inbox',
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 

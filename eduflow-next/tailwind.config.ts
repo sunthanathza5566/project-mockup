@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * ADR-UI-002 D2 + saas-tokens §T9 — Tailwind 3.4 config
+ * ADR-UI-002 D2 + saas-tokens §T9 — Tailwind 3.4 config · ADR-UI-003 earth-tokens §E5 (clay, rounded-xl, sheet-in)
  * สีจาก CSS variable รูปแบบ HSL channel — รองรับ opacity modifier (bg-primary/90)
  */
 const c = (v: string) => `hsl(var(--${v}) / <alpha-value>)`;
@@ -50,9 +50,12 @@ export default {
         info: { DEFAULT: c('info'), muted: c('info-muted') },
         card: { DEFAULT: c('card'), foreground: c('card-foreground') },
         popover: { DEFAULT: c('popover'), foreground: c('popover-foreground') },
+        // ADR-UI-003 earth-tokens §E5 — สีเน้นที่สอง (ดินเผา) ใช้ตกแต่งเท่านั้น ห้ามเป็นสถานะ/ปุ่ม/ลิงก์
+        clay: { DEFAULT: c('clay'), muted: c('clay-muted') },
         chart: { 1: c('chart-1'), 2: c('chart-2'), 3: c('chart-3'), 4: c('chart-4'), 5: c('chart-5') },
       },
       borderRadius: {
+        xl: 'calc(var(--radius) + 2px)', // §E4 การ์ด/panel/เมนู ≈12px
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
@@ -85,6 +88,8 @@ export default {
         'pop-in': { from: { opacity: '0', transform: 'translateY(4px)' }, to: { opacity: '1', transform: 'none' } },
         'dialog-in': { from: { opacity: '0', transform: 'scale(.98)' }, to: { opacity: '1', transform: 'none' } },
         'toast-in': { from: { opacity: '0', transform: 'translateY(16px)' }, to: { opacity: '1', transform: 'none' } },
+        // §E4 — panel แจ้งเตือนมือถือ เลื่อนขึ้นจากล่าง
+        'sheet-in': { from: { opacity: '0', transform: 'translateY(16px)' }, to: { opacity: '1', transform: 'none' } },
         'toast-out': { from: { opacity: '1', transform: 'none' }, to: { opacity: '0', transform: 'translateY(8px)' } },
         'toast-time': { from: { transform: 'scaleX(1)' }, to: { transform: 'scaleX(0)' } },
         highlight: { from: { backgroundColor: 'hsl(var(--primary-muted))' }, to: { backgroundColor: 'transparent' } },
@@ -104,6 +109,7 @@ export default {
         'pop-in': 'pop-in 220ms cubic-bezier(0,.4,0,1)',
         'dialog-in': 'dialog-in 220ms cubic-bezier(0,.4,0,1)',
         'toast-in': 'toast-in 220ms cubic-bezier(0,.4,0,1)',
+        'sheet-in': 'sheet-in 220ms cubic-bezier(0,.4,0,1)',
         'toast-out': 'toast-out 150ms cubic-bezier(.6,0,.8,.6) forwards',
         'toast-time': 'toast-time linear forwards',
         highlight: 'highlight 1600ms cubic-bezier(.6,0,.8,.6)',
