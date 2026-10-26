@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * พื้นที่ทำงานกรรมการ / ผลประเมินของกรรมการ (saas-spec §P15 + friendly-spec §F13)
+ * - แท็บเกณฑ์แบบ segmented (`assess-crit-{n}` role=tab, ←/→ Home/End) · ✓ เมื่อให้คะแนนแล้ว
+ * - การ์ดคะแนนรายเกณฑ์: NativeSelect `crit-score`, Textarea `crit-why`, ปุ่ม `crit-save` (default) → `crit-next` (outline)
+ * - การ์ดความคืบหน้า (`assess-progress`, `rated-count`) + verdict + ส่งผล (ปุ่มหลักเดียว) + Appendix B/D (outline)
+ * - ต่อข้อ: SAR อ่านอย่างเดียว (กล่อง muted) | Appendix B ของคุณ (Textarea) — lg ขึ้นไป 2 คอลัมน์
+ * - presentation only (R2-F3): logic/testid/ข้อความเดิมทุกตัว (crit-why เปลี่ยน input → textarea ตาม §P15)
+ */
 import { Fragment, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -17,11 +25,25 @@ import Icon from '@/components/ui/Icon';
 import ProgressRing from '@/components/ui/ProgressRing';
 import { StepCheck } from '@/components/ui/Stepper';
 import Term from '@/components/ui/Term';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { NativeSelect } from '@/components/ui/primitives/native-select';
+import { Textarea } from '@/components/ui/primitives/textarea';
 import { useLang } from '@/context/LangContext';
+import { cn } from '@/lib/ui/cn';
+import { TONE_TEXT } from '@/lib/ui/tone';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 import { GROUP_TH, decodeParam, errMsg, fmtDateTime, sectionHref } from '@/lib/ui/aunqa';
 
 const scaleName = (n: number) => RATING_SCALE.find(s => s.score === n)?.nameTh ?? '';
+
+const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
+const H2 = 'text-xl font-semibold text-foreground';
+const H3 = 'text-lg font-semibold text-foreground';
+const LABEL = 'block text-base font-medium text-foreground';
+const LINK = 'text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+/** กล่องรองในการ์ด (SAR อ่านอย่างเดียว, ข้อค้นพบของกรรมการท่านอื่น, ผล AI) */
+const SUBBOX = 'rounded-lg border bg-muted/40 p-4';
 
 /** S14 พื้นที่ทำงานกรรมการประเมิน: SAR (อ่านอย่างเดียว) + Appendix B ต่อข้อ + คะแนนรายเกณฑ์ + verdict + AI-9
  *  หลักสูตรเห็นผลของกรรมการได้เมื่อรอบเป็น “ประเมินแล้ว/ปิดรอบ” */
@@ -78,12 +100,12 @@ export default function AssessPage() {
             title={assessor ? 'พื้นที่ทำงานกรรมการ' : 'ผลการประเมินของกรรมการ'}
             status={<CycleStatusBadge status={cycle.status} />}
             sub={<>รอบ {cycle.academicYear} · {getProgramme(cycle.programmeId)?.nameTh} · {assessor ? 'อ่าน SAR/หลักฐานได้อย่างเดียว บันทึกได้เฉพาะข้อค้นพบและคะแนนของคุณ' : 'อ่านอย่างเดียว'}</>}
-            actions={<Link className="aq-btn" href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link>}
+            actions={<Button asChild variant="outline"><Link href={`/app/cycles/${id}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link></Button>}
           />
           {!visible ? (
-            <InlineMessage tone="info" testId="assess-hidden">ผลการประเมินของกรรมการจะแสดงเมื่อกรรมการส่งผลแล้ว (สถานะ “ประเมินแล้ว”) — ตอนนี้ยังไม่แสดงเพื่อความเป็นอิสระของการประเมิน</InlineMessage>
+            <InlineMessage tone="info" icon="lock" testId="assess-hidden">ผลการประเมินของกรรมการจะแสดงเมื่อกรรมการส่งผลแล้ว (สถานะ “ประเมินแล้ว”) — ตอนนี้ยังไม่แสดงเพื่อความเป็นอิสระของการประเมิน</InlineMessage>
           ) : (
-            <>
+            <div className="space-y-6">
               {assessor && cycle.status !== 'under_assessment' && (
                 <InlineMessage tone={released ? 'success' : 'info'} testId="assess-notopen">
                   {released ? 'ส่งผลประเมินแล้ว แก้ไขไม่ได้' : 'รอบนี้ยังไม่เข้าสู่ขั้นการประเมิน — QA คณะหรือผู้ดูแลจะเป็นผู้เริ่ม และคุณจะได้รับแจ้งเตือนทันที'}
@@ -91,22 +113,27 @@ export default function AssessPage() {
               )}
               {assessor && d.progress && <ProgressCard user={user} cycle={cycle} d={d} writable={writable} reload={q.reload} />}
               {!assessor && <ResultsOverview d={d} />}
-              <div className="aq-tabs" role="tablist" aria-label="เกณฑ์" onKeyDown={onTabKey}>
-                {listCriteria().map((c, i) => {
-                  const done = d.progress ? d.progress.ratedCriteria.includes(c.no) : d.ratings.some(r => r.criterionNo === c.no);
-                  return (
-                    <button key={c.no} ref={el => { tabRefs.current[i] = el; }} type="button" role="tab" id={`crit-tab-${c.no}`}
-                      aria-selected={crit === c.no} aria-controls={`crit-panel-${c.no}`} tabIndex={crit === c.no ? 0 : -1}
-                      onClick={() => setCrit(c.no)} data-testid={`assess-crit-${c.no}`}>
-                      เกณฑ์ {c.no}
-                      {done && <><StepCheck drawn={justRated === c.no} /><span className="aq-sr-only"> (ให้คะแนนแล้ว)</span></>}
-                    </button>
-                  );
-                })}
+              <div className="space-y-4">
+                <div
+                  className="flex flex-wrap gap-1 rounded-xl border bg-muted p-1" role="tablist" aria-label="เกณฑ์" onKeyDown={onTabKey}
+                >
+                  {listCriteria().map((c, i) => {
+                    const done = d.progress ? d.progress.ratedCriteria.includes(c.no) : d.ratings.some(r => r.criterionNo === c.no);
+                    return (
+                      <button key={c.no} ref={el => { tabRefs.current[i] = el; }} type="button" role="tab" id={`crit-tab-${c.no}`}
+                        aria-selected={crit === c.no} aria-controls={`crit-panel-${c.no}`} tabIndex={crit === c.no ? 0 : -1}
+                        className="inline-flex min-h-11 flex-1 basis-[6.5rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border-0 bg-transparent px-3 font-medium text-muted-foreground transition-colors duration-fast hover:bg-card/60 hover:text-foreground aria-selected:bg-card aria-selected:text-foreground aria-selected:shadow-sm"
+                        onClick={() => setCrit(c.no)} data-testid={`assess-crit-${c.no}`}>
+                        เกณฑ์ {c.no}
+                        {done && <><span className={TONE_TEXT.ok}><StepCheck drawn={justRated === c.no} /></span><span className="sr-only"> (ให้คะแนนแล้ว)</span></>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <CriterionPanel key={crit} no={crit} user={user} cycle={cycle} d={d} writable={writable} reload={q.reload}
+                  onRated={() => setJustRated(crit)} onNext={() => goNext(crit)} />
               </div>
-              <CriterionPanel key={crit} no={crit} user={user} cycle={cycle} d={d} writable={writable} reload={q.reload}
-                onRated={() => setJustRated(crit)} onNext={() => goNext(crit)} />
-            </>
+            </div>
           )}
         </>
       );
@@ -119,6 +146,16 @@ type D = {
   selfRatings: ReturnType<typeof listRatings>; findings: AssessmentFinding[]; ratings: ReturnType<typeof listCriterionRatings>;
   verdicts: ReturnType<typeof listVerdicts>; progress: ReturnType<typeof getAssessorProgress> | null; names: Record<string, string>;
 };
+
+/** แถว checklist: สถานะ = สี + ไอคอน + ข้อความ */
+function CheckItem({ state, icon, children }: { state: 'ok' | 'warn' | 'neutral'; icon: Parameters<typeof Icon>[0]['name']; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2 text-foreground" data-done={state === 'ok' ? true : state === 'warn' ? false : undefined}>
+      <Icon name={icon} size={20} className={cn('mt-0.5 shrink-0', TONE_TEXT[state])} />
+      {children}
+    </li>
+  );
+}
 
 // ───────────── ความคืบหน้า + verdict + ส่งผล ─────────────
 function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cycle: AssessmentCycle; d: D; writable: boolean; reload: () => void }) {
@@ -145,47 +182,54 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
     p.hasVerdict ? '' : 'เลือก verdict',
   ].filter(Boolean).join(' · ');
   return (
-    <section className="aq-card" id="assess-progress" aria-labelledby="prog-h" data-testid="assess-progress">
-      <h2 id="prog-h" className="aq-h2">ความคืบหน้าและผลรวม</h2>
-      <div className="aq-progress-head">
+    <section className={cn(CARD, 'scroll-mt-20 space-y-6')} id="assess-progress" aria-labelledby="prog-h" data-testid="assess-progress">
+      <h2 id="prog-h" className={H2}>ความคืบหน้าและผลรวม</h2>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
         <ProgressRing size="sm" value={k} max={8} center={`${k}/8`} ariaLabel={`ให้คะแนนแล้ว ${k} จาก 8 เกณฑ์`} />
-        <ul className="aq-checklist">
-          <li className={`aq-checkitem aq-checkitem--${k === 8 ? 'ok' : 'warn'}`} data-done={k === 8}>
-            <Icon name={k === 8 ? 'check-circle' : 'circle-dashed'} size={20} />
+        <ul className="min-w-0 list-none space-y-2">
+          <CheckItem state={k === 8 ? 'ok' : 'warn'} icon={k === 8 ? 'check-circle' : 'circle-dashed'}>
             {/* UX-U3-7: ข้อความตามสถานะจริง — ยังไม่ทำ = บอกสิ่งที่ยังไม่ทำ */}
-            <span>{k === 8 ? 'ให้คะแนนครบทุกเกณฑ์แล้ว' : 'ยังให้คะแนนรายเกณฑ์ไม่ครบ'} <strong data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="aq-muted">{` (ยังขาดเกณฑ์ ${p.missingCriteria.join(', ')})`}</span>}</span>
-          </li>
-          <li className={`aq-checkitem aq-checkitem--${p.hasVerdict ? 'ok' : 'warn'}`} data-done={p.hasVerdict}>
-            <Icon name={p.hasVerdict ? 'check-circle' : 'circle-dashed'} size={20} /><span>{p.hasVerdict ? `เลือก verdict ภาพรวมแล้ว${mine?.verdict ? ` (${mine.verdict})` : ''}` : 'ยังไม่เลือก verdict ภาพรวม'}</span>
-          </li>
-          <li className="aq-checkitem"><Icon name="file-text" size={20} /><span>{`ข้อค้นพบ (Appendix B) ที่บันทึกแล้ว: ${p.findingCount} ข้อ (ไม่บังคับ)`}</span></li>
+            <span>{k === 8 ? 'ให้คะแนนครบทุกเกณฑ์แล้ว' : 'ยังให้คะแนนรายเกณฑ์ไม่ครบ'} <strong className="font-semibold tabular-nums" data-testid="rated-count">{k}/8</strong>{p.missingCriteria.length > 0 && <span className="text-muted-foreground">{` (ยังขาดเกณฑ์ ${p.missingCriteria.join(', ')})`}</span>}</span>
+          </CheckItem>
+          <CheckItem state={p.hasVerdict ? 'ok' : 'warn'} icon={p.hasVerdict ? 'check-circle' : 'circle-dashed'}>
+            <span>{p.hasVerdict ? `เลือก verdict ภาพรวมแล้ว${mine?.verdict ? ` (${mine.verdict})` : ''}` : 'ยังไม่เลือก verdict ภาพรวม'}</span>
+          </CheckItem>
+          <CheckItem state="neutral" icon="file-text"><span>{`ข้อค้นพบ (Appendix B) ที่บันทึกแล้ว: ${p.findingCount} ข้อ (ไม่บังคับ)`}</span></CheckItem>
         </ul>
       </div>
-      <div className="aq-form-inline">
-        <div className="aq-field">
-          <label htmlFor="verdict-score"><Term k="verdict">Verdict</Term> ภาพรวม (คุณเลือกเอง — ระบบไม่คำนวณหรือแนะนำให้)</label>
-          <select id="verdict-score" className="aq-input" value={v} disabled={!writable} onChange={e => setV(e.target.value)} data-testid="verdict-score">
+      <div className="grid items-end gap-4 rounded-lg border bg-muted/40 p-4 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)_auto]">
+        <div className="min-w-0 space-y-1.5">
+          <label htmlFor="verdict-score" className={LABEL}><Term k="verdict">Verdict</Term> ภาพรวม (คุณเลือกเอง — ระบบไม่คำนวณหรือแนะนำให้)</label>
+          <NativeSelect id="verdict-score" value={v} disabled={!writable} onChange={e => setV(e.target.value)} data-testid="verdict-score">
             <option value="">— ยังไม่เลือก —</option>
             {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
-          </select>
+          </NativeSelect>
         </div>
-        <div className="aq-field aq-flex-1">
-          <label htmlFor="verdict-why">เหตุผลประกอบ</label>
-          <input id="verdict-why" className="aq-input" value={why} disabled={!writable} onChange={e => setWhy(e.target.value)} data-testid="verdict-why" />
+        <div className="min-w-0 space-y-1.5">
+          <label htmlFor="verdict-why" className={LABEL}>เหตุผลประกอบ</label>
+          <Input id="verdict-why" value={why} disabled={!writable} onChange={e => setWhy(e.target.value)} data-testid="verdict-why" />
         </div>
-        {writable && <button type="button" className="aq-btn" disabled={!v} onClick={saveVerdict} data-testid="verdict-save">บันทึก verdict</button>}
+        {writable && <Button type="button" variant="outline" disabled={!v} onClick={saveVerdict} data-testid="verdict-save">บันทึก verdict</Button>}
       </div>
-      <div className="aq-actions aq-mt-4">
-        <span className="aq-btn-with-reason">
-          <AsyncButton className="aq-btn aq-btn-primary" testId="assess-finish" disabled={!writable || !p.canFinish} onClick={finish} busyText="กำลังส่งผล…">
-            ส่งผลการประเมิน (เสร็จสิ้น)
+      <div className="flex flex-wrap items-start gap-2 border-t pt-5">
+        <span className="inline-flex max-w-full flex-col gap-1">
+          <AsyncButton variant="default" testId="assess-finish" disabled={!writable || !p.canFinish} onClick={finish} busyText="กำลังส่งผล…">
+            <Icon name="check-circle" size={20} />ส่งผลการประเมิน (เสร็จสิ้น)
           </AsyncButton>
           {writable && !p.canFinish && missing && <span className="aq-btn-reason">ยังขาด: {missing}</span>}
         </span>
-        <AsyncButton className="aq-btn" testId="assess-appb" onClick={() => { downloadBlob(exportAppendixBDoc(user, cycle.id), `AppendixB_${cycle.academicYear}.doc`); }}>Appendix B (.doc)</AsyncButton>
-        <Term k="appendix_b" label="Appendix B" />
-        <AsyncButton className="aq-btn" testId="assess-appd" onClick={() => { downloadBlob(exportAppendixDDoc(user, cycle.id), `AppendixD_${cycle.academicYear}.doc`); }}>Appendix D (.doc)</AsyncButton>
-        <Term k="appendix_d" label="Appendix D" />
+        <span className="inline-flex items-center gap-1">
+          <AsyncButton variant="outline" testId="assess-appb" onClick={() => { downloadBlob(exportAppendixBDoc(user, cycle.id), `AppendixB_${cycle.academicYear}.doc`); }}>
+            <Icon name="download" size={20} />Appendix B (.doc)
+          </AsyncButton>
+          <Term k="appendix_b" label="Appendix B" />
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <AsyncButton variant="outline" testId="assess-appd" onClick={() => { downloadBlob(exportAppendixDDoc(user, cycle.id), `AppendixD_${cycle.academicYear}.doc`); }}>
+            <Icon name="download" size={20} />Appendix D (.doc)
+          </AsyncButton>
+          <Term k="appendix_d" label="Appendix D" />
+        </span>
       </div>
     </section>
   );
@@ -194,13 +238,15 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
 // ───────────── มุมมองหลักสูตรหลังประเมินแล้ว ─────────────
 function ResultsOverview({ d }: { d: D }) {
   return (
-    <section className="aq-card" aria-labelledby="res-h" data-testid="assess-results">
-      <h2 id="res-h" className="aq-h2">สรุปผลของกรรมการ</h2>
+    <section className={CARD} aria-labelledby="res-h" data-testid="assess-results">
+      <h2 id="res-h" className={cn(H2, 'mb-4')}>สรุปผลของกรรมการ</h2>
       {d.verdicts.length === 0 ? <Empty text="ไม่มี verdict" /> : (
-        <ul className="aq-list">
+        <ul className="list-none divide-y rounded-lg border">
           {d.verdicts.map(v => (
-            <li key={v.id} data-testid="verdict-row"><strong>{d.names[v.assessorUserId] || v.assessorUserId}</strong>
-              <span className="aq-flex-1">verdict <Badge tone="info">{v.verdict} — {scaleName(v.verdict)}</Badge> {v.rationale && <span className="aq-muted">{v.rationale}</span>}</span></li>
+            <li key={v.id} data-testid="verdict-row" className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+              <strong className="font-semibold text-foreground">{d.names[v.assessorUserId] || v.assessorUserId}</strong>
+              <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">verdict <Badge tone="info">{v.verdict} — {scaleName(v.verdict)}</Badge> {v.rationale && <span className="text-muted-foreground">{v.rationale}</span>}</span>
+            </li>
           ))}
         </ul>
       )}
@@ -245,41 +291,51 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
   const self = (rid: string) => d.selfRatings.find(r => r.requirementId === rid);
 
   return (
-    <div id={`crit-panel-${no}`} role="tabpanel" aria-labelledby={`crit-tab-${no}`} className="aq-tabpanel" data-testid={`assess-panel-${no}`}>
-      <section className="aq-card" aria-labelledby="cr-h">
-        <h2 id="cr-h" className="aq-h2">{`เกณฑ์ ${no}: ${crit?.nameTh ?? ''}`} {lang !== 'en' && <span className="aq-muted aq-h2-sub">{crit?.nameEn}</span>}</h2>
-        <div className="aq-form-inline">
-          <div className="aq-field">
-            <label htmlFor={`crit-score-${no}`}>คะแนนเกณฑ์นี้ (1–7) <Term k="self_rating" label="สเกล 1–7" /></label>
-            <select id={`crit-score-${no}`} className="aq-input" value={score} disabled={!writable} onChange={e => { setScore(e.target.value); setSaved(false); }} data-testid="crit-score">
+    <div id={`crit-panel-${no}`} role="tabpanel" aria-labelledby={`crit-tab-${no}`} className="space-y-6" data-testid={`assess-panel-${no}`}>
+      <section className={cn(CARD, 'space-y-5')} aria-labelledby="cr-h">
+        <h2 id="cr-h" className={H2}>
+          {`เกณฑ์ ${no}: ${crit?.nameTh ?? ''}`} {lang !== 'en' && <span className="block text-base font-normal text-muted-foreground">{crit?.nameEn}</span>}
+        </h2>
+        <div className="grid items-start gap-4 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+          <div className="min-w-0 space-y-1.5">
+            <label htmlFor={`crit-score-${no}`} className={LABEL}>คะแนนเกณฑ์นี้ (1–7) <Term k="self_rating" label="สเกล 1–7" /></label>
+            <NativeSelect id={`crit-score-${no}`} value={score} disabled={!writable} onChange={e => { setScore(e.target.value); setSaved(false); }} data-testid="crit-score">
               <option value="">— ยังไม่ให้คะแนน —</option>
               {RATING_SCALE.map(s => <option key={s.score} value={s.score}>{`${s.score} — ${s.nameTh}`}</option>)}
-            </select>
+            </NativeSelect>
           </div>
-          <div className="aq-field aq-flex-1">
-            <label htmlFor={`crit-why-${no}`}>เหตุผล</label>
-            <input id={`crit-why-${no}`} className="aq-input" value={why} disabled={!writable} onChange={e => { setWhy(e.target.value); setSaved(false); }} data-testid="crit-why" />
+          <div className="min-w-0 space-y-1.5">
+            <label htmlFor={`crit-why-${no}`} className={LABEL}>เหตุผล</label>
+            <Textarea id={`crit-why-${no}`} rows={2} className="min-h-20" value={why} disabled={!writable} onChange={e => { setWhy(e.target.value); setSaved(false); }} data-testid="crit-why" />
           </div>
-          {writable && <button type="button" className="aq-btn aq-btn-primary" disabled={!score} onClick={saveRating} data-testid="crit-save">บันทึกคะแนนเกณฑ์นี้</button>}
         </div>
-        {saved && (
-          <div className="aq-cluster aq-mt-2">
-            <span className="aq-saved aq-saved--saved" role="status"><Icon name="check" size={16} />บันทึกแล้ว</span>
-            <button type="button" className="aq-btn" data-testid="crit-next" onClick={onNext}>
-              {no < 8 ? `ไปเกณฑ์ ${no + 1} →` : 'ไปสรุปผลและเลือก verdict ↓'}
-            </button>
+        {(writable || saved) && (
+          <div className="flex flex-wrap items-center gap-3">
+            {writable && <Button type="button" disabled={!score} onClick={saveRating} data-testid="crit-save">บันทึกคะแนนเกณฑ์นี้</Button>}
+            {saved && (
+              <>
+                <span className="aq-saved inline-flex items-center gap-1 text-success" role="status"><Icon name="check" size={16} />บันทึกแล้ว</span>
+                <Button type="button" variant="outline" data-testid="crit-next" onClick={onNext}>
+                  {no < 8 ? `ไปเกณฑ์ ${no + 1} →` : 'ไปสรุปผลและเลือก verdict ↓'}
+                </Button>
+              </>
+            )}
           </div>
         )}
         {!d.assessor && d.ratings.filter(r => r.criterionNo === no).map(r => (
-          <p key={r.id} data-testid="crit-result">{d.names[r.raterUserId] || r.raterUserId}: <Badge tone="info">{r.score} — {scaleName(r.score)}</Badge> {r.rationale}</p>
+          <p key={r.id} data-testid="crit-result" className="flex flex-wrap items-center gap-2 text-foreground">
+            {d.names[r.raterUserId] || r.raterUserId}: <Badge tone="info">{r.score} — {scaleName(r.score)}</Badge> {r.rationale}
+          </p>
         ))}
         {d.assessor && others.length > 0 && (
-          <p className="aq-muted">กรรมการท่านอื่น: {others.map(r => `${d.names[r.raterUserId] || r.raterUserId} ให้ ${r.score}`).join(' · ')}</p>
+          <p className="text-muted-foreground">กรรมการท่านอื่น: {others.map(r => `${d.names[r.raterUserId] || r.raterUserId} ให้ ${r.score}`).join(' · ')}</p>
         )}
         {canAi && (
-          <div className="aq-mt-4">
-            <AsyncButton className="aq-btn" testId="ai-summarize" onClick={summarize}>AI สรุปเกณฑ์นี้ + ร่างคำถามสัมภาษณ์</AsyncButton>
-            <span className="aq-muted"> AI ช่วยสรุปและเสนอคำถามเท่านั้น — ไม่ให้คะแนนหรือ verdict</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-5">
+            <AsyncButton variant="outline" testId="ai-summarize" onClick={summarize}>
+              <Icon name="sparkle" size={20} />AI สรุปเกณฑ์นี้ + ร่างคำถามสัมภาษณ์
+            </AsyncButton>
+            <span className="text-muted-foreground"> AI ช่วยสรุปและเสนอคำถามเท่านั้น — ไม่ให้คะแนนหรือ verdict</span>
           </div>
         )}
         {run && <SummaryResult run={run} onAddQuestion={addQuestion} writable={writable} onClose={() => setRun(null)} />}
@@ -289,16 +345,31 @@ function CriterionPanel({ no, user, cycle, d, writable, reload, onRated, onNext 
         const sec = d.sections.find(s => s.requirementId === r.id);
         const ev = d.evidence.filter(e => e.requirementIds.includes(r.id));
         return (
-          <section key={r.id} className="aq-card" aria-labelledby={`req-${r.id}`} data-testid={`assess-req-${r.id}`}>
-            <h3 id={`req-${r.id}`} className="aq-h3"><span className="aq-reqno">{r.id}</span> {r.textTh}</h3>
-            <div className="aq-grid-2">
-              <div>
-                <div className="aq-row-between"><strong>SAR (อ่านอย่างเดียว)</strong>{sec && <Link className="aq-btn aq-btn-compact" href={sectionHref(cycle.id, r.id)}>เปิดเต็มหน้า</Link>}</div>
-                <div className="aq-sar-text" data-testid="sar-readonly">{sec?.narrativeTh ? <Narrative text={sec.narrativeTh} evidence={ev} cycleId={cycle.id} /> : <span className="aq-muted">ยังไม่มีเนื้อหา</span>}</div>
-                {self(r.id) && <p className="aq-muted">{`ประเมินตนเอง: ${self(r.id)!.score} คะแนน — ${self(r.id)!.rationale}`}</p>}
-                <strong>หลักฐานที่ผูก ({ev.length})</strong>
-                {ev.length === 0 ? <p className="aq-muted">ไม่มีหลักฐานผูกกับข้อนี้</p> : (
-                  <ul className="aq-list">{ev.map(e => <li key={e.id}><Link href={`/app/evidence/${e.id}?cycle=${cycle.id}`}><strong>{e.code}</strong></Link> {e.title} <Badge>{e.pdcaStage}</Badge></li>)}</ul>
+          <section key={r.id} className={cn(CARD, 'space-y-4')} aria-labelledby={`req-${r.id}`} data-testid={`assess-req-${r.id}`}>
+            <h3 id={`req-${r.id}`} className={cn(H3, 'flex items-start gap-3')}>
+              <span className="inline-flex shrink-0 items-center rounded-md bg-primary-muted px-2 font-semibold tabular-nums text-primary">{r.id}</span>
+              <span className="min-w-0">{r.textTh}</span>
+            </h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="min-w-0 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <strong className="font-semibold text-foreground">SAR (อ่านอย่างเดียว)</strong>
+                  {sec && <Button asChild variant="outline" size="compact"><Link href={sectionHref(cycle.id, r.id)}>เปิดเต็มหน้า<Icon name="external" size={16} /></Link></Button>}
+                </div>
+                <div className={cn(SUBBOX, 'max-h-[28rem] overflow-y-auto')} data-testid="sar-readonly">
+                  {sec?.narrativeTh ? <Narrative text={sec.narrativeTh} evidence={ev} cycleId={cycle.id} /> : <span className="text-muted-foreground">ยังไม่มีเนื้อหา</span>}
+                </div>
+                {self(r.id) && <p className="text-muted-foreground">{`ประเมินตนเอง: ${self(r.id)!.score} คะแนน — ${self(r.id)!.rationale}`}</p>}
+                <strong className="block font-semibold text-foreground">หลักฐานที่ผูก ({ev.length})</strong>
+                {ev.length === 0 ? <p className="text-muted-foreground">ไม่มีหลักฐานผูกกับข้อนี้</p> : (
+                  <ul className="list-none divide-y rounded-lg border">
+                    {ev.map(e => (
+                      <li key={e.id} className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2">
+                        <Link className={cn(LINK, 'font-semibold tabular-nums')} href={`/app/evidence/${e.id}?cycle=${cycle.id}`}><strong className="font-semibold">{e.code}</strong></Link>
+                        <span className="min-w-0 flex-1 text-foreground">{e.title}</span> <Badge>{e.pdcaStage}</Badge>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
               <FindingForm key={`${r.id}-${d.findings.find(f => f.requirementId === r.id && f.assessorUserId === user.id)?.updatedAt ?? 0}`}
@@ -319,11 +390,11 @@ function pick(f?: AssessmentFinding) {
 function Narrative({ text, evidence, cycleId }: { text: string; evidence: EvidenceView[]; cycleId: string }) {
   const parts = text.split(/(\[E-[^\]]+\])/g);
   return (
-    <p className="aq-prose--pre">
+    <p className="whitespace-pre-wrap break-words leading-[1.75] text-foreground">
       {parts.map((p, i) => {
         const m = /^\[(E-[^\]]+)\]$/.exec(p);
         const ev = m && evidence.find(e => e.code === m[1]);
-        return ev ? <Link key={i} href={`/app/evidence/${ev.id}?cycle=${cycleId}`} className="aq-link aq-code" data-testid={`cite-${ev.code}`}>{p}</Link> : <Fragment key={i}>{p}</Fragment>;
+        return ev ? <Link key={i} href={`/app/evidence/${ev.id}?cycle=${cycleId}`} className={cn(LINK, 'font-medium')} data-testid={`cite-${ev.code}`}>{p}</Link> : <Fragment key={i}>{p}</Fragment>;
       })}
     </p>
   );
@@ -343,18 +414,23 @@ function FindingForm({ reqId, user, cycle, d, writable, reload }: { reqId: strin
     ['interviewQuestions', 'คำถามสัมภาษณ์'], ['sourcesOfEvidence', 'แหล่งหลักฐาน (Sources of evidence)'],
   ];
   return (
-    <div className="aq-form" data-testid={`finding-${reqId}`}>
-      <strong>Appendix B — ข้อค้นพบของคุณ</strong>
+    <div className="min-w-0 space-y-4" data-testid={`finding-${reqId}`}>
+      <strong className="block font-semibold text-foreground">Appendix B — ข้อค้นพบของคุณ</strong>
       {d.assessor ? fields.map(([k, l]) => (
-        <label key={k}>{l}<textarea className="aq-textarea" rows={2} value={f[k]} readOnly={!writable} onChange={e => setF({ ...f, [k]: e.target.value })} data-testid={`f-${k}-${reqId}`} /></label>
+        <label key={k} className="block space-y-1.5">
+          <span className={LABEL}>{l}</span>
+          <Textarea rows={2} className="min-h-20" value={f[k]} readOnly={!writable} onChange={e => setF({ ...f, [k]: e.target.value })} data-testid={`f-${k}-${reqId}`} />
+        </label>
       )) : null}
-      {d.assessor && writable && <button className="aq-btn aq-btn-compact aq-btn-primary" onClick={save} data-testid={`f-save-${reqId}`}>บันทึกข้อนี้</button>}
+      {d.assessor && writable && <Button type="button" size="compact" onClick={save} data-testid={`f-save-${reqId}`}>บันทึกข้อนี้</Button>}
       {others.length > 0 && (
-        <div data-testid="finding-others">
+        <div className="space-y-3" data-testid="finding-others">
           {others.map(o => (
-            <div key={o.id} className="aq-clo-box">
-              <strong>{d.names[o.assessorUserId] || o.assessorUserId}</strong> <span className="aq-muted">{fmtDateTime(o.updatedAt)}</span>
-              {fields.map(([k, l]) => o[k] ? <p key={k}><span className="aq-muted">{l}:</span> {o[k]}</p> : null)}
+            <div key={o.id} className={cn(SUBBOX, 'space-y-1')}>
+              <p className="flex flex-wrap items-baseline gap-x-2">
+                <strong className="font-semibold text-foreground">{d.names[o.assessorUserId] || o.assessorUserId}</strong> <span className="aq-meta">{fmtDateTime(o.updatedAt)}</span>
+              </p>
+              {fields.map(([k, l]) => o[k] ? <p key={k} className="text-foreground"><span className="text-muted-foreground">{l}:</span> {o[k]}</p> : null)}
             </div>
           ))}
         </div>
@@ -370,32 +446,41 @@ interface QGroup { group: keyof typeof GROUP_TH; items: { w: string; requirement
 function SummaryResult({ run, onAddQuestion, writable, onClose }: { run: AiRun; onAddQuestion: (reqId: string, text: string) => void; writable: boolean; onClose: () => void }) {
   const out = run.output as { summaries?: Summary[]; questions?: QGroup[] };
   return (
-    <div className="aq-ai-result" data-testid="ai9-result">
-      <div className="aq-chips">
+    <div className={cn(SUBBOX, 'animate-fade-in space-y-4')} data-testid="ai9-result">
+      <div className="flex flex-wrap gap-2">
         <Badge tone="info">สรุปโดย AI</Badge><ModelBadge run={run} />
         <Badge title="จำนวนข้อมูลส่วนบุคคลที่ปกปิดก่อนส่ง">ปกปิด {run.redactionCount} จุด</Badge>
         <Badge tone={run.postCheck.ok ? 'ok' : 'warn'}>{run.postCheck.ok ? 'ผ่านการตรวจอ้างอิง/ตัวเลข' : 'พบข้อควรระวัง'}</Badge>
       </div>
       {(out.summaries ?? []).map(s => (
-        <div key={s.requirementId}>
-          <strong>ข้อ {s.requirementId}</strong> <span>{s.summary}</span>
-          {s.strengths.length > 0 && <ul>{s.strengths.map((x, i) => <li key={i}>จุดแข็ง: {x}</li>)}</ul>}
-          {s.concerns.length > 0 && <ul className="aq-warnlist">{s.concerns.map((x, i) => <li key={i}>ข้อสังเกต: {x}</li>)}</ul>}
+        <div key={s.requirementId} className="space-y-1 text-foreground">
+          <p><strong className="font-semibold">ข้อ {s.requirementId}</strong> <span>{s.summary}</span></p>
+          {s.strengths.length > 0 && <ul className="list-disc space-y-0.5 pl-6">{s.strengths.map((x, i) => <li key={i}>จุดแข็ง: {x}</li>)}</ul>}
+          {s.concerns.length > 0 && (
+            <ul className="list-none space-y-0.5">
+              {s.concerns.map((x, i) => (
+                <li key={i} className="flex items-start gap-2"><Icon name="alert-triangle" size={20} className={cn('mt-0.5 shrink-0', TONE_TEXT.warn)} /><span>ข้อสังเกต: {x}</span></li>
+              ))}
+            </ul>
+          )}
         </div>
       ))}
-      <h3 className="aq-h3">คำถามสัมภาษณ์แนะนำ</h3>
+      <h3 className={H3}>คำถามสัมภาษณ์แนะนำ</h3>
       {(out.questions ?? []).map(g => (
-        <div key={g.group}>
-          <strong>{GROUP_TH[g.group] ?? g.group}</strong>
-          <ul className="aq-list">
+        <div key={g.group} className="space-y-2">
+          <strong className="block font-semibold text-foreground">{GROUP_TH[g.group] ?? g.group}</strong>
+          <ul className="list-none divide-y rounded-lg border bg-card">
             {g.items.map((it, i) => (
-              <li key={i}><Badge>{it.w}</Badge><span className="aq-flex-1">{it.question} <span className="aq-muted">(ข้อ {it.requirementId})</span></span>
-                {writable && <button className="aq-btn aq-btn-compact" onClick={() => onAddQuestion(it.requirementId, `[${GROUP_TH[g.group]}] ${it.question}`)}>ใช้คำถามนี้</button>}</li>
+              <li key={i} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2">
+                <Badge>{it.w}</Badge>
+                <span className="min-w-0 flex-1 basis-48 text-foreground">{it.question} <span className="text-muted-foreground">(ข้อ {it.requirementId})</span></span>
+                {writable && <Button type="button" variant="outline" size="compact" onClick={() => onAddQuestion(it.requirementId, `[${GROUP_TH[g.group]}] ${it.question}`)}>ใช้คำถามนี้</Button>}
+              </li>
             ))}
           </ul>
         </div>
       ))}
-      <button className="aq-btn" onClick={onClose}>ปิด</button>
+      <Button type="button" variant="outline" onClick={onClose}>ปิด</Button>
     </div>
   );
 }

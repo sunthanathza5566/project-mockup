@@ -1,11 +1,14 @@
 'use client';
 
 /**
- * คิวรอตรวจ (ADR-UI-001 pages.md P16)
- * - การ์ดรอบที่รอการพิจารณา (cycle-tasks)
- * - review-table: ข้อ | รอบ | เจ้าของ | ส่งเมื่อ | สรุป (UX-7) | [เปิดอ่าน](primary) [อนุมัติ] ··· [ส่งกลับ](danger)
+ * คิวรอตรวจ (saas-spec §P16 + friendly-spec §F13)
+ * - การ์ดรอบที่รอการพิจารณา (cycle-tasks) grid md:2 xl:3 — ปุ่มหลัก 1 ปุ่มต่อการ์ด
+ * - review-table (§C5): ข้อ | รอบ | เจ้าของ | ส่งเมื่อ | สรุป (UX-7) | [อนุมัติ](default compact) [เปิดอ่าน](outline) ··· [ส่งกลับ](destructiveOutline)
+ *   มือถือ <768 แต่ละแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label
  * - แถวที่ผู้ใช้เป็นผู้เขียนล่าสุด: ไม่ render ปุ่มอนุมัติ + pill "คุณเขียนเอง" + Term segregation
  * - หลังอนุมัติ/ส่งกลับ: แถวจาง 220ms แล้วหาย + toast · ไม่มีอนุมัติเป็นชุด
+ * - ปุ่ม "อนุมัติ" (การกระทำ) แปล EN เป็น "Approve" เอง (data-no-i18n) เพราะ key "อนุมัติ" ใน dict = ป้ายสถานะ "Approved"
+ *   (orchestrator ตัดสิน 2026-10-26 — Found Issues TASK-0002)
  */
 import { useState } from 'react';
 import Link from 'next/link';
@@ -16,16 +19,33 @@ import {
 import type { GapSeverity } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
+import { useLang } from '@/context/LangContext';
 import { Async, AsyncButton, Badge, CycleStatusBadge, Empty, PageHeader, useLoad, useMe } from '@/components/aunqa/common';
 import Icon from '@/components/ui/Icon';
 import Term from '@/components/ui/Term';
+import { Button } from '@/components/ui/primitives/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/primitives/table';
+import { cn } from '@/lib/ui/cn';
 import { CYCLE_ACTION_TH, errMsg, fmtDateTime, sectionHref, truncateTh } from '@/lib/ui/aunqa';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 
 const LEAVE_MS = 220;
 
+/** ป้ายปุ่มอนุมัติ (การกระทำ) — แยกจากป้ายสถานะ "อนุมัติ" = "Approved" ใน dict */
+const APPROVE_LABEL = { th: 'อนุมัติ', en: 'Approve' } as const;
+
+/** §C5 ตารางแบบ stack บนมือถือ (<768) — class literal ให้ JIT สแกนเจอ */
+const STACK_TABLE = 'max-md:block';
+const STACK_HEAD = 'max-md:sr-only';
+const STACK_BODY = 'max-md:block';
+const STACK_ROW = 'max-md:block max-md:p-4';
+const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+const STACK_ACTIONS = 'max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3';
+const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 visited:text-primary hover:decoration-2';
+
 export default function ReviewPage() {
   const user = useMe();
+  const { lang } = useLang();
   const { showToast } = useToast();
   const { prompt, confirm } = useDialog();
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
@@ -96,80 +116,97 @@ export default function ReviewPage() {
       <Async q={q} skeleton="table">{({ items, cycleTasks, names }) => (
         <>
           {cycleTasks.length > 0 && (
-            <section className="aq-section" aria-labelledby="ct-h">
-              <h2 id="ct-h" className="aq-h2">รอบที่รอการพิจารณา</h2>
-              <ul className="aq-cycle-cards" data-testid="cycle-tasks">
+            <section className="mb-8" aria-labelledby="ct-h">
+              <h2 id="ct-h" className="mb-3 text-xl font-semibold text-foreground">รอบที่รอการพิจารณา</h2>
+              <ul className="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="cycle-tasks">
                 {cycleTasks.map(({ cycle, rules }) => (
-                  <li key={cycle.id} className="aq-card">
-                    <p className="aq-cycle-card__title">รอบ {cycle.academicYear} · {getProgramme(cycle.programmeId)?.nameTh}</p>
-                    <div className="aq-cluster aq-mt-2"><CycleStatusBadge status={cycle.status} /></div>
-                    <p className="aq-mt-2">รอ: {rules.map(r => CYCLE_ACTION_TH[r.to]).join(' / ')}</p>
-                    <Link className="aq-btn aq-btn-primary aq-mt-2" href={`/app/cycles/${cycle.id}`}>
-                      เปิดแดชบอร์ดเพื่อพิจารณา<Icon name="chevron-right" size={20} />
-                    </Link>
+                  <li key={cycle.id} className="flex flex-col gap-3 rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground" aria-hidden="true">
+                        <Icon name="calendar-cycle" size={20} />
+                      </span>
+                      <p className="min-w-0 font-semibold text-foreground">รอบ {cycle.academicYear} · {getProgramme(cycle.programmeId)?.nameTh}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2"><CycleStatusBadge status={cycle.status} /></div>
+                    <p className="text-base text-foreground">รอ: {rules.map(r => CYCLE_ACTION_TH[r.to]).join(' / ')}</p>
+                    <div className="mt-auto pt-1">
+                      <Button asChild>
+                        <Link href={`/app/cycles/${cycle.id}`}>
+                          เปิดแดชบอร์ดเพื่อพิจารณา<Icon name="chevron-right" size={20} />
+                        </Link>
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
             </section>
           )}
 
-          <section className="aq-card" aria-labelledby="rq-h">
-            <h2 id="rq-h" className="aq-h2">{`ข้อที่รอตรวจ (${items.length})`}</h2>
+          <section aria-labelledby="rq-h">
+            <h2 id="rq-h" className="mb-3 text-xl font-semibold text-foreground">{`ข้อที่รอตรวจ (${items.length})`}</h2>
             {items.length === 0 ? (
               <Empty icon="inbox-check" title="ไม่มีข้อที่รอตรวจ" text="เมื่ออาจารย์ส่งข้อมา จะขึ้นที่นี่และมีแจ้งเตือน" />
             ) : (
-              <div className="aq-table-wrap">
-                <table className="aq-table aq-table--stack" data-testid="review-table">
-                  <thead><tr><th>ข้อ</th><th>รอบ</th><th>เจ้าของ</th><th>ส่งเมื่อ</th><th>สรุป</th><th><span className="aq-sr-only">การกระทำ</span></th></tr></thead>
-                  <tbody>
-                    {items.map(({ cycle, section, canApprove, canReturn, ownWork, evidence, self, gaps }) => {
-                      const req = getRequirement(section.requirementId);
-                      return (
-                        <tr key={section.id} className={leaving.has(section.id) ? 'aq-row-leaving' : undefined}>
-                          <td data-label="ข้อ">
-                            <div>
-                              <Link className="aq-link aq-code" href={sectionHref(cycle.id, section.requirementId)}><strong>{section.requirementId}</strong></Link>
-                              {req && <div className="aq-meta">{truncateTh(req.textTh, 60)}</div>}
+              <Table data-testid="review-table" className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
+                <TableHeader className={STACK_HEAD}>
+                  <tr>
+                    <TableHead>ข้อ</TableHead><TableHead>รอบ</TableHead><TableHead>เจ้าของ</TableHead>
+                    <TableHead>ส่งเมื่อ</TableHead><TableHead>สรุป</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead>
+                  </tr>
+                </TableHeader>
+                <TableBody className={STACK_BODY}>
+                  {items.map(({ cycle, section, canApprove, canReturn, ownWork, evidence, self, gaps }) => {
+                    const req = getRequirement(section.requirementId);
+                    return (
+                      <TableRow
+                        key={section.id}
+                        className={cn(STACK_ROW, 'transition-opacity duration-base ease-exit', leaving.has(section.id) && 'opacity-0')}
+                      >
+                        <TableCell data-label="ข้อ" className={cn('min-w-[12rem]', STACK_CELL)}>
+                          <Link className={CODE_LINK} href={sectionHref(cycle.id, section.requirementId)}><strong className="font-semibold">{section.requirementId}</strong></Link>
+                          {req && <p className="aq-meta line-clamp-2">{truncateTh(req.textTh, 60)}</p>}
+                        </TableCell>
+                        <TableCell data-label="รอบ" className={cn('whitespace-nowrap', STACK_CELL)}>{cycle.academicYear} · {getProgramme(cycle.programmeId)?.code}</TableCell>
+                        <TableCell data-label="เจ้าของ" className={STACK_CELL}>{names.get(section.ownerUserId || '') || '—'}</TableCell>
+                        <TableCell data-label="ส่งเมื่อ" className={cn('tabular-nums', STACK_CELL)}>{fmtDateTime(section.updatedAt)}</TableCell>
+                        <TableCell data-label="สรุป" className={cn('min-w-[12rem]', STACK_CELL)}>
+                          <p className="aq-meta">{`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}</p>
+                          {gaps && (gaps.critical > 0 || gaps.high > 0) && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {gaps.critical > 0 && <Badge tone="bad">วิกฤต {gaps.critical}</Badge>}
+                              {gaps.high > 0 && <Badge tone="warn">สูง {gaps.high}</Badge>}
                             </div>
-                          </td>
-                          <td data-label="รอบ">{cycle.academicYear} · {getProgramme(cycle.programmeId)?.code}</td>
-                          <td data-label="เจ้าของ">{names.get(section.ownerUserId || '') || '—'}</td>
-                          <td data-label="ส่งเมื่อ">{fmtDateTime(section.updatedAt)}</td>
-                          <td data-label="สรุป">
-                            <div className="aq-meta">
-                              {`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}
-                              {gaps && (gaps.critical > 0 || gaps.high > 0) && (
-                                <div className="aq-cluster aq-mt-2">
-                                  {gaps.critical > 0 && <Badge tone="bad">วิกฤต {gaps.critical}</Badge>}
-                                  {gaps.high > 0 && <Badge tone="warn">สูง {gaps.high}</Badge>}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="aq-row-actions">
-                              <div className="aq-cluster">
-                                <Link className="aq-btn aq-btn-primary aq-btn-compact" href={sectionHref(cycle.id, section.requirementId)}>เปิดอ่าน</Link>
-                                {canApprove && !ownWork && (
-                                  <AsyncButton className="aq-btn aq-btn-compact" testId={`approve-${section.requirementId}`}
-                                    onClick={() => approve(cycle.id, section.id, section.requirementId, gaps?.critical ?? 0)}>อนุมัติ</AsyncButton>
-                                )}
-                                {canApprove && ownWork && (
-                                  <span><Badge tone="neutral" icon="user">คุณเขียนเอง</Badge><Term k="segregation" label="การแยกหน้าที่" /></span>
-                                )}
-                              </div>
-                              {canReturn && (
-                                <AsyncButton className="aq-btn aq-btn-danger aq-btn-compact" testId={`return-${section.requirementId}`}
-                                  onClick={() => back(cycle.id, section.id, section.requirementId)}>ส่งกลับ</AsyncButton>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                          )}
+                        </TableCell>
+                        <TableCell className={STACK_ACTIONS}>
+                          <div className="flex flex-wrap items-center gap-2 md:min-w-[17rem] md:justify-end">
+                            {canApprove && !ownWork && (
+                              <AsyncButton variant="default" size="compact" testId={`approve-${section.requirementId}`}
+                                onClick={() => approve(cycle.id, section.id, section.requirementId, gaps?.critical ?? 0)}>
+                                <span data-no-i18n="">{APPROVE_LABEL[lang === 'en' ? 'en' : 'th']}</span>
+                              </AsyncButton>
+                            )}
+                            <Button asChild variant="outline" size="compact">
+                              <Link href={sectionHref(cycle.id, section.requirementId)}>เปิดอ่าน</Link>
+                            </Button>
+                            {canApprove && ownWork && (
+                              <span className="inline-flex items-center gap-1">
+                                <Badge tone="neutral" icon="user">คุณเขียนเอง</Badge><Term k="segregation" label="การแยกหน้าที่" />
+                              </span>
+                            )}
+                            {canReturn && (
+                              <AsyncButton variant="destructiveOutline" size="compact" testId={`return-${section.requirementId}`}
+                                onClick={() => back(cycle.id, section.id, section.requirementId)}>
+                                <Icon name="undo" size={16} />ส่งกลับ
+                              </AsyncButton>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             )}
           </section>
         </>
