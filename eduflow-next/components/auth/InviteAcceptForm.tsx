@@ -8,6 +8,9 @@
  * - peekInvitation ผ่าน → สรุปคำเชิญ (dl) + ตั้งรหัสผ่าน ≥8 · ใช้ไม่ได้ (ไม่มี/หมดอายุ/ใช้แล้ว/ยกเลิก) → ข้อความเดียว `inv-invalid`
  * - สำเร็จ: acceptInvitation เข้าสู่ระบบให้แล้ว → refresh() → router.replace('/app') + toast
  * - state: กำลังเตรียมข้อมูล/ตรวจลิงก์ (skeleton) · initError · invalid · ฟอร์ม
+ * - R2-F10 (playtest U2): ป้ายระบบสาธิต `inv-demo-note` ทุกสถานะ (แบบเดียวกับ /request-access) — ข้อมูลอยู่ในเบราว์เซอร์นี้
+ *   เท่านั้น ต้องเปิดลิงก์ในเบราว์เซอร์เดียวกับผู้ดูแล · ข้อความ error `inv-invalid` คงเดิมทุกตัวอักษร (กัน enumeration)
+ * - R2-F10 (ui m8): หัวข้อ "ยินดีต้อนรับ <ชื่อ>" ห่อชื่อเป็น inline-block — ชื่อยาวขึ้นบรรทัดใหม่ทั้งก้อน ไม่ตัดกลางนามสกุล
  */
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -20,6 +23,7 @@ import { useLang } from '@/context/LangContext';
 import { ROLE_TH } from '@/lib/ui/aunqa';
 import { politeName } from '@/lib/ui/name';
 import { InlineMessage, Skeleton } from '@/components/aunqa/common';
+import { INVITE_DEMO_NOTE } from '@/components/aunqa/admin/shared';
 import Icon from '@/components/ui/Icon';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from '@/components/ui/primitives/input';
@@ -46,6 +50,11 @@ type Phase = 'checking' | 'enter' | 'invalid' | 'ready';
 
 const LABEL = 'block text-base font-medium text-foreground';
 const CARD = 'w-full max-w-md rounded-xl border bg-card p-6 text-card-foreground shadow-sm dark:shadow-none md:p-8';
+
+/** U2: ป้ายระบบสาธิต — ข้อความเดียวกับกล่องผลเชิญฝั่งผู้ดูแล (INVITE_DEMO_NOTE) */
+function DemoNote({ className }: { className?: string }) {
+  return <InlineMessage tone="info" className={className} testId="inv-demo-note">{INVITE_DEMO_NOTE}</InlineMessage>;
+}
 
 export default function InviteAcceptForm() {
   const { isLoading, initError, refresh } = useAuth();
@@ -150,6 +159,7 @@ export default function InviteAcceptForm() {
     return (
       <div className={CARD}>
         <h1 className="text-2xl font-semibold text-foreground">ตั้งรหัสผ่านจากคำเชิญ</h1>
+        <DemoNote className="mt-6" />
         {phase === 'invalid' && (
           <InlineMessage tone="danger" className="mt-6" testId="inv-invalid">{INVITE_INVALID_MESSAGE}</InlineMessage>
         )}
@@ -183,7 +193,10 @@ export default function InviteAcceptForm() {
   const DD = 'm-0 text-base font-medium text-foreground';
   return (
     <div className={CARD}>
-      <h1 className="text-2xl font-semibold text-foreground">{`ยินดีต้อนรับ ${politeName(p.fullName)}`}</h1>
+      <h1 className="text-2xl font-semibold text-foreground">
+        ยินดีต้อนรับ{' '}<span className="inline-block" data-no-i18n>{politeName(p.fullName)}</span>
+      </h1>
+      <DemoNote className="mt-4" />
       <dl className="mt-6 grid gap-3 rounded-lg border bg-muted p-4 sm:grid-cols-2" data-testid="inv-summary">
         <div><dt className={DT}>ชื่อผู้ใช้</dt><dd className={DD}><code data-no-i18n>{p.username}</code></dd></div>
         <div><dt className={DT}>มหาวิทยาลัย</dt><dd className={DD} data-no-i18n>{uniName}</dd></div>

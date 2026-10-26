@@ -888,3 +888,50 @@ PATTERNS.unshift(
   [/^ข้อ (\S+) เนื้อหาสั้นเกินไป \((\d+) คำ ต้องการอย่างน้อย (\d+)\)$/, m => `Req. ${m[1]} narrative is too short (${m[2]} words, at least ${m[3]} needed)`],
   [/^วิชาบังคับก่อนวนซ้ำ: (.+)$/, m => `Circular prerequisite: ${m[1]}`],
 );
+
+// ── R2-F10 ──
+// ตารางผู้ใช้ + แผงจัดการ (M1/U7/P4/P5/ข-18) · ขอบเขตตามบทบาท (P2) · ป้ายสาธิตลิงก์เชิญ (U2) · ฟอร์มเพิ่มผู้ใช้ (U10) · U4/U8/P11
+Object.assign(EN_AUNQA, {
+  'ชื่อ ชื่อผู้ใช้ หรืออีเมล': 'Name, username or email',
+  'ไม่พบผู้ใช้ที่ตรงกับคำค้น': 'No users match your search',
+  'บัญชีของคุณ': 'Your account',
+  'บทบาทปัจจุบัน': 'Current roles',
+  'ปิดแผงจัดการ': 'Close panel',
+  'เปิดใช้บัญชีก่อน จึงจะเพิ่มบทบาทได้': 'Reactivate the account before adding roles',
+  'ระงับแล้วผู้ใช้เข้าสู่ระบบไม่ได้ งานที่มอบหมายไว้ยังอยู่ เปิดใช้อีกครั้งได้ภายหลัง':
+    'A suspended user cannot sign in. Their assigned work stays, and you can reactivate the account later.',
+  'เปิดใช้บัญชีอีกครั้ง': 'Reactivate account',
+  'ยืนยันเปิดใช้': 'Confirm reactivation',
+  'เก็บคำเชิญไว้': 'Keep invitation',
+  'ยังไม่ปฏิเสธ': 'Not now',
+  'ยืนยันถอนบทบาท': 'Confirm role removal',
+  'เก็บบทบาทไว้': 'Keep role',
+  'ผู้ใช้มีบทบาทนี้ในขอบเขตนี้อยู่แล้ว': 'The user already has this role in this scope',
+  'กรุณาเลือกขอบเขต': 'Please choose a scope',
+  'กรุณาเลือกขอบเขตให้ตรงกับบทบาท': 'Please choose a scope that matches the role',
+  'กรุณาเลือกขอบเขตให้ตรงกับบทบาทก่อนอนุมัติ': 'Please choose a scope that matches the role before approving',
+  '— เลือกขอบเขต —': '— Choose a scope —',
+  'ยังไม่มีรอบประเมินให้เลือก': 'No assessment cycles to choose yet',
+  'ไม่มีขอบเขตที่ใช้ได้': 'No matching scope available',
+  'ระบบสาธิต: ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น — ต้องเปิดลิงก์เชิญในเบราว์เซอร์เดียวกับที่ผู้ดูแลใช้สร้างคำเชิญ ถ้าเปิดจากเครื่องหรือเบราว์เซอร์อื่น ลิงก์จะใช้ไม่ได้':
+    'Demo system: data is stored in this browser only — open the invitation link in the same browser the administrator used to create it. On another device or browser the link will not work.',
+  'ยังบันทึกไม่ได้ — กรุณาแก้ไขช่องต่อไปนี้': 'Cannot save yet — please fix the following fields',
+  'ชื่อผู้ใช้ต้องเป็นตัวอักษรอังกฤษ ตัวเลข หรือ . _ - ยาว 3–32 ตัว': 'Username must use English letters, digits or . _ - and be 3–32 characters long',
+  'ตัวอักษรอังกฤษ ตัวเลข หรือ . _ - ยาว 3–32 ตัว': 'English letters, digits or . _ -, 3–32 characters',
+  'ระบบยังไม่ส่งอีเมลแจ้งผล — ลองเข้าสู่ระบบภายหลัง ถ้ายังรออนุมัติ ระบบจะบอกว่าบัญชีกำลังรอผู้ดูแลอนุมัติ':
+    'The system does not email the result yet — try signing in later. If the request is still pending, you will see that the account is awaiting approval.',
+  'ถ้ายังเข้าไม่ได้หลายวัน หรือขึ้นว่าชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง คำขออาจไม่ได้รับอนุมัติ — ติดต่อผู้ดูแลระบบของมหาวิทยาลัย และอย่าลองรหัสผ่านซ้ำหลายครั้ง เพราะบัญชีจะถูกล็อกชั่วคราว':
+    'If you still cannot sign in after a few days, or you see "incorrect username or password", the request may not have been approved — contact your university administrator, and do not retry the password many times because the account will be locked temporarily.',
+  // R2-B4 error จาก backend (createUser / inviteUser / approveAccessRequest / setUserRoles)
+  'ขอบเขตไม่ตรงกับบทบาท (หลักสูตร: ประธาน/อาจารย์ · คณะ: เจ้าหน้าที่ข้อมูล/QA คณะ/คณบดี · รอบประเมิน: กรรมการ · ทั้งมหาวิทยาลัย: ผู้ดูแล)':
+    'The scope does not match the role (programme: chair/lecturer · faculty: data staff/faculty QA/dean · assessment cycle: assessor · whole university: administrator)',
+});
+PATTERNS.unshift(
+  [/^บทบาทนี้ใช้ขอบเขตระดับ(.+)$/, (m, tr) => `This role uses the scope level: ${m[1].split(' / ').map(tr).join(' / ')}`],
+  [/^จัดการบัญชี (.+)$/, m => `Manage account of ${m[1]}`],
+  [/^เปิดใช้บัญชี (.+) อีกครั้ง\? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม และคำเชิญที่บัญชีนี้เคยออกไว้ซึ่งยังไม่หมดอายุจะกลับมาใช้ได้ — ถ้าไม่ต้องการ ให้ยกเลิกคำเชิญนั้นในตารางนี้$/,
+    m => `Reactivate ${m[1]}? They can sign in with their previous roles, and any unexpired invitations this account issued will work again — if you do not want that, cancel those invitations in this table.`],
+  [/^ถอนบทบาท (.+) \((.+)\) จาก (.+)\? นี่คือบทบาทสุดท้าย ผู้ใช้จะใช้งานระบบไม่ได้จนกว่าจะเพิ่มบทบาทใหม่$/,
+    (m, tr) => `Remove the role ${tr(m[1])} (${tr(m[2])}) from ${m[3]}? This is their last role — they cannot use the system until a new role is added.`],
+  [/^ถอนบทบาท (.+) \((.+)\) จาก (.+)\?$/, (m, tr) => `Remove the role ${tr(m[1])} (${tr(m[2])}) from ${m[3]}?`],
+);

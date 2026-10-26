@@ -4,6 +4,8 @@
  * Layout หน้า login แยกจาก landing nav (ADR-UI-001 pages.md P2 · TASK-0002 saas-spec §P2)
  * - <1024: คอลัมน์เดียว — แถวบน = แบรนด์ (ลิงก์ /) + ข้อความสั้นใต้แบรนด์ · tools ชิดขวา (ขึ้นบรรทัดใหม่ได้) · ฟอร์มตามมา
  * - ≥1024: grid 2 คอลัมน์ — ซ้าย = แบรนด์/tools/ฟอร์ม · ขวา = แผงแบรนด์ bg-muted border-l (ไม่มีพื้นสีเข้มแล้ว)
+ *   แผงขวา sticky สูงเท่าจอ (R2-F10 ui m7) — ฟอร์มยาว (ขอเข้าใช้งาน) เลื่อนลงแล้วแผงยังอยู่ ไม่ลอยกลางหน้า
+ *   เส้นแบ่งเป็น border-r ของคอลัมน์ซ้าย (ยาวเต็มหน้า) และพื้น muted ของ grid เติมคอลัมน์ขวาใต้แผง
  * - tools (friendly-spec §F5 รอบ 2): LangSwitch + DisplayMenuButton (`display-menu` ปุ่มมีข้อความ เปิด DisplayPrefsPanel
  *   = ขนาดตัวอักษร + ธีม + เอฟเฟกต์) แทน segmented ก/ก+/ก++ และปุ่มธีมไอคอน `theme-toggle` เดิม · element ชุดเดียวทุกขนาดจอ
  * - ใช้ร่วม 3 หน้าสาธารณะ (ไม่ต้องเข้าสู่ระบบ): /login, /request-access, /invite
@@ -34,9 +36,9 @@ function BrandArt() {
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-2 lg:bg-muted">
       <a href="#main" className="aq-skip">ข้ามไปเนื้อหาหลัก</a>
-      <div className="flex min-h-screen min-w-0 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-col bg-background lg:border-r">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
           <div className="min-w-0">
             <Link href="/" aria-label="AUN-QA Copilot หน้าแรก" className="inline-flex min-h-11 items-center no-underline">
@@ -54,7 +56,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
       <aside
-        className="hidden flex-col justify-center gap-10 border-l bg-muted px-12 py-16 lg:flex"
+        className="hidden flex-col justify-center gap-10 bg-muted px-12 py-16 lg:sticky lg:top-0 lg:flex lg:h-screen lg:self-start"
         aria-label="เกี่ยวกับ AUN-QA Copilot"
       >
         <div className="max-w-md">

@@ -88,7 +88,11 @@ function Inner() {
   return (
     <>
       <PageHeader title="ผู้ดูแลระบบ" sub="จัดการผู้ใช้และบทบาท ตรวจ audit log (บันทึกถาวร แก้ไม่ได้)" />
-      <div className="mb-6 flex flex-wrap gap-1 border-b" role="tablist" aria-label="ส่วนของผู้ดูแลระบบ" onKeyDown={onKey}>
+      {/* R2-F10 (ui M1): แท็บไม่ตกบรรทัด — แถวเดียว เลื่อนแนวนอนได้เมื่อจอแคบ · เส้นใต้แถบใช้ inset shadow (overflow ตัด -mb-px) */}
+      <div
+        className="mb-6 flex flex-nowrap gap-1 overflow-x-auto overscroll-x-contain px-1 pt-1 [box-shadow:inset_0_-1px_0_hsl(var(--border))]"
+        role="tablist" aria-label="ส่วนของผู้ดูแลระบบ" onKeyDown={onKey}
+      >
         {shown.map((t, i) => {
           const sel = active === t.k;
           const n = t.count ? countLabel(t.count) : null;
@@ -98,7 +102,7 @@ function Inner() {
               aria-selected={sel} aria-controls={`admin-panel-${t.k}`} tabIndex={sel ? 0 : -1}
               onClick={() => choose(t.k)} data-testid={t.testId}
               className={cn(
-                '-mb-px inline-flex min-h-11 items-center gap-2 border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground',
+                'inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground',
                 'transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground',
               )}
             >

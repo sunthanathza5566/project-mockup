@@ -7,6 +7,8 @@
  *   + "ขอบเขต" (`req-scope-{id}`, ค่าเริ่ม = หน่วยงานที่ขอ) → [อนุมัติคำขอ] [ปฏิเสธ] (ห่าง 16px)
  * - ขอบเขตสร้างจาก `universityId` ของคำขอ (super_admin เห็นคำขอทุกมหาวิทยาลัย — แสดงชื่อมหาวิทยาลัยกำกับ)
  * - อนุมัติ → toast + การ์ดหาย + ตัวนับลด + `aunqa:todos-changed` (ตัวนับเมนู) · ปฏิเสธ → prompt เหตุผล (ไม่บังคับ)
+ * - R2-F10 (BUG-0002-P2): ขอบเขตกรองตามบทบาทที่เลือก (ScopeSelect) · ค่าเริ่ม = หน่วยงานที่ผู้ขอระบุเมื่อระดับตรงกับบทบาท
+ *   (อาจารย์ = หลักสูตรที่ระบุ ไม่ใช่คณะ) · ระบุไม่ตรงระดับ/ไม่ได้ระบุ = ยังไม่เลือก ต้องให้ผู้ดูแลเลือกเอง (ไม่เดาให้สิทธิ์กว้าง)
  * - ว่าง = Empty icon inbox · โหลด/ผิดพลาด = Async (skeleton cards / ErrorBox)
  */
 import { useState } from 'react';
@@ -23,19 +25,21 @@ import { NativeSelect } from '@/components/ui/primitives/native-select';
 import { ROLE_TH, errMsg } from '@/lib/ui/aunqa';
 import { relativeTime } from '@/lib/ui/notification';
 import { notifyTodosChanged } from '@/lib/ui/todo';
-import { CARD, LABEL, grantableRoles, parseScope, scopeOptions, type ScopeOption } from './shared';
+import ScopeSelect from './ScopeSelect';
+import { CARD, LABEL, facultyLabel, grantableRoles, parseScope, pickScope, scopeOptions, scopesForRole, type ScopeOption } from './shared';
 
 /** ป้ายหน่วยงานที่ขอ + key ขอบเขตเริ่มต้น (ตรงกับรายการใน scopeOptions) */
-function requestedUnit(r: AccessRequestView): { label: string; key: string } {
+function requestedUnit(r: AccessRequestView): { label: string; prefer: string[] } {
+  const uniKey = `university:${r.universityId}`;
   if (r.programmeId) {
     const p = getProgrammes(r.universityId).find(x => x.id === r.programmeId);
-    if (p) return { label: `หลักสูตร ${p.code}`, key: `programme:${p.id}` };
+    if (p) return { label: `หลักสูตร ${p.code}`, prefer: [`programme:${p.id}`, `faculty:${p.facultyId}`, uniKey] };
   }
   if (r.facultyId) {
     const f = getFaculties(r.universityId).find(x => x.id === r.facultyId);
-    if (f) return { label: `คณะ ${f.nameTh}`, key: `faculty:${f.id}` };
+    if (f) return { label: facultyLabel(f.nameTh), prefer: [`faculty:${f.id}`, uniKey] };
   }
-  return { label: 'ทั้งมหาวิทยาลัย', key: `university:${r.universityId}` };
+  return { label: 'ทั้งมหาวิทยาลัย', prefer: [uniKey] };
 }
 
 export default function RequestsTab({ user, onChanged }: { user: AppUser; onChanged: () => void }) {
@@ -72,11 +76,23 @@ function RequestCard({ user, req, scopes, onDone }: {
   const unit = requestedUnit(req);
   const roles = grantableRoles(user);
   const [role, setRole] = useState<RoleCode>('programme_staff');
-  const [scope, setScope] = useState(scopes.some(s => s.key === unit.key) ? unit.key : scopes[0]?.key ?? '');
+  const [scope, setScope] = useState(() => pickScope(scopesForRole(scopes, 'programme_staff'), '', unit.prefer, false));
+  const [scopeErr, setScopeErr] = useState('');
   const otherUni = req.universityId !== user.universityId ? getUniversity(req.universityId) : undefined;
   const id = req.userId;
 
+  function changeRole(r: RoleCode) {
+    setRole(r);
+    setScope(s => pickScope(scopesForRole(scopes, r), s, unit.prefer, false));
+    setScopeErr('');
+  }
+
   async function approve() {
+    if (!scope) {
+      setScopeErr('กรุณาเลือกขอบเขตให้ตรงกับบทบาทก่อนอนุมัติ');
+      document.getElementById(`req-scope-${id}`)?.focus();
+      return;
+    }
     try {
       approveAccessRequest(user, id, [{ role, ...parseScope(scope) }]);
       showToast(`อนุมัติแล้ว — ${req.fullName} เข้าสู่ระบบได้ทันที`, 'success');
@@ -89,6 +105,7 @@ function RequestCard({ user, req, scopes, onDone }: {
       title: 'ปฏิเสธคำขอ',
       message: `ปฏิเสธคำขอของ ${req.fullName}? ข้อมูลผู้ขอจะถูกลบออกจากระบบ`,
       placeholder: 'เหตุผล (ไม่บังคับ)', variant: 'danger', confirmText: 'ยืนยันปฏิเสธ', required: false,
+      cancelText: 'ยังไม่ปฏิเสธ', // U8: ไม่ใช้ "ยกเลิก" ที่กำกวมในกล่องยืนยัน
     });
     if (note === null) return;
     try {
@@ -132,16 +149,14 @@ function RequestCard({ user, req, scopes, onDone }: {
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <label htmlFor={`req-role-${id}`} className={LABEL}>บทบาทที่ให้</label>
-          <NativeSelect id={`req-role-${id}`} value={role} onChange={e => setRole(e.target.value as RoleCode)} data-testid={`req-role-${id}`}>
+          <NativeSelect id={`req-role-${id}`} value={role} onChange={e => changeRole(e.target.value as RoleCode)} data-testid={`req-role-${id}`}>
             {roles.map(r => <option key={r} value={r}>{ROLE_TH[r]}</option>)}
           </NativeSelect>
         </div>
-        <div className="space-y-1.5">
-          <label htmlFor={`req-scope-${id}`} className={LABEL}>ขอบเขต</label>
-          <NativeSelect id={`req-scope-${id}`} value={scope} onChange={e => setScope(e.target.value)} data-testid={`req-scope-${id}`}>
-            {scopes.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
-          </NativeSelect>
-        </div>
+        <ScopeSelect
+          id={`req-scope-${id}`} role={role} scopes={scopes} value={scope} testId={`req-scope-${id}`} error={scopeErr}
+          onChange={v => { setScope(v); setScopeErr(''); }}
+        />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-4">

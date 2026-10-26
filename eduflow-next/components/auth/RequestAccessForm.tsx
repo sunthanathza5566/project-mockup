@@ -11,6 +11,7 @@
  *   ดำเนินการตามคำขอของเจ้าของข้อมูล) ไม่ใช่ "ยินยอม" (P4) · ฟิลด์เท่าที่จำเป็นตาม P1
  * - หน่วยงาน: value `f:<facultyId>` / `p:<programmeId>` / '' (อื่น ๆ ทั้งมหาวิทยาลัย) — ใช้ได้เมื่ออีเมลตรงโดเมนเท่านั้น
  * - state: กำลังเตรียมข้อมูล (seed) → skeleton · initError → danger · สำเร็จ → การ์ด `ra-success`
+ * - R2-F10: หน้าสำเร็จบอกวิธีรู้ผล (playtest U4) · คำใบ้ชื่อผู้ใช้ตรงกับกติกาจริง (รับตัวพิมพ์ใหญ่ได้ — P11)
  */
 import { useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
@@ -127,7 +128,7 @@ export default function RequestAccessForm() {
     if (position.trim().length > 100) errs.position = 'ตำแหน่ง/หน้าที่ต้องไม่เกิน 100 ตัวอักษร';
     if (!reason.trim()) errs.reason = 'กรุณาระบุเหตุผลที่ขอใช้งาน';
     else if (reason.trim().length > 500) errs.reason = 'เหตุผลต้องไม่เกิน 500 ตัวอักษร';
-    if (!USERNAME_RE.test(username.trim())) errs.username = 'ชื่อผู้ใช้ต้องเป็น a-z 0-9 . _ - ยาว 3–32 ตัว';
+    if (!USERNAME_RE.test(username.trim())) errs.username = 'ชื่อผู้ใช้ต้องเป็นตัวอักษรอังกฤษ ตัวเลข หรือ . _ - ยาว 3–32 ตัว';
     if (password.length < PASSWORD_MIN) errs.password = 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร';
     else if (password.length > PASSWORD_MAX) errs.password = 'รหัสผ่านต้องไม่เกิน 128 ตัวอักษร';
     if (!password2) errs.password2 = 'กรุณายืนยันรหัสผ่าน';
@@ -203,6 +204,10 @@ export default function RequestAccessForm() {
         <InlineMessage tone="success" large title="ส่งคำขอแล้ว">
           {`ผู้ดูแลระบบจะตรวจสอบคำขอของคุณ เมื่ออนุมัติแล้วเข้าสู่ระบบด้วยชื่อผู้ใช้ ${done} ได้ทันที`}
         </InlineMessage>
+        <ul className="mt-4 list-disc space-y-1.5 pl-5 text-base text-foreground" data-testid="ra-next-steps">
+          <li>ระบบยังไม่ส่งอีเมลแจ้งผล — ลองเข้าสู่ระบบภายหลัง ถ้ายังรออนุมัติ ระบบจะบอกว่าบัญชีกำลังรอผู้ดูแลอนุมัติ</li>
+          <li>ถ้ายังเข้าไม่ได้หลายวัน หรือขึ้นว่าชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง คำขออาจไม่ได้รับอนุมัติ — ติดต่อผู้ดูแลระบบของมหาวิทยาลัย และอย่าลองรหัสผ่านซ้ำหลายครั้ง เพราะบัญชีจะถูกล็อกชั่วคราว</li>
+        </ul>
         <Button asChild className="mt-6 w-full sm:w-auto">
           <Link href="/login">ไปหน้าเข้าสู่ระบบ</Link>
         </Button>
@@ -320,7 +325,7 @@ export default function RequestAccessForm() {
 
           <fieldset className="m-0 min-w-0 space-y-5 border-0 p-0">
             <legend className={SECTION}>ตั้งค่าการเข้าสู่ระบบ</legend>
-            <FieldRow id={ids.username} label="ชื่อผู้ใช้" required error={errors.username} help="a-z 0-9 . _ - ยาว 3–32 ตัว">
+            <FieldRow id={ids.username} label="ชื่อผู้ใช้" required error={errors.username} help="ตัวอักษรอังกฤษ ตัวเลข หรือ . _ - ยาว 3–32 ตัว">
               <Input
                 id={ids.username} data-testid="ra-username" value={username} maxLength={32}
                 autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false}

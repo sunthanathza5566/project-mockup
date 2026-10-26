@@ -14,6 +14,7 @@ import Icon from '@/components/ui/Icon';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from '@/components/ui/primitives/input';
 import { fmtDateTime } from '@/lib/ui/aunqa';
+import { INVITE_DEMO_NOTE } from './shared';
 
 export interface InviteShown { userId: string; fullName: string; token: string; expiresAt: number }
 
@@ -64,6 +65,11 @@ export default function InviteResult({ invite, onClose }: { invite: InviteShown;
           <code className="rounded-md bg-card px-1.5 py-0.5 font-mono text-foreground" data-testid="invite-code">{invite.token}</code>
         </p>
         <p className="aq-meta">ระบบแสดงลิงก์นี้ครั้งเดียว — ถ้าหายให้กด &quot;สร้างลิงก์ใหม่&quot;</p>
+        {/* U2: ระบบสาธิตเก็บข้อมูลใน localStorage — ลิงก์ใช้ได้เฉพาะเบราว์เซอร์เดียวกับผู้ดูแล */}
+        <p className="flex items-start gap-2 rounded-md bg-card p-3 text-foreground" data-testid="invite-demo-note">
+          <Icon name="info" size={20} className="mt-0.5 shrink-0 text-primary" />
+          <span>{INVITE_DEMO_NOTE}</span>
+        </p>
       </div>
     </InlineMessage>
   );
