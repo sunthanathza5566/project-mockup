@@ -20,7 +20,7 @@ import {
 import { AunqaError, KEYS, load, save } from './db';
 import { revokeInvitationsOf } from './invitation.internal';
 import { notify } from './notification.store';
-import { accessRequestNoticeKey, purgeAccessRequestNotices } from './notification.internal';
+import { accessRequestNoticeKey, markAccessRequestNoticesRead, purgeAccessRequestNotices } from './notification.internal';
 import { findUniversityByEmail, getFaculties, getProgramme, getUniversity } from './org.store';
 import { can } from './rbac';
 
@@ -316,6 +316,7 @@ export function approveAccessRequest(actor: AppUser, userId: string, roles: Role
     action: 'user.approve', targetType: 'user', targetId: userId,
     before: { status: 'pending' }, after: { status: 'active', roles: sanitizeRoles(granted) },
   });
+  markAccessRequestNoticesRead(userId); // R2-B4 (P7): งานจัดการแล้ว ไม่ค้าง "ใหม่" ที่กระดิ่งผู้ดูแล
   notify({
     userId, kind: 'account',
     messageTh: 'บัญชีของคุณได้รับอนุมัติแล้ว เริ่มใช้งานได้เลย',

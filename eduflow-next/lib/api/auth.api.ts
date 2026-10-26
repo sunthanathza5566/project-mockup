@@ -61,11 +61,42 @@ export function validatePassword(pw: unknown): void {
     throw new AunqaError('invalid', 'รหัสผ่านต้องยาว 8–128 ตัวอักษร');
 }
 
+export type ScopeType = RoleAssignment['scopeType'];
+
+/**
+ * R2-B4 (BUG-0002-P2): ระดับขอบเขตที่ใช้ได้ต่อบทบาท — ตรงตาราง docs/guide/16-uni-admin.md
+ * "ขอบเขตที่ควรใช้กับแต่ละบทบาท" และ rbac.can (assessor ใช้ได้เฉพาะ scope 'cycle')
+ * ตารางเดียวใช้ทั้งบังคับใน validateRoleScopes และกรองตัวเลือกขอบเขตใน UI
+ */
+export const ROLE_SCOPE_TYPES: Readonly<Record<RoleCode, readonly ScopeType[]>> = {
+  super_admin: ['university'],
+  uni_admin: ['university'],
+  programme_chair: ['programme'],
+  programme_staff: ['programme'],
+  data_staff: ['faculty'],
+  faculty_qa: ['faculty'],
+  dean: ['faculty'],
+  assessor: ['cycle'],
+};
+
+/** ระดับขอบเขตที่บทบาทนี้ใช้ได้ (UI ใช้กรอง dropdown) · role ที่ไม่รู้จัก = [] */
+export function allowedScopeTypes(role: RoleCode): readonly ScopeType[] {
+  return ROLE_SCOPE_TYPES[role] ?? [];
+}
+export function isRoleScopeCompatible(role: RoleCode, scopeType: ScopeType): boolean {
+  return allowedScopeTypes(role).includes(scopeType);
+}
+
+const sameAssignment = (a: RoleAssignment, b: RoleAssignment) =>
+  a.role === b.role && a.scopeType === b.scopeType && a.scopeId === b.scopeId;
+
 /**
  * ทุก assignment ต้องอยู่ใน university นั้น: university → scopeId === universityId (super_admin ใช้ '*' ได้)
  * faculty/programme/cycle → มีจริงและ universityId ตรง · role ต้องเป็นค่าที่รู้จัก
+ * R2-B4: ระดับ scope ต้องเข้ากับ role ตาม ROLE_SCOPE_TYPES — `existing` (บทบาทเดิมของผู้ใช้ใน setUserRoles)
+ *   ได้รับยกเว้นเฉพาะการตรวจความเข้ากัน (ข้อมูลเก่าก่อนกติกานี้ยังคงไว้/ถอดได้) แต่ยังตรวจ tenant ตามเดิม
  */
-export function validateRoleScopes(universityId: string, roles: RoleAssignment[]): void {
+export function validateRoleScopes(universityId: string, roles: RoleAssignment[], existing: RoleAssignment[] = []): void {
   const bad = () => new AunqaError('invalid', 'ขอบเขตบทบาทไม่ถูกต้อง');
   if (!Array.isArray(roles)) throw bad();
   for (const r of roles) {
@@ -85,6 +116,9 @@ export function validateRoleScopes(universityId: string, roles: RoleAssignment[]
         break;
       default: throw bad();
     }
+    // ตรวจหลัง tenant/การมีอยู่จริง — scopeType แปลกปลอมจึงได้ข้อความเดิม "ขอบเขตบทบาทไม่ถูกต้อง"
+    if (!isRoleScopeCompatible(r.role, r.scopeType) && !existing.some(e => sameAssignment(e, r)))
+      throw new AunqaError('invalid', 'ขอบเขตไม่ตรงกับบทบาท (หลักสูตร: ประธาน/อาจารย์ · คณะ: เจ้าหน้าที่ข้อมูล/QA คณะ/คณบดี · รอบประเมิน: กรรมการ · ทั้งมหาวิทยาลัย: ผู้ดูแล)');
   }
 }
 
@@ -336,11 +370,14 @@ export function setUserRoles(actor: AppUser, userId: string, roles: RoleAssignme
   if (!target) throw new AunqaError('not_found', 'ไม่พบผู้ใช้');
   if (!can(actor, 'user.manage', { universityId: target.universityId })) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   const isSuper = actor.roles.some(r => r.role === 'super_admin');
-  if (!isSuper && roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ให้บทบาท super_admin');
+  // R2-B4 (BUG-0002-P4): ตรวจ "เป้าหมายเป็น super_admin" ก่อน — เดิมรายการ roles ที่ส่งมามี super_admin เดิมของเป้าหมายติดมา
+  //   จึงได้ข้อความ "ไม่มีสิทธิ์ให้บทบาท super_admin" ผิดเรื่อง
   if (!isSuper && target.id === actor.id) throw new AunqaError('forbidden', 'แก้บทบาทของตัวเองไม่ได้');
   if (!isSuper && target.roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์แก้บัญชี super_admin');
+  if (!isSuper && roles.some(r => r.role === 'super_admin')) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ให้บทบาท super_admin');
   // R2-B2: ขอบเขตต้องอยู่ใน uni ของผู้ใช้เป้าหมาย (เหมือน createUser/invite) — ตรวจก่อนแก้ object ใน cache
-  validateRoleScopes(target.universityId, roles);
+  // R2-B4: บทบาทเดิมที่ยังคงไว้ได้รับยกเว้นการตรวจ role↔ระดับ scope (ข้อมูลก่อนกติกา) — บทบาทใหม่ต้องเข้ากัน
+  validateRoleScopes(target.universityId, roles, target.roles);
   const before = target.roles;
   const next = sanitizeRoles(roles);
   target.roles = next;

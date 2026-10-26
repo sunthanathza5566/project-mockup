@@ -26,3 +26,16 @@ export function purgeAccessRequestNotices(requesterId: string, fullName: string)
   if (removed) save(KEYS.notifications, keep);
   return removed;
 }
+
+/**
+ * R2-B4 (BUG-0002-P7): คำขอถูกอนุมัติแล้ว → แจ้งเตือน N12 ของผู้ดูแลทุกคนเป็น "อ่านแล้ว" (คงแถวไว้เป็นประวัติ ต่างจาก reject ที่ลบ)
+ * จับเฉพาะแถวที่มี dedupeKey · ผู้เรียกต้องตรวจสิทธิ์ก่อน (approveAccessRequest) · คืนจำนวนแถวที่เปลี่ยน
+ */
+export function markAccessRequestNoticesRead(requesterId: string, now = Date.now()): number {
+  const key = accessRequestNoticeKey(requesterId);
+  const rows = load<AppNotification>(KEYS.notifications);
+  let changed = 0;
+  rows.forEach(n => { if (n.dedupeKey === key && !n.readAt) { n.readAt = now; changed++; } });
+  if (changed) save(KEYS.notifications, rows);
+  return changed;
+}

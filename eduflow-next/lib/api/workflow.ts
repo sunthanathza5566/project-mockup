@@ -82,6 +82,23 @@ export function assertSectionEditable(section: SarSection): void {
     throw new AunqaError('locked', 'ข้อนี้ส่งตรวจ/อนุมัติแล้ว ต้องถูกส่งกลับแก้ก่อนจึงแก้ไขได้');
 }
 
+/**
+ * R2-B4 (BUG-0002-P1): ผูก/เลิกผูกหลักฐานกับข้อ = แก้เนื้อหาของข้อนั้น → ข้อต้องอยู่ในสถานะเขียนได้
+ * (กติกาเดียวกับ narrative/คะแนนตนเอง) · ข้อที่ไม่มีแถว section ไม่บล็อก (ข้อมูลเดิม/ไม่ได้สร้าง)
+ */
+export function assertSectionsEditable(cycleId: string, requirementIds: string[]): void {
+  if (!requirementIds.length) return;
+  const want = new Set(requirementIds);
+  for (const s of load<SarSection>(KEYS.sections)) {
+    if (s.cycleId === cycleId && want.has(s.requirementId)) assertSectionEditable(s);
+  }
+}
+
+/** UI ใช้ซ่อนปุ่มผูก/เลิกผูก/แก้ไข — ตรงกับ assertSectionEditable */
+export function isSectionEditable(section: Pick<SarSection, 'status'>): boolean {
+  return SECTION_EDITABLE.includes(section.status);
+}
+
 export function getCycleRaw(id: string): AssessmentCycle {
   const c = load<AssessmentCycle>(KEYS.cycles).find(x => x.id === id);
   if (!c) throw new AunqaError('not_found', 'ไม่พบรอบประเมิน');
