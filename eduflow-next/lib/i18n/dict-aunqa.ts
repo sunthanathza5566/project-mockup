@@ -576,7 +576,6 @@ export const EN_AUNQA: Record<string, string> = {
   // ข้อความ error จาก API (onboarding.store / auth.api) ที่แสดงบนหน้าขอเข้าใช้งาน / รับคำเชิญ
   'Username นี้ถูกใช้แล้ว': 'This username is already taken',
   'อีเมลนี้มีบัญชีหรือคำขออยู่แล้ว': 'This email already has an account or a pending request',
-  'Username ต้องเป็น a-z, 0-9, . _ - ยาว 3–32 ตัว': 'Username must use a-z, 0-9, . _ - and be 3–32 characters long',
   'กรุณากรอกชื่อ-นามสกุล (ไม่เกิน 100 ตัวอักษร)': 'Please enter your full name (100 characters or fewer)',
   'หน่วยงานที่เลือกไม่ถูกต้อง': 'The selected unit is not valid',
   'กรุณาระบุเหตุผล (ไม่เกิน 500 ตัวอักษร)': 'Please give a reason (500 characters or fewer)',
