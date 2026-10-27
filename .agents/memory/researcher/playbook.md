@@ -6,14 +6,19 @@
 ## LESSONS
 - [TASK-0001 B5s] คู่มือรูปแบบเล่มไทยต่างกันที่ขนาดเนื้อหา เลขหน้าส่วนนำ และคำว่า รูป/ภาพ → ห้ามฮาร์ดโค้ดเป็นค่าเดียว ต้องติดป้าย [ต้องตรวจสอบกับคู่มือสาขา]. ใช้ซ้ำแล้ว 1 ครั้ง (D3 thesis-writer ติดป้ายสาขา 6 จุด) — ใช้ซ้ำอีก 1 ครั้ง → เลื่อนเป็น RULE
 - [TASK-0001 B5s] ก่อนเสนอเครื่องมือหรือ dependency ใหม่ เช็ก runtime บนเครื่องก่อน (`where java`, `which pandoc`) แล้วค่อยเสนอ. ใช้ซ้ำแล้ว 0 ครั้ง
-- [TASK-0001 D2] PDF ที่ WebFetch อ่านไม่ได้ → ใช้ `pdftotext -layout` กับไฟล์ที่ WebFetch บันทึกไว้ แล้วหาเลขหน้าจากบรรทัด "N | Page" (ได้เลขหน้า Appendix A ของคู่มือ AUN v4.0). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0001 D2] PDF ที่ WebFetch อ่านไม่ได้ → ใช้ `pdftotext -layout` กับไฟล์ที่ WebFetch บันทึกไว้ แล้วหาเลขหน้าจากบรรทัด "N | Page" (ได้เลขหน้า Appendix A ของคู่มือ AUN v4.0). ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0002 STUDY REQUEST security-auth)
 - [TASK-0001 D2] หน้าสำนักพิมพ์ตอบ 403 → ใช้ `api.crossref.org/works/<DOI>` ยืนยันผู้แต่ง/ปี/เล่ม (แก้ Ji et al. เป็น 2023 ACM CSUR 55(12)). ใช้ซ้ำแล้ว 0 ครั้ง
-- [TASK-0001 D2] ฟอนต์ไทยใน PDF เอกสารราชการมักสกัดข้อความไม่ได้ → พึ่งแหล่งรองและติดป้าย "แหล่งรอง" ในตาราง ห้ามนับเป็นยืนยัน. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0001 D2] ฟอนต์ไทยใน PDF เอกสารราชการมักสกัดข้อความไม่ได้ → พึ่งแหล่งรองและติดป้าย "แหล่งรอง" ในตาราง ห้ามนับเป็นยืนยัน. ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0002 SR: ราชกิจจาฯ 403 → สำเนามหาวิทยาลัย + ป้าย [แปลไม่เป็นทางการ])
+- [TASK-0002 R1] ก่อนแนะนำ CLI รุ่นเก่า (shadcn@2.3.0) เปิดโค้ด CLI ดูว่าดึง registry ไหน แล้วเช็กว่า registry ปัจจุบันยังส่งรูปแบบที่ CLI รุ่นนั้นคาดหวัง · เช็กฟอนต์ที่ next/font รองรับจาก `font-data.json` ใน node_modules แทนหน้า Google Fonts. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0002 R2] ก่อนเสนอ feature ใหม่ในงานที่ AC บอก "presentation only" เช็กว่าต้องแตะ data layer หรือไม่ แล้วแจ้งข้อขัดกันใน Log ทันที (onboarding). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0002 SR] มาตรฐานเวอร์ชันใหม่เปลี่ยนเลขบท (ASVS 4.0.3 V2 → 5.0 V6) — ตรวจเลขบทกับ tag เวอร์ชันจริงบน GitHub ก่อนตอบ STUDY REQUEST ที่อ้างเลขเก่า · ไม่มีข้อกำหนดตรง (อายุลิงก์เชิญ) ให้ระบุตัวเทียบเคียงที่ใกล้ที่สุด + ค่า และติด [อนุมาน]. ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## PROJECT KNOWLEDGE
-- คลังมาตรฐาน `.agents/research/standards/`: thesis-th.md, uml.md, ui-ux.md, INDEX.md
+- คลังมาตรฐาน `.agents/research/standards/`: thesis-th.md, uml.md, ui-ux.md, security-auth.md (TASK-0002), INDEX.md
 - STUDY REQUEST ค้าง (หลัง TASK-0001): `standards/security.md` (ASVS L1 Next.js+Supabase RLS, PDPA ม.28–29 กับ LLM API, Thai NER) จาก security-auditor · `standards/user-docs.md` (คู่มือไทยแบบ task-based, plain language ไทย, Keep a Changelog) จาก docs-writer
 - coverage ของ TASK-0001 ที่ `.agents/research/TASK-0001-coverage.md` (% เป็นการตัดสินของ researcher ไม่ใช่การวัด)
 - อ้างอิงเล่ม: `.agents/research/TASK-0001-references.md` (D2: 36 จุด ยืนยัน 25 / แหล่งรอง 7 / ไม่พบ 4 + ขอบเขตเพิ่ม OWASP/ASVS 4.0.3/LLM01/WCAG 2.2/PDPA ม.28) · AUN-QA 53 ข้อ = Appendix A น. 63–67 (5/7/6/7/8/6/9/5), กลุ่มเกณฑ์ Programme/Resources/Results (น. 13)
 - คู่มือ APA บางแห่งเปิดไม่ได้ → ใช้คู่มือห้องสมุดไทย 2 แห่งแทน
 - `standards/ui-ux.md` (U0): ส่วน 3 contrast, 4 palette (คำนวณแล้ว), 5 states, 6 motion, 10 แหล่งอ้างอิง, 11 ช่องว่างถึง architect. ข้อจำกัด: ส่วน 1.2 เรื่องฟอนต์ไทยเป็น [อนุมาน] ทั้งหมด (ไม่พบงานวัดตรง) → ui-inspector ต้อง render จริงก่อนล็อก; Google Fonts และ Material 3 เปิดไม่ได้
+- Python บนเครื่อง: `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe -I` (`python` = alias Store) และอย่าพิมพ์อักขระนอก cp874 (เช่น `·`) ออก stdout
+- TASK-0002 research: `.agents/research/TASK-0002.md` (Tailwind/shadcn/ฟอนต์), `TASK-0002-r2.md` (onboarding O1, earth a11y, lang switch, noti panel, R1–R24)

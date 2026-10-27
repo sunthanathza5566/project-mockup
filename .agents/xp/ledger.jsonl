@@ -189,3 +189,204 @@
 {"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: คำนวณสัดส่วนก่อนสั่งหน้าแนวนอน (ใกล้จัตุรัส = เล็กลง)", "task": "TASK-0001"}
 {"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: section แนวนอนใน docx = sectPr ที่ย่อหน้าก่อนรูป + ย่อหน้าคำบรรยาย", "task": "TASK-0001"}
 {"ts": "2026-10-22T18:58:48+00:00", "agent": "thesis-writer", "points": 3, "reason": "Phase D D3 บทเรียนรับ: ภาพมือถือ 390px ต้องกำหนด width=45%", "task": "TASK-0001"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 20, "reason": "T2 1 Read (M): SYSTEM_MAP routes+frontend ใหม่ นับ testid/aq-* และชี้เทสต์ที่ล็อก ADR-UI-001 (AC-09/contrast/light-only) ก่อนออกแบบ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 10, "reason": "T2 1 Read รอบ 2 โซน lib (S): auth/users/notifications/rbac ใช้เป็นฐาน ADR-AUTH-001", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 3, "reason": "T2 บทเรียนรับ: SYSTEM_MAP เก่ากว่า pivot ต้องใส่คำเตือนหัวไฟล์ระบุหัวข้อที่ล้าสมัย", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 3, "reason": "T2 บทเรียนรับ: ก่อน redesign grep เทสต์หา selector แบบ class/element/getComputedStyle ไม่ใช่แค่ testid", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 3, "reason": "T2 บทเรียนรับ: deep link แจ้งเตือนทำตาราง จุดเรียก notify x field x ปลายทาง ก่อนออกแบบ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "code-reader", "points": 3, "reason": "T2 บทเรียนรับ: auth ใน localStorage ต้องเตือนว่า flow หลายผู้ใช้ข้ามเครื่องไม่ได้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 20, "reason": "T2 2 Research (M): 7 คำถาม Tailwind/shadcn/ฟอนต์ ยืนยันจาก lockfile + font-data.json ของ Next 14.2.35", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 20, "reason": "T2 2 Research รอบ 2 (M): onboarding/earth a11y/lang switch/noti panel แหล่ง R1-R24, contrast ด้วยสคริปต์", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 20, "reason": "T2 STUDY REQUEST security-auth (M): NIST 63B-4/63A-4, ASVS 5.0 จาก tag จริง, PDPA ม.21-24", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 10, "reason": "T2 standards/security-auth.md ไฟล์ใหม่ มีแหล่งอ้างอิงตรวจได้ + checklist C1-C15/P1-P6", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 ui-ux.md ถูกอ้างใน Study ของ architect แล้วผ่านด่าน (V1 PASS, contrast 76/76)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 ui-ux.md ถูกอ้างใน Study ของ frontend-dev แล้วผ่านด่าน (ui-inspector Re-check 3 PASS)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 ui-ux.md ถูกอ้างใน Study ของ qa-tester แล้วเทสต์ผ่าน (AA 42 คู่ x 2 ธีม)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 ui-ux.md ถูกอ้างใน Study ของ ui-inspector (V1 + เฟส 7 + re-check)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 ui-ux.md ถูกอ้างใน Study ของ playtester (checklist ต่อหน้า) แล้ว re-check PASS", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 security-auth.md ถูกอ้างใน Study ของ backend-dev แล้ว security re-check PASS", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 security-auth.md ถูกอ้างใน Study ของ qa-tester (C1-C14 unit/e2e) แล้วเทสต์ผ่าน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 security-auth.md ถูกอ้างใน Study ของ frontend-dev (P1-P4 ฟอร์มขอเข้าใช้) แล้ว security PASS", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 security-auth.md ถูกอ้างใน Study ของ security-auditor (checklist C1-C15)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 thesis-th.md + security-auth.md ถูกอ้างใน Study ของ thesis-writer และ build.py check ผ่าน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 5, "reason": "T2 บทเรียน pdftotext กับ PDF ที่ WebFetch อ่านไม่ได้ ถูกใช้ใน STUDY REQUEST security-auth", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 5, "reason": "T2 บทเรียน mmdc ไม่ error ไม่พอต้องเปิด PNG ถูกใช้ใน diagram เฟส 8 (ครั้งที่ 2 -> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 บทเรียนรับ: ก่อนแนะนำ CLI รุ่นเก่า เปิดโค้ด CLI ดู registry ที่ดึงและรูปแบบที่คาดหวัง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 บทเรียนรับ: เช็กฟอนต์ที่ next/font รองรับจาก font-data.json ใน node_modules", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 บทเรียนรับ: feature ใหม่ในงาน presentation-only ต้องเช็กว่าแตะ data layer แล้วแจ้งทันที", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 บทเรียนรับ: มาตรฐานเวอร์ชันใหม่เปลี่ยนเลขบท ตรวจกับ tag จริงก่อนตอบ STUDY REQUEST", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "researcher", "points": 3, "reason": "T2 บทเรียนรับ: ไม่มีข้อกำหนดตรง ให้ระบุตัวเทียบเคียงที่ใกล้ที่สุด + ค่า และติด [อนุมาน]", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 40, "reason": "T2 3 Design (L): ADR-UI-002 + saas-tokens + saas-spec + แผน S0-S6/Q0-Q1 + AC เจ้าของอนุมัติ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 40, "reason": "T2 3 Design รอบ 2 (L): ADR-UI-003 + ADR-AUTH-001 + earth-tokens + friendly-spec + แผน R2 ใช้ได้จนจบ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 5, "reason": "T2 Study ui-ux.md แล้ว spec สอดคล้องเมื่อวัดจริง (V1 PASS major 0, contrast AA ครบ)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 3, "reason": "T2 STUDY REQUEST security-auth (auth/onboarding) ช่องว่างจริง -> ไฟล์ใหม่ถูกใช้ 6 agent", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 3, "reason": "T2 บทเรียนรับ: คงชื่อ class ที่เทสต์ใช้เป็น role class แล้ว @apply สไตล์ใหม่", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 3, "reason": "T2 บทเรียนรับ: เทสต์ธีมที่ผ่านได้หลัง cutover เท่านั้น เขียนเป็น fixme + ระบุ subtask ที่เปิด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "architect", "points": 3, "reason": "T2 บทเรียนรับ: ก่อนย้าย control เข้าเมนู grep testid ใน E2E แล้วระบุ helper ที่ qa ต้องสร้างในแผน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 S0 Foundation (M): Tailwind/shadcn pin exact, legacy.css แยก, tsc/test/build/e2e ผ่าน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 S1 Shared components (M): restyle คง logic/testid/role", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 10, "reason": "T2 S1.5 (S): button primitive ชนะ legacy.css โดยไม่ทับ disabled", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 S2 Shell + หน้า public (M)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F0 Foundation earth + control กลาง (M): 42 คู่ x 2 ธีม AA", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F2 หน้าสาธารณะ + onboarding (M): ฟอร์มขอเข้าใช้/รับเชิญ ตาม PDPA P1-P4", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 10, "reason": "T2 R2-F2b คำแปล EN onboarding (S): ตรวจความครบด้วยสคริปต์ lookupEn", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F1 Shell + panel แจ้งเตือน + หน้าหลัก (M)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 10, "reason": "T2 fix BUG-0002-Q2C-1 (S): ช่องว่างสเปก F9 ไม่ใช่บั๊กของตัวเอง LangSwitch นอกเมนูทุกจอ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F4 SAR + หลักฐาน + คลังเกณฑ์ + deep link #comments (M)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F5 หน้าข้อมูล + deep link แผนปรับปรุง (M)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 10, "reason": "T2 R2-F7 แก้ minor V1 + dict (S)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F6 Admin + onboarding UI (M): 7 component ใหม่", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 R2-F3 หน้ารอบประเมิน/ตรวจ restyle earth (M)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 10, "reason": "T2 R2-F8 เก็บตก + deep link หน้าเดียวกัน (S)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 20, "reason": "T2 S6 Cutover (M): ลบ legacy.css + เปิด preflight, computed-style diff 21 หน้า (reviewer ชม)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 Study ui-ux.md แล้ว ui-inspector Re-check 3 PASS (target/AA/ขนาดตัวอักษรผู้ใช้)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": -3, "reason": "T2 ต้องแก้หลังเฟส 7 รอบ 1 (M1, P3, U1, U2 + P2 ฝั่ง UI) = R2-F10/F11/F12", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": -3, "reason": "T2 ต้องแก้หลังเฟส 7 รอบ 2 (N1 major regression จากการแก้ m9) = R2-F13", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": -3, "reason": "T2 ต้องแก้หลังเฟส 7 รอบ 3 (N7 major จากการแก้ N1 + N8) = R2-F14/F15", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน alias/อยู่ร่วม CSS เก่า (U2-F1) ถูกใช้ใน S0 (legacy.css อยู่ร่วมจน cutover)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน popover fixed + บีบ clientWidth ถูกใช้ S1/R2-F1/R2-F3 (ครั้งที่ 3 -> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน element เดียวย้ายตาม breakpoint (U2-F2) ถูกใช้ใน S2", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน handler ภายนอกอ่าน live ref ถูกใช้ใน actions hash (reviewer ยืนยัน)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน pattern dict แคบ + วางท้าย ถูกใช้ใน R2-F8", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน วัดความครบ EN ด้วยสคริปต์ ถูกใช้ R2-F2b/R2-F9", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน คงโครง DOM ไม่ early-return ถูกใช้ R2-F3/F13/F14 (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน S2 utility ชนะ legacy เฉพาะ specificity เท่ากัน ถูกใช้ใน S1.5", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน R2-F13 min-content < กรอบแคบสุด ถูกใช้ใน R2-F14", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน R2-F8 ตรวจ dict ด้วย esbuild + lookupEn ถูกใช้ใน R2-F15", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ (RULE จาก incident x3 รวม AC-10): คอมเมนต์ห้ามมีคำ/อักขระที่เทสต์ grep", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: shadcn CLI รุ่นเก่าใส่ ^ ต้อง npm install --save-exact ซ้ำ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: สำรอง config ก่อนรัน CLI แล้ว diff -q หลังรัน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: utility ชนะ CSS เก่าเฉพาะ specificity เท่ากัน ไล่ hook class เก่าก่อนใช้ !", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ก่อนสรุปว่า e2e ล้มเพราะงานตัวเอง stash แล้วรันเคสเดี่ยวบน HEAD", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: class ที่เทสต์อ้างด้วย regex ห้ามโผล่ใน arbitrary variant", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจ key ซ้ำทุกไฟล์ dict ก่อนเพิ่ม (ซ้ำข้ามไฟล์ = override เงียบ)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: token ใน fragment อ่านครั้งเดียวเก็บ ref แล้ว replaceState", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: สคริปต์ตรวจคำแปลต้องเช็กว่าผลไม่มีอักษรไทย ไม่ใช่แค่มีผล", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: backdrop-filter/transform บน ancestor ทำ fixed อิง ancestor", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: Next app router เปลี่ยน hash ไม่ยิง hashchange -> อ่านใน effect / dispatch เอง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ปลายทาง deep link ต้องปลดตัวกรอง/สลับขอบเขตให้เอง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: หน้าแท็บรับ ?tab= ต้อง sync URL ตอนกดแท็บ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตัวเลือกขอบเขตสร้างจาก tenant ของเป้าหมาย ไม่ใช่ของผู้ใช้ปัจจุบัน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจความครบ dict ด้วย esbuild bundle + lookupEn", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตัด CSS เก่าทั้งก้อน -> dump computed style ก่อน/หลังแล้ว diff", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ก่อนลบ shim ย้ายค่าเริ่มต้นไปที่ prop default", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: กรองตัวเลือกตามสถานะ แยกชุดสำหรับเลือกกับชุดแสดงชื่อ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: visibility + transition ทำ focus ไม่ได้ในเฟรมที่เปิด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ปุ่มที่ซ่อนตามสิทธิ์ต้อง OR ทุก action ที่หน้าปลายทางรองรับ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตารางหลาย action ต่อแถว -> ปุ่มจัดการเปิดแผงใต้แถว + ค่าเริ่มต้นสิทธิ์ = ยังไม่เลือก", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ค่าห้ามเลือกตามสถานะส่งเป็น prop map เหตุผล ไม่ซ่อน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ตารางมีคอลัมน์ปุ่ม min-content รวมต้อง < กรอบแคบสุดของโหมดตาราง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ (RULE จาก incident N7): จุดสลับ layout ใช้ container query หน่วย rem", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "frontend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ข้อความผ่าน CSS content: attr(x) ต้องอยู่ในระบบแปล", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 40, "reason": "T2 R2-B1 (L): onboarding store + สถานะบัญชี + แจ้งเตือนมีปลายทาง + บั๊ก A1-A8 ครบ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 20, "reason": "T2 R2-B2 (M): active-actor guard ~72 จุด, role scope, chairsOf tenant (reviewer ยืนยันด้วยสคริปต์)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 5, "reason": "T2 งานตัวเองผ่านเทสต์ครบครั้งแรก: Q2b vitest onboarding 64/64, npm test 707/707", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": -3, "reason": "T2 ต้องแก้หลังเฟส 5 security PASS WITH FIXES (S-01 Medium + S-05 ผิด RULE B7) = R2-B3", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": -3, "reason": "T2 ต้องแก้หลังเฟส 7 รอบ 1 (P2 role-scope + P1/P4/P7, S-09) = R2-B4/B5", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 3, "reason": "T2 บทเรียนรับ: async ที่เขียน store หลัง await ต้องอ่าน store ใหม่และตรวจซ้ำก่อน save", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ยืนยันข้อความไทยไม่เปลี่ยนด้วย comm -23 บรรทัด -/+ ของ diff", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 3, "reason": "T2 บทเรียนรับ: guard สถานะใส่ที่ helper assert* ที่ writer ใช้ร่วม แล้วไล่เฉพาะตัวที่ไม่ผ่าน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 3, "reason": "T2 บทเรียนรับ: guard ล็อกเนื้อหา entity ต้องครอบตารางลิงก์ด้วย (incident P1/S-08)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "backend-dev", "points": 3, "reason": "T2 บทเรียนรับ: ข้อมูลส่วนบุคคลที่ลบทันทีต้องมี key ผูกทุกสำเนาตั้งแต่สร้าง (incident S-01)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 Q0-a baseline (S): รัน 3 ชุดบน HEAD ก่อน S0", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 Q0 ย้ายเทสต์ตาม D8 (M): contrast light+dark 76/76, AC-09 ใหม่, theme.spec", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 Q2b vitest onboarding/สถานะบัญชี/แจ้งเตือน (M): 64 เคส AC-25..30", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 Q2a contrast earth + ค่าเริ่มต้นสว่าง (S)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 Q2c e2e shell รอบ 2 + panel แจ้งเตือน + guards (M): 101 passed, KNOWN_BUGS 2", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 Q2d e2e onboarding + deep link + regression (M): 121 passed", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 Q1 cleanup guards + AC-06 dark + full runs x2 (M): จับเทสต์ AC-06 dark ที่วัดผิดธีม", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 20, "reason": "T2 6 Test (M): security fix coverage + full runs x2", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 6 Test หลังรอบแก้เฟส 7 รอบ 1 (S)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 6 Test หลัง R2-B5/R2-F12 (S)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 6 Test หลัง R2-F13 (S): fix-r2f13 11 เคส", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 10, "reason": "T2 6 Test สุดท้าย (S): fix-r2f14-f15 + negative case 176/2/0 x2", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 เทสต์ที่เขียนผ่านครบครั้งแรก: Q2b 64/64 + npm test 707/707", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 Study ui-ux.md/security-auth.md แล้วเทสต์ตรงเกณฑ์ (reviewer ยืนยัน KNOWN_BUGS/negative case)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน KNOWN_BUGS + test.fail ต่อ bug ถูกใช้ Q2c/Q2d/Q1/6 Test (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน contrast วัดพื้นจริงด้วย elementsFromPoint ถูกใช้ใน Q0 (AC-06 dark)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน เก็บค่าที่เทียบเป็น primitive ถูกใช้ใน Q2b", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน ทดสอบคิว dialog ด้วย flow จริง ถูกใช้ใน Q2c", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน Q2d deep link หน้าเดียวกันยืนยันสถานะก่อนคลิก ถูกใช้ใน Q1", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน aria-disabled ต้อง force ถูกใช้ใน 6 Test หลัง R2-F13", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 5, "reason": "T2 บทเรียน assert --user-scale ก่อนวัด ถูกใช้โดย ui-inspector Re-check 3", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: addInitScript สังเกต attribute ของ html ด้วย observe(document)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: ข้อความคาดหวังดึงจาก diff ของ commit ก่อนแก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: เทสต์ไม่มีความลับใน storage รวมทุก key แล้ว not.toContain ทุก secret", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: ก่อน build ตรวจ process next ใน working tree เดียวกัน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: คลิกเปิดเมนูทำ blur ช่องพิมพ์ (autosave ก่อน)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจ focus ค้างเทียบตัว element ไม่ใช่ข้อความ", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ (RULE เกิดซ้ำ Q2c + R2-F13): ป้าย responsive เทียบ innerText ไม่ใช่ toHaveText", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: 500 reading call จาก next start = .next ถูกทับ เทียบ BUILD_ID ก่อนสงสัยโค้ด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: deep link หน้าเดียวกันยืนยันว่ายังไม่ไฮไลต์ก่อนคลิก", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: ADR เปลี่ยนค่าเริ่มต้น -> afterEach assert สถานะที่ตั้งใจ (พบ AC-06 dark วัดผิดธีม)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: เทสต์ grep ต้องมีเคส negative + ตรวจจำนวนไฟล์ที่สแกน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: แยกตรวจ focus แรกกับ trap ใน drawer (กด Tab N ครั้งผ่านโดยบังเอิญ)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: จำลองการกระทำล้มด้วย page.evaluate แก้ store ระหว่างจอเปิด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: guard ใหม่ทำเทสต์ที่ใช้ข้อแรกของ seed ล้ม -> เลือกข้อที่ยังเขียนได้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: เทสต์ชื่อไม่อยู่ใน facade ต้อง assert ว่ายังมีในโมดูลจริง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: Playwright นับ aria-disabled เป็น disabled -> force: true", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "qa-tester", "points": 3, "reason": "T2 บทเรียนรับ: เทสต์ fontScale ต้อง assert --user-scale ถูกใช้จริงก่อนวัด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 20, "reason": "T2 5 Review (M): diff 44 commit, tsc/vitest 766, AC-20 R2, สแกน requireActiveActor ~72 จุดด้วยสคริปต์", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 5, "reason": "T2 บทเรียน grep ผู้เรียกทั้ง repo ถูกใช้ใน review (พบ listUsers รวมบัญชีระงับ #3)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 5, "reason": "T2 บทเรียน state ต้องครอบทั้งแอป ถูกใช้ใน review (requireActiveActor ทุก writer)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 5, "reason": "T2 RULE B7 (ผู้เขียน) ถูกอ้างใน R2-B2/R2-B5 และจับ revokeInvitationsOf ใน review", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 5, "reason": "T2 RULE validate ก่อน mutate (ผู้เขียน) ถูกใช้ R2-B1 reviewer ยืนยันทำตาม", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 5, "reason": "T2 RULE หลังแก้ regex ตรวจ backslash (ผู้เขียน) ถูกใช้ R2-B1/B3 (USERNAME_RE/EMAIL_RE ครบ)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจ guard ทุก writer ด้วยสคริปต์สแกน export function", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 3, "reason": "T2 บทเรียนรับเข้า backend-dev: field ใหม่ที่ทุกผู้เรียกต้องส่ง ทำ required ให้ tsc พิสูจน์", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "reviewer", "points": 3, "reason": "T2 บทเรียนรับเข้า architect: AC แบบ ⊆ ไฟล์ในแผน ต้องอัปเดตแผนเมื่อมี follow-up", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 20, "reason": "T2 5 Review security (M): diff + probe 21 เคส, checklist C1-C15, PDPA P1-P6, npm audit", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 8, "reason": "T2 major S-01 (Medium): ชื่อผู้ขอที่ถูกปฏิเสธค้างในแจ้งเตือน N12 ขัดประกาศ PDPA -> แก้ใน R2-B3", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 10, "reason": "T2 Re-check 1 (S): probe เดิมเปลี่ยนเป็นยืนยันว่าแก้ + P22-P26 -> PASS", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 10, "reason": "T2 Re-check 2 (S): authz R2-B4/F10 probe 34/34, พบ S-09 (Low ของเดิม)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 5, "reason": "T2 บทเรียน บันทึก probe ลงรายงาน ถูกใช้ 3 รอบ (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจลบข้อมูลส่วนบุคคลทันที ค้นทุก key ใน storage หาชื่อ/อีเมล", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจ C8 ไล่ว่าใครเรียกตัวตัด session และบ่อยแค่ไหน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 3, "reason": "T2 บทเรียนรับ: สแกน B7 ไล่ทุก export ที่เขียน store รวมตัวที่ไม่รับ actor (incident S-09)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 3, "reason": "T2 บทเรียนรับ: re-check เปลี่ยน assert probe เดิมเป็นยืนยันว่าแก้ แล้วรันทั้งชุด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "security-auditor", "points": 3, "reason": "T2 บทเรียนรับ: fix ที่มี fallback ข้อมูลเก่าต้อง probe ด้วยข้อมูลรูปแบบเก่าจริง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 20, "reason": "T2 V1 ด่านตรวจทิศทางรอบ 2 (M): 100 ภาพ, contrast/h-scroll/ฟอนต์ ผ่าน minor 10", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 20, "reason": "T2 7 UI inspection (M): 298 ภาพ 3 ความกว้าง, axe 0 violation", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 8, "reason": "T2 major M1: ตาราง /app/admin แน่น select ตัดค่า ปุ่มตกบรรทัด -> R2-F10 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 10, "reason": "T2 Re-check 1 (S): วัด regression ทุกหน้า", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 8, "reason": "T2 major N1: regression จากการแก้ m9 ตาราง /app/review 1,177px ปุ่มถูกซ่อน -> R2-F13", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 10, "reason": "T2 Re-check 2 (S): 6 ความกว้าง x 2 ธีม x 100/125%", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 8, "reason": "T2 major N7: การแก้ N1 ไม่รองรับตัวอักษร 125% (media query px) -> R2-F14", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 8, "reason": "T2 major N8: /app/actions ซ่อนปุ่มทุกแถวที่ 1024 (มีมาแต่เดิม) -> R2-F14", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 10, "reason": "T2 Re-check 3 สุดท้าย (S): recheck3-tables 476 views, axe 70 ชุด -> PASS", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 5, "reason": "T2 บทเรียน ตรวจ BUILD_ID ก่อนถ่าย ถูกใช้ เฟส 7 + re-check (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจ ::before/::after ของ element active (สีนอกธีมจาก CSS เก่า)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 3, "reason": "T2 บทเรียนรับ: หน้าจัดการวัด select scrollWidth > clientWidth + ความสูงปุ่ม", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 3, "reason": "T2 บทเรียนรับ: แก้ตกบรรทัดด้วย nowrap ต้องวัดซ้ำที่ 1280/1024 ว่าปุ่มไม่หลุด wrapper", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 3, "reason": "T2 บทเรียนรับ (RULE จาก incident N7): วัดตารางที่ fontScale 125% + สแกนทุก wrapper overflow", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "ui-inspector", "points": 3, "reason": "T2 บทเรียนรับ: ตาราง responsive วัดป้าย ::before ว่าง/ไทยในโหมด EN", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 20, "reason": "T2 7 Play (M): 22 ภารกิจ รวม flow onboarding ใหม่ + มุมผู้ใช้วัย 45-60+", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 8, "reason": "T2 major P1: เลิกผูกหลักฐานได้จากข้อที่อนุมัติแล้ว -> R2-B4 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 8, "reason": "T2 major P2: บทบาทกับขอบเขตจับคู่ผิดได้ -> R2-B4/F10 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 8, "reason": "T2 major P3: QA คณะไม่มีทางมอบหมายกรรมการหลังล็อก -> R2-F11 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 8, "reason": "T2 major U1: เหตุผลส่งกลับระดับรอบไม่อยู่บนหน้าปลายทาง -> R2-F11 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 8, "reason": "T2 major U2: ลิงก์เชิญใช้ข้ามเครื่องไม่ได้แต่ไม่บอก -> R2-F10 แก้", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 10, "reason": "T2 Re-check (S): major 5 ปิดครบ พบ P12 หลังทางที่ P3 เปิด", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 5, "reason": "T2 บทเรียน ห้าม pipe ผ่าน head ถูกใช้ Play + Re-check (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 5, "reason": "T2 บทเรียน เก็บ state ทุกขั้น ถูกใช้ Play + Re-check (st-*.json) (-> RULE)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:35+00:00", "agent": "playtester", "points": 3, "reason": "T2 บทเรียนรับ: flow ส่งลิงก์ให้อีกคนลองทั้งแท็บใหม่และ context ใหม่", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "playtester", "points": 3, "reason": "T2 บทเรียนรับ: กดแจ้งเตือนแล้วตรวจว่าข้อมูลที่แจ้งอยู่บนหน้าปลายทางจริง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "playtester", "points": 3, "reason": "T2 บทเรียนรับ: ตารางมีปุ่มแก้ ลองกดในแถวที่ไม่ควรแก้ได้ทุกครั้ง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "playtester", "points": 3, "reason": "T2 บทเรียนรับ: ตรวจซ้ำ fix ที่เปิดทางใหม่ ให้เดินต่อจนจบทางนั้น (พบ P12)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "docs-writer", "points": 20, "reason": "T2 8 Docs (M): คู่มือ 12 ไฟล์ + 01-new-user + CHANGELOG, checklist 22 แถว, ลิงก์ภาพ 55/55", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "docs-writer", "points": 5, "reason": "T2 บทเรียน ไล่สิทธิ์จาก rbac.ts คู่เงื่อนไขปุ่ม ถูกใช้ (ROLE_SCOPE_TYPES, ปุ่มมอบหมายกรรมการ)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "docs-writer", "points": 5, "reason": "T2 บทเรียน role ที่ไม่ได้เล่นจริงติด อ้างอิงจากโค้ด ถูกใช้ (17-super-admin)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "docs-writer", "points": 3, "reason": "T2 บทเรียนรับ: ตาราง คู่มือไม่ตรงระบบ ของ playtester อาจล้าหลัง ตรวจ Log Build ล่าสุดก่อน", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "diagram-designer", "points": 20, "reason": "T2 8 Diagrams (M): แก้ 8 + ใหม่ 6 เลขรูป 3.1-3.26, mmdc 26/26, เทียบโค้ดทีละลูกศร", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "diagram-designer", "points": 5, "reason": "T2 RULE เส้นประ themeCSS ถูกใช้ (include/dependency/lifeline ประถูก)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "diagram-designer", "points": 5, "reason": "T2 บทเรียน วัด pt จาก viewBox ถูกใช้ (ทุกรูป >= 7 ยกเว้น 6.9 รายงานไว้)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "diagram-designer", "points": 3, "reason": "T2 บทเรียนรับ: sequence ห้าม activation ข้ามกิ่ง alt และใช้ #35; แทน #", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "diagram-designer", "points": 3, "reason": "T2 บทเรียนรับ: deploy กว้างเกิน กลับทิศเส้นให้ไหลทางเดียวได้รูปแนวตั้ง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 40, "reason": "T2 10 Thesis (L): บท 1-5 + บทคัดย่อ + ภาคผนวก ตามระบบสุดท้าย, ป้ายค้าง 71 ไม่มีตัวเลขแต่ง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 5, "reason": "T2 export สำเร็จ build.py all ปัญหารูป/diagram 0, รูปใน docx 46 = 46", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 5, "reason": "T2 บทเรียน รันเทสต์ซ้ำวันที่เขียน ถูกใช้ (tsc/test 2026-10-27) ครั้งที่ 2 -> RULE", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 5, "reason": "T2 บทเรียน ตรวจความสูงรูปใน docx ถูกใช้ (สูงเกิน 8.4in = 0) ครั้งที่ 2 -> RULE", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 5, "reason": "T2 บทเรียน คำนวณสัดส่วนก่อนวางแนวนอน ถูกใช้ (แนวนอน 2 = 2 รูปใหม่ไม่ได้ประโยชน์)", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 3, "reason": "T2 บทเรียนรับ: เลขรูปเปลี่ยนทั้งชุด renumber ด้วยสคริปต์ map ก่อนเขียนเนื้อหา", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 3, "reason": "T2 บทเรียนรับ: APA ผู้แต่งคนแรกเดียวกันปีเดียวกันชุดต่างกัน เขียนชื่อคนที่สอง", "task": "TASK-0002"}
+{"ts": "2026-10-27T10:11:21+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน R2-F12 prop map เหตุผลห้ามเลือก ถูกใช้ใน R2-F13 (P13 picker ผูกเพิ่ม)", "task": "TASK-0002"}
