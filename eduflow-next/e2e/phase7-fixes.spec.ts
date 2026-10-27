@@ -82,7 +82,7 @@ test.describe('P1 หลักฐานของข้อที่ล็อก',
     await expect(page.getByRole('link', { name: 'อัปโหลดหลักฐานใหม่สำหรับข้อนี้' })).toBeVisible();
   });
 
-  test('/app/evidence/[id]: หลักฐานที่ผูก 3.3 (approved) + 3.6 (drafting) → 3.3 มี ev-link-locked ไม่มี × · 3.6 มี × · เลือกข้อที่ล็อกใน picker → ev-link-blocked + ev-link-btn disabled', async ({ page }) => {
+  test('/app/evidence/[id]: หลักฐานที่ผูก 3.3 (approved) + 3.6 (drafting) → 3.3 มี ev-link-locked ไม่มี × · 3.6 มี × · P13: ข้อที่ล็อกใน picker = aria-disabled + ป้าย ev-link-req-opt-lock คลิกไม่เกิด chip · 5.1 (control) เลือกได้', async ({ page }) => {
     await loginAs(page, 'chair1');
     await openSection(page, DEMO_CYCLE, '3.6');
     await page.getByTestId('sidetab-evidence').click();
@@ -95,9 +95,29 @@ test.describe('P1 หลักฐานของข้อที่ล็อก',
     await expect(page.getByTestId('ev-link-locked-3.6')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'เลิกผูกข้อ 3.6' })).toBeVisible();
 
-    await pickRequirements(page, ['1.1'], 'ev-link-req');
-    await expect(page.getByTestId('ev-link-blocked')).toContainText('ผูกไม่ได้');
-    await expect(page.getByTestId('ev-link-btn')).toBeDisabled();
+    // P13 (R2-F13): picker ผูกเพิ่มทำเครื่องหมายข้อที่ล็อกแบบเดียวกับฟอร์มเพิ่มหลักฐาน (R2-F12)
+    const input = page.getByTestId('ev-link-reqs-input');
+    for (const [id, why] of [['1.1', 'อนุมัติแล้ว'], ['1.5', 'ส่งตรวจแล้ว']] as const) {
+      await input.fill(id);
+      const opt = page.getByTestId(`ev-link-req-opt-${id}`);
+      await expect(opt).toHaveAttribute('aria-disabled', 'true');
+      await expect(page.getByTestId(`ev-link-req-opt-lock-${id}`)).toContainText('ล็อกแล้ว');
+      await expect(opt).toContainText(why);
+      await opt.click({ force: true }); // aria-disabled = Playwright ถือว่าไม่ enabled → force จำลองผู้ใช้คลิกจริง
+      await expect(page.getByTestId(`ev-link-req-chip-${id}`)).toHaveCount(0);
+    }
+    await input.fill('1.1');
+    await input.press('Enter');
+    await expect(page.getByTestId('ev-link-req-chip-1.1')).toHaveCount(0);
+    await expect(page.getByTestId('ev-link-blocked')).toHaveCount(0);
+    await expect(page.getByTestId('ev-link-btn')).toBeDisabled(); // ยังไม่มีข้อที่เลือก
+    // control: ข้อ drafting ที่ยังไม่ผูก (5.1) เลือกได้ → ปุ่มผูกเปิด
+    await input.fill('5.1');
+    await expect(page.getByTestId('ev-link-req-opt-5.1')).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('ev-link-req-opt-lock-5.1')).toHaveCount(0);
+    await page.getByTestId('ev-link-req-opt-5.1').click();
+    await expect(page.getByTestId('ev-link-req-chip-5.1')).toBeVisible();
+    await expect(page.getByTestId('ev-link-btn')).toBeEnabled();
   });
 });
 

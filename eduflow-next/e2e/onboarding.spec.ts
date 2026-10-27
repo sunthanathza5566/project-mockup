@@ -328,8 +328,9 @@ test.describe('AC-28 ระงับบัญชี', () => {
     await page.goto('/app/admin');
     await manage(page, 'lect1');
     await page.getByTestId('user-reactivate-lect1').click();
-    // ข-18: เปิดใช้อีกครั้งต้องยืนยัน + เตือนเรื่องคำเชิญที่เคยออก · ปิดกล่อง = ยังระงับ
-    await expect(page.getByRole('dialog')).toContainText('คำเชิญที่บัญชีนี้เคยออกไว้');
+    // ข-18 + U11 (R2-F13): เปิดใช้อีกครั้งต้องยืนยัน · lect1 ไม่มีสิทธิ์เชิญ → ไม่พูดถึงคำเชิญ · ปิดกล่อง = ยังระงับ
+    await expect(page.getByRole('dialog')).toContainText('ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม');
+    await expect(page.getByRole('dialog')).not.toContainText('คำเชิญ');
     await confirmDialog(page, 'ยกเลิก');
     await expect(page.getByTestId('user-status-lect1')).toHaveText('ระงับ');
     await page.getByTestId('user-reactivate-lect1').click();
@@ -338,6 +339,21 @@ test.describe('AC-28 ระงับบัญชี', () => {
     await expect(page.getByTestId('user-add-role-lect1')).toBeVisible();
     await loginAs(page, 'lect1');
     await expect(page.getByTestId('nav-user')).toBeVisible();
+  });
+
+  test('U11: sadmin ระงับ/เปิดใช้ uadmin (มีสิทธิ์เชิญ) → dialog เตือนเรื่องคำเชิญที่บัญชีนี้เคยออกไว้ (ข-18)', async ({ page }) => {
+    await loginAs(page, 'sadmin');
+    await page.goto('/app/admin');
+    await manage(page, 'uadmin');
+    await page.getByTestId('user-suspend-uadmin').click();
+    await confirmDialog(page, 'ยืนยันระงับ');
+    await expect(page.getByTestId('user-status-uadmin')).toHaveText('ระงับ');
+    await page.getByTestId('user-reactivate-uadmin').click();
+    const dlg = page.getByRole('dialog');
+    await expect(dlg).toContainText('คำเชิญที่บัญชีนี้เคยออกไว้');
+    await expect(dlg).toContainText('ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม');
+    await confirmDialog(page, 'ยืนยันเปิดใช้');
+    await expect(page.getByTestId('user-status-uadmin')).toHaveText('ใช้งานอยู่');
   });
 
   test('ยกเลิกในกล่องยืนยันระงับ → ยังใช้งานอยู่ (negative)', async ({ page }) => {
