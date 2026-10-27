@@ -964,3 +964,8 @@ PATTERNS.unshift(
   [/^ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ (.+) ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”$/,
     m => `Your assessment is complete and saved — still waiting for ${m[1]} to finish rating. The cycle becomes “Assessed” when the last assessor clicks “Submit assessment”.`],
 );
+
+// ── R2-F15 ──
+// ป้ายคอลัมน์ตารางโหมดการ์ด (data-label) — dom-translate แปล attribute นี้แล้ว
+// ตรวจด้วย grep ทุกค่า data-label ในแอป (42 ค่า) มีคำแปลในพจนานุกรมครบ ยกเว้นคำที่เป็นอังกฤษอยู่แล้ว
+// (Bloom, CLO, PDCA, benchmark, hash) ซึ่งตรงกับหัวคอลัมน์ — จึงไม่ต้องเพิ่มคำใหม่
