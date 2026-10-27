@@ -935,3 +935,12 @@ PATTERNS.unshift(
     (m, tr) => `Remove the role ${tr(m[1])} (${tr(m[2])}) from ${m[3]}? This is their last role — they cannot use the system until a new role is added.`],
   [/^ถอนบทบาท (.+) \((.+)\) จาก (.+)\?$/, (m, tr) => `Remove the role ${tr(m[1])} (${tr(m[2])}) from ${m[3]}?`],
 );
+
+// ── R2-F12 ──
+// ฟอร์มเพิ่มหลักฐาน: ข้อที่ล็อกเลือกไม่ได้ + error locked บอกรหัสข้อ (BUG-0002-Q7-1)
+PATTERNS.unshift(
+  [/^ข้อที่ส่งตรวจหรืออนุมัติแล้วในรอบนี้ \((\d+) ข้อ\) เลือกไม่ได้ ต้องให้ผู้ตรวจส่งกลับแก้ก่อน$/,
+    m => `Requirements already submitted or approved in this cycle (${m[1]}) cannot be selected until a reviewer sends them back.`],
+  [/^ผูกไม่ได้: ([\d., ]+) — ข้อนี้เพิ่งถูกส่งตรวจหรืออนุมัติระหว่างที่คุณกรอก เอาข้อนั้นออกจากรายการแล้วบันทึกอีกครั้ง$/,
+    m => `Cannot link: ${m[1]} — submitted or approved while you were filling in the form. Remove it from the list and save again.`],
+);

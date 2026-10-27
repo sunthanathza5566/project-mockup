@@ -8,14 +8,14 @@
  * - สำเร็จ: ปิดฟอร์ม + toast + ไฮไลต์แถวใหม่ (L5) + scrollIntoView · PII = dialog notify "รับทราบ" (เดิม)
  * - query: ?new=1 เปิดฟอร์ม · &cycle= รอบ · &req= ใส่ chip · ?pii=1 ติ๊กตัวกรอง PII และเปิดตัวกรองเพิ่มเติม
  */
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  AunqaError, MAX_DATAURL_BYTES, can, createEvidence, getProgramme, listEvidence, listRequirements, programmeScope,
-  readFileInput, validateFileMeta,
+  AunqaError, MAX_DATAURL_BYTES, can, createEvidence, getProgramme, isSectionEditable, listEvidence, listRequirements, listSections,
+  programmeScope, readFileInput, validateFileMeta,
 } from '@/lib/api';
-import type { EvidenceKind, PdcaStage } from '@/lib/types';
+import type { AppUser, EvidenceKind, PdcaStage } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { Async, Badge, Empty, EvidenceStatusBadge, InlineMessage, PageHeader, useLoad } from '@/components/aunqa/common';
@@ -33,7 +33,20 @@ import { KIND_LIST, KIND_TH, PDCA_TH, errMsg, isAssessorOnly } from '@/lib/ui/au
 import { notifyTodosChanged } from '@/lib/ui/todo';
 
 const WRITABLE = ['draft', 'in_progress', 'revision_requested'];
-type Errors = { title?: string; attach?: string; url?: string; file?: string; api?: string };
+type Errors = { title?: string; attach?: string; url?: string; file?: string; reqs?: string; api?: string };
+
+/** R2-F12: ข้อในรอบที่ล็อก (ส่งตรวจ/อนุมัติแล้ว) → เหตุผล — ตรงกับ assertSectionEditable ฝั่ง API (isSectionEditable) */
+function sectionLocks(user: AppUser, cycleId: string): Map<string, string> {
+  const out = new Map<string, string>();
+  if (!cycleId) return out;
+  try {
+    for (const s of listSections(user, cycleId)) {
+      if (!isSectionEditable(s)) out.set(s.requirementId, s.status === 'approved' ? 'อนุมัติแล้ว' : 'ส่งตรวจแล้ว');
+    }
+  } catch { /* อ่านรอบนี้ไม่ได้ — ปล่อยให้ API ตัดสินตอนบันทึก */ }
+  return out;
+}
+const blockedMsg = (ids: string[]) => `ผูกไม่ได้: ${ids.join(', ')} — ข้อที่ส่งตรวจหรืออนุมัติแล้วเปลี่ยนหลักฐานไม่ได้ เอาข้อนั้นออกจากรายการก่อน`;
 
 // ─── หน้าตา (saas-spec §C2, §C5 + friendly-spec §F13) ───
 const CARD = 'rounded-xl border bg-card p-5 text-card-foreground shadow-sm dark:shadow-none md:p-6';
@@ -112,6 +125,10 @@ function Inner() {
   const [over, setOver] = useState(false); // ลากไฟล์อยู่เหนือ dropzone
   const summaryRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [lockTick, setLockTick] = useState(0); // เพิ่มเมื่อ API ตอบ locked → อ่านสถานะข้อใหม่
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const formLocks = useMemo(() => (open ? sectionLocks(user, formCycle) : new Map<string, string>()), [user.id, formCycle, open, lockTick]);
+  const blockedReqs = formCycle ? reqIds.filter(id => formLocks.has(id)) : [];
 
   function defaultFormCycle(): string {
     if (cycleId && writableCycles.some(c => c.id === cycleId)) return cycleId;
@@ -158,6 +175,7 @@ function Inner() {
     if (!f.title.trim()) e.title = 'กรอกชื่อหลักฐาน เช่น รายงานการประชุมกรรมการหลักสูตร ครั้งที่ 1/2569';
     if (!file && !f.url.trim() && !f.text.trim()) e.attach = 'แนบไฟล์ ใส่ลิงก์ หรือวางข้อความอย่างน้อยหนึ่งอย่าง';
     if (f.url.trim() && !/^https?:\/\//i.test(f.url.trim())) e.url = 'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://';
+    if (blockedReqs.length) e.reqs = blockedMsg(blockedReqs);
     return e;
   }
 
@@ -194,7 +212,16 @@ function Inner() {
       setNewId(ev.id);
       list.reload();
     } catch (err) {
-      setErrors({ api: errMsg(err) });
+      if (err instanceof AunqaError && err.code === 'locked' && formCycle) {
+        // สถานะข้อเปลี่ยนระหว่างกรอก → บอกรหัสข้อที่ล็อก + รีเฟรชป้ายใน picker
+        const now = reqIds.filter(id => sectionLocks(user, formCycle).has(id));
+        setLockTick(t => t + 1);
+        setErrors(now.length
+          ? { reqs: `ผูกไม่ได้: ${now.join(', ')} — ข้อนี้เพิ่งถูกส่งตรวจหรืออนุมัติระหว่างที่คุณกรอก เอาข้อนั้นออกจากรายการแล้วบันทึกอีกครั้ง` }
+          : { api: errMsg(err) });
+      } else {
+        setErrors({ api: errMsg(err) });
+      }
       setTimeout(() => summaryRef.current?.focus(), 0);
     } finally { setBusy(false); }
   }
@@ -202,7 +229,7 @@ function Inner() {
   function clearFilters() { setQ(''); setYear(''); setKind(''); setStage(''); setPiiOnly(false); setReqFilter(''); }
 
   const errList = (Object.entries(errors) as [keyof Errors, string | undefined][]).filter(([, m]) => m);
-  const fieldOf: Record<keyof Errors, string> = { title: 'ev-f-title', attach: 'ev-f-attach', url: 'ev-f-url', file: 'ev-f-file', api: 'ev-f-title' };
+  const fieldOf: Record<keyof Errors, string> = { title: 'ev-f-title', attach: 'ev-f-attach', url: 'ev-f-url', file: 'ev-f-file', reqs: 'ev-f-reqs-field', api: 'ev-f-title' };
 
   return (
     <>
@@ -337,11 +364,17 @@ function Inner() {
                     {writableCycles.map(c => <option key={c.id} value={c.id}>รอบ {c.academicYear}</option>)}
                   </NativeSelect>
                 </div>
-                <RequirementPicker
-                  label="ข้อที่เกี่ยวข้อง" value={reqIds} onChange={setReqIds} disabled={!formCycle}
-                  disabledHint="เลือกรอบประเมินในช่อง “รอบ” ก่อน จึงจะผูกข้อได้"
-                  help="ไม่ผูกตอนนี้ก็ได้ ภายหลังผูกจากหน้าข้อได้ — รหัสจะเป็น E-0.0-nn"
-                />
+                <div id="ev-f-reqs-field" className="min-w-0 space-y-2">
+                  <RequirementPicker
+                    label="ข้อที่เกี่ยวข้อง" value={reqIds} disabled={!formCycle} locked={formLocks}
+                    onChange={ids => { setReqIds(ids); if (errors.reqs && !ids.some(id => formLocks.has(id))) setErrors(x => ({ ...x, reqs: undefined })); }}
+                    disabledHint="เลือกรอบประเมินในช่อง “รอบ” ก่อน จึงจะผูกข้อได้"
+                    help="ไม่ผูกตอนนี้ก็ได้ ภายหลังผูกจากหน้าข้อได้ — รหัสจะเป็น E-0.0-nn"
+                  />
+                  {blockedReqs.length > 0 && (
+                    <InlineMessage tone="warn" testId="ev-f-req-blocked">{blockedMsg(blockedReqs)}</InlineMessage>
+                  )}
+                </div>
               </div>
             )}
           </fieldset>

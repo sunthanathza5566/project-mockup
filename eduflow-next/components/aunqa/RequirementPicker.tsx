@@ -7,6 +7,8 @@
  * - ↓/↑ เลื่อน · Enter = เพิ่ม/เอาออก (คงกล่องเปิด ล้างคำค้น) · Esc ปิด · Backspace ในช่องว่าง = ลบ chip ล่าสุด
  * - testid: container `{prefix}s` · input `{prefix}s-input` · option `{prefix}-opt-{id}` · chip `{prefix}-chip-{id}`
  *   (ค่าเริ่มต้น prefix = "ev-f-req" → ev-f-reqs / ev-f-reqs-input / ev-f-req-opt-1.1 / ev-f-req-chip-1.1)
+ * - R2-F12 `locked` (id → เหตุผล เช่น "อนุมัติแล้ว"): option เลือกไม่ได้ (aria-disabled) + ป้าย "ล็อกแล้ว" `{prefix}-opt-lock-{id}`
+ *   + คำอธิบายใต้ช่อง `{prefix}s-locked-note` · คลิก/Enter ที่ข้อล็อก = ไม่เพิ่ม แต่เอาออกได้ถ้าอยู่ใน chip แล้ว (เช่นมาจาก ?req=)
  */
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { compareReqId, listCriteria, listRequirements, searchRequirements } from '@/lib/api';
@@ -23,9 +25,11 @@ export interface RequirementPickerProps {
   label: string;
   help?: string;
   testIdPrefix?: string;
+  /** ข้อที่ล็อก (ส่งตรวจ/อนุมัติแล้ว) → เหตุผลสั้น ๆ; เลือกเพิ่มไม่ได้ */
+  locked?: ReadonlyMap<string, string>;
 }
 
-export default function RequirementPicker({ value, onChange, disabled, disabledHint, label, help, testIdPrefix = 'ev-f-req' }: RequirementPickerProps) {
+export default function RequirementPicker({ value, onChange, disabled, disabledHint, label, help, testIdPrefix = 'ev-f-req', locked }: RequirementPickerProps) {
   const uid = useId();
   const listId = `${uid}-list`;
   const [q, setQ] = useState('');
@@ -53,6 +57,7 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
   }, [active, open, uid]);
 
   function toggle(id: string) {
+    if (locked?.has(id) && !value.includes(id)) return; // ข้อล็อก: เอาออกได้ เพิ่มไม่ได้
     onChange(value.includes(id) ? value.filter(x => x !== id) : [...value, id].sort(compareReqId));
     setQ('');
     input.current?.focus();
@@ -113,27 +118,42 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
             const head = !q.trim() && r.criterionNo !== lastCrit;
             lastCrit = r.criterionNo;
             const sel = value.includes(r.id);
+            const lockWhy = locked?.get(r.id);
             return [
               head ? <li key={`h${r.criterionNo}`} role="presentation" className="aq-meta px-3 pb-1 pt-2 font-medium">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</li> : null,
               <li
-                key={r.id} id={`${uid}-opt-${i}`} role="option" aria-selected={sel}
+                key={r.id} id={`${uid}-opt-${i}`} role="option" aria-selected={sel} aria-disabled={lockWhy ? true : undefined}
                 className={cn(
                   'grid min-h-11 cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 rounded-md px-3 py-1 text-base text-foreground aria-selected:bg-accent',
                   i === active && 'bg-accent outline outline-2 -outline-offset-2 outline-ring',
+                  lockWhy && !sel && 'cursor-not-allowed text-muted-foreground',
                 )}
                 onMouseDown={e => e.preventDefault()} onClick={() => toggle(r.id)} onMouseEnter={() => setActive(i)}
                 data-testid={`${testIdPrefix}-opt-${r.id}`}
               >
-                <strong className="font-medium tabular-nums">{r.id}</strong>
+                <strong className={cn('font-medium tabular-nums', lockWhy && 'text-muted-foreground')}>{r.id}</strong>
                 <span className="min-w-0 truncate py-0.5 text-muted-foreground">
                   {r.textTh}
                   {q.trim() && <span className="aq-meta block truncate">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</span>}
+                  {lockWhy && <span className="aq-meta block truncate">{lockWhy}</span>}
                 </span>
-                {sel ? <Icon name="check" size={20} className="text-primary" /> : <span aria-hidden="true" />}
+                {lockWhy
+                  ? (
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-muted-foreground" data-testid={`${testIdPrefix}-opt-lock-${r.id}`}>
+                      <Icon name="lock" size={14} />ล็อกแล้ว
+                    </span>
+                  )
+                  : sel ? <Icon name="check" size={20} className="text-primary" /> : <span aria-hidden="true" />}
               </li>,
             ];
           })}
         </ul>
+      )}
+      {!disabled && locked && locked.size > 0 && (
+        <p className="aq-help inline-flex items-start gap-1.5" data-testid={`${testIdPrefix}s-locked-note`}>
+          <Icon name="lock" size={16} className="mt-0.5 shrink-0" />
+          {`ข้อที่ส่งตรวจหรืออนุมัติแล้วในรอบนี้ (${locked.size} ข้อ) เลือกไม่ได้ ต้องให้ผู้ตรวจส่งกลับแก้ก่อน`}
+        </p>
       )}
       {disabled && disabledHint
         ? <p className="aq-help" id={`${uid}-hint`}>{disabledHint}</p>
