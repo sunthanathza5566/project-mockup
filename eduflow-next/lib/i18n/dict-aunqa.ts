@@ -943,3 +943,24 @@ PATTERNS.unshift(
   [/^ผูกไม่ได้: ([\d., ]+) — ข้อนี้เพิ่งถูกส่งตรวจหรืออนุมัติระหว่างที่คุณกรอก เอาข้อนั้นออกจากรายการแล้วบันทึกอีกครั้ง$/,
     m => `Cannot link: ${m[1]} — submitted or approved while you were filling in the form. Remove it from the list and save again.`],
 );
+
+// ── R2-F13 ──
+// ตาราง review (N1) · แท็บ admin สั้นบนมือถือ (N6) · ป้ายรอบในขอบเขต (N3) · ส่งผลกรรมการหลายคน (P12) · U11 · P11
+Object.assign(EN_AUNQA, {
+  'ส่งโดย': 'Submitted by',
+  'คำขอ': 'Requests',
+  'เดโม่': 'Demo',
+  'ตรวจรับแผนปรับปรุง': 'Accept improvement plan',
+  'เมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ':
+    'Once accepted, this improvement plan automatically becomes A (Act) stage evidence in the next assessment cycle.',
+  'ลบแผนปรับปรุง': 'Delete improvement plan',
+  'ส่งผลการประเมินของคุณ': 'Submit your assessment',
+});
+PATTERNS.unshift(
+  [/^รอบ (\d+) · (\S+)$/, m => `Cycle ${m[1]} · ${m[2]}`],
+  [/^เปิดใช้บัญชี (.+) อีกครั้ง\? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม$/, m => `Reactivate ${m[1]}? They can sign in with their previous roles.`],
+  [/^รอบนี้มีกรรมการ (\d+) คน คะแนนและ verdict ของคุณบันทึกไว้แล้ว รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการทุกคนให้คะแนนครบ — ถ้าคุณเป็นคนสุดท้าย รอบจะเปลี่ยนทันที แก้ผลไม่ได้ และหลักสูตรจะเห็นผลของกรรมการทั้งหมด$/,
+    m => `This cycle has ${m[1]} assessors. Your scores and verdict are saved. The cycle becomes “Assessed” once every assessor has rated all criteria — if you are the last, it changes now, results can no longer be edited, and the programme will see all assessors' results.`],
+  [/^ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ (.+) ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”$/,
+    m => `Your assessment is complete and saved — still waiting for ${m[1]} to finish rating. The cycle becomes “Assessed” when the last assessor clicks “Submit assessment”.`],
+);

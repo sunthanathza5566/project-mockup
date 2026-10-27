@@ -49,11 +49,12 @@ function Inner() {
     return () => window.removeEventListener(TODOS_CHANGED_EVENT, recount);
   }, [recount]);
 
-  const tabs: { k: Tab; label: string; show: boolean; testId: string; count?: number }[] = [
-    { k: 'users', label: 'ผู้ใช้และบทบาท', show: canUsers, testId: 'tab-users' },
-    { k: 'requests', label: 'คำขอเข้าใช้งาน', show: canUsers, testId: 'tab-requests', count: pending },
-    { k: 'audit', label: 'Audit log', show: canAudit, testId: 'tab-audit' },
-    { k: 'demo', label: 'ข้อมูลเดโม่', show: superUser, testId: 'tab-demo' },
+  // N6 R2-F13: `short` = ป้ายบนจอ <480 ให้ทุกแท็บพอดีแถบ 358px (ไม่ถูกตัดเหลือ "Audi")
+  const tabs: { k: Tab; label: string; short: string; show: boolean; testId: string; count?: number }[] = [
+    { k: 'users', label: 'ผู้ใช้และบทบาท', short: 'ผู้ใช้', show: canUsers, testId: 'tab-users' },
+    { k: 'requests', label: 'คำขอเข้าใช้งาน', short: 'คำขอ', show: canUsers, testId: 'tab-requests', count: pending },
+    { k: 'audit', label: 'Audit log', short: 'Audit log', show: canAudit, testId: 'tab-audit' },
+    { k: 'demo', label: 'ข้อมูลเดโม่', short: 'เดโม่', show: superUser, testId: 'tab-demo' },
   ];
   const shown = tabs.filter(t => t.show);
   const fromUrl = isTab(qs) && shown.some(t => t.k === qs) ? qs : null;
@@ -106,7 +107,7 @@ function Inner() {
                 'transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground',
               )}
             >
-              <span>{t.label}</span>
+              <span className="sm:hidden">{t.short}</span><span className="max-sm:hidden">{t.label}</span>
               {n && (
                 <span className="aq-badge inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 tabular-nums text-primary-foreground">
                   {n}

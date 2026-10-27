@@ -57,9 +57,10 @@ function fmtSize(n: number): string {
  * รอบล็อก/อยู่ระหว่างตรวจ = ทุกข้อ · ข้อที่ส่งตรวจแล้ว/อนุมัติแล้ว = เฉพาะข้อนั้น (คู่กับ guard ฝั่ง API R2-B4)
  */
 const WRITABLE_CYCLE = ['draft', 'in_progress', 'revision_requested'];
-type LinkLocks = { cycle: Map<string, string>; section: Map<string, string> };
+/** pick: cycleId → (requirementId → สถานะสั้น) ส่งให้ RequirementPicker ทำเครื่องหมาย "ล็อกแล้ว" (P13 R2-F13) */
+type LinkLocks = { cycle: Map<string, string>; section: Map<string, string>; pick: Map<string, Map<string, string>> };
 function buildLinkLocks(user: AppUser, cycles: AssessmentCycle[]): LinkLocks {
-  const out: LinkLocks = { cycle: new Map(), section: new Map() };
+  const out: LinkLocks = { cycle: new Map(), section: new Map(), pick: new Map() };
   for (const c of cycles) {
     if (c.lockedAt || !WRITABLE_CYCLE.includes(c.status)) {
       out.cycle.set(c.id, c.lockedAt ? `รอบ ${c.academicYear} ถูกล็อกแล้ว` : `รอบ ${c.academicYear} อยู่ระหว่างตรวจ/อนุมัติ`);
@@ -67,10 +68,13 @@ function buildLinkLocks(user: AppUser, cycles: AssessmentCycle[]): LinkLocks {
     }
     let secs: SarSection[] = [];
     try { secs = listSections(user, c.id); } catch { /* อ่านรอบนี้ไม่ได้ — ปล่อยให้ API ตัดสิน */ }
+    const pick = new Map<string, string>();
     for (const s of secs) {
       if (isSectionEditable(s)) continue;
       out.section.set(s.id, s.status === 'approved' ? `ข้อ ${s.requirementId} อนุมัติแล้ว` : `ข้อ ${s.requirementId} ส่งตรวจแล้ว`);
+      pick.set(s.requirementId, s.status === 'approved' ? 'อนุมัติแล้ว' : 'ส่งตรวจแล้ว');
     }
+    out.pick.set(c.id, pick);
   }
   return out;
 }
@@ -128,7 +132,7 @@ function Inner() {
               {ev.containsPii && !ev.piiResolved && <Badge tone="bad" icon="alert-triangle">PII ยังไม่จัดการ</Badge>}
             </span>}
             sub={`${KIND_TH[ev.kind]} · ${PDCA_TH[ev.pdcaStage]} · ปีการศึกษา ${ev.academicYear}`}
-            actions={<Button asChild variant="outline"><Link href="/app/evidence"><Icon name="chevron-left" size={20} />คลังหลักฐาน</Link></Button>}
+            actions={<Button asChild variant="outline" className="whitespace-nowrap"><Link href="/app/evidence"><Icon name="chevron-left" size={20} />คลังหลักฐาน</Link></Button>}
           />
 
           <div className="space-y-6">
@@ -242,7 +246,7 @@ function Inner() {
                       <InlineMessage tone="info" icon="lock" testId="ev-link-locked">{`${cycleLock} จึงผูกหลักฐานเพิ่มในรอบนี้ไม่ได้`}</InlineMessage>
                     ) : (
                       <>
-                        <RequirementPicker label="ข้อที่จะผูก" value={linkReqs} onChange={setLinkReqs} testIdPrefix="ev-link-req" />
+                        <RequirementPicker label="ข้อที่จะผูก" value={linkReqs} onChange={setLinkReqs} testIdPrefix="ev-link-req" locked={linkLocks.pick.get(cid)} />
                         {blocked.length > 0 && (
                           <InlineMessage tone="warn" testId="ev-link-blocked">
                             {`ผูกไม่ได้: ${blocked.join(', ')} — ข้อที่ส่งตรวจหรืออนุมัติแล้วเปลี่ยนหลักฐานไม่ได้ เอาข้อนั้นออกจากรายการก่อน`}

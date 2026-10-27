@@ -3,8 +3,8 @@
 /**
  * คิวรอตรวจ (saas-spec §P16 + friendly-spec §F13)
  * - การ์ดรอบที่รอการพิจารณา (cycle-tasks) grid md:2 xl:3 — ปุ่มหลัก 1 ปุ่มต่อการ์ด
- * - review-table (§C5): ข้อ | รอบ | เจ้าของ | ส่งเมื่อ | สรุป (UX-7) | [อนุมัติ](default compact) [เปิดอ่าน](outline) ··· [ส่งกลับ](destructiveOutline)
- *   มือถือ <768 แต่ละแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label
+ * - review-table (§C5): ข้อ | รอบ | ส่งโดย (เจ้าของ + วันเวลา) | สรุป (UX-7) | [อนุมัติ](default compact) [เปิดอ่าน](outline) ··· [ส่งกลับ](destructiveOutline)
+ *   <1280 แต่ละแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label (N1 R2-F13: ปุ่มต้องเห็นครบทุกความกว้าง)
  * - แถวที่ผู้ใช้เป็นผู้เขียนล่าสุด: ไม่ render ปุ่มอนุมัติ + pill "คุณเขียนเอง" + Term segregation
  * - หลังอนุมัติ/ส่งกลับ: แถวจาง 220ms แล้วหาย + toast · ไม่มีอนุมัติเป็นชุด
  * - ปุ่ม "อนุมัติ" (การกระทำ) แปล EN เป็น "Approve" เอง (data-no-i18n) เพราะ key "อนุมัติ" ใน dict = ป้ายสถานะ "Approved"
@@ -34,13 +34,18 @@ const LEAVE_MS = 220;
 /** ป้ายปุ่มอนุมัติ (การกระทำ) — แยกจากป้ายสถานะ "อนุมัติ" = "Approved" ใน dict */
 const APPROVE_LABEL = { th: 'อนุมัติ', en: 'Approve' } as const;
 
-/** §C5 ตารางแบบ stack บนมือถือ (<768) — class literal ให้ JIT สแกนเจอ */
-const STACK_TABLE = 'max-md:block';
-const STACK_HEAD = 'max-md:sr-only';
-const STACK_BODY = 'max-md:block';
-const STACK_ROW = 'max-md:block max-md:p-4';
-const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
-const STACK_ACTIONS = 'max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3';
+/**
+ * §C5 ตารางแบบ stack เมื่อ <1280 (N1 R2-F13): กรอบเนื้อหาที่ 768–1279 แคบเกินตาราง → แต่ละแถวเป็นการ์ด
+ * (md: grid 2 คอลัมน์ รอบ | ส่งโดย ที่เหลือเต็มแถว) · ≥1280 เป็นตาราง ไม่มี min-width ที่รวมแล้วเกินกรอบ 934px
+ * class literal ให้ JIT สแกนเจอ
+ */
+const STACK_TABLE = 'max-xl:block';
+const STACK_HEAD = 'max-xl:sr-only';
+const STACK_BODY = 'max-xl:block';
+const STACK_ROW = 'max-xl:grid max-xl:grid-cols-1 max-xl:gap-x-6 max-xl:p-4 md:max-xl:grid-cols-2';
+const STACK_CELL = 'max-xl:block max-xl:px-0 max-xl:py-1 max-xl:before:block max-xl:before:text-sm max-xl:before:font-medium max-xl:before:text-muted-foreground max-xl:before:content-[attr(data-label)]';
+const STACK_FULL = 'max-xl:col-span-full';
+const STACK_ACTIONS = 'max-xl:block max-xl:col-span-full max-xl:px-0 max-xl:pb-0 max-xl:pt-3';
 const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 
 export default function ReviewPage() {
@@ -150,8 +155,8 @@ export default function ReviewPage() {
               <Table data-testid="review-table" className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
                 <TableHeader className={STACK_HEAD}>
                   <tr>
-                    <TableHead>ข้อ</TableHead><TableHead>รอบ</TableHead><TableHead>เจ้าของ</TableHead>
-                    <TableHead>ส่งเมื่อ</TableHead><TableHead>สรุป</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead>
+                    <TableHead>ข้อ</TableHead><TableHead>รอบ</TableHead><TableHead>ส่งโดย</TableHead>
+                    <TableHead>สรุป</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead>
                   </tr>
                 </TableHeader>
                 <TableBody className={STACK_BODY}>
@@ -162,14 +167,16 @@ export default function ReviewPage() {
                         key={section.id}
                         className={cn(STACK_ROW, 'transition-opacity duration-base ease-exit', leaving.has(section.id) && 'opacity-0')}
                       >
-                        <TableCell data-label="ข้อ" className={cn('min-w-[12rem]', STACK_CELL)}>
+                        <TableCell data-label="ข้อ" className={cn('xl:min-w-[11rem]', STACK_CELL, STACK_FULL)}>
                           <Link className={CODE_LINK} href={sectionHref(cycle.id, section.requirementId)}><strong className="font-semibold">{section.requirementId}</strong></Link>
                           {req && <p className="aq-meta line-clamp-2">{truncateTh(req.textTh, 60)}</p>}
                         </TableCell>
                         <TableCell data-label="รอบ" className={cn('whitespace-nowrap', STACK_CELL)}>{cycle.academicYear} · {getProgramme(cycle.programmeId)?.code}</TableCell>
-                        <TableCell data-label="เจ้าของ" className={cn('md:whitespace-nowrap', STACK_CELL)}>{names.get(section.ownerUserId || '') || '—'}</TableCell>
-                        <TableCell data-label="ส่งเมื่อ" className={cn('tabular-nums md:whitespace-nowrap', STACK_CELL)}>{fmtDateTime(section.updatedAt)}</TableCell>
-                        <TableCell data-label="สรุป" className={cn('min-w-[12rem]', STACK_CELL)}>
+                        <TableCell data-label="ส่งโดย" className={STACK_CELL}>
+                          <span className="block md:whitespace-nowrap">{names.get(section.ownerUserId || '') || '—'}</span>
+                          <span className="aq-meta block tabular-nums md:whitespace-nowrap">{fmtDateTime(section.updatedAt)}</span>
+                        </TableCell>
+                        <TableCell data-label="สรุป" className={cn('xl:min-w-[10rem]', STACK_CELL, STACK_FULL)}>
                           <p className="aq-meta">{`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}</p>
                           {gaps && (gaps.critical > 0 || gaps.high > 0) && (
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -179,7 +186,7 @@ export default function ReviewPage() {
                           )}
                         </TableCell>
                         <TableCell className={STACK_ACTIONS}>
-                          <div className="flex flex-wrap items-center gap-2 md:min-w-[17rem] md:justify-end">
+                          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
                             {canApprove && !ownWork && (
                               <AsyncButton variant="default" size="compact" testId={`approve-${section.requirementId}`}
                                 onClick={() => approve(cycle.id, section.id, section.requirementId, gaps?.critical ?? 0)}>

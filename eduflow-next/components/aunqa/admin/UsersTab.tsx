@@ -18,7 +18,7 @@
  */
 import { Fragment, useState } from 'react';
 import type { AppUser, RoleCode } from '@/lib/types';
-import { cancelInvitation, listCycles, listUsers, reissueInvitation, setUserRoles, setUserStatus, userStatus } from '@/lib/api';
+import { can, cancelInvitation, listCycles, listUsers, reissueInvitation, setUserRoles, setUserStatus, userStatus } from '@/lib/api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { Async, AsyncButton, Badge, useLoad } from '@/components/aunqa/common';
@@ -80,11 +80,17 @@ export default function UsersTab({ user }: { user: AppUser }) {
     if (ok) act(() => setUserStatus(user, u.id, 'suspended'), 'ระงับบัญชีแล้ว');
   }
 
-  /** ข-18: เปิดใช้อีกครั้งทำให้คำเชิญที่ผู้ใช้นี้เคยออก (ยังไม่หมดอายุ) กลับมาใช้ได้ — บอกผู้ดูแลก่อนยืนยัน */
+  /**
+   * ข-18: เปิดใช้อีกครั้งทำให้คำเชิญที่ผู้ใช้นี้เคยออก (ยังไม่หมดอายุ) กลับมาใช้ได้ — บอกผู้ดูแลก่อนยืนยัน
+   * U11 R2-F13: พูดถึงคำเชิญเฉพาะบัญชีที่มีสิทธิ์เชิญ (user.manage) — บัญชีอื่นออกคำเชิญไม่ได้อยู่แล้ว
+   */
   async function reactivate(u: Row) {
+    const canInvite = can(u as AppUser, 'user.manage', { universityId: u.universityId });
     const ok = await confirm({
       title: 'เปิดใช้บัญชีอีกครั้ง',
-      message: `เปิดใช้บัญชี ${u.fullName} อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม และคำเชิญที่บัญชีนี้เคยออกไว้ซึ่งยังไม่หมดอายุจะกลับมาใช้ได้ — ถ้าไม่ต้องการ ให้ยกเลิกคำเชิญนั้นในตารางนี้`,
+      message: canInvite
+        ? `เปิดใช้บัญชี ${u.fullName} อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม และคำเชิญที่บัญชีนี้เคยออกไว้ซึ่งยังไม่หมดอายุจะกลับมาใช้ได้ — ถ้าไม่ต้องการ ให้ยกเลิกคำเชิญนั้นในตารางนี้`
+        : `เปิดใช้บัญชี ${u.fullName} อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม`,
       confirmText: 'ยืนยันเปิดใช้',
     });
     if (ok) act(() => setUserStatus(user, u.id, 'active'), 'เปิดใช้บัญชีแล้ว');

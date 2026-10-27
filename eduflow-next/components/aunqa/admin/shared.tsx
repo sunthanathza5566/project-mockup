@@ -26,13 +26,20 @@ export function facultyLabel(nameTh: string): string {
 
 /** ขอบเขตที่เลือกได้ในมหาวิทยาลัยหนึ่ง — ค่า `<scopeType>:<scopeId>` (ป้ายเดิมของหน้า admin) */
 export function scopeOptions(universityId: string, cycles: AssessmentCycle[]): ScopeOption[] {
+  const progs = getProgrammes(universityId);
+  const progCode = new Map(progs.map(p => [p.id, p.code]));
   return [
     { key: `university:${universityId}`, label: 'ทั้งมหาวิทยาลัย' },
     ...getFaculties(universityId).map(f => ({ key: `faculty:${f.id}`, label: facultyLabel(f.nameTh) })),
-    ...getProgrammes(universityId).map(p => ({ key: `programme:${p.id}`, label: `หลักสูตร ${p.code}` })),
+    ...progs.map(p => ({ key: `programme:${p.id}`, label: `หลักสูตร ${p.code}` })),
     ...cycles.filter(c => c.universityId === universityId)
-      .map(c => ({ key: `cycle:${c.id}`, label: `รอบ ${c.academicYear} (${c.id})` })),
+      .map(c => ({ key: `cycle:${c.id}`, label: cycleScopeLabel(c.academicYear, progCode.get(c.programmeId)) })),
   ];
+}
+
+/** ป้ายรอบที่คนอ่านเข้าใจ "รอบ 2569 · CS-B-69" ไม่แสดงรหัสภายใน (N3 R2-F13) */
+function cycleScopeLabel(year: number | string, code?: string): string {
+  return code ? `รอบ ${year} · ${code}` : `รอบ ${year}`;
 }
 
 export function parseScope(key: string): Pick<RoleAssignment, 'scopeType' | 'scopeId'> {

@@ -98,6 +98,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
   // แปลข้อความส่วนที่ยังไม่ได้ครอบด้วย t() ให้ครบทั้งหน้า (และย้อนกลับได้เมื่อสลับเป็นไทย) — ทำใหม่ทุกครั้งที่เปลี่ยนหน้า
   useEffect(() => syncPageLanguage(lang), [lang, pathname]);
 
+  // N5 R2-F13 (WCAG 3.1.1): <html lang> ตามภาษาที่เลือก — layout render "th" เสมอ จึงตั้งฝั่ง client
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+
   const t = useCallback((text: string) => translate(text, lang), [lang]);
 
   return (

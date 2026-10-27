@@ -139,7 +139,7 @@ function Inner() {
   async function change(a: ActionItem, to: ActionStatus) {
     let note: string | undefined;
     if (to === 'verified') {
-      if (!(await confirm({ title: 'ตรวจรับ action', message: 'เมื่อตรวจรับแล้ว action นี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ', confirmText: 'ยืนยันตรวจรับ' }))) return;
+      if (!(await confirm({ title: 'ตรวจรับแผนปรับปรุง', message: 'เมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ', confirmText: 'ยืนยันตรวจรับ' }))) return;
     } else if (to === 'done') {
       const r = await prompt({ title: 'ทำเสร็จแล้ว', message: 'สรุปผลที่ทำได้ (ไม่บังคับ)', placeholder: 'เช่น จัดอบรมแล้ว 2 ครั้ง', confirmText: 'ยืนยันทำเสร็จแล้ว' });
       if (r === null) return;
@@ -149,7 +149,7 @@ function Inner() {
     catch (e) { showToast(errMsg(e), 'error'); }
   }
   async function del(a: ActionItem) {
-    if (!(await confirm({ title: 'ลบ action', message: 'ลบรายการนี้?', variant: 'danger', confirmText: 'ยืนยันลบ' }))) return;
+    if (!(await confirm({ title: 'ลบแผนปรับปรุง', message: 'ลบรายการนี้?', variant: 'danger', confirmText: 'ยืนยันลบ' }))) return;
     try { deleteActionItem(user, a.id); showToast('ลบแล้ว', 'success'); q.reload(); } catch (e) { showToast(errMsg(e), 'error'); }
   }
 

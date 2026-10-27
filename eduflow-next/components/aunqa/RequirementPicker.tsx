@@ -8,6 +8,7 @@
  * - testid: container `{prefix}s` · input `{prefix}s-input` · option `{prefix}-opt-{id}` · chip `{prefix}-chip-{id}`
  *   (ค่าเริ่มต้น prefix = "ev-f-req" → ev-f-reqs / ev-f-reqs-input / ev-f-req-opt-1.1 / ev-f-req-chip-1.1)
  * - R2-F12 `locked` (id → เหตุผล เช่น "อนุมัติแล้ว"): option เลือกไม่ได้ (aria-disabled) + ป้าย "ล็อกแล้ว" `{prefix}-opt-lock-{id}`
+ *   (N4 R2-F13: ชื่อข้อตัดได้ 2 บรรทัด · <480 ป้ายเหลือไอคอนกุญแจ ข้อความ "ล็อกแล้ว" เป็น sr-only)
  *   + คำอธิบายใต้ช่อง `{prefix}s-locked-note` · คลิก/Enter ที่ข้อล็อก = ไม่เพิ่ม แต่เอาออกได้ถ้าอยู่ใน chip แล้ว (เช่นมาจาก ?req=)
  */
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
@@ -132,15 +133,15 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
                 data-testid={`${testIdPrefix}-opt-${r.id}`}
               >
                 <strong className={cn('font-medium tabular-nums', lockWhy && 'text-muted-foreground')}>{r.id}</strong>
-                <span className="min-w-0 truncate py-0.5 text-muted-foreground">
-                  {r.textTh}
+                <span className="min-w-0 py-0.5 text-muted-foreground">
+                  <span className="line-clamp-2 break-words">{r.textTh}</span>
                   {q.trim() && <span className="aq-meta block truncate">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</span>}
                   {lockWhy && <span className="aq-meta block truncate">{lockWhy}</span>}
                 </span>
                 {lockWhy
                   ? (
                     <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-muted-foreground" data-testid={`${testIdPrefix}-opt-lock-${r.id}`}>
-                      <Icon name="lock" size={14} />ล็อกแล้ว
+                      <Icon name="lock" size={14} /><span className="max-sm:sr-only">ล็อกแล้ว</span>
                     </span>
                   )
                   : sel ? <Icon name="check" size={20} className="text-primary" /> : <span aria-hidden="true" />}

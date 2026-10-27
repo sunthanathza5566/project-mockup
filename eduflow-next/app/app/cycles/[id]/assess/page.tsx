@@ -12,8 +12,8 @@ import { Fragment, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
-  RATING_SCALE, can, cycleScope, exportAppendixBDoc, exportAppendixDDoc, downloadBlob, getAssessorProgress, getCycle,
-  getProgramme, isAssessorOf, listCriteria, listCriterionRatings, listEvidence, listFindings, listRatings, listRequirements,
+  AunqaError, RATING_SCALE, can, cycleScope, exportAppendixBDoc, exportAppendixDDoc, downloadBlob, getAssessorProgress, getCycle,
+  getProgramme, isActiveUser, isAssessorOf, listCriteria, listCriterionRatings, listEvidence, listFindings, listRatings, listRequirements,
   listSections, listUsers, listVerdicts, runAssessorSummary, setCriterionRating, setVerdict, transitionCycle, upsertFinding,
 } from '@/lib/api';
 import type { AiRun, AppUser, AssessmentCycle, AssessmentFinding } from '@/lib/types';
@@ -77,13 +77,16 @@ export default function AssessPage() {
     const assessor = isAssessorOf(user, id);
     const sections = listSections(user, id);
     const evidence = listEvidence(user, { programmeId: cycle.programmeId, cycleId: id });
+    const users = listUsers(cycle.universityId);
     let selfRatings: ReturnType<typeof listRatings> = [];
     try { selfRatings = listRatings(user, id).filter(r => r.raterType === 'self'); } catch { /* ไม่มีสิทธิ์ดูคะแนน */ }
     return {
       cycle, assessor, sections, evidence, selfRatings,
       findings: listFindings(user, id), ratings: listCriterionRatings(user, id), verdicts: listVerdicts(user, id),
       progress: assessor ? getAssessorProgress(user, id) : null,
-      names: Object.fromEntries(listUsers(cycle.universityId).map(u => [u.id, u.fullName])) as Record<string, string>,
+      names: Object.fromEntries(users.map(u => [u.id, u.fullName])) as Record<string, string>,
+      // P12 R2-F13: จำนวนกรรมการ active ของรอบ (เงื่อนไขเดียวกับ guard B8 ของ transitionCycle) — ใช้เขียน dialog ส่งผลให้ตรงความจริง
+      assessorCount: users.filter(u => isActiveUser(u) && isAssessorOf(u as AppUser, id)).length,
     };
   }, [user.id, id]);
 
@@ -145,6 +148,7 @@ type D = {
   cycle: AssessmentCycle; assessor: boolean; sections: ReturnType<typeof listSections>; evidence: EvidenceView[];
   selfRatings: ReturnType<typeof listRatings>; findings: AssessmentFinding[]; ratings: ReturnType<typeof listCriterionRatings>;
   verdicts: ReturnType<typeof listVerdicts>; progress: ReturnType<typeof getAssessorProgress> | null; names: Record<string, string>;
+  assessorCount: number;
 };
 
 /** แถว checklist: สถานะ = สี + ไอคอน + ข้อความ */
@@ -168,13 +172,28 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
   function saveVerdict() {
     try { setVerdict(user, cycle.id, Number(v), why); showToast('บันทึก verdict แล้ว', 'success'); reload(); } catch (e) { showToast(errMsg(e), 'error'); }
   }
+  /**
+   * P12 R2-F13: รอบที่มีกรรมการหลายคน — guard B8 ปิดรอบได้เมื่อ "ทุกคน" ให้คะแนนครบ (ยังไม่มี API ส่งผลรายบุคคล → HANDOFF backend)
+   * dialog บอกตามจริง · ถ้ายังมีคนค้าง = ผลของคุณบันทึกครบแล้ว ไม่ใช่ error → ข้อความรอ (assess-waiting) บอกชื่อคนที่ยังขาด
+   */
+  const [waiting, setWaiting] = useState<string | null>(null);
+  const multi = d.assessorCount > 1;
   async function finish() {
     if (!(await confirm({
-      title: 'ส่งผลการประเมิน', variant: 'warning', confirmText: 'ยืนยันส่งผลการประเมิน',
-      message: 'เมื่อส่งแล้วรอบจะเป็น “ประเมินแล้ว” แก้ผลไม่ได้ และหลักสูตรจะเห็นข้อค้นพบ คะแนน และ verdict ของกรรมการทั้งหมด',
+      title: multi ? 'ส่งผลการประเมินของคุณ' : 'ส่งผลการประเมิน', variant: 'warning', confirmText: 'ยืนยันส่งผลการประเมิน',
+      message: multi
+        ? `รอบนี้มีกรรมการ ${d.assessorCount} คน คะแนนและ verdict ของคุณบันทึกไว้แล้ว รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการทุกคนให้คะแนนครบ — ถ้าคุณเป็นคนสุดท้าย รอบจะเปลี่ยนทันที แก้ผลไม่ได้ และหลักสูตรจะเห็นผลของกรรมการทั้งหมด`
+        : 'เมื่อส่งแล้วรอบจะเป็น “ประเมินแล้ว” แก้ผลไม่ได้ และหลักสูตรจะเห็นข้อค้นพบ คะแนน และ verdict ของกรรมการทั้งหมด',
     }))) return;
-    try { await transitionCycle(user, cycle.id, 'assessed'); showToast('ส่งผลการประเมินแล้ว', 'success'); notifyTodosChanged(); reload(); }
-    catch (e) { showToast(errMsg(e), 'error'); }
+    try { await transitionCycle(user, cycle.id, 'assessed'); setWaiting(null); showToast('ส่งผลการประเมินแล้ว', 'success'); notifyTodosChanged(); reload(); }
+    catch (e) {
+      const w = e instanceof AunqaError && e.detail?.hasVerdict === true && Array.isArray(e.detail.waitingFor)
+        ? (e.detail.waitingFor as { name: string }[]).map(x => x.name) : [];
+      if (w.length) {
+        const msg = `ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ ${w.join(', ')} ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”`;
+        setWaiting(msg); showToast(msg, 'info');
+      } else showToast(errMsg(e), 'error');
+    }
   }
   const k = p.ratedCriteria.length;
   const missing = [
@@ -218,6 +237,7 @@ function ProgressCard({ user, cycle, d, writable, reload }: { user: AppUser; cyc
           </AsyncButton>
           {writable && !p.canFinish && missing && <span className="aq-btn-reason">ยังขาด: {missing}</span>}
         </span>
+        {waiting && <InlineMessage tone="info" icon="clock" testId="assess-waiting" className="basis-full">{waiting}</InlineMessage>}
         <span className="inline-flex items-center gap-1">
           <AsyncButton variant="outline" testId="assess-appb" onClick={() => { downloadBlob(exportAppendixBDoc(user, cycle.id), `AppendixB_${cycle.academicYear}.doc`); }}>
             <Icon name="download" size={20} />Appendix B (.doc)
