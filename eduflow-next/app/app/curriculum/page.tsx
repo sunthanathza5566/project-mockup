@@ -31,6 +31,41 @@ const TABS: [Tab, string][] = [
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
 /** ตารางในหน้านี้: กรอบ rounded-xl + เงาเหมือนการ์ด */
 const TABLE_WRAP = 'rounded-xl shadow-sm dark:shadow-none';
+/** ตารางที่มีปุ่ม: wrapper เป็น CSS container ชื่อ `tbl` (inline-size) ให้ variant [@container_tbl_(…rem)] ใช้ได้ */
+const TABLE_WRAP_CQ = '[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none';
+/**
+ * §C5 ตาราง → การ์ด ตามความกว้างกรอบตารางจริง (R2-F14 — container query หน่วย rem ขยายตามขนาดตัวอักษรผู้ใช้)
+ * PLO ≤ 46rem (min-content ≈ 43.7rem) · รายวิชา ≤ 44rem (≈ 38.8rem + ฟอร์ม CLO) · ผลตรวจ AI-7 ≤ 54rem (≈ 51.3rem)
+ * class literal ให้ JIT สแกนเจอ
+ */
+const PLO_STACK = {
+  table: '[@container_tbl_(max-width:46rem)]:block',
+  head: '[@container_tbl_(max-width:46rem)]:sr-only',
+  body: '[@container_tbl_(max-width:46rem)]:block',
+  row: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:p-4',
+  cell: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:px-0 [@container_tbl_(max-width:46rem)]:py-1 [@container_tbl_(max-width:46rem)]:text-left [@container_tbl_(max-width:46rem)]:before:block [@container_tbl_(max-width:46rem)]:before:text-sm [@container_tbl_(max-width:46rem)]:before:font-medium [@container_tbl_(max-width:46rem)]:before:text-muted-foreground [@container_tbl_(max-width:46rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:px-0 [@container_tbl_(max-width:46rem)]:pb-0 [@container_tbl_(max-width:46rem)]:pt-3 [@container_tbl_(max-width:46rem)]:[&>div]:justify-start',
+  text: '[@container_tbl_(min-width:46.01rem)]:min-w-[18rem]',
+} as const;
+const COURSE_STACK = {
+  table: '[@container_tbl_(max-width:44rem)]:block',
+  head: '[@container_tbl_(max-width:44rem)]:sr-only',
+  body: '[@container_tbl_(max-width:44rem)]:block',
+  row: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:p-4',
+  cell: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:px-0 [@container_tbl_(max-width:44rem)]:py-1 [@container_tbl_(max-width:44rem)]:text-left [@container_tbl_(max-width:44rem)]:before:block [@container_tbl_(max-width:44rem)]:before:text-sm [@container_tbl_(max-width:44rem)]:before:font-medium [@container_tbl_(max-width:44rem)]:before:text-muted-foreground [@container_tbl_(max-width:44rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:px-0 [@container_tbl_(max-width:44rem)]:pb-0 [@container_tbl_(max-width:44rem)]:pt-3',
+  name: '[@container_tbl_(min-width:44.01rem)]:min-w-[14rem]',
+  form: '[@container_tbl_(min-width:44.01rem)]:grid-cols-[12rem_minmax(0,1fr)_12rem_auto]',
+} as const;
+const VERB_STACK = {
+  table: '[@container_tbl_(max-width:54rem)]:block',
+  head: '[@container_tbl_(max-width:54rem)]:sr-only',
+  body: '[@container_tbl_(max-width:54rem)]:block',
+  row: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:p-4',
+  cell: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:py-1 [@container_tbl_(max-width:54rem)]:text-left [@container_tbl_(max-width:54rem)]:before:block [@container_tbl_(max-width:54rem)]:before:text-sm [@container_tbl_(max-width:54rem)]:before:font-medium [@container_tbl_(max-width:54rem)]:before:text-muted-foreground [@container_tbl_(max-width:54rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:pb-0 [@container_tbl_(max-width:54rem)]:pt-3',
+  text: '[@container_tbl_(min-width:54.01rem)]:min-w-[16rem]',
+} as const;
 /** saas-spec §C11 แท็บเส้นใต้ */
 const TAB_BTN =
   '-mb-px inline-flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground';
@@ -154,16 +189,16 @@ function PloTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progr
         </form>
       )}
       {cur.plos.length === 0 ? <Empty icon="list-check" title="ยังไม่มี PLO" text="เพิ่ม PLO ข้อแรกเพื่อเริ่มผูกรายวิชา" /> : (
-        <Table data-testid="plo-table" wrapperClassName={TABLE_WRAP}>
-          <TableHeader><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>ประเภท</TableHead><TableHead>Bloom</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
-          <TableBody>
+        <Table data-testid="plo-table" className={PLO_STACK.table} wrapperClassName={TABLE_WRAP_CQ}>
+          <TableHeader className={PLO_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>ประเภท</TableHead><TableHead>Bloom</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
+          <TableBody className={PLO_STACK.body}>
             {cur.plos.map(p => (
-              <TableRow key={p.id} data-testid={`plo-${p.code}`}>
-                <TableCell className="whitespace-nowrap"><strong>{p.code}</strong></TableCell>
-                <TableCell className="min-w-[18rem]"><p className="m-0 text-foreground">{p.textTh}</p>{p.textEn && <p className="aq-meta m-0" lang="en">{p.textEn}</p>}</TableCell>
-                <TableCell className="whitespace-nowrap">{p.type === 'generic' ? 'ทั่วไป' : 'เฉพาะสาขา'}</TableCell>
-                <TableCell className="whitespace-nowrap">{BLOOM_TH[p.bloomLevel]}</TableCell>
-                {canWrite && <TableCell><RowActions onEdit={() => open(p)} onDelete={() => del(p)} delLabel={`ลบ ${p.code}`} /></TableCell>}
+              <TableRow key={p.id} data-testid={`plo-${p.code}`} className={PLO_STACK.row}>
+                <TableCell data-label="รหัส" className={cn('whitespace-nowrap', PLO_STACK.cell)}><strong>{p.code}</strong></TableCell>
+                <TableCell data-label="ข้อความ" className={cn(PLO_STACK.text, PLO_STACK.cell)}><p className="m-0 text-foreground">{p.textTh}</p>{p.textEn && <p className="aq-meta m-0" lang="en">{p.textEn}</p>}</TableCell>
+                <TableCell data-label="ประเภท" className={cn('whitespace-nowrap', PLO_STACK.cell)}>{p.type === 'generic' ? 'ทั่วไป' : 'เฉพาะสาขา'}</TableCell>
+                <TableCell data-label="Bloom" className={cn('whitespace-nowrap', PLO_STACK.cell)}>{BLOOM_TH[p.bloomLevel]}</TableCell>
+                {canWrite && <TableCell className={PLO_STACK.actions}><RowActions onEdit={() => open(p)} onDelete={() => del(p)} delLabel={`ลบ ${p.code}`} /></TableCell>}
               </TableRow>
             ))}
           </TableBody>
@@ -228,21 +263,21 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
         </form>
       )}
       {sorted.length === 0 ? <Empty icon="book-open" title="ยังไม่มีรายวิชา" /> : (
-        <Table data-testid="course-table" wrapperClassName={TABLE_WRAP}>
-          <TableHeader><tr><TableHead>รหัส</TableHead><TableHead>ชื่อวิชา</TableHead><TableHead className="text-right">หน่วยกิต</TableHead><TableHead>ปี/ภาค</TableHead><TableHead className="text-right">CLO</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead></tr></TableHeader>
-          <TableBody>
+        <Table data-testid="course-table" className={COURSE_STACK.table} wrapperClassName={TABLE_WRAP_CQ}>
+          <TableHeader className={COURSE_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ชื่อวิชา</TableHead><TableHead className="text-right">หน่วยกิต</TableHead><TableHead>ปี/ภาค</TableHead><TableHead className="text-right">CLO</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead></tr></TableHeader>
+          <TableBody className={COURSE_STACK.body}>
             {sorted.map(c => {
               const clos = cur.clos.filter(x => x.courseId === c.id);
               const isOpen = open === c.id;
               return (
                 <Fragment key={c.id}>
-                  <TableRow data-testid={`course-${c.code}`} className={cn(isOpen && 'bg-muted/40')}>
-                    <TableCell className="whitespace-nowrap"><strong>{c.code}</strong></TableCell>
-                    <TableCell className="min-w-[14rem]">{c.nameTh}{c.isElective && <> <Badge>เลือก</Badge></>}</TableCell>
-                    <TableCell className="text-right tabular-nums">{c.credits}</TableCell>
-                    <TableCell className="tabular-nums">{c.year}/{c.semester}</TableCell>
-                    <TableCell className="text-right tabular-nums">{clos.length}</TableCell>
-                    <TableCell>
+                  <TableRow data-testid={`course-${c.code}`} className={cn(COURSE_STACK.row, isOpen && 'bg-muted/40')}>
+                    <TableCell data-label="รหัส" className={cn('whitespace-nowrap', COURSE_STACK.cell)}><strong>{c.code}</strong></TableCell>
+                    <TableCell data-label="ชื่อวิชา" className={cn(COURSE_STACK.name, COURSE_STACK.cell)}>{c.nameTh}{c.isElective && <> <Badge>เลือก</Badge></>}</TableCell>
+                    <TableCell data-label="หน่วยกิต" className={cn('text-right tabular-nums', COURSE_STACK.cell)}>{c.credits}</TableCell>
+                    <TableCell data-label="ปี/ภาค" className={cn('tabular-nums', COURSE_STACK.cell)}>{c.year}/{c.semester}</TableCell>
+                    <TableCell data-label="CLO" className={cn('text-right tabular-nums', COURSE_STACK.cell)}>{clos.length}</TableCell>
+                    <TableCell className={COURSE_STACK.actions}>
                       <div className="flex flex-wrap items-center justify-end gap-2">
                         <Button variant="outline" size="compact" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : c.id)} data-testid={`course-toggle-${c.code}`}>
                           CLO<Icon name="chevron-down" size={16} className={cn('transition-transform duration-fast', isOpen && 'rotate-180')} />
@@ -254,7 +289,7 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
                       </div>
                     </TableCell>
                   </TableRow>
-                  {isOpen && <tr className="border-t"><td colSpan={6} className="bg-muted/40 px-4 py-3"><CloList user={user} course={c} clos={clos} canWrite={canWrite} reload={reload} /></td></tr>}
+                  {isOpen && <tr className={cn('border-t', COURSE_STACK.table)}><td colSpan={6} className={cn('bg-muted/40 px-4 py-3', COURSE_STACK.table)}><CloList user={user} course={c} clos={clos} canWrite={canWrite} reload={reload} /></td></tr>}
                 </Fragment>
               );
             })}
@@ -296,7 +331,7 @@ function CloList({ user, course, clos, canWrite, reload }: { user: AppUser; cour
       )}
       {canWrite && !editId && <Button variant="outline" size="compact" onClick={() => begin(null)} data-testid={`clo-new-${course.code}`}><Icon name="plus" size={20} />เพิ่ม CLO</Button>}
       {editId && (
-        <form className="grid items-end gap-3 md:grid-cols-[12rem_minmax(0,1fr)_12rem_auto]" onSubmit={submit} data-testid="clo-form">
+        <form className={cn('grid items-end gap-3', COURSE_STACK.form)} onSubmit={submit} data-testid="clo-form">
           <label className={FIELD}><span className={LABEL}>รหัส</span><Input value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required /></label>
           <label className={FIELD}><span className={LABEL}>ข้อความ</span><Input value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="clo-text" /></label>
           <label className={FIELD}><span className={LABEL}>Bloom</span>
@@ -525,13 +560,13 @@ function AiTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progra
             <Badge title="จำนวนข้อมูลส่วนบุคคลที่ปกปิดก่อนส่ง">ปกปิด {run.redactionCount} จุด</Badge>
             <Badge tone={run.postCheck.ok ? 'ok' : 'warn'}>{run.postCheck.ok ? 'ผ่านการตรวจ' : 'พบข้อควรระวัง'}</Badge>
           </div>
-          <Table>
-            <TableHeader><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>กริยาที่พบ</TableHead><TableHead>Bloom ตั้งไว้ / ตรวจพบ</TableHead><TableHead>ผล</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
-            <TableBody>
+          <Table className={VERB_STACK.table} wrapperClassName="[container-type:inline-size] [container-name:tbl]">
+            <TableHeader className={VERB_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>กริยาที่พบ</TableHead><TableHead>Bloom ตั้งไว้ / ตรวจพบ</TableHead><TableHead>ผล</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
+            <TableBody className={VERB_STACK.body}>
               {out.map(r => (
-                <TableRow key={r.id}>
-                  <TableCell className="whitespace-nowrap"><strong>{r.code}</strong><p className="aq-meta m-0">{r.kind.toUpperCase()}</p></TableCell>
-                  <TableCell className="min-w-[16rem]">
+                <TableRow key={r.id} className={VERB_STACK.row}>
+                  <TableCell data-label="รหัส" className={cn('whitespace-nowrap', VERB_STACK.cell)}><strong>{r.code}</strong><p className="aq-meta m-0">{r.kind.toUpperCase()}</p></TableCell>
+                  <TableCell data-label="ข้อความ" className={cn(VERB_STACK.text, VERB_STACK.cell)}>
                     <p className="m-0 line-clamp-3">{textOf(r)}</p>
                     {r.note && <p className="aq-meta m-0">{r.note}</p>}
                     {r.suggestions.length > 0 && (
@@ -540,10 +575,10 @@ function AiTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progra
                       </ul>
                     )}
                   </TableCell>
-                  <TableCell>{r.verbs.join(', ') || '—'}</TableCell>
-                  <TableCell className="tabular-nums">{r.declaredLevel} / {r.detectedLevels.join(', ') || '—'}</TableCell>
-                  <TableCell>{!r.measurable ? <Badge tone="bad">วัดผลยาก</Badge> : r.levelMatch === false ? <Badge tone="warn">ระดับไม่ตรง</Badge> : <Badge tone="ok">ปกติ</Badge>}</TableCell>
-                  {canWrite && <TableCell>{r.levelMatch === false && r.detectedLevels.length > 0 && <Button variant="outline" size="compact" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</Button>}</TableCell>}
+                  <TableCell data-label="กริยาที่พบ" className={VERB_STACK.cell}>{r.verbs.join(', ') || '—'}</TableCell>
+                  <TableCell data-label="Bloom ตั้งไว้ / ตรวจพบ" className={cn('tabular-nums', VERB_STACK.cell)}>{r.declaredLevel} / {r.detectedLevels.join(', ') || '—'}</TableCell>
+                  <TableCell data-label="ผล" className={VERB_STACK.cell}>{!r.measurable ? <Badge tone="bad">วัดผลยาก</Badge> : r.levelMatch === false ? <Badge tone="warn">ระดับไม่ตรง</Badge> : <Badge tone="ok">ปกติ</Badge>}</TableCell>
+                  {canWrite && <TableCell className={VERB_STACK.actions}>{r.levelMatch === false && r.detectedLevels.length > 0 && <Button variant="outline" size="compact" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</Button>}</TableCell>}
                 </TableRow>
               ))}
             </TableBody>

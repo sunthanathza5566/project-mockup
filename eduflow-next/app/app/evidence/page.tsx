@@ -53,12 +53,12 @@ const CARD = 'rounded-xl border bg-card p-5 text-card-foreground shadow-sm dark:
 const LABEL = 'text-base font-medium text-foreground';
 const CHECK_ROW = 'flex min-h-11 cursor-pointer items-center gap-3 text-base text-foreground';
 const CHECK_INPUT = 'h-5 w-5 shrink-0 accent-primary';
-/** ตาราง C5 มือถือ <768: ทุกแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label (ลำดับคอลัมน์/<strong> รหัสคงเดิม) */
-const STACK_TABLE = 'max-md:block';
-const STACK_HEAD = 'max-md:sr-only';
-const STACK_BODY = 'max-md:block';
-const STACK_ROW = 'max-md:block max-md:p-4';
-const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+/** ตาราง C5: กรอบตาราง (container `tbl`) ≤ 51rem ทุกแถวเป็นการ์ดย่อย ป้ายคอลัมน์จาก data-label (container query หน่วย rem — R2-F14; min-content ≈ 48.6rem) */
+const STACK_TABLE = '[@container_tbl_(max-width:51rem)]:block';
+const STACK_HEAD = '[@container_tbl_(max-width:51rem)]:sr-only';
+const STACK_BODY = '[@container_tbl_(max-width:51rem)]:block';
+const STACK_ROW = '[@container_tbl_(max-width:51rem)]:block [@container_tbl_(max-width:51rem)]:p-4';
+const STACK_CELL = '[@container_tbl_(max-width:51rem)]:block [@container_tbl_(max-width:51rem)]:px-0 [@container_tbl_(max-width:51rem)]:py-1 [@container_tbl_(max-width:51rem)]:before:block [@container_tbl_(max-width:51rem)]:before:text-sm [@container_tbl_(max-width:51rem)]:before:font-medium [@container_tbl_(max-width:51rem)]:before:text-muted-foreground [@container_tbl_(max-width:51rem)]:before:content-[attr(data-label)]';
 
 /** เลขขั้นของฟอร์ม (① ② ③) — ตกแต่ง ซ่อนจาก screen reader */
 function StepNo({ n }: { n: number }) {
@@ -418,7 +418,7 @@ function Inner() {
           : <Empty icon="folder" title="ยังไม่มีหลักฐานตามเงื่อนไขนี้" text="เพิ่มหลักฐานชิ้นแรก เช่น รายงานการประชุม แผนพัฒนา หรือผลสำรวจ"
               action={canWrite && !open ? <Button onClick={openForm}><Icon name="plus" size={20} />เพิ่มหลักฐาน</Button> : undefined} />
       ) : (
-        <Table className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none" data-testid="ev-table">
+        <Table className={STACK_TABLE} wrapperClassName="[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none" data-testid="ev-table">
           <TableHeader className={STACK_HEAD}>
             <TableRow><TableHead>รหัส</TableHead><TableHead>ชื่อ</TableHead><TableHead>ประเภท</TableHead><TableHead>PDCA</TableHead><TableHead>ปี</TableHead><TableHead>ข้อที่ผูก</TableHead><TableHead>สถานะ</TableHead></TableRow>
           </TableHeader>
@@ -431,12 +431,12 @@ function Inner() {
                     {e.code.startsWith('E-0.0') && <Term k="evidence_code" label="รหัส E-0.0" />}
                   </span>
                 </TableCell>
-                <TableCell data-label="ชื่อ" className={cn(STACK_CELL, 'min-w-[14rem]')}>{e.title}{e.containsPii && !e.piiResolved && <> <Badge tone="bad" title="พบข้อมูลส่วนบุคคล">PII</Badge></>}</TableCell>
+                <TableCell data-label="ชื่อ" className={cn(STACK_CELL, '[@container_tbl_(min-width:51.01rem)]:min-w-[14rem]')}>{e.title}{e.containsPii && !e.piiResolved && <> <Badge tone="bad" title="พบข้อมูลส่วนบุคคล">PII</Badge></>}</TableCell>
                 <TableCell data-label="ประเภท" className={STACK_CELL}>{KIND_TH[e.kind]}</TableCell>
                 <TableCell data-label="PDCA" className={STACK_CELL}>{e.pdcaStage}</TableCell>
                 <TableCell data-label="ปี" className={cn(STACK_CELL, 'tabular-nums')}>{e.academicYear}</TableCell>
                 <TableCell data-label="ข้อที่ผูก" className={cn(STACK_CELL, 'tabular-nums')}>{e.requirementIds.length ? e.requirementIds.join(', ') : <span className="text-muted-foreground">ยังไม่ผูก</span>}</TableCell>
-                <TableCell data-label="สถานะ" className={cn('md:min-w-max', STACK_CELL)}><EvidenceStatusBadge status={e.status} /></TableCell>
+                <TableCell data-label="สถานะ" className={cn('[@container_tbl_(min-width:51.01rem)]:min-w-max', STACK_CELL)}><EvidenceStatusBadge status={e.status} /></TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -35,17 +35,22 @@ const LEAVE_MS = 220;
 const APPROVE_LABEL = { th: 'อนุมัติ', en: 'Approve' } as const;
 
 /**
- * §C5 ตารางแบบ stack เมื่อ <1280 (N1 R2-F13): กรอบเนื้อหาที่ 768–1279 แคบเกินตาราง → แต่ละแถวเป็นการ์ด
- * (md: grid 2 คอลัมน์ รอบ | ส่งโดย ที่เหลือเต็มแถว) · ≥1280 เป็นตาราง ไม่มี min-width ที่รวมแล้วเกินกรอบ 934px
- * class literal ให้ JIT สแกนเจอ
+ * §C5 ตาราง → การ์ด ตามความกว้าง "กรอบตารางจริง" (R2-F14: container query บน wrapper container `tbl` แทน media query ของจอ)
+ * หน่วย rem ⇒ จุดสลับขยายตามขนาดตัวอักษรผู้ใช้ (100–125%) · min-content ของตารางนี้ ≈ 47.7rem → การ์ดเมื่อกรอบ ≤ 50rem
+ * การ์ด: กรอบ ≥ 40rem เป็น grid 2 คอลัมน์ (รอบ | ส่งโดย ที่เหลือเต็มแถว) · class literal ให้ JIT สแกนเจอ
  */
-const STACK_TABLE = 'max-xl:block';
-const STACK_HEAD = 'max-xl:sr-only';
-const STACK_BODY = 'max-xl:block';
-const STACK_ROW = 'max-xl:grid max-xl:grid-cols-1 max-xl:gap-x-6 max-xl:p-4 md:max-xl:grid-cols-2';
-const STACK_CELL = 'max-xl:block max-xl:px-0 max-xl:py-1 max-xl:before:block max-xl:before:text-sm max-xl:before:font-medium max-xl:before:text-muted-foreground max-xl:before:content-[attr(data-label)]';
-const STACK_FULL = 'max-xl:col-span-full';
-const STACK_ACTIONS = 'max-xl:block max-xl:col-span-full max-xl:px-0 max-xl:pb-0 max-xl:pt-3';
+const STACK_WRAP = '[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none';
+const STACK_TABLE = '[@container_tbl_(max-width:50rem)]:block';
+const STACK_HEAD = '[@container_tbl_(max-width:50rem)]:sr-only';
+const STACK_BODY = '[@container_tbl_(max-width:50rem)]:block';
+const STACK_ROW = '[@container_tbl_(max-width:50rem)]:grid [@container_tbl_(max-width:39.99rem)]:grid-cols-1 [@container_tbl_(max-width:50rem)]:gap-x-6 [@container_tbl_(max-width:50rem)]:p-4 [@container_tbl_(min-width:40rem)_and_(max-width:50rem)]:grid-cols-2';
+const STACK_CELL = '[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:px-0 [@container_tbl_(max-width:50rem)]:py-1 [@container_tbl_(max-width:50rem)]:before:block [@container_tbl_(max-width:50rem)]:before:text-sm [@container_tbl_(max-width:50rem)]:before:font-medium [@container_tbl_(max-width:50rem)]:before:text-muted-foreground [@container_tbl_(max-width:50rem)]:before:content-[attr(data-label)]';
+const STACK_FULL = '[@container_tbl_(max-width:50rem)]:col-span-full';
+const STACK_ACTIONS = '[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:col-span-full [@container_tbl_(max-width:50rem)]:px-0 [@container_tbl_(max-width:50rem)]:pb-0 [@container_tbl_(max-width:50rem)]:pt-3';
+/** เฉพาะตอนเป็นตาราง (กรอบ > 50rem) */
+const AS_TABLE_MIN11 = '[@container_tbl_(min-width:50.01rem)]:min-w-[11rem]';
+const AS_TABLE_MIN10 = '[@container_tbl_(min-width:50.01rem)]:min-w-[10rem]';
+const AS_TABLE_END = '[@container_tbl_(min-width:50.01rem)]:justify-end';
 const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 
 export default function ReviewPage() {
@@ -152,7 +157,7 @@ export default function ReviewPage() {
             {items.length === 0 ? (
               <Empty icon="inbox-check" title="ไม่มีข้อที่รอตรวจ" text="เมื่ออาจารย์ส่งข้อมา จะขึ้นที่นี่และมีแจ้งเตือน" />
             ) : (
-              <Table data-testid="review-table" className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
+              <Table data-testid="review-table" className={STACK_TABLE} wrapperClassName={STACK_WRAP}>
                 <TableHeader className={STACK_HEAD}>
                   <tr>
                     <TableHead>ข้อ</TableHead><TableHead>รอบ</TableHead><TableHead>ส่งโดย</TableHead>
@@ -167,7 +172,7 @@ export default function ReviewPage() {
                         key={section.id}
                         className={cn(STACK_ROW, 'transition-opacity duration-base ease-exit', leaving.has(section.id) && 'opacity-0')}
                       >
-                        <TableCell data-label="ข้อ" className={cn('xl:min-w-[11rem]', STACK_CELL, STACK_FULL)}>
+                        <TableCell data-label="ข้อ" className={cn(AS_TABLE_MIN11, STACK_CELL, STACK_FULL)}>
                           <Link className={CODE_LINK} href={sectionHref(cycle.id, section.requirementId)}><strong className="font-semibold">{section.requirementId}</strong></Link>
                           {req && <p className="aq-meta line-clamp-2">{truncateTh(req.textTh, 60)}</p>}
                         </TableCell>
@@ -176,7 +181,7 @@ export default function ReviewPage() {
                           <span className="block md:whitespace-nowrap">{names.get(section.ownerUserId || '') || '—'}</span>
                           <span className="aq-meta block tabular-nums md:whitespace-nowrap">{fmtDateTime(section.updatedAt)}</span>
                         </TableCell>
-                        <TableCell data-label="สรุป" className={cn('xl:min-w-[10rem]', STACK_CELL, STACK_FULL)}>
+                        <TableCell data-label="สรุป" className={cn(AS_TABLE_MIN10, STACK_CELL, STACK_FULL)}>
                           <p className="aq-meta">{`หลักฐาน ${evidence} ชิ้น · ${section.wordCount} คำ · คะแนนตนเอง ${self ?? '—'}`}</p>
                           {gaps && (gaps.critical > 0 || gaps.high > 0) && (
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -186,7 +191,7 @@ export default function ReviewPage() {
                           )}
                         </TableCell>
                         <TableCell className={STACK_ACTIONS}>
-                          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+                          <div className={cn('flex flex-wrap items-center gap-2', AS_TABLE_END)}>
                             {canApprove && !ownWork && (
                               <AsyncButton variant="default" size="compact" testId={`approve-${section.requirementId}`}
                                 onClick={() => approve(cycle.id, section.id, section.requirementId, gaps?.critical ?? 0)}>

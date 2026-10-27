@@ -71,7 +71,8 @@ export default function UserMenu({ user, onLogout }: { user: AppUser; onLogout: 
         onClick={() => setOpen(o => !o)}
       >
         <span className="mx-auto inline-flex md:mx-0"><Avatar name={user.fullName} /></span>
-        <span className="sr-only md:not-sr-only md:flex md:min-w-0 md:flex-col md:items-start">
+        {/* N10 (R2-F14): flex-col แบบ stretch (ไม่ใช่ items-start) ให้ชื่อ/บทบาทกว้างเท่ากรอบที่หดได้ แล้ว truncate — แถบบนไม่ดันหน้าล้นที่ 1024 + ตัวอักษร 125% */}
+        <span className="sr-only md:not-sr-only md:flex md:min-w-0 md:flex-col">
           <span className="block max-w-[12rem] truncate font-medium text-foreground" data-testid="nav-user">{user.fullName}</span>
           <span className="aq-meta block max-w-[12rem] truncate">{role}</span>
         </span>

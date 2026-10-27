@@ -30,10 +30,10 @@ import { errMsg } from '@/lib/ui/aunqa';
 const num = (s: string): number | undefined => (s.trim() === '' ? undefined : Number(s));
 
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
-/** saas-spec §C5 มือถือ: แถวเป็นการ์ดย่อย + ป้ายคอลัมน์จาก data-label */
+/** saas-spec §C5: กรอบตาราง (container `tbl`) ≤ 50rem แถวเป็นการ์ดย่อย + ป้ายคอลัมน์จาก data-label (container query หน่วย rem ขยายตามขนาดตัวอักษร — R2-F14; min-content ดู ≈ 37.5rem, ตอนแก้ค่า ≈ 47rem) */
 const STACK_TD =
-  'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
-const NUM = 'text-right tabular-nums max-md:text-left';
+  '[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:px-0 [@container_tbl_(max-width:50rem)]:py-1 [@container_tbl_(max-width:50rem)]:before:block [@container_tbl_(max-width:50rem)]:before:text-sm [@container_tbl_(max-width:50rem)]:before:font-medium [@container_tbl_(max-width:50rem)]:before:text-muted-foreground [@container_tbl_(max-width:50rem)]:before:content-[attr(data-label)]';
+const NUM = 'text-right tabular-nums [@container_tbl_(max-width:50rem)]:text-left';
 
 export default function MetricsPage() {
   const { user, programmes, programmeId, setProgrammeId } = useScope();
@@ -72,21 +72,21 @@ export default function MetricsPage() {
           </section>
           <section className="mb-6" aria-labelledby="mt-h">
             <h2 id="mt-h" className="m-0 mb-3 text-xl font-semibold text-foreground">ค่าตัวชี้วัดรายปี</h2>
-            <Table data-testid="metric-table" className="max-md:block" wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
-              <TableHeader className="max-md:sr-only">
+            <Table data-testid="metric-table" className="[@container_tbl_(max-width:50rem)]:block" wrapperClassName="[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none">
+              <TableHeader className="[@container_tbl_(max-width:50rem)]:sr-only">
                 <tr>
                   <TableHead>ปี</TableHead><TableHead className="text-right">ค่า</TableHead><TableHead className="text-right">เป้าหมาย</TableHead>
                   <TableHead className="text-right">benchmark</TableHead><TableHead>แหล่ง benchmark</TableHead>
                   {canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}
                 </tr>
               </TableHeader>
-              <TableBody className="max-md:block">
+              <TableBody className="[@container_tbl_(max-width:50rem)]:block">
                 {Array.from(new Set(rows.map(r => r.code))).map(code => {
                   const d = getMetricDefinition(code);
                   return (
                     <Fragment key={code}>
-                      <tr className="border-t bg-muted/60 max-md:block">
-                        <th colSpan={canWrite ? 6 : 5} scope="colgroup" className="px-4 py-3 text-left text-base font-semibold text-foreground max-md:block">
+                      <tr className="border-t bg-muted/60 [@container_tbl_(max-width:50rem)]:block">
+                        <th colSpan={canWrite ? 6 : 5} scope="colgroup" className="px-4 py-3 text-left text-base font-semibold text-foreground [@container_tbl_(max-width:50rem)]:block">
                           {code} — {d?.nameTh}{d?.unit ? ` (${d.unit})` : ''}
                         </th>
                       </tr>
@@ -124,9 +124,9 @@ function Row({ m, user, canWrite, onDone, toast }: {
     try { deleteMetric(user, m.id); toast('ลบแล้ว', 'success'); onDone(); } catch (e) { toast(errMsg(e), 'error'); }
   }
 
-  const cellInput = 'min-w-[6rem] text-right tabular-nums max-md:text-left';
+  const cellInput = 'min-w-[6rem] text-right tabular-nums [@container_tbl_(max-width:50rem)]:text-left';
   return (
-    <TableRow data-testid={`metric-${m.code}-${m.period}`} className="max-md:block max-md:p-4">
+    <TableRow data-testid={`metric-${m.code}-${m.period}`} className="[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:p-4">
       <TableCell data-label="ปี" className={cn('font-medium tabular-nums', STACK_TD)}>{m.period}</TableCell>
       {edit ? (
         <>
@@ -144,8 +144,8 @@ function Row({ m, user, canWrite, onDone, toast }: {
         </>
       )}
       {canWrite && (
-        <TableCell className="max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3">
-          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+        <TableCell className="[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:px-0 [@container_tbl_(max-width:50rem)]:pb-0 [@container_tbl_(max-width:50rem)]:pt-3">
+          <div className="flex flex-wrap items-center gap-2 [@container_tbl_(min-width:50.01rem)]:justify-end">
             {edit
               ? <><Button size="compact" onClick={save} data-testid="metric-save">บันทึก</Button><Button variant="ghost" size="compact" onClick={() => setEdit(false)}>ยกเลิก</Button></>
               : <><Button variant="outline" size="compact" onClick={() => setEdit(true)} data-testid={`metric-edit-${m.code}-${m.period}`}><Icon name="pencil" size={20} />แก้</Button>

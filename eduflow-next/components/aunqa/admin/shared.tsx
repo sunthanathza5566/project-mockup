@@ -109,12 +109,16 @@ export const INVITE_DEMO_NOTE =
 export const CARD = 'rounded-xl border bg-card p-5 text-card-foreground shadow-sm dark:shadow-none md:p-6';
 export const LABEL = 'block text-base font-medium text-foreground';
 
-/** §C5 ตารางซ้อนเป็นการ์ดบนมือถือ (<768) — ป้ายคอลัมน์มาจาก `data-label` ของ td */
+/** §C5 ตารางซ้อนเป็นการ์ดเมื่อกรอบตาราง (container `tbl` ใน `STACK.wrap`) ≤ 47rem — container query หน่วย rem ขยายตามขนาดตัวอักษร (R2-F14; users min-content ≈ 44rem) · ป้ายคอลัมน์มาจาก `data-label` ของ td */
 export const STACK = {
-  table: 'max-md:block',
-  thead: 'max-md:sr-only',
-  tbody: 'max-md:block',
-  tr: 'max-md:block max-md:px-4 max-md:py-3',
-  td: 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium ' +
-    'max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]',
+  wrap: '[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none',
+  /** เฉพาะตอนเป็นตาราง (กรอบ > 47rem) */
+  asTableRight: '[@container_tbl_(min-width:47.01rem)]:text-right',
+  asTableMaxW20: '[@container_tbl_(min-width:47.01rem)]:max-w-[20rem]',
+  table: '[@container_tbl_(max-width:47rem)]:block',
+  thead: '[@container_tbl_(max-width:47rem)]:sr-only',
+  tbody: '[@container_tbl_(max-width:47rem)]:block',
+  tr: '[@container_tbl_(max-width:47rem)]:block [@container_tbl_(max-width:47rem)]:px-4 [@container_tbl_(max-width:47rem)]:py-3',
+  td: '[@container_tbl_(max-width:47rem)]:block [@container_tbl_(max-width:47rem)]:px-0 [@container_tbl_(max-width:47rem)]:py-1 [@container_tbl_(max-width:47rem)]:before:block [@container_tbl_(max-width:47rem)]:before:text-sm [@container_tbl_(max-width:47rem)]:before:font-medium ' +
+    '[@container_tbl_(max-width:47rem)]:before:text-muted-foreground [@container_tbl_(max-width:47rem)]:before:content-[attr(data-label)]',
 } as const;

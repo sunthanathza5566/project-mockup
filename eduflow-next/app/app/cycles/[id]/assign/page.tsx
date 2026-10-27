@@ -35,12 +35,12 @@ const LABEL = 'block text-base font-medium text-foreground';
 const CODE_LINK = 'inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline underline-offset-4 hover:decoration-2';
 const SAVED = 'aq-saved inline-flex items-center gap-1 text-success';
 const FIELD_ERR = 'aq-field-error flex items-start gap-1';
-/** §C5 ตารางแบบ stack บนมือถือ (<768) — class literal ให้ JIT สแกนเจอ */
-const STACK_TABLE = 'max-md:block';
-const STACK_HEAD = 'max-md:sr-only';
-const STACK_BODY = 'max-md:block';
-const STACK_ROW = 'max-md:block max-md:p-4';
-const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+/** §C5 ตาราง → การ์ด เมื่อกรอบตาราง (container `tbl`) ≤ 50rem — container query หน่วย rem ขยายตามขนาดตัวอักษร (R2-F14; min-content ≈ 47.5rem) · class literal ให้ JIT สแกนเจอ */
+const STACK_TABLE = '[@container_tbl_(max-width:50rem)]:block';
+const STACK_HEAD = '[@container_tbl_(max-width:50rem)]:sr-only';
+const STACK_BODY = '[@container_tbl_(max-width:50rem)]:block';
+const STACK_ROW = '[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:p-4';
+const STACK_CELL = '[@container_tbl_(max-width:50rem)]:block [@container_tbl_(max-width:50rem)]:px-0 [@container_tbl_(max-width:50rem)]:py-1 [@container_tbl_(max-width:50rem)]:before:block [@container_tbl_(max-width:50rem)]:before:text-sm [@container_tbl_(max-width:50rem)]:before:font-medium [@container_tbl_(max-width:50rem)]:before:text-muted-foreground [@container_tbl_(max-width:50rem)]:before:content-[attr(data-label)]';
 
 type RowState = { field: 'owner' | 'due'; kind: 'saved' | 'error'; msg?: string };
 
@@ -225,7 +225,7 @@ export default function AssignPage() {
                         </Button>
                       </div>
                     )}
-                    <Table aria-labelledby={`as-${c.no}`} className={STACK_TABLE}>
+                    <Table aria-labelledby={`as-${c.no}`} className={STACK_TABLE} wrapperClassName="[container-type:inline-size] [container-name:tbl]">
                       <TableHeader className={STACK_HEAD}>
                         <tr><TableHead>ข้อ</TableHead><TableHead>สถานะ</TableHead><TableHead>เจ้าของ</TableHead><TableHead>กำหนดส่ง</TableHead></tr>
                       </TableHeader>
@@ -237,12 +237,12 @@ export default function AssignPage() {
                           const ownerName = s.ownerUserId ? names.get(s.ownerUserId) : undefined;
                           return (
                             <TableRow key={r.id} className={cn(STACK_ROW, st?.kind === 'saved' && 'animate-highlight')}>
-                              <TableCell data-label="ข้อ" className={cn('min-w-[14rem]', STACK_CELL)}>
+                              <TableCell data-label="ข้อ" className={cn('[@container_tbl_(min-width:50.01rem)]:min-w-[14rem]', STACK_CELL)}>
                                 <Link className={CODE_LINK} href={`/app/sections/${encodeURIComponent(s.id)}`}><strong className="font-semibold">{r.id}</strong></Link>
                                 <p className="line-clamp-2 text-muted-foreground">{r.textTh}</p>
                               </TableCell>
                               <TableCell data-label="สถานะ" className={STACK_CELL}><SectionStatusBadge status={s.status} /></TableCell>
-                              <TableCell data-label="เจ้าของ" className={cn('md:min-w-[13rem]', STACK_CELL)}>
+                              <TableCell data-label="เจ้าของ" className={cn('[@container_tbl_(min-width:50.01rem)]:min-w-[13rem]', STACK_CELL)}>
                                 <div className="space-y-1">
                                   <NativeSelect disabled={!canAssign} value={s.ownerUserId || ''} aria-label={`เจ้าของข้อ ${r.id}`}
                                     data-testid={`owner-${r.id}`} aria-invalid={st?.kind === 'error' && st.field === 'owner' ? true : undefined}
@@ -257,7 +257,7 @@ export default function AssignPage() {
                                   {st?.field === 'owner' && st.kind === 'error' && <span className={FIELD_ERR}><Icon name="x-circle" size={16} className="shrink-0" /><span className="sr-only">ข้อผิดพลาด:</span>{st.msg}</span>}
                                 </div>
                               </TableCell>
-                              <TableCell data-label="กำหนดส่ง" className={cn('md:min-w-[11rem]', STACK_CELL)}>
+                              <TableCell data-label="กำหนดส่ง" className={cn('[@container_tbl_(min-width:50.01rem)]:min-w-[11rem]', STACK_CELL)}>
                                 <div className="space-y-1">
                                   <Input type="date" disabled={!canAssign} value={s.due || ''} aria-label={`กำหนดส่งข้อ ${r.id}`}
                                     data-testid={`due-${r.id}`} aria-invalid={st?.kind === 'error' && st.field === 'due' ? true : undefined}

@@ -29,9 +29,9 @@ const STATUSES: ActionStatus[] = ['open', 'in_progress', 'done', 'verified'];
 
 /** §F13 การ์ด (rounded-xl, p-5 md:p-6) */
 const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
-/** saas-spec §C5 มือถือ: แถวเป็นการ์ดย่อย + ป้ายคอลัมน์จาก data-label */
+/** saas-spec §C5: กรอบตาราง (container `tbl`) ≤ 59rem แถวเป็นการ์ดย่อย + ป้ายคอลัมน์จาก data-label (container query หน่วย rem ขยายตามขนาดตัวอักษร — R2-F14; min-content ≈ 56.5rem) */
 const STACK_TD =
-  'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+  '[@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:px-0 [@container_tbl_(max-width:59rem)]:py-1 [@container_tbl_(max-width:59rem)]:before:block [@container_tbl_(max-width:59rem)]:before:text-sm [@container_tbl_(max-width:59rem)]:before:font-medium [@container_tbl_(max-width:59rem)]:before:text-muted-foreground [@container_tbl_(max-width:59rem)]:before:content-[attr(data-label)]';
 /** ปลายทางแจ้งเตือน (friendly-spec §F3.3): `/app/actions#action-{encodeURIComponent(id)}` */
 const HASH_PREFIX = 'action-';
 
@@ -197,11 +197,11 @@ function Inner() {
               : <Empty icon="list-check" title="ยังไม่มีแผนปรับปรุง" text="สร้างจากข้อเสนอแนะของกรรมการ (AFI) หลังประเมิน หรือเพิ่มเอง"
                   action={canCreate ? <Button onClick={() => setForm('new')}><Icon name="plus" size={20} />เพิ่มรายการ</Button> : undefined} />;
             return (
-              <Table data-testid="action-table" className="max-md:block" wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
-                <TableHeader className="max-md:sr-only">
+              <Table data-testid="action-table" className="[@container_tbl_(max-width:59rem)]:block" wrapperClassName="[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none">
+                <TableHeader className="[@container_tbl_(max-width:59rem)]:sr-only">
                   <tr><TableHead>ข้อ</TableHead><TableHead>รายละเอียด</TableHead><TableHead>ผู้รับผิดชอบ</TableHead><TableHead>กำหนด</TableHead><TableHead>สถานะ</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead></tr>
                 </TableHeader>
-                <TableBody className="max-md:block">
+                <TableBody className="[@container_tbl_(max-width:59rem)]:block">
                   {shown.map(a => {
                     const scope = programmeScope(a.programmeId, { ownerUserId: a.ownerUserId });
                     const nexts = ACTION_TRANSITIONS.filter(t => t.from === a.status && can(user, t.action, scope) && !(t.to === 'verified' && a.ownerUserId === user.id));
@@ -211,11 +211,11 @@ function Inner() {
                     return (
                       <TableRow key={a.id} id={`${HASH_PREFIX}${a.id}`} data-testid={`action-${a.id}`}
                         tabIndex={isHl ? -1 : undefined} data-highlight={isHl || undefined}
-                        className={cn('scroll-mt-24 max-md:block max-md:p-4', isHl && 'animate-highlight')}>
+                        className={cn('scroll-mt-24 [@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:p-4', isHl && 'animate-highlight')}>
                         <TableCell data-label="ข้อ" className={cn('whitespace-nowrap', STACK_TD)}>
-                          <Link className="inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline-offset-4 hover:underline max-md:min-h-0" href="/app/requirements">{a.requirementId}</Link>
+                          <Link className="inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline-offset-4 hover:underline [@container_tbl_(max-width:59rem)]:min-h-0" href="/app/requirements">{a.requirementId}</Link>
                         </TableCell>
-                        <TableCell data-label="รายละเอียด" className={cn('min-w-[16rem]', STACK_TD)}>
+                        <TableCell data-label="รายละเอียด" className={cn('[@container_tbl_(min-width:59.01rem)]:min-w-[16rem]', STACK_TD)}>
                           <div className="space-y-1">
                             <p className="m-0 text-foreground">{a.description}</p>
                             {a.kpi && <p className="aq-meta m-0">KPI: {a.kpi}</p>}
@@ -230,8 +230,8 @@ function Inner() {
                         <TableCell data-label="สถานะ" className={STACK_TD}>
                           <Badge tone={ACTION_STATUS_VIEW[a.status].tone} icon={ACTION_STATUS_VIEW[a.status].icon} testId="action-status">{ACTION_STATUS_TH[a.status]}</Badge>
                         </TableCell>
-                        <TableCell className="max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3">
-                          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                        <TableCell className="[@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:px-0 [@container_tbl_(max-width:59rem)]:pb-0 [@container_tbl_(max-width:59rem)]:pt-3">
+                          <div className="flex flex-wrap items-center gap-2 [@container_tbl_(min-width:59.01rem)]:justify-end">
                             {nexts.map(t => <Button key={t.to} size="compact" className="whitespace-nowrap" onClick={() => change(a, t.to)} data-testid={`action-to-${t.to}`}>{t.to === 'in_progress' ? (a.status === 'done' ? 'กลับไปทำต่อ' : 'เริ่มทำ') : ACTION_BTN_TH[t.to]}</Button>)}
                             {editable && <Button variant="outline" size="compact" onClick={() => setForm(a)}><Icon name="pencil" size={20} />แก้</Button>}
                             {a.status === 'open' && can(user, 'action.write', scope) && (

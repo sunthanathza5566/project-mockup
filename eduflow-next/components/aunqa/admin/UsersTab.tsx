@@ -178,10 +178,10 @@ export default function UsersTab({ user }: { user: AppUser }) {
             </p>
           )}
 
-          <Table data-testid="users-table" className={STACK.table} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
+          <Table data-testid="users-table" className={STACK.table} wrapperClassName={STACK.wrap}>
             <TableHeader className={STACK.thead}>
               <tr>
-                <TableHead className="min-w-[14rem]">ผู้ใช้</TableHead>
+                <TableHead className="[@container_tbl_(min-width:47.01rem)]:min-w-[14rem]">ผู้ใช้</TableHead>
                 <TableHead>บทบาท</TableHead>
                 <TableHead>สถานะ</TableHead>
                 <TableHead className="w-px whitespace-nowrap"><span className="sr-only">การจัดการ</span></TableHead>
@@ -196,7 +196,7 @@ export default function UsersTab({ user }: { user: AppUser }) {
                   <Fragment key={u.id}>
                   <TableRow data-testid={`user-${u.username}`} className={cn(STACK.tr, open && 'bg-muted/50')}>
                     <TableCell data-label="ผู้ใช้" className={STACK.td}>
-                      <div className="min-w-0 md:max-w-[20rem]">
+                      <div className={cn('min-w-0', STACK.asTableMaxW20)}>
                         <strong className="block font-semibold text-foreground">{u.fullName}</strong>
                         <div className="aq-meta truncate" title={u.username}><code className="font-mono">{u.username}</code></div>
                         <div className="aq-meta truncate" title={u.email}>{u.email}</div>
@@ -218,7 +218,7 @@ export default function UsersTab({ user }: { user: AppUser }) {
                     <TableCell data-label="สถานะ" className={cn(STACK.td, 'whitespace-nowrap')}>
                       <UserStatusBadge status={userStatus(u)} testId={`user-status-${u.username}`} />
                     </TableCell>
-                    <TableCell className={cn(STACK.td, 'whitespace-nowrap max-md:before:hidden max-md:pt-2 md:text-right')}>
+                    <TableCell className={cn(STACK.td, 'whitespace-nowrap [@container_tbl_(max-width:47rem)]:before:hidden [@container_tbl_(max-width:47rem)]:pt-2', STACK.asTableRight)}>
                       {manageable ? (
                         <Button
                           variant={open ? 'default' : 'outline'} size="compact" className="whitespace-nowrap"
@@ -234,7 +234,7 @@ export default function UsersTab({ user }: { user: AppUser }) {
                   </TableRow>
                   {open && manageable && (
                     <TableRow className={cn(STACK.tr, 'bg-muted/50 hover:bg-muted/50')}>
-                      <TableCell colSpan={4} className="max-md:block max-md:px-0 max-md:py-1">
+                      <TableCell colSpan={4} className="[@container_tbl_(max-width:47rem)]:block [@container_tbl_(max-width:47rem)]:px-0 [@container_tbl_(max-width:47rem)]:py-1">
                         <ManagePanel
                           id={panelId} actor={user} target={u} scopes={scopes}
                           onRemoveRole={i => removeRole(u, i, scopes)} onAddRole={(r, s) => addRole(u, r, s)}
@@ -319,7 +319,7 @@ function ManagePanel({ id, actor, target: u, scopes, onRemoveRole, onAddRole, on
         {st === 'suspended' ? (
           <p className="text-muted-foreground" data-testid={`user-add-blocked-${u.username}`}>เปิดใช้บัญชีก่อน จึงจะเพิ่มบทบาทได้</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-start">
+          <div className="grid gap-4 [@container_tbl_(min-width:40rem)]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] [@container_tbl_(min-width:40rem)]:items-start">
             <div className="space-y-1.5">
               <label htmlFor={`${id}-role`} className={LABEL}>บทบาท</label>
               <NativeSelect
@@ -334,7 +334,7 @@ function ManagePanel({ id, actor, target: u, scopes, onRemoveRole, onAddRole, on
               onChange={v => { setScope(v); setScopeErr(''); }} testId={`user-add-scope-${u.username}`} error={scopeErr}
             />
             <Button
-              variant="outline" className="self-start whitespace-nowrap md:mt-8" onClick={submitAdd}
+              variant="outline" className="self-start whitespace-nowrap [@container_tbl_(min-width:40rem)]:mt-8" onClick={submitAdd}
               data-testid={`user-add-submit-${u.username}`} disabled={scopesForRole(scopes, role).length === 0}
             >
               <Icon name="plus" size={20} />เพิ่มบทบาท

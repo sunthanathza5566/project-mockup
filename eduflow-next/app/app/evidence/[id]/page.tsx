@@ -42,11 +42,12 @@ const DT = 'aq-meta';
 const DD = 'm-0 mb-2 min-w-0 break-words text-base text-foreground sm:mb-0';
 const CHECK_ROW = 'flex min-h-11 cursor-pointer items-center gap-3 text-base text-foreground';
 const CHECK_INPUT = 'h-5 w-5 shrink-0 accent-primary';
-const STACK_TABLE = 'max-md:block';
-const STACK_HEAD = 'max-md:sr-only';
-const STACK_BODY = 'max-md:block';
-const STACK_ROW = 'max-md:block max-md:p-4';
-const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
+/** §C5 ตารางไฟล์ → การ์ดเมื่อกรอบตาราง (container `tbl`) ≤ 42rem — container query หน่วย rem ขยายตามขนาดตัวอักษร (R2-F14) · class literal ให้ JIT สแกนเจอ */
+const STACK_TABLE = '[@container_tbl_(max-width:42rem)]:block';
+const STACK_HEAD = '[@container_tbl_(max-width:42rem)]:sr-only';
+const STACK_BODY = '[@container_tbl_(max-width:42rem)]:block';
+const STACK_ROW = '[@container_tbl_(max-width:42rem)]:block [@container_tbl_(max-width:42rem)]:p-4';
+const STACK_CELL = '[@container_tbl_(max-width:42rem)]:block [@container_tbl_(max-width:42rem)]:px-0 [@container_tbl_(max-width:42rem)]:py-1 [@container_tbl_(max-width:42rem)]:before:block [@container_tbl_(max-width:42rem)]:before:text-sm [@container_tbl_(max-width:42rem)]:before:font-medium [@container_tbl_(max-width:42rem)]:before:text-muted-foreground [@container_tbl_(max-width:42rem)]:before:content-[attr(data-label)]';
 
 function fmtSize(n: number): string {
   return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${(n / 1024).toFixed(1)} KB`;
@@ -332,7 +333,7 @@ function Inner() {
                 )}
               </div>
               {files.length === 0 ? <Empty icon="file-text" title="ไม่มีไฟล์แนบ" text="หลักฐานนี้อาจเป็นลิงก์หรือข้อความ" /> : (
-                <Table className={STACK_TABLE}>
+                <Table className={STACK_TABLE} wrapperClassName="[container-type:inline-size] [container-name:tbl]">
                   <TableHeader className={STACK_HEAD}>
                     <TableRow><TableHead>v</TableHead><TableHead>ไฟล์</TableHead><TableHead>ขนาด</TableHead><TableHead>hash</TableHead><TableHead>อัปโหลด</TableHead></TableRow>
                   </TableHeader>

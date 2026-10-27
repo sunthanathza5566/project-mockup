@@ -23,13 +23,13 @@ import { errMsg, fmtDate } from '@/lib/ui/aunqa';
 import { NEXT_ACTOR_TH } from '@/lib/ui/status';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 
-/** §C5 ตารางแบบ stack บนมือถือ (<768) — class literal ให้ JIT สแกนเจอ */
-const STACK_TABLE = 'max-md:block';
-const STACK_HEAD = 'max-md:sr-only';
-const STACK_BODY = 'max-md:block';
-const STACK_ROW = 'max-md:block max-md:p-4';
-const STACK_CELL = 'max-md:block max-md:px-0 max-md:py-1 max-md:before:block max-md:before:text-sm max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]';
-const STACK_ACTIONS = 'max-md:block max-md:px-0 max-md:pb-0 max-md:pt-3';
+/** §C5 ตาราง → การ์ด เมื่อกรอบตาราง (container `tbl`) ≤ 54rem — container query หน่วย rem ขยายตามขนาดตัวอักษร (R2-F14; min-content ≈ 51.6rem) · class literal ให้ JIT สแกนเจอ */
+const STACK_TABLE = '[@container_tbl_(max-width:54rem)]:block';
+const STACK_HEAD = '[@container_tbl_(max-width:54rem)]:sr-only';
+const STACK_BODY = '[@container_tbl_(max-width:54rem)]:block';
+const STACK_ROW = '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:p-4';
+const STACK_CELL = '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:py-1 [@container_tbl_(max-width:54rem)]:before:block [@container_tbl_(max-width:54rem)]:before:text-sm [@container_tbl_(max-width:54rem)]:before:font-medium [@container_tbl_(max-width:54rem)]:before:text-muted-foreground [@container_tbl_(max-width:54rem)]:before:content-[attr(data-label)]';
+const STACK_ACTIONS = '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:pb-0 [@container_tbl_(max-width:54rem)]:pt-3';
 const LABEL = 'block text-base font-medium text-foreground';
 
 export default function CyclesPage() {
@@ -137,7 +137,7 @@ export default function CyclesPage() {
         {cycles.length === 0 ? (
           <Empty icon="calendar-cycle" title="ยังไม่มีรอบประเมินที่คุณเข้าถึงได้" />
         ) : (
-          <Table data-testid="cycles-table" className={STACK_TABLE} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
+          <Table data-testid="cycles-table" className={STACK_TABLE} wrapperClassName="[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none">
             <TableHeader className={STACK_HEAD}>
               <tr>
                 <TableHead>ปี</TableHead><TableHead>หลักสูตร</TableHead><TableHead>สถานะ</TableHead>
@@ -153,17 +153,17 @@ export default function CyclesPage() {
                       <strong className="text-lg font-semibold tabular-nums text-foreground">{c.academicYear}</strong>
                       {c.revision > 1 && <div className="aq-meta">revision {c.revision}</div>}
                     </TableCell>
-                    <TableCell data-label="หลักสูตร" className={`min-w-[14rem] ${STACK_CELL}`}>
+                    <TableCell data-label="หลักสูตร" className={`[@container_tbl_(min-width:54.01rem)]:min-w-[14rem] ${STACK_CELL}`}>
                       <div className="font-medium text-foreground">{getProgramme(c.programmeId)?.nameTh}</div>
                       <div className="aq-meta">กำหนดส่ง {fmtDate(c.submissionDue)}</div>
                     </TableCell>
                     <TableCell data-label="สถานะ" className={STACK_CELL}><CycleStatusBadge status={c.status} /></TableCell>
                     <TableCell data-label="ความคืบหน้า" className={STACK_CELL}>
-                      <ProgressBar value={a} max={53} label={`อนุมัติ ${a}/53`} className="w-full min-w-24 md:w-32" />
+                      <ProgressBar value={a} max={53} label={`อนุมัติ ${a}/53`} className="w-full min-w-24 [@container_tbl_(min-width:54.01rem)]:w-32" />
                     </TableCell>
                     <TableCell data-label="ขั้นถัดไปโดย" className={STACK_CELL}>{NEXT_ACTOR_TH[c.status]}</TableCell>
                     <TableCell className={STACK_ACTIONS}>
-                      <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                      <div className="flex flex-wrap items-center gap-2 [@container_tbl_(min-width:54.01rem)]:justify-end">
                         <Button asChild variant="outline" size="compact">
                           <Link href={`/app/cycles/${c.id}`}>เปิด<Icon name="chevron-right" size={20} /></Link>
                         </Button>

@@ -41,7 +41,7 @@ export default function AuditTab({ user }: { user: AppUser }) {
             <span className="aq-meta md:ml-auto" aria-live="polite">{`${shown.length} จาก ${rows.length} รายการล่าสุด`}</span>
           </div>
           {shown.length === 0 ? <Empty icon="search" title="ไม่พบรายการ" /> : (
-            <Table data-testid="audit-table" className={STACK.table} wrapperClassName="rounded-xl shadow-sm dark:shadow-none">
+            <Table data-testid="audit-table" className={STACK.table} wrapperClassName={STACK.wrap}>
               <TableHeader className={STACK.thead}>
                 <tr>
                   <TableHead>เวลา</TableHead>
