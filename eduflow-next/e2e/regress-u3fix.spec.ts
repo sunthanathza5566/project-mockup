@@ -10,7 +10,7 @@
  * U-3    dialog สองตัวเกิดพร้อมกัน (logout ที่ flush ไม่ผ่าน + conflict) → เข้าคิว แสดงทีละตัว ไม่ทับ
  */
 import { test, expect, type Page } from '@playwright/test';
-import { DEMO_CYCLE, loginAs, logoutViaMenu, openSection, openUserMenu, pickRequirements, sectionUrl } from './helpers';
+import { DEMO_CYCLE, loginAs, logoutViaMenu, openSection, openUserMenu, sectionUrl } from './helpers';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -284,16 +284,23 @@ test('AC-14 staff1: home-add-evidence → ฟอร์มเปิดทัน�
   expect(actions).toBeLessThanOrEqual(6);
 });
 
+// R2-F12: เลือก 1.1 จาก picker ไม่ได้แล้ว (aria-disabled) → (ก) คลิกแล้วไม่เกิด chip (ข) deep link `?req=1.1` → ฟอร์มกันก่อนส่ง
 test('R2-B4 P1 staff1: หลักฐานใหม่ที่ผูกข้อที่อนุมัติแล้ว (1.1) → ข้อความล็อก · ไม่มีแถวใหม่ (ไม่มีหลักฐานกำพร้า)', async ({ page }) => {
   await loginAs(page, 'staff1');
   const title = `หลักฐานข้อล็อก ${Date.now() % 100_000}`;
   await page.getByTestId('home-add-evidence').click();
   await page.waitForURL(/\/app\/evidence\?new=1/);
+  await page.getByTestId('ev-f-reqs-input').fill('1.1');
+  await expect(page.getByTestId('ev-f-req-opt-1.1')).toHaveAttribute('aria-disabled', 'true');
+  await page.getByTestId('ev-f-req-opt-1.1').click({ force: true }); // aria-disabled → Playwright ไม่ถือว่า enabled
+  await expect(page.getByTestId('ev-f-req-chip-1.1')).toHaveCount(0);
+
+  await page.goto(`/app/evidence?new=1&cycle=${encodeURIComponent(DEMO_CYCLE)}&req=1.1`);
+  await expect(page.getByTestId('ev-f-req-chip-1.1')).toBeVisible();
   await page.getByTestId('ev-title').fill(title);
   await page.getByTestId('ev-file').setInputFiles({ name: 'lock.txt', mimeType: 'text/plain', buffer: Buffer.from('เอกสารสมมติ', 'utf8') });
-  await pickRequirements(page, ['1.1']);
   await page.getByTestId('ev-submit').click();
-  await expect(page.getByText('ข้อนี้ส่งตรวจ/อนุมัติแล้ว ต้องถูกส่งกลับแก้ก่อนจึงแก้ไขได้').first()).toBeVisible();
+  await expect(page.getByTestId('ev-error-summary')).toContainText('1.1');
   await expect(page.getByTestId('ev-form')).toBeVisible();
   await expect(page.getByTestId('ev-table').locator('tr', { hasText: title })).toHaveCount(0);
 });

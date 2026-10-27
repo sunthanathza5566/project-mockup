@@ -366,3 +366,92 @@ test.describe('P2 ขอบเขตตามบทบาท', () => {
     await expect(page.getByTestId('users-table').locator('tr[data-testid="user-valid.user"]')).toHaveCount(0);
   });
 });
+
+// ─────────────────────────── R2-F12 (BUG-0002-Q7-1) ฟอร์มเพิ่มหลักฐานกันข้อที่ล็อก ───────────────────────────
+test.describe('R2-F12 ฟอร์มเพิ่มหลักฐาน: ข้อที่ส่งตรวจ/อนุมัติแล้วเลือกไม่ได้', () => {
+  const evRows = (page: Page, title: string) => page.getByTestId('ev-table').locator('tr', { hasText: title });
+  const attachFile = (page: Page) => page.getByTestId('ev-file').setInputFiles({ name: 'f12.txt', mimeType: 'text/plain', buffer: Buffer.from('เอกสารสมมติ', 'utf8') });
+
+  test('picker: 1.1 (อนุมัติแล้ว) / 1.5 (ส่งตรวจแล้ว) = aria-disabled + ป้าย ev-f-req-opt-lock + เหตุผล · คลิก/Enter ไม่เกิด chip · ev-f-reqs-locked-note · 3.6 เลือกได้', async ({ page }) => {
+    await loginAs(page, 'staff1');
+    await page.goto('/app/evidence?new=1');
+    await expect(page.getByTestId('ev-form')).toBeVisible();
+    await expect(page.getByTestId('ev-f-reqs-locked-note')).toContainText(/ข้อที่ส่งตรวจหรืออนุมัติแล้วในรอบนี้ \(\d+ ข้อ\) เลือกไม่ได้/);
+    const input = page.getByTestId('ev-f-reqs-input');
+    for (const [id, why] of [['1.1', 'อนุมัติแล้ว'], ['1.5', 'ส่งตรวจแล้ว']] as const) {
+      await input.fill(id);
+      const opt = page.getByTestId(`ev-f-req-opt-${id}`);
+      await expect(opt).toHaveAttribute('aria-disabled', 'true');
+      await expect(page.getByTestId(`ev-f-req-opt-lock-${id}`)).toContainText('ล็อกแล้ว');
+      await expect(opt).toContainText(why);
+      await opt.click({ force: true }); // Playwright ถือว่า aria-disabled = ไม่ enabled → force เพื่อจำลองผู้ใช้คลิกจริง
+      await expect(page.getByTestId(`ev-f-req-chip-${id}`)).toHaveCount(0);
+    }
+    // แป้นพิมพ์: Enter บนข้อล็อก (ตัวแรกของผลค้น "1.1") ไม่เพิ่ม
+    await input.fill('1.1');
+    await input.press('Enter');
+    await expect(page.getByTestId('ev-f-req-chip-1.1')).toHaveCount(0);
+    // control: ข้อ drafting
+    await input.fill('3.6');
+    await expect(page.getByTestId('ev-f-req-opt-3.6')).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('ev-f-req-opt-lock-3.6')).toHaveCount(0);
+    await page.getByTestId('ev-f-req-opt-3.6').click();
+    await expect(page.getByTestId('ev-f-req-chip-3.6')).toBeVisible();
+    await expect(page.getByTestId('ev-f-req-blocked')).toHaveCount(0);
+  });
+
+  test('?req=1.1 (ข้อล็อก) → chip + ev-f-req-blocked "ผูกไม่ได้: 1.1" · บันทึก = error summary มี 1.1 ลิงก์ไป #ev-f-reqs-field · ไม่มีแถวใหม่ · เอา chip ออกแล้วบันทึกได้', async ({ page }) => {
+    await loginAs(page, 'staff1');
+    const title = `หลักฐาน F12 ${suffix()}`;
+    await page.goto(`/app/evidence?new=1&cycle=${encodeURIComponent(DEMO_CYCLE)}&req=1.1`);
+    await expect(page.getByTestId('ev-f-req-chip-1.1')).toBeVisible();
+    await expect(page.getByTestId('ev-f-req-blocked')).toContainText('ผูกไม่ได้: 1.1');
+    await page.getByTestId('ev-title').fill(title);
+    await attachFile(page);
+    await page.getByTestId('ev-submit').click();
+    const summary = page.getByTestId('ev-error-summary');
+    await expect(summary).toContainText('ผูกไม่ได้: 1.1');
+    await expect(summary).toBeFocused();
+    await expect(summary.locator('a[href="#ev-f-reqs-field"]')).toHaveCount(1);
+    await expect(page.getByTestId('ev-form')).toBeVisible();
+    await expect(evRows(page, title)).toHaveCount(0);
+
+    // เอาข้อล็อกออก (ข้อล็อกเอาออกได้) → คำเตือนหาย → บันทึกได้ (ไม่ผูกข้อ)
+    await page.getByRole('button', { name: 'เอาข้อ 1.1 ออก' }).click();
+    await expect(page.getByTestId('ev-f-req-chip-1.1')).toHaveCount(0);
+    await expect(page.getByTestId('ev-f-req-blocked')).toHaveCount(0);
+    await page.getByTestId('ev-submit').click();
+    await expect(page.getByTestId('ev-form')).toHaveCount(0);
+    await expect(evRows(page, title)).toHaveCount(1);
+  });
+
+  test('?req=3.6 (ข้อเขียนได้) → ไม่มี ev-f-req-blocked (negative)', async ({ page }) => {
+    await loginAs(page, 'staff1');
+    await page.goto(`/app/evidence?new=1&cycle=${encodeURIComponent(DEMO_CYCLE)}&req=3.6`);
+    await expect(page.getByTestId('ev-f-req-chip-3.6')).toBeVisible();
+    await expect(page.getByTestId('ev-f-req-blocked')).toHaveCount(0);
+  });
+
+  test('สถานะเปลี่ยนระหว่างกรอก: เลือก 3.6 → (แท็บอื่น) 3.6 กลายเป็นส่งตรวจ → บันทึก = ข้อความมี "3.6" + ป้ายล็อกรีเฟรช · ไม่มีแถวใหม่', async ({ page }) => {
+    await loginAs(page, 'staff1');
+    const title = `หลักฐาน F12 ระหว่างกรอก ${suffix()}`;
+    await page.goto('/app/evidence?new=1');
+    await page.getByTestId('ev-title').fill(title);
+    await attachFile(page);
+    await pickRequirements(page, ['3.6']);
+    // จำลองแท็บอื่นเขียน store (localStorage ใช้ร่วมทุกแท็บ — storage-cache อ่านข้อความดิบใหม่ทุกครั้ง)
+    await page.evaluate((sid) => {
+      const rows = JSON.parse(localStorage.getItem('aunqa_sections') || '[]') as Array<{ id: string; status: string }>;
+      rows.find(r => r.id === sid)!.status = 'ready_for_review';
+      localStorage.setItem('aunqa_sections', JSON.stringify(rows));
+    }, `${DEMO_CYCLE}::3.6`);
+    await page.getByTestId('ev-submit').click();
+    const summary = page.getByTestId('ev-error-summary');
+    await expect(summary).toContainText('ผูกไม่ได้: 3.6');
+    await expect(summary).toContainText('ระหว่างที่คุณกรอก');
+    await expect(page.getByTestId('ev-f-req-blocked')).toContainText('3.6');
+    await page.getByTestId('ev-f-reqs-input').fill('3.6');
+    await expect(page.getByTestId('ev-f-req-opt-lock-3.6')).toBeVisible();
+    await expect(evRows(page, title)).toHaveCount(0);
+  });
+});
