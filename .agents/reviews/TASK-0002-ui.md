@@ -109,3 +109,90 @@ Verdict: **ISSUES** — blocker 0 · **major 1** · minor 9
 6. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-requests-light-1440.png` — ผู้ดูแลอนุมัติคำขอเข้าใช้งาน
 7. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-users-light-1440.png` — ตารางผู้ใช้ (จุดที่ยังต้องแก้ M1)
 8. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-scale125-dashboard-light-390.png` — มือถือ + ตัวอักษร "ใหญ่มาก" 125% ไม่มีอะไรพัง
+
+
+---
+
+# Re-check หลังรอบแก้ (R2-F10 / F11 / F12, R2-B4 / B5) — 2026-10-27
+
+Verdict: **ISSUES** — blocker 0 · **major 1 (ใหม่ — regression จาก m9)** · minor 6 (ใหม่ 5 + m6 ค้าง)
+M1 ปิดแล้วจริง และ minor เดิม 8/9 ปิด แต่การแก้ m9 (`whitespace-nowrap` คอลัมน์วันที่/เจ้าของ) ทำให้ตาราง `/app/review` กว้างเกินกรอบ ปุ่ม "ส่งกลับ" (และที่ 1280 ทั้ง "อนุมัติ"/"เปิดอ่าน") ถูกซ่อนไว้นอกกรอบ
+
+- server `http://localhost:3960` (production build ของ HEAD ที่ orchestrator เปิดไว้ — ไม่ได้ build/start/kill; ไม่ใช้ :3950) · HEAD ขณะตรวจ `58238e4` · Playwright chromium th-TH · ไม่มี HTTP 5xx / pageerror
+- ถ่ายใหม่: light/dark × 1440/390 ทุกหน้า (ทับชื่อเดิม) + สถานะใหม่ 10 ชุด + 125% / text-spacing / 360px (`checks.mjs`) · ภาพ 768 **ไม่ได้ถ่ายใหม่** (ยังเป็นของ build รอบแรก — ดูหมายเหตุใน INDEX)
+- สคริปต์: `shoot.mjs` (เพิ่มขั้น admin ค้นหา/แผงจัดการ/ScopeSelect, fqa1, ข้อที่ล็อก, เหตุผลส่งกลับ, ภาษาทั้งระบบ + ตัววัด M1), `checks.mjs`, `recheck-misc.mjs` (sticky/แท็บข้าง/ปุ่ม 390/ภาษาข้ามแท็บ), `recheck-review.mjs` (ตาราง review หลายความกว้าง) · ผลดิบ `stats-{light,dark}-{1440,390}.json`, `checks.json`, `recheck-misc.json`
+
+## สรุปฟอนต์ที่ใช้จริง (re-check, light-1440, 50 หน้า/สถานะ)
+ไม่เปลี่ยนจากรอบแรก: โหลดเฉพาะ `IBM Plex Sans Thai Looped` 400/500/600 (+ fallback metric ของ next/font) ทุกหน้าทุกธีม · ไม่มีฟอนต์ระบบหลุด
+
+| font-family | size | weight | line-height | จำนวน element |
+|---|---|---|---|---|
+| IBM Plex Sans Thai Looped | 16px | 400 / 500 / 600 | 1.70 | 1378 / 978 / 579 |
+| 〃 | 14px | 400 / 500 / 600 | 1.60 | 466 / 263 / 64 |
+| 〃 | 13px | 500 | 1.50 | 546 (badge) |
+| 〃 | 13px | 400 | 1.70 | 290 (ป้ายกราฟ SVG — m6) |
+| 〃 | 18px / 20px / 24px | 600 | 1.60 / 1.50 / 1.40 | 92 / 43 / 48 |
+| ui-monospace | 16px / 14px | 400 | 1.70 / 1.60 | 51 / 32 |
+
+## ผลวัดซ้ำ (regression)
+| รายการ | ผล |
+|---|---|
+| contrast ข้อความ (~20,000 element × 4 ชุด) | ต่ำกว่าเกณฑ์ = 0 · ต่ำสุด light 4.81 / dark 5.45 (ตัวย่อ avatar) เท่าเดิม |
+| h-scroll ทั้งหน้า | 0 ทุกหน้า × 4 ชุด (ตาราง review ล้นภายใน wrapper ของตัวเอง — N1) |
+| ตัวอักษร <13px / line-height ไทย <1.35 / uppercase บนไทย | 0 / 0 / 0 |
+| 125% (6 หน้า × 1440/390 × 2 ธีม), text-spacing, 360×800 | ไม่มี h-scroll / ข้อความตัด / ปุ่มล้น |
+| axe-core 5 หน้า × 2 ธีม | violations 0 (incomplete เดิม: aria-valid-attr-value 1, color-contrast พื้นซ้อน) |
+| focus ring (Tab 20 × 5 หน้า × 2 ธีม) | ไม่มีตัวผิด · ต่ำสุด 5.12 |
+| กฎ hover ยก/เลื่อน · reduced motion | 0 · 0 |
+| ขอบ control <3 | เฉพาะ tile KPI แดชบอร์ด (ขอบตกแต่ง — ยกเว้นเหมือนรอบแรก) |
+
+## สถานะ finding เดิม
+| # | สถานะ | หลักฐาน (ค่าที่วัด) |
+|---|---|---|
+| **M1** ตารางผู้ใช้ | **ปิด** | 1440: 4 คอลัมน์ แถวสูงเท่ากัน 97px · อีเมลบรรทัดเดียวไม่ตัด (10/10) · ปุ่มตกบรรทัด 0 · select ตัดค่า 0 · ปุ่ม "จัดการ" ปุ่มเดียวต่อแถว เปิดแผง 3 ส่วน · แท็บแถวเดียว · 390: หน้าสูง **3,453px (เดิม 5,258)** · ปุ่ม 99×44 · ทุก control ในแผง ≥44 · `final-admin-users-*`, `final-admin-panel-*`, `final-admin-panel-assessor-*`, `final-admin-search-*` |
+| m1 แท็บข้าง "ความเห็น" | ปิด | 3 แท็บสูง 44px เท่ากัน |
+| m2 stepper "คณบดีอนุมัติ" | ปิด | บรรทัดเดียว `final-dashboard-*-1440` |
+| m3 วันที่ ISO ในแจ้งเตือน | ปิด | "ข้อ 1.5 ใกล้ถึงกำหนดส่ง (1 พ.ย. 2569)" `final-noti-*` |
+| m4 ตัวย่อ avatar | ปิด | "ปรี", "วิ", "กม", "สม" (ไม่ใช่ "ผศ"/"อ.") |
+| m5 ป้ายขอบเขตซ้ำ/อังกฤษ | ปิด (มีข้อใหม่ N3) | "คณะวิทยาศาสตร์และเทคโนโลยีตัวอย่าง" ไม่ซ้ำ · `final-admin-requests-*` |
+| m6 metrics ยาว / ป้ายกราฟ 13px | **ยังค้าง** (frontend-dev เลื่อนไว้ — คงเป็น minor) | 290 element 13px/400 |
+| m7 แผงแบรนด์ลอยกลาง | ปิด | `/request-access` เลื่อน 813px แผงยังอยู่ top 0 สูง 900 (sticky) |
+| m8 ชื่อตัดกลางนามสกุล | ปิด | 390: "ยินดีต้อนรับ / อ.สมศรี ขยันสอน" `final-invite-light-390` |
+| m9 review วันที่/เจ้าของ 3 บรรทัด | ปิด แต่ **ทำให้เกิด N1** | วันที่/ชื่อบรรทัดเดียวแล้ว |
+
+## หน้าที่เปลี่ยนในรอบแก้ — ตรวจแล้ว
+- ScopeSelect (คำขอ / เพิ่มผู้ใช้ / แผง): help "บทบาทนี้ใช้ขอบเขตระดับ…" 14px, option ว่าง "— เลือกขอบเขต —" ในคำขอ, เปลี่ยนเป็นกรรมการแล้วเหลือเฉพาะรอบ — ผ่าน (ดู N3)
+- /invite ป้ายสาธิต: กล่อง info ทุกสถานะ อ่านง่ายทั้ง 2 ธีม — ผ่าน
+- login / request-access / invite แผงแบรนด์ sticky — ผ่าน
+- section ข้อที่อนุมัติแล้ว: ไม่มี × / ชุดผูก, กล่องล็อกพร้อมไอคอน + เหตุผล — ผ่าน `final-section-locked-*`
+- ฟอร์มเพิ่มหลักฐาน: option ล็อกมีป้าย "ล็อกแล้ว" + เหตุผล, คำอธิบายใต้ช่องมีไอคอนกุญแจ — ผ่าน (ดู N4) `final-evidence-form-locked-*`
+- รายละเอียดหลักฐาน: "ข้อ 1.1 อนุมัติแล้ว — เลิกผูกไม่ได้" — ผ่าน (ดู N2) `final-evidence-detail-locked-*`
+- หน้ารอบ: กล่องเหตุผลส่งกลับ (ใคร/เมื่อไร/เหตุผล + ขั้น 1-2-3) — ผ่าน `final-dashboard-return-*` · fqa1 เห็นปุ่ม "มอบหมายกรรมการ" + หน้า assign มีคำอธิบายแทน "ไม่มีสิทธิ์" — ผ่าน `final-dashboard-fqa-*`, `final-assign-fqa-*`
+- ภาษาค่าเดียว: สลับ EN ที่ /app แล้วไป /app/evidence ยังเป็น EN, แท็บอื่นตามทันที, key เก่า `eduflow_lang_pages` ถูกลบ — ผ่าน (ดู N5) `final-lang-global-*`
+
+## Findings ใหม่
+| # | severity | หน้า/breakpoint | ปัญหา | ค่าที่เจอ vs ค่าที่ควรเป็น | screenshot | ผู้รับผิดชอบ |
+|---|---|---|---|---|---|---|
+| N1 | **major** | `/app/review` 1440 / 1280 / 1024 / 768 (ทั้ง 2 ธีม) | หลังแก้ m9 ตารางกว้างขั้นต่ำ 1,177px เกินกรอบ → ปุ่มท้ายแถวถูกซ่อนในส่วนที่ต้องเลื่อนแนวนอน ไม่มีสัญญาณให้เลื่อน | 1440: wrapper 1,094 / เนื้อ 1,177 → "ส่งกลับ" เห็น 36/101px · 1280: wrapper 934 → "อนุมัติ" เห็น 45/70px, "เปิดอ่าน"/"ส่งกลับ" มองไม่เห็น · 1024/768: ไม่เห็นปุ่มใดเลย · ≥1600 ปกติ · ควร: ปุ่มทั้ง 3 เห็นครบที่ ≥768 เช่น ย้ายปุ่มลงใต้ "สรุป", วันที่ 2 บรรทัด (วัน / เวลา), nowrap เฉพาะ ≥1536 หรือคอลัมน์ปุ่ม `sticky right-0` | `final-review-light-1440.png`, `final-review-light-1280.png` | frontend-dev (`app/app/review/page.tsx`) |
+| N2 | minor | `/app/evidence/[id]` 1440 | ปุ่มกลับ "คลังหลัก / ฐาน" ตก 2 บรรทัด | ควรบรรทัดเดียว `whitespace-nowrap` เหมือนปุ่ม "แดชบอร์ดรอบ" (P10) | `final-evidence-detail-locked-dark-1440.png` | frontend-dev (`app/app/evidence/[id]/page.tsx`) |
+| N3 | minor | แผงจัดการ / ฟอร์มเพิ่มผู้ใช้ — ขอบเขตของกรรมการ | ตัวเลือกรอบแสดงรหัสภายใน "รอบ 2569 (cycle-demo-2569)" | ขัด P4 "ป้ายขอบเขตไม่มีรหัสอังกฤษ" · ควร "รอบ 2569 · CS-B-69" | `final-admin-panel-assessor-light-1440.png` | frontend-dev (`admin/shared.tsx`) |
+| N4 | minor | ฟอร์มเพิ่มหลักฐาน 390 | ชื่อข้อใน picker ตัดเหลือ ~12 ตัวอักษร ("ผลการเรียนรู้ที่คาด…") ข้อ 1.1–1.3 ดูเหมือนกัน เพราะป้าย "ล็อกแล้ว" กินที่ | ควร line-clamp 2 บรรทัด หรือย้ายป้ายล็อกไปบรรทัดเหตุผล ("อนุมัติแล้ว · ล็อกแล้ว") ที่ <560 | `final-evidence-form-locked-dark-390.png` | frontend-dev (`RequirementPicker.tsx`) |
+| N5 | minor (a11y, มีมาแต่เดิม) | ทุกหน้าเมื่อเลือก English | `<html lang>` คงเป็น "th" แม้ทั้งหน้าเป็นอังกฤษ (WCAG 3.1.1) | ควรตั้ง `document.documentElement.lang` ตามภาษาใน `LangContext` | `final-lang-global-light-1440.png` | frontend-dev (`context/LangContext.tsx`) |
+| N6 | minor | `/app/admin` 390 | แท็บที่ 3 ถูกตัดเหลือ "Audi" ที่ขอบจอ (เลื่อนได้แต่ไม่มีเงา/ลูกศรบอก) | แถบ 406 / 358px · ควรมี fade ขอบขวา หรือย่อป้ายให้พอดี 358px | `final-admin-users-light-390.png` | frontend-dev (`app/app/admin/page.tsx`) |
+
+ข้อสังเกต (ไม่นับ): ปุ่ม "จัดการ" ที่ 1440 สูง 41px (desktop, ผ่าน 2.5.8) · การตัดบรรทัดไทย "หลัก|ฐาน", "ผู้|ดูแล" ในกล่องข้อความยาวเป็นการตัดของเบราว์เซอร์ที่ขอบคำประสม ยอมรับได้ · บรรทัดใต้หัวหน้ารอบ "…· วัน / ประเมิน 24 ก.พ. 2570" ตกบรรทัด (มีมาแต่เดิม)
+
+## ข้อเสนอให้ frontend-dev (re-check)
+1. **N1 ก่อน** (บล็อกเฟส 7): ทำให้ปุ่ม 3 ปุ่มของ `/app/review` เห็นครบที่ 768–1599 · ตรวจด้วย `BASE=http://localhost:3960 node .agents/playtest/final-ui/recheck-review.mjs` (ต้องได้ `visibleW == w` ทุกปุ่มทุกความกว้าง)
+2. N2, N3, N6 แก้ได้ในรอบเดียว (nowrap / label / fade) · N4, N5 เมื่อมีเวลา
+3. เสนอ qa-tester ย้ายเข้า e2e: (ก) `/app/review` ที่ 1280×900 ปุ่มอนุมัติ/เปิดอ่าน/ส่งกลับ อยู่ในกรอบที่มองเห็นของ wrapper (ข) `user-manage-*` สูง ≥44 ที่ 390 และไม่มีปุ่มในตารางผู้ใช้สูง >48 ที่ 1440
+
+## ภาพแนะนำให้เจ้าของดู (ชุดสุดท้าย)
+1. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-users-light-1440.png` — ตารางผู้ใช้ใหม่ (M1 ปิด)
+2. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-panel-assessor-light-1440.png` — แผงจัดการ + ขอบเขตตามบทบาท
+3. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-panel-dark-390.png` — แผงจัดการบนมือถือ โหมดมืด
+4. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-dashboard-return-light-1440.png` — กล่องเหตุผลส่งกลับ + ขั้นตอนต่อไป
+5. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-section-locked-light-1440.png` — ข้อที่อนุมัติแล้วล็อกหลักฐาน
+6. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-evidence-form-locked-light-1440.png` — ฟอร์มหลักฐานแสดงข้อที่ล็อก
+7. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-noti-light-1440.png` — แจ้งเตือนวันที่ พ.ศ. + avatar ใหม่
+8. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-review-light-1280.png` — จุดที่ยังต้องแก้ (N1 ปุ่มถูกซ่อน)

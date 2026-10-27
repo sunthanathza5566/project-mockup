@@ -1,12 +1,12 @@
 // TASK-0002 เฟส 7 UI: ภาพชุดสุดท้าย light/dark × 1440/390 (+768 light) ทุกหน้า + เก็บ computed style
-// รัน: BASE=http://localhost:3950 ONLY=light-1440 node .agents/playtest/final-ui/shoot.mjs
+// รัน: BASE=http://localhost:3960 ONLY=light-1440 node .agents/playtest/final-ui/shoot.mjs
 // (ใช้ server ที่เปิดอยู่แล้ว — สคริปต์นี้ไม่ build/start อะไร; ข้อมูลอยู่ใน localStorage ของ context ตัวเอง)
 import { chromium } from '../../../eduflow-next/node_modules/@playwright/test/index.mjs';
 import path from 'path'; import fs from 'fs'; import { fileURLToPath } from 'url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(here, '../../screenshots/TASK-0002') + '/';
 fs.mkdirSync(OUT, { recursive: true });
-const BASE = process.env.BASE || 'http://localhost:3950';
+const BASE = process.env.BASE || 'http://localhost:3960';
 const ONLY = process.env.ONLY; // light-1440 | dark-390 | light-768 ...
 const CYCLE = 'cycle-demo-2569';
 const SECTION = `/app/sections/${encodeURIComponent(CYCLE + '::3.6')}`;
@@ -110,6 +110,20 @@ export const COLLECT = async (scopeSel) => {
     badgeH, weights, tabs, headings: ov.slice(0, 8),
     clip: clip.slice(0, 10), small: small.slice(0, 10), lhLow: lhLow.slice(0, 10), upper, targets: tgt.slice(0, 20), infinite,
   };
+};
+
+
+// M1 (re-check): วัดตารางผู้ใช้ — ปุ่มตกบรรทัด, select ตัดค่า, อีเมลตัดกลางคำ, ความสูงหน้า, แท็บล้น
+const M1 = () => {
+  const t = document.querySelector('[data-testid=users-table]'); if (!t) return { none: true };
+  const vis = el => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+  const btn = [...t.querySelectorAll('button')].filter(vis).map(b => ({ id: b.dataset.testid || b.getAttribute('aria-label') || b.innerText.trim(), h: Math.round(b.getBoundingClientRect().height), w: Math.round(b.getBoundingClientRect().width) }));
+  const sel = [...t.querySelectorAll('select')].filter(vis).map(s => ({ id: s.dataset.testid, cut: s.scrollWidth > s.clientWidth + 1, w: s.clientWidth, txt: s.selectedOptions[0]?.textContent }));
+  const rows = [...t.querySelectorAll('tbody > tr[data-testid^=user-]')].filter(vis).map(r => Math.round(r.getBoundingClientRect().height));
+  const mails = [...t.querySelectorAll('[title*="@"]')].filter(vis).map(e => ({ t: e.textContent.trim(), trunc: e.scrollWidth > e.clientWidth + 1, h: Math.round(e.getBoundingClientRect().height) }));
+  const tl = document.querySelector('[role=tablist]');
+  const tabs = tl ? [...tl.querySelectorAll('[role=tab]')].map(x => Math.round(x.getBoundingClientRect().top)) : [];
+  return { pageH: document.documentElement.scrollHeight, rows: rows.slice(0, 20), rowMax: Math.max(0, ...rows), btnTall: btn.filter(b => b.h > 48), btnSmall: btn.filter(b => b.h < 44 || b.w < 44), btnN: btn.length, selCut: sel.filter(x => x.cut), sel, mails: mails.slice(0, 12), tabsOneRow: new Set(tabs).size <= 1, tablistScroll: tl ? [tl.scrollWidth, tl.clientWidth] : null };
 };
 
 const stats = {};
@@ -226,6 +240,9 @@ for (const [theme, vp, w, h] of combos) {
     // EN
     await page.getByTestId('lang-en').click(); await page.waitForTimeout(600);
     await shot(page, 'home-chair1-en', tag, { full: false, collect: false });
+    await go(page, '/app/evidence'); await page.waitForTimeout(400);
+    await shot(page, 'lang-global', tag, { full: false, collect: false });
+    stats[`lang-global-${tag}`] = await page.evaluate(() => ({ htmlLang: document.documentElement.lang, h1: document.querySelector('h1')?.textContent, stored: localStorage.getItem('aunqa_lang'), old: localStorage.getItem('eduflow_lang_pages') }));
     await page.getByTestId('lang-th').click(); await page.waitForTimeout(400);
   });
   await step('review', async () => { await go(page, '/app/review'); await shot(page, 'review', tag, { scope: '#main' }); if (theme && vp !== '768') { await gray(page, true); await shot(page, 'gray-review', tag, { collect: false }); await gray(page, false); } });
@@ -283,6 +300,18 @@ for (const [theme, vp, w, h] of combos) {
     await shot(page, 'home-uadmin', tag, { scope: '#main' });
     await go(page, '/app/admin');
     await shot(page, 'admin-users', tag, { scope: '#main' });
+    stats[`m1-closed-${tag}`] = await page.evaluate(M1);
+    await page.getByTestId('users-search').fill('วิภา'); await page.waitForTimeout(400);
+    await shot(page, 'admin-search', tag, { full: false, scope: '#main' });
+    await page.getByTestId('users-search').fill(''); await page.waitForTimeout(300);
+    await page.getByTestId('user-manage-staff1').click(); await page.waitForTimeout(400);
+    await page.getByTestId('user-panel-staff1').scrollIntoViewIfNeeded(); await page.evaluate(() => scrollBy(0, -160));
+    await shot(page, 'admin-panel', tag, { full: false, scope: '[data-testid=user-panel-staff1]' });
+    stats[`m1-open-${tag}`] = await page.evaluate(M1);
+    await page.getByTestId('user-add-role-staff1').selectOption('assessor'); await page.waitForTimeout(300);
+    await page.getByTestId('user-add-scope-staff1').scrollIntoViewIfNeeded();
+    await shot(page, 'admin-panel-assessor', tag, { full: false, scope: '[data-testid=user-panel-staff1]' });
+    await page.getByTestId('user-panel-close-staff1').click(); await page.waitForTimeout(200);
     await page.getByTestId('user-new').click(); await page.waitForTimeout(400);
     await page.getByTestId('nu-username').fill(`ss${suf}`);
     await page.getByTestId('nu-name').fill('อ.สมศรี ขยันสอน');
@@ -307,12 +336,46 @@ for (const [theme, vp, w, h] of combos) {
     await page.goto(inviteLink.replace(/^https?:\/\/[^/]+/, BASE)); await settle(page); await page.waitForTimeout(600);
     await shot(page, 'invite', tag);
   });
+  await step('fqa', async () => {
+    await loginAs(page, 'fqa1');
+    await go(page, `/app/cycles/${CYCLE}`); await shot(page, 'dashboard-fqa', tag, { full: false, scope: '#main' });
+    await go(page, `/app/cycles/${CYCLE}/assign`); await shot(page, 'assign-fqa', tag, { scope: '#main' });
+  });
+  await step('locks', async () => {
+    await loginAs(page, 'staff1');
+    await go(page, `/app/sections/${encodeURIComponent(CYCLE + '::1.1')}`); await page.waitForTimeout(500);
+    const lr = page.getByTestId('evidence-locked-reason');
+    if (await lr.count()) { await lr.first().scrollIntoViewIfNeeded(); await page.evaluate(() => scrollBy(0, -200)); } else log('no evidence-locked-reason', tag);
+    await shot(page, 'section-locked', tag, { full: false, scope: '#main' });
+    await go(page, `/app/evidence?new=1&cycle=${CYCLE}&req=1.1`); await page.waitForTimeout(500);
+    const fld = page.locator('#ev-f-reqs-field');
+    await fld.scrollIntoViewIfNeeded();
+    const inp = fld.locator('input, [role=combobox]').first(); if (await inp.count()) { await inp.click(); await page.waitForTimeout(400); }
+    await page.evaluate(() => { const f = document.querySelector('#ev-f-reqs-field'); scrollTo(0, f.getBoundingClientRect().top + scrollY - 120); });
+    await page.waitForTimeout(200);
+    await shot(page, 'evidence-form-locked', tag, { full: false, scope: '#main' });
+    await esc(page);
+    await go(page, '/app/evidence');
+    await page.locator('#main a[href*="/app/evidence/"]', { hasText: 'E-1.1-01' }).first().click();
+    await page.waitForURL('**/app/evidence/**'); await settle(page);
+    await shot(page, 'evidence-detail-locked', tag, { scope: '#main' });
+  });
   // ---------------- assess1 (ตั้งรอบเป็น under_assessment ใน localStorage ของ context นี้เท่านั้น) ----------------
   await step('assess', async () => {
     await loginAs(page, 'assess1');
     await page.evaluate(id => { const cs = JSON.parse(localStorage.getItem('aunqa_cycles') || '[]'); const c = cs.find(x => x.id === id); if (c) c.status = 'under_assessment'; localStorage.setItem('aunqa_cycles', JSON.stringify(cs)); }, CYCLE);
     await go(page, `/app/cycles/${CYCLE}/assess`); await page.waitForTimeout(500);
     await shot(page, 'assess', tag, { scope: '#main' });
+  });
+  await step('return', async () => {
+    await loginAs(page, 'chair1');
+    await page.evaluate(id => {
+      const cs = JSON.parse(localStorage.getItem('aunqa_cycles') || '[]'); const c = cs.find(x => x.id === id); if (c) c.status = 'revision_requested'; localStorage.setItem('aunqa_cycles', JSON.stringify(cs));
+      const ev = JSON.parse(localStorage.getItem('aunqa_review_events') || '[]');
+      ev.push({ id: 'ui-ret-1', cycleId: id, targetType: 'cycle', targetId: id, fromStatus: 'under_review', toStatus: 'revision_requested', actorId: 'u-fqa', note: 'ข้อ 3.6 ยังขาดหลักฐานผลลัพธ์ของการพัฒนานักศึกษา และข้อ 4.2 ต้องอธิบายวงจร PDCA ให้ครบ', at: Date.now() - 3600e3 });
+      localStorage.setItem('aunqa_review_events', JSON.stringify(ev));
+    }, CYCLE);
+    await go(page, `/app/cycles/${CYCLE}`); await shot(page, 'dashboard-return', tag, { full: false, scope: '#main' });
   });
   await ctx.close();
 }

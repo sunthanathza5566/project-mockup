@@ -329,7 +329,7 @@
  "focus-light-login": {
   "n": 19,
   "bad": [],
-  "minRatio": 5.55
+  "minRatio": 5.12
  },
  "axe-light-app": {
   "violations": [],
@@ -373,7 +373,7 @@
  },
  "axe-light-admin": {
   "violations": [],
-  "passes": 31,
+  "passes": 32,
   "incomplete": [
    "aria-valid-attr-value:1",
    "color-contrast:2"
@@ -382,7 +382,7 @@
  "focus-light-admin": {
   "n": 20,
   "bad": [],
-  "minRatio": 5.12
+  "minRatio": 5.55
  },
  "hover-light": [],
  "axe-dark-login": {
@@ -393,7 +393,7 @@
  "focus-dark-login": {
   "n": 19,
   "bad": [],
-  "minRatio": 7.11
+  "minRatio": 6.24
  },
  "axe-dark-app": {
   "violations": [],
@@ -437,7 +437,7 @@
  },
  "axe-dark-admin": {
   "violations": [],
-  "passes": 31,
+  "passes": 32,
   "incomplete": [
    "aria-valid-attr-value:1",
    "color-contrast:2"
@@ -446,7 +446,7 @@
  "focus-dark-admin": {
   "n": 20,
   "bad": [],
-  "minRatio": 6.24
+  "minRatio": 7.11
  },
  "hover-dark": [],
  "reduced-motion": {

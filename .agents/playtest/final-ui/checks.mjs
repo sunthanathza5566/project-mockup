@@ -1,11 +1,11 @@
 // TASK-0002 เฟส 7: AC-04 (ก ตัวอักษร 125%, ข text-spacing, ค 360×800), AC-17 (125% crop), AC-19 (axe-core แทน Lighthouse),
 // focus สุ่ม (AC-01b ส่วน focus), AC-31 (กฎ :hover ที่ยก/เลื่อนการ์ด, animation วน)
-// รัน: BASE=http://localhost:3950 node .agents/playtest/final-ui/checks.mjs
+// รัน: BASE=http://localhost:3960 node .agents/playtest/final-ui/checks.mjs
 import { chromium } from '../../../eduflow-next/node_modules/@playwright/test/index.mjs';
 import path from 'path'; import fs from 'fs'; import { fileURLToPath } from 'url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(here, '../../screenshots/TASK-0002') + '/';
-const BASE = process.env.BASE || 'http://localhost:3950';
+const BASE = process.env.BASE || 'http://localhost:3960';
 const AXE = fs.readFileSync(path.resolve(here, '../../../eduflow-next/node_modules/axe-core/axe.min.js'), 'utf8');
 const SECTION = `/app/sections/${encodeURIComponent('cycle-demo-2569::3.6')}`;
 const res = {};

@@ -60,3 +60,21 @@
 
 ## ภาพแนะนำสำหรับเล่ม (บทผลการออกแบบ)
 `final-home-chair1-light-1440`, `final-home-chair1-dark-1440`, `final-noti-light-1440`, `final-noti-light-390`, `final-dashboard-light-1440`, `final-section-light-1440`, `final-admin-invite-result-light-1440`, `final-admin-requests-light-1440`, `final-request-error-light-1440`, `final-invite-light-390`, `final-landing-fold-light-390`, `final-scale125-dashboard-light-390`, `final-gray-dashboard-light-1440`
+
+
+## Re-check หลังรอบแก้ (2026-10-27, HEAD `58238e4`, server `:3960`)
+ภาพ light/dark × 1440/390 ทุกหน้าในตารางข้างบน + `final-scale125-*`, `final-spacing-*`, `final-zoom200-*` **ถ่ายใหม่ทับชื่อเดิม** จาก build ของรอบแก้ · **ภาพ `*-768` ยังเป็นของ build รอบแรก (`1ca6903`) ไม่ได้ถ่ายใหม่** — ไม่สะท้อน M1/m1–m9 ที่แก้แล้ว อย่าใช้ในเล่ม
+สคริปต์เพิ่ม: `recheck-misc.mjs`, `recheck-review.mjs`
+
+| ไฟล์ (ใหม่) | เนื้อหา | ผู้ใช้ |
+|---|---|---|
+| `final-admin-search-*` | ช่องค้นหาผู้ใช้ (พิมพ์ "วิภา") | uadmin |
+| `final-admin-panel-*` | แผง "จัดการ" ใต้แถว (บทบาทปัจจุบัน / เพิ่มบทบาท / สถานะบัญชี) | uadmin |
+| `final-admin-panel-assessor-*` | เลือกบทบาทกรรมการ → ขอบเขตเหลือเฉพาะรอบ + คำอธิบาย | uadmin |
+| `final-dashboard-fqa-*` / `final-assign-fqa-*` | QA คณะ: ปุ่ม "มอบหมายกรรมการ" / หน้ามอบหมายกรรมการพร้อมคำอธิบาย | fqa1 |
+| `final-dashboard-return-*` | รอบถูกส่งกลับ: กล่องใคร/เมื่อไร/เหตุผล + ขั้นตอน 1-2-3 (ข้อมูลเหตุผลฉีดลง localStorage) | chair1 |
+| `final-section-locked-*` | ข้อ 1.1 ที่อนุมัติแล้ว: หลักฐานล็อก + กล่องเหตุผล | staff1 |
+| `final-evidence-form-locked-*` | ฟอร์มเพิ่มหลักฐาน: รายการข้อมีป้าย "ล็อกแล้ว" | staff1 |
+| `final-evidence-detail-locked-*` | รายละเอียดหลักฐาน: "ข้อ 1.1 อนุมัติแล้ว — เลิกผูกไม่ได้" | staff1 |
+| `final-lang-global-*` | เลือก English ที่หน้าหลักแล้วไปหน้าหลักฐาน ยังเป็น English | chair1 |
+| `final-review-light-1280` | ตารางรอตรวจที่ 1280 (หลักฐาน N1 — ปุ่มถูกซ่อน) | chair1 |
