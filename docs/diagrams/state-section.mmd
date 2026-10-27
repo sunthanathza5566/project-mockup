@@ -1,6 +1,12 @@
-%% source: eduflow-next/lib/api/workflow.ts:40-48 (SECTION_TRANSITIONS), 318-365 (transitionSection); sar.store.ts:92 (saveSection: not_started → drafting), 159-184 (submit/approve/return) | task: TASK-0001 | updated: 2026-10-22
+%% source: eduflow-next/lib/api/workflow.ts:42-50 (SECTION_TRANSITIONS), 78-99 (SECTION_EDITABLE, assertSectionEditable, assertSectionsEditable, isSectionEditable); sar.store.ts:65,135 (saveSection/setSelfRating ตรวจ editable), 159-184 (submit/approve/return); evidence.store.ts:163,272,299 (ผูก/เลิกผูกหลักฐานตรวจ editable) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeVariables": {"fontSize": "20px"}}}%%
 stateDiagram-v2
   direction TB
+  state "not_started<br/>เขียนได้" as not_started
+  state "drafting<br/>เขียนได้" as drafting
+  state "changes_requested<br/>เขียนได้" as changes_requested
+  state "ready_for_review<br/>ล็อกเนื้อหา" as ready_for_review
+  state "approved<br/>ล็อกเนื้อหา" as approved
   [*] --> not_started : createCycle (53 ข้อ)
   not_started --> drafting : sar.write
   drafting --> ready_for_review : sar.write [มี narrative]

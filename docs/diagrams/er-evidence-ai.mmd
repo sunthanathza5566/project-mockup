@@ -1,4 +1,4 @@
-%% source: eduflow-next/lib/types.ts:36-39 (MetricValue), 123-168 (Evidence, EvidenceLink, EvidenceFile), 178-182 (AuditLog), 184-203 (AiRun); lib/api/db.ts:7-36 (KEYS) | task: TASK-0001 | updated: 2026-10-23
+%% source: eduflow-next/lib/types.ts:46-56 (Invitation), 225-229 (AuditLog), Evidence/EvidenceLink/EvidenceFile/AiRun/MetricValue; lib/api/audit.store.ts:17,24 (SYSTEM_ACTOR_ID เมื่อไม่มี actor); lib/api/onboarding.store.ts:96-103 (createInvitation); lib/api/db.ts:37 (aunqa_invitations) | task: TASK-0002 | updated: 2026-10-27
 %%{init: {"themeVariables": {"fontSize": "24px"}, "themeCSS": ".edgeLabel .label{font-size:22px}", "er": {"entityPadding": 6}}}%%
 erDiagram
   PROGRAMME ||--o{ EVIDENCE : "เก็บ"
@@ -10,7 +10,9 @@ erDiagram
   AI_RUN }o--o| EVIDENCE : "ติดป้าย"
   AI_RUN }o--o| PROGRAMME : "AI-7 ระดับหลักสูตร"
   AI_RUN }o--|| APP_USER : "สร้างโดย"
-  AUDIT_LOG }o--|| APP_USER : "ผู้กระทำ"
+  AUDIT_LOG }o--o| APP_USER : "ผู้กระทำ"
+  INVITATION }o--|| APP_USER : "ผู้ถูกเชิญ"
+  INVITATION }o--|| APP_USER : "ผู้เชิญ"
   AUDIT_LOG }o--o| PROGRAMME : "ขอบเขต"
   PROGRAMME {
     string id PK
@@ -64,4 +66,13 @@ erDiagram
     string code
     int period
     float value
+  }
+  INVITATION {
+    string id PK
+    string userId FK
+    string createdBy FK
+    string tokenHash UK
+    long expiresAt
+    long usedAt
+    long revokedAt
   }

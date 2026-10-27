@@ -1,0 +1,40 @@
+%% source: eduflow-next/lib/api/onboarding.store.ts:129-348 (invite/reissue/cancel/peek/accept, submit/list/approve/reject); lib/api/auth.api.ts:295 (loginUser), 416 (setUserStatus); lib/api/init.ts:120-129 (resetDemo เฉพาะ super_admin); lib/api/rbac.ts:32-36 (user.manage ของ super_admin/uni_admin); components/aunqa/NotificationPanel.tsx; components/ui/DisplayPrefs.tsx + LangToggle.tsx; app/app/admin/page.tsx:54-57 (แท็บ demo เฉพาะ super) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeCSS": "g{--mermaid-usecase-font-size: 22px; --mermaid-usecase-actor-font-size: 22px} .edgeLabel, .edgeLabel *{font-size: 18px !important} .edge-pattern-dashed{stroke-dasharray: 4 4 !important}"}}%%
+usecase-beta
+direction LR
+actor Req("ผู้ขอใช้งาน")
+actor Inv("ผู้ได้รับเชิญ")
+actor User("ผู้ใช้ทุกบทบาท")
+actor Mgr("ผู้มีสิทธิ์จัดการผู้ใช้")
+actor UniAdmin("ผู้ดูแลมหาวิทยาลัย")
+actor Super("ผู้ดูแลระบบ")
+systemBoundary AUNQA_Copilot
+  A1("ขอเข้าใช้งาน")
+  A2("รับคำเชิญและตั้งรหัสผ่าน")
+  A3("เข้าสู่ระบบ")
+  A4("ดูแจ้งเตือนและเปิดหน้าเป้าหมาย")
+  A5("ตั้งค่าการแสดงผลและภาษา")
+  M1("เชิญผู้ใช้")
+  M2("ออกลิงก์เชิญใหม่")
+  M3("ยกเลิกคำเชิญ")
+  M4("อนุมัติคำขอและกำหนดบทบาท")
+  M5("ปฏิเสธคำขอ")
+  M6("ระงับหรือเปิดใช้บัญชี")
+  S1("รีเซ็ตเดโม่")
+end
+Req --> A1
+Inv --> A2
+User --> A3
+User --> A4
+User --> A5
+Mgr --> M1
+Mgr --> M2
+Mgr --> M3
+Mgr --> M4
+Mgr --> M5
+Mgr --> M6
+Super --> S1
+A2 ..> : include A3
+Mgr --|> User
+UniAdmin --|> Mgr
+Super --|> Mgr

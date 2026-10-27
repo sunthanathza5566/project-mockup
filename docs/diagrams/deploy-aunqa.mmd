@@ -1,21 +1,27 @@
-%% source: eduflow-next/app/api/ai/route.ts:1-109; lib/api/ai/claude.ts:19-57; lib/api/ai/ratelimit.ts:1-67; lib/api/db.ts:7-52; lib/api/auth.api.ts:60-147 (session ใน localStorage) | task: TASK-0001 | updated: 2026-10-23
-%%{init: {"themeVariables": {"fontSize": "20px"}, "themeCSS": ".edge-pattern-dashed{stroke-dasharray: 4 4 !important}", "flowchart": {"nodeSpacing": 20, "rankSpacing": 40}}}%%
+%% source: eduflow-next/app/layout.tsx:1-47 (next/font self-host, ThemeProvider → PrefsInit → Toast/Dialog/Auth → LangProvider); components/ui/ThemeProvider.tsx:10-24 (next-themes, aunqa_theme); context/LangContext.tsx:1-21,99-102 (aunqa_lang ค่าเดียว, syncPageLanguage, html lang); lib/i18n/dom-translate.ts:1-13,114-130 (MutationObserver); lib/ui/prefs.ts:1-8 (aunqa_ui_prefs); components/ui/primitives/*; package.json (tailwindcss 3.4.19, next-themes 0.4.6, cva, tailwind-merge, @radix-ui/react-slot); app/api/ai/route.ts; lib/api/ai/ratelimit.ts; lib/api/db.ts | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeVariables": {"fontSize": "24px"}, "themeCSS": ".edge-pattern-dashed{stroke-dasharray: 4 4 !important}", "flowchart": {"nodeSpacing": 16, "rankSpacing": 34, "wrappingWidth": 360}}}%%
 flowchart TB
   subgraph Client["«device» เครื่องผู้ใช้ (Browser)"]
-    UI["«artifact» Next.js UI"]
+    subgraph FE["«component» Next.js UI (React 18)"]
+      PROV["«component» Providers<br/>ThemeProvider (next-themes)<br/>LangProvider + dom-translate<br/>PrefsInit, Auth, Toast, Dialog"]
+      PAGES["«component» หน้า + components<br/>บน primitives (Tailwind 3.4, cva)"]
+    end
     API["«artifact» lib/api/**"]
-    LS[("«datastore» localStorage คีย์ aunqa_*")]
+    LS[("«datastore» localStorage<br/>aunqa_* ข้อมูล + session<br/>aunqa_theme, aunqa_lang,<br/>aunqa_ui_prefs")]
   end
   subgraph Server["«node» Next.js server (Node.js)"]
+    STATIC["«artifact» JS/CSS ที่ build แล้ว<br/>+ ฟอนต์ self-host"]
     ROUTE["«artifact» /api/ai Route Handler"]
     RL["«artifact» ratelimit, guards, redact"]
-    ENV["«config» ANTHROPIC_API_KEY, AI_RATE_*, AI_DAILY_LIMIT"]
+    ENV["«config» ANTHROPIC_API_KEY,<br/>AI_RATE_*, AI_DAILY_LIMIT"]
   end
   subgraph Ext["«external system» Anthropic"]
     LLM["Messages API (Claude)"]
   end
-  UI -- "เรียกฟังก์ชัน" --> API
+  PAGES -- "เรียกฟังก์ชัน" --> API
+  PROV -- "ค่าการแสดงผล" --> LS
   API -- "อ่าน/เขียน JSON" --> LS
+  FE -- "HTTPS GET หน้าเว็บ" --> STATIC
   API -- "HTTPS GET/POST /api/ai" --> ROUTE
   ROUTE --> RL
   ROUTE -.-> ENV

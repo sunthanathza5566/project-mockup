@@ -1,0 +1,21 @@
+%% source: eduflow-next/lib/types.ts:46-56 (Invitation usedAt/revokedAt/expiresAt); lib/api/onboarding.store.ts:96-103 (createInvitation +7 วัน), 105-125 (findValidInvitation: hash, used/revoked/expiry, ผู้ถูกเชิญยัง invited, ผู้เชิญ active + user.manage ณ เวลาที่ใช้), 156-169 (reissueInvitation), 172-177 (cancelInvitation), 192-213 (acceptInvitation usedAt); lib/api/invitation.internal.ts:7-17 (revokeInvitationsOf); lib/api/auth.api.ts:29 (INVITE_TTL_MS), 405-406 (deleteUser → revoke) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeVariables": {"fontSize": "20px"}}}%%
+stateDiagram-v2
+  direction TB
+  state "unused ยังไม่ถูกใช้" as Unused {
+    state "usable<br/>ใช้ได้" as Usable
+    state "blocked<br/>ใช้ไม่ได้ชั่วคราว" as Blocked
+    [*] --> Usable
+    Usable --> Blocked : ผู้เชิญถูกระงับ<br/>หรือไม่มี user.manage แล้ว
+    Blocked --> Usable : ผู้เชิญเปิดใช้<br/>หรือได้สิทธิ์คืน
+  }
+  state "used<br/>ใช้แล้ว" as Used
+  state "revoked<br/>ยกเลิก" as Revoked
+  state "expired<br/>หมดอายุ" as Expired
+  [*] --> Unused : inviteUser หรือ reissueInvitation<br/>/ เก็บ tokenHash, expiresAt = +7 วัน
+  Usable --> Used : acceptInvitation<br/>/ usedAt, ผู้ใช้ → active
+  Unused --> Revoked : reissueInvitation (ลิงก์เดิม)<br/>cancelInvitation หรือ deleteUser<br/>/ revokedAt
+  Unused --> Expired : [now ≥ expiresAt]
+  Used --> [*]
+  Revoked --> [*]
+  Expired --> [*]
