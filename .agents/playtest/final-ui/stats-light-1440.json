@@ -524,7 +524,7 @@
   "infinite": []
  },
  "lang-global-light-1440": {
-  "htmlLang": "th",
+  "htmlLang": "en",
   "h1": "Evidence library",
   "stored": "en",
   "old": null
@@ -542,15 +542,15 @@
   ],
   "fonts": {
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
-   "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 16,
+   "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
    "IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
-   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 4,
    "IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 5,
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 10,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 15,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 5,
    "IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 15
   },
-  "contrastN": 58,
+  "contrastN": 57,
   "minContrast": "5.19 \"สูง 2\" rgb(138, 90, 11) on rgb(251,239,213)",
   "low": [],
   "ctlMin": "7.14 button[return-1.5] rgb(165, 41, 31)",
@@ -566,13 +566,7 @@
    "H1 24px/600 \"รอตรวจ\"",
    "H2 20px/600 \"ข้อที่รอตรวจ (5)\""
   ],
-  "clip": [
-   "p.aq-meta.line-clamp-2 sw160/cw160 sh67/ch45 \"มีหลักฐานแสดงว่าผู้เรียนบรรลุผ\"",
-   "p.aq-meta.line-clamp-2 sw160/cw160 sh67/ch45 \"บริการสนับสนุนผู้เรียนได้รับกา\"",
-   "p.aq-meta.line-clamp-2 sw160/cw160 sh67/ch45 \"อัตราการสำเร็จการศึกษา อัตรากา\"",
-   "p.aq-meta.line-clamp-2 sw160/cw160 sh67/ch45 \"ความสามารถในการมีงานทำ ซึ่งแสด\"",
-   "p.aq-meta.line-clamp-2 sw160/cw160 sh90/ch45 \"ประเภทและปริมาณผลงานวิจัยและงา\""
-  ],
+  "clip": [],
   "small": [],
   "lhLow": [],
   "upper": [],
@@ -776,7 +770,7 @@
   "contrastN": 247,
   "minContrast": "5.08 \"กำลังดำเนินการ\" rgb(63, 107, 92) on rgb(226,238,232)",
   "low": [],
-  "ctlMin": "3.63 select[owner-3.6] rgb(126, 130, 112)",
+  "ctlMin": "3.64 select[bulk-owner-1] rgb(126, 130, 112)",
   "ctlLow": [],
   "icoMin": 5.08,
   "icoLow": [],
@@ -1019,7 +1013,7 @@
    "IBM_Plex_Sans_Thai_Looped 600"
   ],
   "fonts": {
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
    "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 6,
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 1,
@@ -1029,7 +1023,7 @@
    "ui-monospace | 16px | 400 | lh 1.70": 2,
    "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.63": 1
   },
-  "contrastN": 47,
+  "contrastN": 48,
   "minContrast": "5.75 \"AI แนะนำข้อแล้ว\" rgb(47, 95, 134) on rgb(228,238,245)",
   "low": [],
   "ctlMin": "3.94 button[ev-edit] rgb(126, 130, 112)",
@@ -2023,7 +2017,7 @@
   "contrastN": 22,
   "minContrast": "6.05 \"1\" rgb(255, 255, 255) on rgb(63,107,92)",
   "low": [],
-  "ctlMin": "3.94 select[req-role-u_mvpy2uvx1f3hj] rgb(126, 130, 112)",
+  "ctlMin": "3.94 select[req-role-u_mvpz6j4s18z9k] rgb(126, 130, 112)",
   "ctlLow": [],
   "icoMin": null,
   "icoLow": [],
@@ -2490,7 +2484,7 @@
    "IBM_Plex_Sans_Thai_Looped 600"
   ],
   "fonts": {
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
    "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 6,
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 1,
@@ -2500,7 +2494,7 @@
    "ui-monospace | 16px | 400 | lh 1.70": 2,
    "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.63": 1
   },
-  "contrastN": 46,
+  "contrastN": 47,
   "minContrast": "5.75 \"AI แนะนำข้อแล้ว\" rgb(47, 95, 134) on rgb(228,238,245)",
   "low": [],
   "ctlMin": "3.94 button[ev-edit] rgb(126, 130, 112)",

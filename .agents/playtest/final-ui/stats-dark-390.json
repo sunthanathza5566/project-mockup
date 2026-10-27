@@ -600,7 +600,7 @@
   "infinite": []
  },
  "lang-global-dark-390": {
-  "htmlLang": "th",
+  "htmlLang": "en",
   "h1": "Evidence library",
   "stored": "en",
   "old": null
@@ -618,15 +618,15 @@
   ],
   "fonts": {
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
-   "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 16,
+   "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.70": 11,
    "IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
-   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 5,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 4,
    "IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 5,
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 10,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 15,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 5,
    "IBM_Plex_Sans_Thai_Looped | 16px | 500 | lh 1.70": 15
   },
-  "contrastN": 58,
+  "contrastN": 57,
   "minContrast": "6.22 \"สูง 2\" rgb(227, 184, 98) on rgb(69,55,28)",
   "low": [],
   "ctlMin": "6.64 button[return-1.5] rgb(242, 153, 140)",
@@ -846,7 +846,7 @@
   "contrastN": 247,
   "minContrast": "5.72 \"กำลังดำเนินการ\" rgb(143, 193, 172) on rgb(46,60,54)",
   "low": [],
-  "ctlMin": "3.18 select[owner-3.6] rgb(140, 126, 112)",
+  "ctlMin": "3.21 select[owner-3.6] rgb(140, 126, 112)",
   "ctlLow": [],
   "icoMin": 5.72,
   "icoLow": [],
@@ -1089,7 +1089,7 @@
    "IBM_Plex_Sans_Thai_Looped 600"
   ],
   "fonts": {
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
    "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 6,
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 1,
@@ -1099,7 +1099,7 @@
    "ui-monospace | 16px | 400 | lh 1.70": 2,
    "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.63": 1
   },
-  "contrastN": 47,
+  "contrastN": 48,
   "minContrast": "6.28 \"ผูกกับข้อที่เลือก\" rgb(194, 181, 166) on rgb(57,50,43)",
   "low": [],
   "ctlMin": "3.65 button[ev-edit] rgb(140, 126, 112)",
@@ -1653,7 +1653,7 @@
   ],
   "tabsOneRow": true,
   "tablistScroll": [
-   406,
+   358,
    358
   ]
  },
@@ -1835,7 +1835,7 @@
   ],
   "tabsOneRow": true,
   "tablistScroll": [
-   406,
+   358,
    358
   ]
  },
@@ -1956,7 +1956,7 @@
    "ui-monospace | 14px | 400 | lh 1.60": 11
   },
   "contrastN": 85,
-  "minContrast": "5.95 \"หมดอายุ 3 พ.ย. 2569 07:32\" rgb(194, 181, 166) on rgb(47,58,40)",
+  "minContrast": "5.95 \"หมดอายุ 3 พ.ย. 2569 07:59\" rgb(194, 181, 166) on rgb(47,58,40)",
   "low": [],
   "ctlMin": "3.04 input[invite-link] rgb(140, 126, 112)",
   "ctlLow": [],
@@ -2002,7 +2002,7 @@
   "contrastN": 22,
   "minContrast": "6.64 \"ปฏิเสธ\" rgb(242, 153, 140) on rgb(47,41,35)",
   "low": [],
-  "ctlMin": "3.65 select[req-role-u_mvpy9ww519vb4] rgb(140, 126, 112)",
+  "ctlMin": "3.65 select[req-role-u_mvpz8zc21vjr0] rgb(140, 126, 112)",
   "ctlLow": [],
   "icoMin": null,
   "icoLow": [],
@@ -2412,10 +2412,10 @@
    "IBM_Plex_Sans_Thai_Looped | 20px | 600 | lh 1.50": 1,
    "IBM_Plex_Sans_Thai_Looped | 16px | 600 | lh 1.70": 20,
    "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 56,
-   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 65,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 15,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 17
   },
-  "contrastN": 364,
+  "contrastN": 314,
   "minContrast": "5.72 \"1\" rgb(143, 193, 172) on rgb(46,60,54)",
   "low": [],
   "ctlMin": "3.65 select[ev-programme] rgb(140, 126, 112)",
@@ -2431,7 +2431,18 @@
    "H1 24px/600 \"คลังหลักฐาน\"",
    "H2 20px/600 \"เพิ่มหลักฐานใหม่\""
   ],
-  "clip": [],
+  "clip": [
+   "span.line-clamp-2.break-words sw212/cw212 sh163/ch54 \"ผลการเรียนรู้ที่คาดหวังของหลัก\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh136/ch54 \"ผลการเรียนรู้ที่คาดหวังของรายว\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh163/ch54 \"ผลการเรียนรู้ที่คาดหวังประกอบด\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh163/ch54 \"หลักสูตรแสดงให้เห็นว่ามีการรวบ\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh82/ch54 \"มีหลักฐานแสดงว่าผู้เรียนบรรลุผ\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh109/ch54 \"รายละเอียดหลักสูตรและรายวิชาทั\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh136/ch54 \"การออกแบบหลักสูตรสอดคล้องกันเช\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh109/ch54 \"การออกแบบหลักสูตรรวมข้อมูลป้อน\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh82/ch54 \"การมีส่วนร่วมของแต่ละรายวิชาต่\"",
+   "span.line-clamp-2.break-words sw212/cw212 sh82/ch54 \"หลักสูตรมีโครงสร้างที่เป็นเหตุ\""
+  ],
   "small": [],
   "lhLow": [],
   "upper": [],
@@ -2469,7 +2480,7 @@
    "IBM_Plex_Sans_Thai_Looped 600"
   ],
   "fonts": {
-   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 12,
+   "IBM_Plex_Sans_Thai_Looped | 14px | 400 | lh 1.60": 13,
    "IBM_Plex_Sans_Thai_Looped | 14px | 500 | lh 1.60": 6,
    "IBM_Plex_Sans_Thai_Looped | 24px | 600 | lh 1.40": 1,
    "IBM_Plex_Sans_Thai_Looped | 13px | 500 | lh 1.50": 1,
@@ -2479,7 +2490,7 @@
    "ui-monospace | 16px | 400 | lh 1.70": 2,
    "IBM_Plex_Sans_Thai_Looped | 16px | 400 | lh 1.63": 1
   },
-  "contrastN": 46,
+  "contrastN": 47,
   "minContrast": "6.28 \"ผูกกับข้อที่เลือก\" rgb(194, 181, 166) on rgb(57,50,43)",
   "low": [],
   "ctlMin": "3.65 button[ev-edit] rgb(140, 126, 112)",

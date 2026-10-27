@@ -78,3 +78,20 @@
 | `final-evidence-detail-locked-*` | รายละเอียดหลักฐาน: "ข้อ 1.1 อนุมัติแล้ว — เลิกผูกไม่ได้" | staff1 |
 | `final-lang-global-*` | เลือก English ที่หน้าหลักแล้วไปหน้าหลักฐาน ยังเป็น English | chair1 |
 | `final-review-light-1280` | ตารางรอตรวจที่ 1280 (หลักฐาน N1 — ปุ่มถูกซ่อน) | chair1 |
+
+## Re-check 2 หลัง R2-F13 (2026-10-27, HEAD `8242151`, server `:3970`) — ชุดภาพ final-* ทั้งหมดเป็นของ build นี้
+**ถ่ายใหม่ทับทุกไฟล์ `final-*` (383 ภาพ) รวม `*-768` ทั้ง light/dark** — ตรวจด้วย mtime: ไม่มีไฟล์ `final-*` ที่เก่ากว่า commit `8242151` เหลืออยู่ · ใช้ชุดนี้ในเล่มได้ทั้งหมด (หมายเหตุ "768 ของ build รอบแรก" ข้างบนยกเลิก)
+สคริปต์: `shoot.mjs` (6 ชุด light/dark × 1440/768/390) · `checks.mjs` · `recheck2.mjs` (N1–N6, P11–P13, U11 + dialog) · `recheck2-125.mjs` · `recheck2-wrap.mjs` / `recheck2-hidden.mjs` (ตารางที่ซ่อนปุ่ม) · `recheck2-actions1024.mjs` · `recheck2-axe.mjs`
+
+| ไฟล์ (ใหม่/เปลี่ยนความหมาย) | เนื้อหา | ผู้ใช้ |
+|---|---|---|
+| `final-review-{light,dark}-1280` | ตารางรอตรวจที่ 1280: ปุ่ม 3 ปุ่มเรียงแนวตั้งในกรอบ (N1 ปิด) | chair1 |
+| `final-review-{light,dark}-1024` | <1280 แต่ละแถวเป็นการ์ด (รอบ / ส่งโดย 2 คอลัมน์) | chair1 |
+| `final-scale125-review-light-1280` | ตัวอักษร 125% ที่ 1280: ปุ่มท้ายแถวยังถูกซ่อน (หลักฐาน N7) | chair1 |
+| `final-review-en-light-1440` / `final-actions-en-light-1440` | โหมด English (`<html lang="en">`) | chair1 |
+| `final-actions-accept-*` | dialog "ตรวจรับแผนปรับปรุง" (P11) | chair1 |
+| `final-actions-{light,dark}-1024` | ตารางแผนปรับปรุงที่ 1024: ปุ่มท้ายแถว/คอลัมน์สถานะถูกซ่อน (หลักฐาน N8) | chair1 |
+| `final-admin-reactivate-lect1-*` / `final-admin-reactivate-uadmin-*` | dialog เปิดใช้บัญชี: บัญชีทั่วไปไม่พูดถึงคำเชิญ / ผู้ดูแลพูดถึงคำเชิญ (U11) | sadmin |
+| `final-assess-submit-*` | dialog "ส่งผลการประเมินของคุณ" เมื่อรอบมีกรรมการ 2 คน (P12) | assess1 |
+| `final-assess-waiting-*` | หลังส่ง: กล่อง "ยังรอ อ.วิภา…" แทน error (บทบาทกรรมการคนที่ 2 ฉีดลง localStorage) | assess1 |
+| `final-evidence-detail-picker-*` | picker "ผูกเพิ่ม" ในหน้ารายละเอียด: ข้อที่ล็อกมีป้าย (P13) | staff1 |
