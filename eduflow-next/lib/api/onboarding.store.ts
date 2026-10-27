@@ -14,7 +14,7 @@ import type {
 import { newId, sha256Hex } from '../utils/hash';
 import { appendAudit } from './audit.store';
 import {
-  EMAIL_RE, INVITE_TTL_MS, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, requireActiveActor,
+  EMAIL_RE, INVITE_TTL_MS, USERNAME_INVALID_MESSAGE, USERNAME_RE, getUsers, hashPassword, isActiveUser, loginUser, requireActiveActor,
   sanitizeRoles, saveUsers, userStatus, validatePassword, validateRoleScopes, withoutPassword, type LoginResult,
 } from './auth.api';
 import { AunqaError, KEYS, load, save } from './db';
@@ -66,7 +66,7 @@ function newInviteToken(): string { return base64url(crypto.getRandomValues(new 
 function hashInviteToken(token: string): Promise<string> { return sha256Hex(`aunqa-invite::${token}`); }
 
 function validateIdentity(username: string, email: string, fullName: string): void {
-  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', 'Username ต้องเป็น a-z, 0-9, . _ - ยาว 3–32 ตัว');
+  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', USERNAME_INVALID_MESSAGE);
   if (!email || email.length > MAX_EMAIL || !EMAIL_RE.test(email)) throw new AunqaError('invalid', 'รูปแบบอีเมลไม่ถูกต้อง');
   if (!fullName || fullName.length > MAX_NAME) throw new AunqaError('invalid', 'กรุณากรอกชื่อ (ไม่เกิน 100 ตัวอักษร)');
 }
@@ -231,7 +231,7 @@ export async function submitAccessRequest(input: AccessRequestInput): Promise<{ 
   if (!email || email.length > MAX_EMAIL || !EMAIL_RE.test(email)) throw new AunqaError('invalid', 'รูปแบบอีเมลไม่ถูกต้อง');
   const uni: University | null = findUniversityByEmail(email);
   if (!uni) throw new AunqaError('invalid', 'อีเมลนี้ไม่ใช่โดเมนของมหาวิทยาลัยที่ใช้ระบบนี้');
-  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', 'Username ต้องเป็น a-z, 0-9, . _ - ยาว 3–32 ตัว');
+  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', USERNAME_INVALID_MESSAGE);
   assertUnique(getUsers(), username, email, 'อีเมลนี้มีบัญชีหรือคำขออยู่แล้ว');
   validatePassword(password);
   if (programmeId) {

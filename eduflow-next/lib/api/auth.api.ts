@@ -28,6 +28,8 @@ export const PASSWORD_MAX = 128;
 /** อายุลิงก์เชิญ 7 วัน */
 export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const USERNAME_RE = /^[A-Za-z0-9._-]{3,32}$/;
+/** ข้อความเดียวกับคำใบ้ฝั่ง UI (รับตัวพิมพ์ใหญ่/เล็กตาม USERNAME_RE) — มีคำแปล EN ใน dict-aunqa แล้ว */
+export const USERNAME_INVALID_MESSAGE = 'ชื่อผู้ใช้ต้องเป็นตัวอักษรอังกฤษ ตัวเลข หรือ . _ - ยาว 3–32 ตัว';
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLE_CODES: readonly RoleCode[] = ['super_admin', 'uni_admin', 'programme_chair', 'programme_staff', 'data_staff', 'faculty_qa', 'dean', 'assessor'];
 
@@ -68,16 +70,18 @@ export type ScopeType = RoleAssignment['scopeType'];
  * "ขอบเขตที่ควรใช้กับแต่ละบทบาท" และ rbac.can (assessor ใช้ได้เฉพาะ scope 'cycle')
  * ตารางเดียวใช้ทั้งบังคับใน validateRoleScopes และกรองตัวเลือกขอบเขตใน UI
  */
-export const ROLE_SCOPE_TYPES: Readonly<Record<RoleCode, readonly ScopeType[]>> = {
-  super_admin: ['university'],
-  uni_admin: ['university'],
-  programme_chair: ['programme'],
-  programme_staff: ['programme'],
-  data_staff: ['faculty'],
-  faculty_qa: ['faculty'],
-  dean: ['faculty'],
-  assessor: ['cycle'],
-};
+// I-04: freeze ทั้งตัวนอกและ array ด้านใน — โค้ดที่ import จาก facade แก้ตารางตอน runtime ไม่ได้
+const scopes = (...s: ScopeType[]): readonly ScopeType[] => Object.freeze(s);
+export const ROLE_SCOPE_TYPES: Readonly<Record<RoleCode, readonly ScopeType[]>> = Object.freeze({
+  super_admin: scopes('university'),
+  uni_admin: scopes('university'),
+  programme_chair: scopes('programme'),
+  programme_staff: scopes('programme'),
+  data_staff: scopes('faculty'),
+  faculty_qa: scopes('faculty'),
+  dean: scopes('faculty'),
+  assessor: scopes('cycle'),
+});
 
 /** ระดับขอบเขตที่บทบาทนี้ใช้ได้ (UI ใช้กรอง dropdown) · role ที่ไม่รู้จัก = [] */
 export function allowedScopeTypes(role: RoleCode): readonly ScopeType[] {
@@ -336,7 +340,7 @@ export async function createUser(actor: AppUser, input: NewUserInput): Promise<O
   const scope = { universityId: actor.universityId };
   if (!can(actor, 'user.manage', scope)) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการผู้ใช้');
   const username = input.username.trim();
-  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', 'Username ต้องเป็น a-z, 0-9, . _ - ยาว 3–32 ตัว');
+  if (!USERNAME_RE.test(username)) throw new AunqaError('invalid', USERNAME_INVALID_MESSAGE);
   validatePassword(input.password); // ADR-AUTH-001 A8.1: 6 → 8 (ตรงกับ UI)
   if (!EMAIL_RE.test(input.email)) throw new AunqaError('invalid', 'รูปแบบอีเมลไม่ถูกต้อง');
   if (!input.fullName.trim()) throw new AunqaError('invalid', 'กรุณากรอกชื่อ');
