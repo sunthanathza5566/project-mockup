@@ -272,3 +272,80 @@ N1 ที่ 100% ปิดจริงทุกความกว้าง (192
 6. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-admin-users-dark-390.png` — ผู้ดูแลบนมือถือ โหมดมืด แท็บไม่ล้นแล้ว
 7. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-scale125-review-light-1280.png` — จุดที่ยังต้องแก้ N7 (ตัวอักษรใหญ่ ปุ่มถูกซ่อน)
 8. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-actions-light-1024.png` — จุดที่ยังต้องแก้ N8 (ตารางแผนปรับปรุงซ่อนปุ่มที่ 1024)
+
+
+---
+
+# Re-check 3 (สุดท้าย) หลัง R2-F14 + R2-F15 — 2026-10-27
+
+Verdict: **PASS** — blocker 0 · major 0 · N7, N8 (major) + N9, N10 (minor) **ปิดจริง** · R2-F15 ป้ายในการ์ดเป็นอังกฤษครบทุกตาราง · ชุดวัดเดิมไม่ถอย (ค่าเท่ารอบก่อนทุกตัว) · minor ใหม่ 1 (N11, backlog) + m6 ค้าง (backlog)
+
+- server `http://localhost:3980` (build ของ HEAD `b7a4b4a`) — ไม่ได้ build/start/kill · Playwright chromium th-TH · context แยก localStorage (รันพร้อม e2e ของ qa-tester) · ไม่มี HTTP 5xx / pageerror / ERR ในทุกสคริปต์
+- ตัวอักษร 125% ยืนยันว่าใช้จริง: `html` font-size = 20px (recheck2-125) และโหมดตาราง/การ์ดเปลี่ยนตาม scale (เช่น actions 1920@125% = การ์ด)
+
+## สรุปฟอนต์ที่ใช้จริง (light-1440, 47 หน้า/สถานะ — ถ่ายใหม่ทั้งชุด)
+ไม่เปลี่ยนจาก Re-check 2 ทุกแถว (เทียบ `stats-light-1440.json` กับ commit ก่อน: จำนวน element ตรงกันทุก key) · โหลดเฉพาะ IBM Plex Sans Thai Looped 400/500/600 + fallback metric · ป้าย `::before` ของการ์ด 14px/500 (125%: 17.5px/500) ทุกตาราง
+
+| font-family | size | weight | line-height | จำนวน element |
+|---|---|---|---|---|
+| IBM Plex Sans Thai Looped | 16px | 400 / 500 / 600 | 1.70 | 1373 / 978 / 579 |
+| 〃 | 14px | 400 / 500 / 600 | 1.60 | 473 / 262 / 64 |
+| 〃 | 13px | 500 / 400 | 1.50 / 1.70 | 546 (badge) / 290 (ป้ายกราฟ SVG — m6) |
+| 〃 | 18px / 20px / 24px | 600 | 1.60 / 1.50 / 1.40 | 92 / 43 / 48 |
+| ui-monospace | 16px / 14px | 400 | 1.70 / 1.60 | 51 / 32 |
+
+## ผลสคริปต์ที่สั่งให้รัน
+| สคริปต์ | ผล |
+|---|---|
+| `recheck2-hidden.mjs` (7 หน้า × 1024/1280 @100% + 1024/1280/1366 @125%) | เหลือเฉพาะ `pending-table` controls 0 (ตารางข้อมูลไม่มีปุ่ม — ข้อยกเว้นที่ตั้งใจ) · **ไม่มี hidden/partial · ไม่มี PAGE h-scroll** (N10) |
+| `recheck2-125.mjs` (125%/112.5% × 1280–1600, 1024, 768) | `vis == w` ทุกปุ่มทุกความกว้าง · wrapper sw == cw (เช่น 1280@125%: 848/848, ปุ่ม 87/87 122/122) |
+| `recheck-review.mjs` (1280/1440/1600/1920/1024/768) | wrapSW == wrapCW ทุกความกว้าง · อนุมัติ/เปิดอ่าน/ส่งกลับ visibleW == w (70/84/101) |
+
+## ตรวจทุกตารางทั้งระบบ — `recheck3-tables.mjs` (ใหม่)
+14 มุมมอง (review, actions, cycles, cycles/[id], assign, evidence, evidence/[id] ไฟล์, curriculum PLO / รายวิชา+CLO / AI-7, metrics, metrics โหมดแก้, admin users, admin audit) × 1920/1440/1365/1280/1024/768/390 × 100/125% × light/dark + English ที่ 1440/1024/390 = **476 views**
+วัด: ปุ่ม/ลิงก์/select/input ใน tbody ที่อยู่นอกกรอบ wrapper · h-scroll ทั้งหน้า · ป้าย `::before` ว่าง · ป้ายเป็นไทยในโหมด EN · เซลล์มีป้ายแต่ไม่มีเนื้อ (ช่องว่างแปลก) · element ในการ์ดล้นขอบ → **issues 0 ทั้ง light และ dark** (ไม่นับ `.aq-matrix` ที่ตั้งใจเลื่อนในกรอบ)
+
+จุดสลับเป็นการ์ดที่วัดได้ (100% / 125%): review ≤1024 / ≤1365 · actions ≤1280 / ทุกความกว้าง · cycles, evidence, assign ≤1024 / ≤1440 · PLO, รายวิชา ≤1024 / ≤1280 · metrics, users, audit ≤1024 / ≤1365 · โหมด EN: ป้ายในการ์ดที่มีอักษรไทย **0** ทุกตาราง (เช่น review `Req./Cycle/Submitted by/Summary`, users `User/Role/Status`, audit `Time/Actor/Actions/Target`) · `html lang="en"`
+ดูด้วยตา (ภาพ `final-tbl-*`): ป้ายหัวข้อสีหม่น 14px/500 แยกชัดจากค่า, ระยะระหว่างคู่ป้าย–ค่าสม่ำเสมอ, ปุ่มอยู่บรรทัดท้ายการ์ด, ฟอร์มในการ์ด (metrics แก้ค่า, assign select/date) กว้างเต็มการ์ดไม่ถูกตัด, CLO ซ้อนในการ์ดรายวิชาอ่านได้ ทั้ง 2 ธีม
+
+## ชุดวัดเดิม (regression) — ไม่ถอย
+| รายการ | ผล |
+|---|---|
+| contrast ข้อความ (6 ชุด light/dark × 1440/768/390, ถ่ายใหม่ทั้งชุด) | ต่ำกว่าเกณฑ์ 0 · ต่ำสุด light 4.81 / dark 5.45 (ตัวย่อ avatar) เท่าเดิม · ขอบ control <3:1 = 12 ตัวเดิม (ปุ่มช่องว่างระดับใน dashboard — มีมาแต่เดิม ไม่เปลี่ยน) |
+| h-scroll ทั้งหน้า | 0 ทุกหน้า × 6 ชุด + 0 ใน 476 views ตาราง (รวม 1024/768 @125% — N10) |
+| ตัวอักษร <13px / line-height ไทย <1.35 / uppercase ไทย | 0 / 0 / 0 · "clip" ที่เหลือเป็น `line-clamp-2` ที่ตั้งใจ |
+| target <40px | 182 / 183 / 180 เท่ารอบก่อน (ลิงก์ในบรรทัด/breadcrumb — ยกเว้นตาม 2.5.8) |
+| `checks.mjs` 125% / text-spacing / 360×800 | h-scroll 0, clip 0, ปุ่มล้น 0 ทุกหน้า · `checks.json` ไม่ต่างจาก commit ก่อน |
+| axe-core | `recheck2-axe` 20 ชุด + `checks` 10 ชุด + `recheck3-axe.mjs` (ใหม่: cycles, dashboard, assign, evidence, metrics, metrics-edit, PLO, รายวิชา+CLO, AI-7, audit × 1024/1440 × 2 ธีม = 40 ชุด) → **violations 0** |
+| focus ring | ไม่มีตัวผิด · ต่ำสุด 5.12 · กฎ hover ยก/เลื่อน 0 · reduced-motion 0 |
+
+## สถานะ finding
+| # | สถานะ | หลักฐาน |
+|---|---|---|
+| **N7** review ที่ 125% 1280–1365 | **ปิด** | 125%: 1280/1365 เป็นการ์ด (กรอบ 848–934), ≥1440 เป็นตาราง sw==cw · ปุ่ม vis==w ทุกความกว้าง · `final-scale125-tbl-review-light-1280` |
+| **N8** actions ซ่อนปุ่มที่ 1024 | **ปิด** | 1024/1280 @100% และทุกความกว้าง @125% เป็นการ์ด ปุ่มถูกซ่อน 0 · `final-actions-{light,dark}-1024`, `final-tbl-actions-*` |
+| N9 cycles/users/PLO เลื่อนในกรอบ | **ปิด** | ทั้ง 3 ตาราง + assign, evidence, ไฟล์ evidence, รายวิชา, AI-7, metrics, audit: hidden/partial 0 ทุก view |
+| N10 nav-user ล้นที่ 1024@125% | **ปิด** | PAGE h-scroll 0 ที่ 1024/768 @125% (chair1, uadmin) |
+| R2-F15 data-label EN | **ปิด** | ป้ายไทยในโหมด EN = 0 ทุกตาราง × 1440/1024/390 × 2 ธีม · `final-tbl-*-en-light-1024` |
+| m6 ป้ายกราฟ 13px | backlog | 290 element เท่าเดิม |
+
+## Findings ใหม่
+| # | severity | หน้า/breakpoint | ปัญหา | ค่าที่เจอ vs ค่าที่ควรเป็น | screenshot | ผู้รับผิดชอบ |
+|---|---|---|---|---|---|---|
+| N11 | minor (backlog) | actions 1280@100%, users/audit/metrics 1365@125% และทุกตารางที่เป็นการ์ดในกรอบกว้าง ≥40rem (ยกเว้น review) | การ์ดเรียงป้าย–ค่าทีละบรรทัดคอลัมน์เดียวแม้กรอบกว้าง ~930px → ครึ่งขวาของการ์ดว่าง หน้ายาวขึ้นมาก | actions 1280: หน้าสูง 2,772px (1365 แบบตาราง: 1,200) · users 1365@125%: 4,197px (1440@125% แบบตาราง: 1,805) · ควร: grid 2 คอลัมน์ในการ์ดเมื่อกรอบ 40rem–จุดสลับ แบบที่ review ทำแล้ว | `final-tbl-actions-light-1280.png`, `final-scale125-tbl-users-light-1365.png` | frontend-dev (หลังส่งงาน) |
+
+ข้อสังเกต (ไม่นับ): (1) ตารางผู้ใช้โหมดการ์ด แถว sadmin ช่องการจัดการแสดง "—" ไม่มีป้าย ดูลอย (`final-tbl-users-en-light-1024`) — ใส่ข้อความ "จัดการไม่ได้" หรือซ่อนเซลล์ · (2) audit โหมด EN ป้าย "Actions" สำหรับค่าเดียว ควรเป็น "Action" · (3) ภาพเต็มหน้าที่ 1024 แถบ sidebar สั้นกว่าหน้า (ผลของ `fullPage` กับ sticky ไม่ใช่บั๊กบนจอจริง)
+
+## ข้อเสนอให้ frontend-dev / qa-tester
+1. ไม่มีงานบล็อก · N11 + ข้อสังเกต (1)(2) เป็น backlog รอบหน้า
+2. qa-tester: ตรรกะ label-empty / label-thai-in-EN / hidden controls ใน `recheck3-tables.mjs` ย้ายเข้า e2e แบบลดชุดได้ (1024 + 1365@125% × light) — ส่วนใหญ่ครอบแล้วใน `fix-r2f14-f15.spec.ts`
+
+## ภาพแนะนำให้เจ้าของดู (ชุดสุดท้าย — build HEAD `b7a4b4a`)
+1. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-review-light-1280.png` — ตารางรอตรวจ ปุ่มครบ (N1)
+2. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-scale125-tbl-review-light-1280.png` — ตัวอักษร 125% สลับเป็นการ์ด ปุ่มครบ (N7 ปิด)
+3. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-actions-light-1024.png` — แผนปรับปรุงที่ 1024 ปุ่มไม่ถูกซ่อนแล้ว (N8 ปิด)
+4. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-review-en-light-1024.png` — โหมด English ป้ายในการ์ดเป็นอังกฤษ (R2-F15)
+5. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-cur-course-en-light-1024.png` — รายวิชา + CLO ในโหมดการ์ด (เดิมไม่มีโหมดการ์ด)
+6. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-metrics-edit-light-1024.png` — แก้ค่าตัวชี้วัดในการ์ด ปุ่มบันทึก/ยกเลิกเห็นครบ
+7. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-audit-dark-1024.png` — audit log โหมดมืดแบบการ์ด
+8. `C:\Users\User\Documents\GitHub\project mockup\.agents\screenshots\TASK-0002\final-tbl-actions-light-1280.png` — N11 (minor): การ์ดคอลัมน์เดียวบนจอ 1280 ยาวกว่าที่ควร

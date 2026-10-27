@@ -95,3 +95,15 @@
 | `final-assess-submit-*` | dialog "ส่งผลการประเมินของคุณ" เมื่อรอบมีกรรมการ 2 คน (P12) | assess1 |
 | `final-assess-waiting-*` | หลังส่ง: กล่อง "ยังรอ อ.วิภา…" แทน error (บทบาทกรรมการคนที่ 2 ฉีดลง localStorage) | assess1 |
 | `final-evidence-detail-picker-*` | picker "ผูกเพิ่ม" ในหน้ารายละเอียด: ข้อที่ล็อกมีป้าย (P13) | staff1 |
+
+## Re-check 3 (สุดท้าย) หลัง R2-F14 + R2-F15 (2026-10-27, HEAD `b7a4b4a`, server `:3980`) — ชุดภาพ final-* ทั้งหมดเป็นของ build นี้
+ถ่ายใหม่ทับ `final-*` เดิมทั้งหมด (`shoot.mjs` 6 ชุด, `checks.mjs`, `recheck2.mjs`, `recheck-review.mjs`) — ตรวจ mtime: ไม่มี `final-*` ที่เก่ากว่า commit `b7a4b4a` · ความหมายของ `final-scale125-review-light-1280` และ `final-actions-{light,dark}-1024` เปลี่ยนเป็น "ปิดแล้ว" (ไม่ใช่หลักฐาน N7/N8 อีกต่อไป)
+ภาพใหม่ `final-tbl-*` = ภาพจอเดียวที่เลื่อนไปตารางแรก (โหมดการ์ด) จาก `recheck3-look.mjs`
+
+| ไฟล์ | เนื้อหา | ผู้ใช้ |
+|---|---|---|
+| `final-tbl-{review,actions,cycles,assign,evidence,evidence-detail,cur-plo,cur-course,cur-ai7,metrics-edit}-{light,dark}-1024` | ตารางแต่ละหน้าเป็นการ์ดที่ 1024 (cur-course เปิด CLO, cur-ai7 หลังกดตรวจ, metrics-edit กด "แก้" แถวแรก) | chair1 |
+| `final-tbl-{users,audit}-{light,dark}-1024` | ผู้ใช้ / audit log แบบการ์ด | uadmin |
+| `final-tbl-*-en-light-1024` (review, actions, cycles, evidence, cur-course, users, audit, metrics-edit) | โหมด English: ป้ายในการ์ดเป็นอังกฤษ (R2-F15) | chair1 / uadmin |
+| `final-tbl-actions-{light,dark}-1280` | แผนปรับปรุงที่ 1280 เป็นการ์ดคอลัมน์เดียว (หลักฐาน N11 minor) | chair1 |
+| `final-scale125-tbl-{review-light-1280,actions-light-1365,users-light-1365,cycles-dark-1365}` | ตัวอักษร 125% สลับเป็นการ์ดตามกรอบจริง ปุ่มครบ (N7 ปิด) | chair1 / uadmin |
