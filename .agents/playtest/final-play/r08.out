@@ -1,0 +1,19 @@
+=== r08 misc
+  after empty submit title errors: [] summary: ยังบันทึกไม่ได้ — โปรดแก้ 2 จุด กรอกชื่อหลักฐาน เช่น รายงานการประชุมกรรมการหลักสูตร ครั้งที่ 1/2569 แนบไฟล์ ใส่ลิงก์ หรือวางข้อความอย่างน้อยหนึ่งอย่าง
+  after typing title errors: [] form lines with กรอกชื่อ: []
+  lect1 /app/admin: forbidden=true has-users-table=0 owner-selects=0 assessor-select=0
+  assess1 /app/actions: forbidden=true has-users-table=0 owner-selects=0 assessor-select=0
+  ass2 /app/admin?tab=requests: forbidden=true has-users-table=0 owner-selects=0 assessor-select=0
+  staff1 /app/cycles/cycle-demo-2569/assign: forbidden=true has-users-table=0 owner-selects=53 assessor-select=0
+  deep link not logged in -> /app/actions
+  aria-expanded after Enter: true
+  tab order in panel: [
+  'ลบบทบาท อาจารย์/เจ้าหน้าที่หลั',
+  'user-add-role-staff1',
+  'user-add-scope-staff1',
+  'user-add-submit-staff1',
+  'user-suspend-staff1',
+  'user-panel-close-staff1'
+]
+  Esc closes panel? expanded= true
+errs []
