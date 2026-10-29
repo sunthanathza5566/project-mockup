@@ -1,0 +1,13 @@
+import {session,B,txt,log} from './lib.mjs';
+const {br,p,as}=await session();
+await p.goto(B+'/login');await p.waitForTimeout(800);await p.getByTestId('lang-en').click();await p.waitForTimeout(500);
+log('ls',await p.evaluate(()=>Object.entries(localStorage).filter(([k])=>/lang/i.test(k))));
+log('h1 now',await p.locator('h1').first().innerText());
+await p.reload();await p.waitForTimeout(900);log('after reload h1',await p.locator('h1').first().innerText());
+await p.goto(B+'/request-access');await p.waitForTimeout(900);log('request-access h1',await p.locator('h1').first().innerText());
+await p.getByTestId('lang-en').click();await p.waitForTimeout(500);log('after EN click RA h1',await p.locator('h1').first().innerText(), (await txt(p,600)).slice(80,400).replace(/\s+/g,' '));
+await p.goto(B+'/invite');await p.waitForTimeout(900);log('invite h1',await p.locator('h1').first().innerText());
+await p.goto(B+'/');await p.waitForTimeout(900);log('landing h1',await p.locator('h1').first().innerText());
+await as('uadmin');log('app home h1',await p.locator('main h1').first().innerText());
+await p.goto(B+'/app/admin?tab=requests');await p.waitForTimeout(1000);log('admin',(await p.locator('main').innerText()).slice(0,120).replace(/\s+/g,' '));
+await br.close();

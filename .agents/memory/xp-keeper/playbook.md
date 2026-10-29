@@ -1,10 +1,10 @@
 # Playbook — xp-keeper
 
 ## RULES
-- (ยังไม่มี)
+- [TASK-0001 + TASK-0002] ห้ามเรียก `python`/`python3` ใน PATH (alias Store) — ใช้ `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe -X utf8` + สคริปต์ award ใน scratchpad ที่เรียก `xp.cmd_award` ตรง ๆ (argv ไทยจาก Git Bash เพี้ยน). ใช้ซ้ำแล้ว 2 ครั้ง
 
 ## LESSONS
-- (ยังไม่มี)
+- [TASK-0002] TASK file ใหญ่ (500KB, บรรทัดยาว) อ่านด้วย Read ไม่ได้ → awk ดึงหัว `### ` + บรรทัด Study/LESSON CANDIDATE/ผล ลง scratchpad แล้วอ่านทีละส่วน; รายงาน reviews ใช้ grep `major|Verdict` นับ finding. ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## PROJECT KNOWLEDGE
 - บน Windows: python3/python ใน PATH เป็น alias ของ Store → ใช้ `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe`
@@ -43,3 +43,12 @@
   - (Phase D) STUDY REQUEST +3 เฉพาะช่องว่างที่ INDEX ยังไม่ระบุ (security ได้, user-docs ไม่ได้เพราะ INDEX ระบุไว้แล้ว)
   - (Phase D) LESSON CANDIDATE ที่ซ้ำ RULE เดิม → รวมเข้า RULE + counter ไม่ให้ +3
 - TASK-0001 Phase D: ledger 157 → 191 (34 แถว, prefix reason "Phase D ") — TASK-0001 ปิดแล้ว
+- TASK-0002 (2026-10-27): ledger 191 → 392 (201 แถว, prefix reason "T2 ") — ตรวจซ้ำด้วยการหา "T2 " ก่อน award ครั้งถัดไป · TASK-0002 ปิดแล้ว
+  - (T2) งานแก้หลัง Review/Test/UI-Play (R2-B3/B4/B5, R2-F9..F15, fix Q6-1) ไม่ให้ XP "ส่งงานเสร็จ" — หักเฉพาะ -3 ต่อรอบ; fix ของช่องว่างสเปก (Q2C-1) ให้ S ได้
+  - (T2) security PASS WITH FIXES ที่มี Medium ในโค้ดของ agent = เทียบ CHANGES_REQUESTED → เจ้าของ -3; ไฟล์ที่มีแค่ Low/minor (frontend R2-F9) ไม่หักแต่ไม่ได้ +10
+  - (T2) เฟส 7 วน 3 รอบ = frontend -3 x3 (แต่ละรอบมี major ใหม่ในโซนตัวเอง); major ที่ "มีมาก่อนบน master" (P1, N8) ยังให้ +8 ผู้พบ ถ้าถูกแก้จริงในงานนี้
+  - (T2) Study +5 ไม่ให้เมื่อด่านพบว่าผิดมาตรฐานที่อ่าน (backend: S-01 ขัด PDPA ใน security-auth.md + ผิด RULE B7)
+  - (T2) emoji หลุด 3 ครั้งแต่ orchestrator แก้ → ไม่หัก (ตาม C6) แต่บันทึกเป็น RULE จาก incident ใน frontend playbook
+  - (T2) LESSON CANDIDATE ที่หลายข้อซ้อนกันในบล็อกเดียว รับเป็นรายข้อ (+3 ต่อข้อที่รับ) แต่รวมบรรทัดใน playbook ได้; บทเรียนใน TASK เดียวกันที่ subtask ถัดไปอ้างใช้ → +5 ได้ (เช่น S2 → S1.5)
+  - (T2) diagram/docs ไม่มี reviewer ตรวจ → ไม่ให้ +5 diagram ตรงโค้ด/Study และไม่ให้ researcher +3 จาก uml.md/ui-ux.md ที่ docs อ้าง; thesis ใช้ build.py เป็นด่าน (ให้ +3 thesis-th/security-auth)
+

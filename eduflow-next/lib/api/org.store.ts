@@ -17,9 +17,30 @@ export function getProgramme(id: string): Programme | undefined { return load<Pr
 export function getAllUsers(): AppUser[] { return load<AppUser>(KEYS.users); }
 export function getUserById(id: string): AppUser | undefined { return getAllUsers().find(u => u.id === id); }
 
-/** users ใน university เดียวกัน (ไม่รวม password) */
+/**
+ * users ใน university เดียวกัน (ไม่รวม password) — รวม active/invited/suspended
+ * ไม่รวม pending (คำขอเข้าใช้งานอยู่ที่ listAccessRequests) — ADR-AUTH-001 A5
+ */
 export function listUsers(universityId: string): Omit<AppUser, 'password'>[] {
-  return getAllUsers().filter(u => u.universityId === universityId).map(({ password: _pw, ...rest }) => rest);
+  return getAllUsers()
+    .filter(u => u.universityId === universityId && u.status !== 'pending')
+    .map(({ password: _pw, ...rest }) => rest);
+}
+
+/**
+ * มหาวิทยาลัยจากโดเมนอีเมล: โดเมนหลัง @ (ตัวเล็ก) = emailDomain หรือเป็น subdomain (*.emailDomain) · ไม่พบ = null
+ * ใช้จำกัดผู้ขอเข้าใช้งานให้เป็นบุคลากรของมหาวิทยาลัยที่ใช้ระบบ (ADR-AUTH-001 A3)
+ */
+export function findUniversityByEmail(email: string): University | null {
+  if (typeof email !== 'string') return null;
+  const at = email.trim().lastIndexOf('@');
+  if (at < 1) return null;
+  const domain = email.trim().slice(at + 1).toLowerCase();
+  if (!domain) return null;
+  return getUniversities().find(u => {
+    const d = (u.emailDomain || '').toLowerCase();
+    return !!d && (domain === d || domain.endsWith(`.${d}`));
+  }) ?? null;
 }
 
 /** สร้าง Scope ของ programme (เติม facultyId/universityId ให้ครบ) */

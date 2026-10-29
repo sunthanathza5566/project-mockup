@@ -15,7 +15,8 @@ import { extractedTextOf } from './evidence-text.internal';
 import { getRequirement } from './framework';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
-import { assertCycleWritable, cycleScope, getCycleRaw } from './workflow';
+import { requireActiveActor } from './auth.api';
+import { assertCycleWritable, assertSectionsEditable, cycleScope, getCycleRaw } from './workflow';
 
 export const MAX_DATAURL_BYTES = 1024 * 1024;
 const MAX_TEXT = 200_000;
@@ -71,6 +72,7 @@ function saveOne(e: Evidence): void {
 }
 
 function assertWrite(actor: AppUser, e: { programmeId: string }): void {
+  requireActiveActor(actor);
   if (!can(actor, 'evidence.write', programmeScope(e.programmeId)))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์จัดการหลักฐานของหลักสูตรนี้');
 }
@@ -154,6 +156,12 @@ export async function createEvidence(actor: AppUser, input: CreateEvidenceInput)
   const reqIds = Array.from(new Set(input.requirementIds ?? []));
   reqIds.forEach(r => { if (!getRequirement(r)) throw new AunqaError('invalid', `ไม่พบข้อ ${r}`); });
   if (reqIds.length && !input.cycleId) throw new AunqaError('invalid', 'ต้องระบุรอบประเมินเมื่อผูกกับข้อ');
+  // R2-B4: ตรวจสถานะรอบ/ข้อก่อนสร้าง — ไม่ให้เกิดหลักฐานกำพร้าเมื่อ linkEvidence ท้ายฟังก์ชันถูกปฏิเสธ
+  if (reqIds.length) {
+    const cycle = getCycleRaw(input.cycleId!);
+    assertCycleWritable(cycle);
+    assertSectionsEditable(cycle.id, reqIds);
+  }
   if (!input.file && !input.url && !input.extractedText) throw new AunqaError('invalid', 'ต้องแนบไฟล์ ลิงก์ หรือข้อความอย่างน้อยหนึ่งอย่าง');
 
   const extracted = input.extractedText ?? input.file?.text;
@@ -260,6 +268,8 @@ export function linkEvidence(
   // validate ทั้งหมดก่อนแตะข้อมูล (cache คืน reference ร่วม — ห้าม throw กลางลูปหลัง mutate)
   for (const rid of rids) if (!getRequirement(rid)) throw new AunqaError('invalid', `ไม่พบข้อ ${rid}`);
   const links = load<EvidenceLink>(KEYS.links);
+  // R2-B4 (BUG-0002-P1): ข้อที่ส่งตรวจ/อนุมัติแล้วผูกหลักฐานเพิ่มไม่ได้ (ตรวจเฉพาะข้อที่ยังไม่เคยผูก — ผูกซ้ำ = no-op เดิม)
+  assertSectionsEditable(cycleId, rids.filter(rid => !links.some(l => l.evidenceId === evidenceId && l.cycleId === cycleId && l.requirementId === rid)));
   const added: EvidenceLink[] = [];
   for (const rid of rids) {
     if (links.some(l => l.evidenceId === evidenceId && l.cycleId === cycleId && l.requirementId === rid)) continue;
@@ -285,6 +295,8 @@ export function unlinkEvidence(actor: AppUser, evidenceId: string, cycleId: stri
   const links = load<EvidenceLink>(KEYS.links);
   const keep = links.filter(l => !(l.evidenceId === evidenceId && l.cycleId === cycleId && l.requirementId === requirementId));
   if (keep.length === links.length) return;
+  // R2-B4 (BUG-0002-P1): เลิกผูกจากข้อที่ส่งตรวจ/อนุมัติแล้วไม่ได้ — ต้องถูกส่งกลับแก้ก่อน
+  assertSectionsEditable(cycleId, [requirementId]);
   save(KEYS.links, keep);
   if (e.status === 'tagged' && !keep.some(l => l.evidenceId === evidenceId))
     saveOne({ ...e, status: 'uploaded', updatedAt: Date.now() });
@@ -293,6 +305,7 @@ export function unlinkEvidence(actor: AppUser, evidenceId: string, cycleId: stri
 
 // ─── Verify / PII ────────────────────────────────────────────────────────
 export function verifyEvidence(actor: AppUser, id: string): Evidence {
+  requireActiveActor(actor);
   const e = getRaw(id);
   if (!can(actor, 'evidence.verify', programmeScope(e.programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ยืนยันหลักฐาน');
   if (e.containsPii && !e.piiResolved) throw new AunqaError('invalid', 'หลักฐานนี้ติดธงข้อมูลส่วนบุคคล ต้องจัดการ (ปิดบัง/ยืนยัน) ก่อน verify');

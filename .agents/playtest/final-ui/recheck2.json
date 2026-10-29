@@ -1,0 +1,643 @@
+{
+ "review-light-1920": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1198,
+  "wrapCW": 1198,
+  "pageSW": 1920,
+  "iw": 1920,
+  "row0H": 115,
+  "lang": "th"
+ },
+ "review-light-1440": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1094,
+  "wrapCW": 1094,
+  "pageSW": 1440,
+  "iw": 1440,
+  "row0H": 115,
+  "lang": "th"
+ },
+ "review-light-1440-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1008,
+  "wrapCW": 1008,
+  "pageSW": 1440,
+  "iw": 1440,
+  "row0H": 238,
+  "lang": "th"
+ },
+ "review-light-1280": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 934,
+  "wrapCW": 934,
+  "pageSW": 1280,
+  "iw": 1280,
+  "row0H": 165,
+  "lang": "th"
+ },
+ "review-light-1280-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 848,
+  "wrapCW": 848,
+  "pageSW": 1280,
+  "iw": 1280,
+  "row0H": 433,
+  "lang": "th"
+ },
+ "review-light-1024": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 678,
+  "wrapCW": 678,
+  "pageSW": 1024,
+  "iw": 1024,
+  "row0H": 347,
+  "lang": "th"
+ },
+ "review-light-768": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 718,
+  "wrapCW": 718,
+  "pageSW": 768,
+  "iw": 768,
+  "row0H": 350,
+  "lang": "th"
+ },
+ "review-light-390": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 356,
+  "wrapCW": 356,
+  "pageSW": 390,
+  "iw": 390,
+  "row0H": 430,
+  "lang": "th"
+ },
+ "review-light-390-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 348,
+  "wrapCW": 348,
+  "pageSW": 390,
+  "iw": 390,
+  "row0H": 630,
+  "lang": "th"
+ },
+ "review-dark-1920": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1198,
+  "wrapCW": 1198,
+  "pageSW": 1920,
+  "iw": 1920,
+  "row0H": 115,
+  "lang": "th"
+ },
+ "review-dark-1440": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1094,
+  "wrapCW": 1094,
+  "pageSW": 1440,
+  "iw": 1440,
+  "row0H": 115,
+  "lang": "th"
+ },
+ "review-dark-1440-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 1008,
+  "wrapCW": 1008,
+  "pageSW": 1440,
+  "iw": 1440,
+  "row0H": 238,
+  "lang": "th"
+ },
+ "review-dark-1280": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 934,
+  "wrapCW": 934,
+  "pageSW": 1280,
+  "iw": 1280,
+  "row0H": 165,
+  "lang": "th"
+ },
+ "review-dark-1280-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 848,
+  "wrapCW": 848,
+  "pageSW": 1280,
+  "iw": 1280,
+  "row0H": 433,
+  "lang": "th"
+ },
+ "review-dark-1024": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 678,
+  "wrapCW": 678,
+  "pageSW": 1024,
+  "iw": 1024,
+  "row0H": 347,
+  "lang": "th"
+ },
+ "review-dark-768": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 718,
+  "wrapCW": 718,
+  "pageSW": 768,
+  "iw": 768,
+  "row0H": 350,
+  "lang": "th"
+ },
+ "review-dark-390": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 356,
+  "wrapCW": 356,
+  "pageSW": 390,
+  "iw": 390,
+  "row0H": 430,
+  "lang": "th"
+ },
+ "review-dark-390-125": {
+  "mode": "table",
+  "rows": 5,
+  "buttons": 20,
+  "bad": [],
+  "wrapSW": 348,
+  "wrapCW": 348,
+  "pageSW": 390,
+  "iw": 390,
+  "row0H": 630,
+  "lang": "th"
+ },
+ "N2-light-1440": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-light-1440": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 1440,
+  "iw": 1440,
+  "chipAfterClick": 0
+ },
+ "N4-light-1440": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.5",
+   "lines": 1,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  }
+ ],
+ "N2-light-390": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-light-390": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 390,
+  "iw": 390,
+  "chipAfterClick": 0
+ },
+ "N4-light-390": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.5",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  }
+ ],
+ "N2-dark-1440": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-dark-1440": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 1440,
+  "iw": 1440,
+  "chipAfterClick": 0
+ },
+ "N4-dark-1440": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.5",
+   "lines": 1,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  }
+ ],
+ "N2-dark-390": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-dark-390": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 390,
+  "iw": 390,
+  "chipAfterClick": 0
+ },
+ "N4-dark-390": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.5",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  }
+ ],
+ "N6-light-390": {
+  "sw": 358,
+  "cw": 358,
+  "tabs": [
+   "ผู้ใช้ 54x44",
+   "คำขอ 64x44",
+   "Audit log 89x44"
+  ]
+ },
+ "N3-light-390": [
+  "รอบ 2569 · CS-B-69"
+ ],
+ "N6-light-1440": {
+  "sw": 1096,
+  "cw": 1096,
+  "tabs": [
+   "ผู้ใช้และบทบาท 136x44",
+   "คำขอเข้าใช้งาน 132x44",
+   "Audit log 89x44"
+  ]
+ },
+ "N3-light-1440": [
+  "รอบ 2569 · CS-B-69"
+ ],
+ "U11-lect1-light": "เปิดใช้บัญชีอีกครั้ง\nเปิดใช้บัญชี อ.ธนา สอนดี อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม\nยกเลิก\nยืนยันเปิดใช้",
+ "U11-uadmin-light": "เปิดใช้บัญชีอีกครั้ง\nเปิดใช้บัญชี สมศรี ผู้ดูแลมหาวิทยาลัย อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม และคำเชิญที่บัญชีนี้เคยออกไว้ซึ่งยังไม่หมดอายุจะกลับมาใช้ได้ — ถ้าไม่ต้องการ ให้ยกเลิกคำเชิญนั้นในตารางนี้\nยกเลิก\nยืนยันเปิดใช้",
+ "N6-dark-390": {
+  "sw": 358,
+  "cw": 358,
+  "tabs": [
+   "ผู้ใช้ 54x44",
+   "คำขอ 64x44",
+   "Audit log 89x44"
+  ]
+ },
+ "N3-dark-390": [
+  "รอบ 2569 · CS-B-69"
+ ],
+ "N6-dark-1440": {
+  "sw": 1096,
+  "cw": 1096,
+  "tabs": [
+   "ผู้ใช้และบทบาท 136x44",
+   "คำขอเข้าใช้งาน 132x44",
+   "Audit log 89x44"
+  ]
+ },
+ "N3-dark-1440": [
+  "รอบ 2569 · CS-B-69"
+ ],
+ "U11-lect1-dark": "เปิดใช้บัญชีอีกครั้ง\nเปิดใช้บัญชี อ.ธนา สอนดี อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม\nยกเลิก\nยืนยันเปิดใช้",
+ "U11-uadmin-dark": "เปิดใช้บัญชีอีกครั้ง\nเปิดใช้บัญชี สมศรี ผู้ดูแลมหาวิทยาลัย อีกครั้ง? ผู้ใช้จะเข้าสู่ระบบได้ตามบทบาทเดิม และคำเชิญที่บัญชีนี้เคยออกไว้ซึ่งยังไม่หมดอายุจะกลับมาใช้ได้ — ถ้าไม่ต้องการ ให้ยกเลิกคำเชิญนั้นในตารางนี้\nยกเลิก\nยืนยันเปิดใช้",
+ "P11-light-1440-n": 1,
+ "P11-light-1440": "ตรวจรับแผนปรับปรุง\nเมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ\nยกเลิก\nยืนยันตรวจรับ",
+ "P11-light-1440-dlg": {
+  "w": 512,
+  "h": 226,
+  "btnH": [
+   45,
+   45
+  ]
+ },
+ "N5": {
+  "afterClick": "en",
+  "afterReload": "en",
+  "dialogEN": "Accept improvement plan\nOnce accepted, this improvement plan automatically becomes A (Act) stage evidence in the next assessment cycle.\nCancel\nConfirm verification",
+  "/app/review": {
+   "lang": "en",
+   "h1": "For review",
+   "sw": 1440,
+   "iw": 1440
+  },
+  "/app/admin": {
+   "lang": "en",
+   "h1": "Administration",
+   "sw": 1440,
+   "iw": 1440
+  },
+  "/app/evidence": {
+   "lang": "en",
+   "h1": "Evidence library",
+   "sw": 1440,
+   "iw": 1440
+  },
+  "backTh": "th"
+ },
+ "P11-light-390-n": 1,
+ "P11-light-390": "ตรวจรับแผนปรับปรุง\nเมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ\nยกเลิก\nยืนยันตรวจรับ",
+ "P11-light-390-dlg": {
+  "w": 358,
+  "h": 306,
+  "btnH": [
+   45,
+   45
+  ]
+ },
+ "P11-dark-1440-n": 1,
+ "P11-dark-1440": "ตรวจรับแผนปรับปรุง\nเมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ\nยกเลิก\nยืนยันตรวจรับ",
+ "P11-dark-1440-dlg": {
+  "w": 512,
+  "h": 226,
+  "btnH": [
+   45,
+   45
+  ]
+ },
+ "P11-dark-390-n": 1,
+ "P11-dark-390": "ตรวจรับแผนปรับปรุง\nเมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ\nยกเลิก\nยืนยันตรวจรับ",
+ "P11-dark-390-dlg": {
+  "w": 358,
+  "h": 306,
+  "btnH": [
+   45,
+   45
+  ]
+ },
+ "P12-light-dialog": "ส่งผลการประเมินของคุณ\nรอบนี้มีกรรมการ 2 คน คะแนนและ verdict ของคุณบันทึกไว้แล้ว รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการทุกคนให้คะแนนครบ — ถ้าคุณเป็นคนสุดท้าย รอบจะเปลี่ยนทันที แก้ผลไม่ได้ และหลักสูตรจะเห็นผลของกรรมการทั้งหมด\nยกเลิก\nยืนยันส่งผลการประเมิน",
+ "P12-light-waiting": "ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ อ.วิภา เขียนรายงาน ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”",
+ "P12-light-toast": [
+  "คุณเข้าในฐานะกรรมการประเมิน — เห็นเฉพาะรอบที่ได้รับมอบหมาย (อ่านอย่างเดียว)",
+  "ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ อ.วิภา เขียนรายงาน ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”",
+  "บันทึกแล้ว",
+  "บันทึกคะแนนเกณฑ์ 8 แล้ว"
+ ],
+ "P12-dark-dialog": "ส่งผลการประเมินของคุณ\nรอบนี้มีกรรมการ 2 คน คะแนนและ verdict ของคุณบันทึกไว้แล้ว รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการทุกคนให้คะแนนครบ — ถ้าคุณเป็นคนสุดท้าย รอบจะเปลี่ยนทันที แก้ผลไม่ได้ และหลักสูตรจะเห็นผลของกรรมการทั้งหมด\nยกเลิก\nยืนยันส่งผลการประเมิน",
+ "P12-dark-waiting": "ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ อ.วิภา เขียนรายงาน ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”",
+ "P12-dark-toast": [
+  "คุณเข้าในฐานะกรรมการประเมิน — เห็นเฉพาะรอบที่ได้รับมอบหมาย (อ่านอย่างเดียว)",
+  "ผลของคุณครบและบันทึกไว้แล้ว — ยังรอ อ.วิภา เขียนรายงาน ให้คะแนนให้ครบ รอบจะเปลี่ยนเป็น “ประเมินแล้ว” เมื่อกรรมการคนสุดท้ายกด “ส่งผลการประเมิน”",
+  "บันทึกแล้ว",
+  "บันทึกคะแนนเกณฑ์ 8 แล้ว"
+ ],
+ "errors": []
+}

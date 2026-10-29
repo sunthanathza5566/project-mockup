@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * Section editor (ADR-UI-001 pages.md P9) — id = `${cycleId}::${requirementId}` (encode ใน URL)
+ * Section editor (saas-spec §P9 + friendly-spec §F13 earth) — id = `${cycleId}::${requirementId}` (encode ใน URL)
+ * deep link แจ้งเตือนความเห็น `…#comments` → SarWorkspace เปิดแท็บข้าง "ความเห็น" (friendly-spec §F3.3)
  * หัวหน้า: crumbs รอบประเมิน › ปี › ข้อ · h1 "ข้อ x.x ชื่อสั้น" (ตัดด้วย truncateTh 60) + pill สถานะข้อ
  *          sub: รอบ · หลักสูตร · เจ้าของ · กำหนดส่ง (pill เหลือ n วัน)
  */
@@ -13,8 +14,9 @@ import {
   listReviewEvents, listUsers, listVersions, programmeScope,
 } from '@/lib/api';
 import { Async, Badge, Empty, PageHeader, SectionStatusBadge, useLoad, useMe } from '@/components/aunqa/common';
-import SarWorkspace, { type WorkspaceData } from '@/components/aunqa/SarWorkspace';
+import SarWorkspace, { resetCommentsDeepLink, type WorkspaceData } from '@/components/aunqa/SarWorkspace';
 import Icon from '@/components/ui/Icon';
+import { Button } from '@/components/ui/primitives/button';
 import { decodeParam, fmtDate, truncateTh } from '@/lib/ui/aunqa';
 
 export default function SectionPage() {
@@ -51,6 +53,9 @@ export default function SectionPage() {
   }, [user.id, sid]);
 
   // remount หลังข้อมูลใหม่โหลดเสร็จ (ไม่ remount ตอน autosave เพื่อไม่ให้เสียตำแหน่งเคอร์เซอร์)
+  // ออกจากหน้า → ลืม hash #comments ที่จัดการแล้ว (กดแจ้งเตือนเดิมซ้ำภายหลังต้องเปิดแท็บความเห็นอีก)
+  useEffect(() => () => resetCommentsDeepLink(), []);
+
   useEffect(() => {
     if (pendingRemount.current && q.data) { pendingRemount.current = false; setRev(r => r + 1); }
   }, [q.data]);
@@ -61,7 +66,7 @@ export default function SectionPage() {
       <>
         <PageHeader crumbs={[{ label: 'รอบประเมิน', href: '/app/cycles' }, { label: 'ไม่พบข้อนี้' }]} title="ไม่พบข้อนี้" />
         <Empty icon="search" title="ไม่พบข้อนี้" text="ลิงก์อาจไม่ครบหรือพิมพ์ผิด — เปิดข้อจากแดชบอร์ดรอบหรือหน้าหลักแทน"
-          action={<Link className="aq-btn aq-btn-primary" href="/app/cycles">ไปหน้ารอบประเมิน</Link>} />
+          action={<Button asChild><Link href="/app/cycles">ไปหน้ารอบประเมิน</Link></Button>} />
       </>
     );
   }
@@ -88,7 +93,11 @@ export default function SectionPage() {
             </>}
           </>
         ) : undefined}
-        actions={cycleId ? <Link className="aq-btn" href={`/app/cycles/${encodeURIComponent(cycleId)}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link> : undefined}
+        actions={cycleId ? (
+          <Button asChild variant="outline" className="whitespace-nowrap">
+            <Link href={`/app/cycles/${encodeURIComponent(cycleId)}`}><Icon name="chevron-left" size={20} />แดชบอร์ดรอบ</Link>
+          </Button>
+        ) : undefined}
       />
       <Async q={q} skeleton="editor">{data => (
         <SarWorkspace key={`${sid}-${rev}`} data={data} user={user} reload={q.reload} remount={() => { pendingRemount.current = true; q.reload(); }} />

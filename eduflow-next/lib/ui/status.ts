@@ -55,7 +55,7 @@ export const SEVERITY_VIEW: Record<GapSeverity, StatusView> = {
   low:      { label: SEVERITY_TH.low,      tone: 'neutral', icon: 'circle-dashed' },
 };
 
-/** ช่อง heatmap (C13): ไอคอนระดับ + คลาส tone (`aq-heat-{level}`) */
+/** ช่อง heatmap (C13): ไอคอนระดับ + คลาส tone (`HEAT_CLASS[level]` ใน lib/ui/tone.ts) */
 export const HEAT_VIEW: Record<HeatLevel, { label: string; icon: IconName }> = {
   empty:    { label: HEAT_TH.empty,    icon: 'circle-dashed' },
   critical: { label: HEAT_TH.critical, icon: 'x-circle' },

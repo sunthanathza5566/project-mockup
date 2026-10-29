@@ -2,7 +2,7 @@
  * Phase U — เช็ก acceptance criteria ของ UI อัตโนมัติ (ADR-UI-001 7.4) — TASK-0001 U2-Q
  * AC-02 ขนาดตัวอักษร · AC-03 ไม่มี horizontal scroll (390/768/1440) · AC-04(ก) fontScale 125% ไม่ล้น
  * AC-05 target size · AC-06 focus ring + ไม่มี keyboard trap + skip link · AC-08 reduced motion
- * AC-09 ฟอนต์ Sarabun จริง + grep ฟอนต์เก่า · AC-10 ไม่มี emoji (grep + ข้อความบนหน้า)
+ * AC-09 ฟอนต์ IBM Plex Sans Thai Looped (self-host, ไม่เรียก Google Fonts) + grep ฟอนต์เก่า (TASK-0002 Q0) · AC-10 ไม่มี emoji (grep + ข้อความบนหน้า)
  *
  * หมายเหตุ fixture: หน้า `/assess` ต้อง "หลัง lock" — ตั้งสถานะรอบใน localStorage ตรง ๆ (under_assessment + lockedAt)
  * เพื่อวัด layout เท่านั้น (flow จริงของการล็อก/ประเมินมีเทสต์ใน flows-b และ tests/phase-u.test.ts)
@@ -260,7 +260,11 @@ async function focusInfo(page: Page): Promise<FocusInfo | null> {
     const oc = parse(cs.outlineColor);
     const w = parseFloat(cs.outlineWidth);
     const ratio = oc ? (Math.max(L(oc), L(bg)) + 0.05) / (Math.min(L(oc), L(bg)) + 0.05) : 0;
-    const desc = `${el.tagName.toLowerCase()}${el.dataset.testid ? `[${el.dataset.testid}]` : ''}.${String(el.className || '').split(/\s+/)[0]} "${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 30)}"`;
+    // Q2c: id ประจำ element — หน้าหลักรอบ 2 มีปุ่ม "ไปทำ" หลายปุ่มติดกัน (ป้ายเดียวกัน) → เทียบ "ค้าง" ด้วยตัว element ไม่ใช่ข้อความ
+    const W = window as unknown as { __fid?: WeakMap<Element, number>; __fidN?: number };
+    W.__fid ??= new WeakMap(); W.__fidN ??= 0;
+    if (!W.__fid.has(el)) W.__fid.set(el, ++W.__fidN);
+    const desc = `#${W.__fid.get(el)} ${el.tagName.toLowerCase()}${el.dataset.testid ? `[${el.dataset.testid}]` : ''}.${String(el.className || '').split(/\s+/)[0]} "${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 30)}"`;
     const ok = cs.outlineStyle !== 'none' && w >= 2 && ratio >= 3;
     return { desc, ok, why: `outline ${cs.outlineStyle} ${w}px ratio ${ratio.toFixed(2)} (ring on ${ringEl === el ? 'self' : ringEl.className.split(' ')[0]}, bg rgb(${bg.r},${bg.g},${bg.b}))`, inDialog: !!el.closest('[role=dialog]') };
   });
@@ -278,8 +282,19 @@ async function tabThrough(page: Page, n = 30) {
   return { bad, seq };
 }
 
-test.describe('AC-06 focus', () => {
-  test.use({ viewport: VP['1440'] });
+// TASK-0002 Q0 (ADR-UI-002 D8): ชุดเดียวกันทุกบรรทัดรันซ้ำในโหมดมืด (ธีมค่าเริ่ม `system` + prefers-color-scheme: dark)
+// dark: เดิมเป็น test.describe.fixme ช่วงเปลี่ยนผ่าน legacy.css — เปิดแล้วใน Q1 หลัง S6 cutover
+// Q1: ADR-UI-003 เปลี่ยน defaultTheme เป็น light → prefers-color-scheme อย่างเดียวไม่ทำให้เป็น dark แล้ว
+//     จึงตั้ง aunqa_theme=dark ก่อนโหลดทุกหน้า + afterEach ยืนยันว่าหน้าอยู่ในธีมที่ตั้งใจจริง (กันผ่านเพราะวัดธีมผิด)
+for (const scheme of ['light', 'dark'] as const) {
+test.describe(scheme === 'light' ? 'AC-06 focus' : 'AC-06 focus (dark)', () => {
+  test.use({ viewport: VP['1440'], colorScheme: scheme });
+  test.beforeEach(async ({ page }) => {
+    if (scheme === 'dark') await page.addInitScript(() => { try { localStorage.setItem('aunqa_theme', 'dark'); } catch { /* about:blank */ } });
+  });
+  test.afterEach(async ({ page }) => {
+    expect(await page.evaluate(() => document.documentElement.classList.contains('dark')), `ธีมของหน้าต้องเป็น ${scheme}`).toBe(scheme === 'dark');
+  });
 
   test('/login: ทุก element ที่โฟกัสมี outline ≥2px contrast ≥3 · ไม่ติดค้าง', async ({ page }) => {
     await page.goto('/login'); await settle(page);
@@ -328,13 +343,33 @@ test.describe('AC-06 focus', () => {
     await page.goto('/app'); await settle(page);
     await page.getByTestId('nav-menu').click();
     await expect(page.locator('#app-sidebar')).toHaveClass(/is-open/);
-    for (let i = 0; i < 25; i++) await page.keyboard.press('Tab');
+    // เฟส 6: เดิมกด Tab 25 ครั้งจากปุ่มเมนูแล้วหวังว่าจะเข้า drawer — ผ่าน/ล้มตามจำนวน element หลัง drawer (flaky)
+    // เพราะ focus แรกไม่เข้า drawer (BUG-0002-Q6-1 ทดสอบแยกด้านล่าง) → ที่นี่วาง focus ใน drawer เองแล้วตรวจ trap + Esc
+    await expect(page.locator('#app-sidebar a[href]').first()).toBeVisible();
+    await page.locator('#app-sidebar a[href]').first().focus();
+    for (let i = 0; i < 25; i++) {
+      await page.keyboard.press('Tab');
+      expect(await page.evaluate(() => !!document.activeElement?.closest('#app-sidebar')), `Tab ครั้งที่ ${i + 1} หลุด drawer`).toBe(true);
+    }
+    await page.keyboard.press('Shift+Tab');
     expect(await page.evaluate(() => !!document.activeElement?.closest('#app-sidebar'))).toBe(true);
     await page.keyboard.press('Escape');
     await expect(page.locator('#app-sidebar')).not.toHaveClass(/is-open/);
     await expect(page.getByTestId('nav-menu')).toBeFocused();
   });
+
+  // KNOWN BUG BUG-0002-Q6-1: เปิด drawer แล้ว focus ค้างที่ปุ่มเมนู (AppSidebar ตั้งใจ focus รายการแรกเมื่อเปิด)
+  // test.fail → ชุดเขียวแต่ bug ไม่หายเงียบ · เมื่อแก้แล้วจะขึ้น "expected to fail" ให้ลบ test.fail
+  test('drawer มือถือ: เปิดแล้ว focus ย้ายเข้า drawer (BUG-0002-Q6-1)', async ({ page }) => {
+    await page.setViewportSize(VP['390']);
+    await loginAs(page, 'chair1');
+    await page.goto('/app'); await settle(page);
+    await page.getByTestId('nav-menu').click();
+    await expect(page.locator('#app-sidebar')).toHaveClass(/is-open/);
+    await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest('#app-sidebar')), { timeout: 2000 }).toBe(true);
+  });
 });
+}
 
 // ─────────────────────────── AC-08 reduced motion ───────────────────────────
 async function runningAnimations(page: Page): Promise<string[]> {
@@ -344,6 +379,16 @@ async function runningAnimations(page: Page): Promise<string[]> {
       const t = (a.effect as KeyframeEffect | null)?.target as HTMLElement | null;
       const name = (a as CSSAnimation).animationName || (a as CSSTransition).transitionProperty || a.id;
       return `${name} on ${t?.tagName.toLowerCase()}.${String(t?.className || '').split(/\s+/)[0]} (${a.effect?.getComputedTiming().duration}ms)`;
+    }));
+}
+
+/** animation ที่วนไม่จบ (iterations = Infinity) และยังไม่ถูกยกเลิก — AC-31 (spinner/skeleton ตอนโหลดไม่ควรเหลือหลัง settle) */
+async function infiniteAnimations(page: Page): Promise<string[]> {
+  return page.evaluate(() => document.getAnimations()
+    .filter(a => a.playState !== 'idle' && a.playState !== 'finished' && a.effect?.getComputedTiming().iterations === Infinity)
+    .map(a => {
+      const t = (a.effect as KeyframeEffect | null)?.target as HTMLElement | null;
+      return `${(a as CSSAnimation).animationName || a.id} on ${t?.tagName.toLowerCase()}.${String(t?.className || '').split(/\s+/)[0]}`;
     }));
 }
 
@@ -366,6 +411,47 @@ test.describe('AC-08 reduced motion', () => {
     expect(await runningAnimations(page), 'dashboard').toEqual([]);
   });
 
+  // TASK-0002 Q2c — AC-31: popover/sheet/drawer ของ shell รอบ 2 ภายใต้ reducedMotion → ไม่มี animation running >10ms และไม่มีแบบวนไม่จบ
+  for (const label of ['1440', '390'] as const) {
+    test(`AC-31 @${label}: เปิด user-menu, noti-panel${label === '390' ? ', drawer' : ''} ภายใต้ reduce → ไม่มี animation running > 10ms / ไม่มีแบบวน`, async ({ page }) => {
+      await page.setViewportSize(VP[label]);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await loginAs(page, 'chair1');
+      await page.goto('/app'); await settle(page);
+      const check = async (what: string) => {
+        expect(await runningAnimations(page), what).toEqual([]);
+        expect(await infiniteAnimations(page), `${what}: animation แบบวน`).toEqual([]);
+      };
+      await check('/app');
+      await page.getByTestId('user-menu').click();
+      await expect(page.getByTestId('user-menu-panel')).toBeVisible();
+      await check('user-menu เปิด');
+      await page.keyboard.press('Escape');
+      await page.getByTestId('nav-bell').click();
+      await expect(page.getByTestId('noti-panel')).toBeVisible();
+      await check('noti-panel เปิด');
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('noti-panel')).toHaveCount(0);
+      if (label === '390') {
+        await page.getByTestId('nav-menu').click();
+        await expect(page.locator('#app-sidebar')).toHaveClass(/is-open/);
+        await check('drawer เปิด');
+      }
+    });
+  }
+
+  test('AC-31 เทียบ: ไม่ลด motion → เปิด noti-panel มี animation จริง (เทสต์ข้างบนจึงมีความหมาย)', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await loginAs(page, 'chair1');
+    await page.goto('/app'); await settle(page);
+    await page.getByTestId('nav-bell').click();
+    await expect(page.getByTestId('noti-panel')).toBeVisible();
+    // animate-pop-in สั้น — จับทันทีหลังเปิด (getAnimations รวมที่ finished ไม่ได้ จึงนับทุกสถานะที่ยังอยู่)
+    const n = await page.evaluate(() => document.getAnimations().filter(a => Number(a.effect?.getComputedTiming().duration) > 10).length);
+    const panelAnim = await page.getByTestId('noti-panel').evaluate(e => getComputedStyle(e).animationName);
+    expect(n > 0 || panelAnim !== 'none', `animations=${n} animationName=${panelAnim}`).toBe(true);
+  });
+
   test('เทียบ: ไม่ลด motion → loader มี animation จริง (เทสต์ข้างบนจึงมีความหมาย)', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/login'); await settle(page);
@@ -378,37 +464,61 @@ test.describe('AC-08 reduced motion', () => {
 });
 
 // ─────────────────────────── AC-09 ฟอนต์ ───────────────────────────
+// TASK-0002 Q0 (ADR-UI-002 D8 / AC-09 ใหม่): แทนฉบับ Sarabun — IBM Plex Sans Thai Looped ผ่าน next/font (self-host)
+// next/font ตั้งชื่อ family เป็น `__IBM_Plex_Sans_Thai_Looped_<hash>` + face `__…_Fallback_<hash>` (local()) → normalize ก่อนเทียบ ไม่ผูก hash
+const PLEX = 'IBM Plex Sans Thai Looped';
+const GOOGLE_FONTS_RE = /^https?:\/\/fonts\.(googleapis|gstatic)\.com\//i;
+/** `"__IBM_Plex_Sans_Thai_Looped_f9ab01"` → `IBM Plex Sans Thai Looped` (face Fallback รวมเป็นชื่อเดียวกัน) */
+function normalizeFamily(raw: string): string {
+  const s = raw.replace(/["']/g, '').trim();
+  const m = s.match(/^__(.+?)(?:_Fallback)?_[0-9a-f]+$/);
+  return m ? m[1].replace(/_/g, ' ') : s;
+}
+
 test.describe('AC-09 ฟอนต์ไทยจริง', () => {
+  test('normalizeFamily (ตัวช่วยของเทสต์นี้) แปลงชื่อ next/font ถูก', () => {
+    expect(normalizeFamily('"__IBM_Plex_Sans_Thai_Looped_f9ab01"')).toBe(PLEX);
+    expect(normalizeFamily('__IBM_Plex_Sans_Thai_Looped_Fallback_f9ab01')).toBe(PLEX);
+    expect(normalizeFamily('Sarabun')).toBe('Sarabun');
+    expect(normalizeFamily('"Leelawadee UI"')).toBe('Leelawadee UI');
+  });
+
   for (const url of ['/', '/login', '/app']) {
-    test(`${url}: body ใช้ Sarabun และโหลดฟอนต์ Sarabun สำเร็จ`, async ({ page }) => {
+    test(`${url}: body ใช้ ${PLEX} โหลดสำเร็จ และไม่มี request ไป Google Fonts`, async ({ page }) => {
+      // ดักทุก request ตั้งแต่ก่อนเข้าหน้าแรก (รวมขั้น login ของ /app)
+      const googleReqs: string[] = [];
+      page.on('request', req => { if (GOOGLE_FONTS_RE.test(req.url())) googleReqs.push(req.url()); });
       if (url === '/app') await loginAs(page, 'chair1');
       await page.goto(url); await settle(page);
-      const r = await page.evaluate(async () => {
+      const first = await page.evaluate(() => getComputedStyle(document.body).fontFamily.split(',')[0].trim());
+      expect(normalizeFamily(first), `body font-family ตัวแรก = ${first}`).toBe(PLEX);
+      const raw = first.replace(/["']/g, '');
+      const r = await page.evaluate(async (fam) => {
         await document.fonts.ready;
-        const loaded = await document.fonts.load('16px Sarabun', 'ภาษาไทย');
+        const loaded = await document.fonts.load(`16px "${fam}"`, 'ภาษาไทย');
         return {
-          family: getComputedStyle(document.body).fontFamily,
-          check: document.fonts.check('16px Sarabun', 'ภาษาไทย'),
+          check: document.fonts.check(`16px "${fam}"`, 'ภาษาไทย'),
           faces: loaded.map(f => `${f.family}:${f.weight}:${f.status}`),
-          used: Array.from(document.fonts).filter(f => f.status === 'loaded').map(f => f.family.replace(/["']/g, '')),
+          used: Array.from(document.fonts).filter(f => f.status === 'loaded').map(f => f.family),
         };
-      });
-      expect(r.family.replace(/["']/g, '')).toMatch(/^Sarabun\b/);
+      }, raw);
       expect(r.check).toBe(true);
-      // check() คืน true ได้ถ้าไม่มี FontFace ชื่อนี้เลย → ยืนยันว่ามี face Sarabun โหลดจริง
-      expect(r.faces.length, 'FontFace Sarabun ต้องมีและโหลดได้').toBeGreaterThan(0);
-      expect(r.faces.every(f => f.endsWith(':loaded'))).toBe(true);
-      expect(Array.from(new Set(r.used))).toEqual(['Sarabun']);
+      // check() คืน true ได้ถ้าไม่มี FontFace ชื่อนี้เลย → ยืนยันว่ามี face โหลดจริง
+      expect(r.faces.length, `FontFace ${PLEX} ต้องมีและโหลดได้`).toBeGreaterThan(0);
+      expect(r.faces.every(f => f.endsWith(':loaded')), r.faces.join(', ')).toBe(true);
+      expect(Array.from(new Set(r.used.map(normalizeFamily))), r.used.join(', ')).toEqual([PLEX]);
+      expect(googleReqs, 'request ไป fonts.googleapis.com / fonts.gstatic.com ตอน runtime').toEqual([]);
     });
   }
 
-  test('grep: ไม่มี Cormorant / DM Sans ใน app/ components/ context/', () => {
-    const hits = grepTree(['app', 'components', 'context'], /\.(tsx?|css)$/, /Cormorant|DM Sans|DM\+Sans/);
+  test('grep: ไม่มี Sarabun / fonts.googleapis / Cormorant / DM Sans ใน app/ components/ context/', () => {
+    const hits = grepTree(['app', 'components', 'context'], /\.(tsx?|css)$/, /Sarabun|fonts\.googleapis|Cormorant|DM Sans|DM\+Sans/);
     expect(hits).toEqual([]);
   });
 });
 
 // ─────────────────────────── AC-10 emoji (grep) ───────────────────────────
+// BUG-0002-Q2C-2 (☰ ในคอมเมนต์ AppTopbar.tsx) แก้แล้ว — เลิกยกเว้น
 test('AC-10 grep: ไม่มี emoji (U+1F300–1FAFF, U+2600–27BF) ใน app/ components/ context/ *.tsx', () => {
   const hits = grepTree(['app', 'components', 'context'], /\.tsx$/, new RegExp(EMOJI_SRC, 'u'));
   expect(hits).toEqual([]);

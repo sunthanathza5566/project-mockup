@@ -2,14 +2,20 @@
 
 /**
  * RequirementPicker — เลือกข้อแบบ combobox + chip (ADR-UI-001 components.md C4; WAI-ARIA APG "combobox with listbox popup")
+ * หน้าตา ADR-UI-002 saas-spec §C17: ช่องค้น = Input · listbox bg-popover · option ที่ active มีกรอบ ring · chip พื้น primary-muted
  * - พิมพ์เลขข้อ ("1.1", "3") หรือคำ → กรองด้วย searchRequirements · ว่าง = ทั้ง 53 ข้อจัดกลุ่มตามเกณฑ์
  * - ↓/↑ เลื่อน · Enter = เพิ่ม/เอาออก (คงกล่องเปิด ล้างคำค้น) · Esc ปิด · Backspace ในช่องว่าง = ลบ chip ล่าสุด
  * - testid: container `{prefix}s` · input `{prefix}s-input` · option `{prefix}-opt-{id}` · chip `{prefix}-chip-{id}`
  *   (ค่าเริ่มต้น prefix = "ev-f-req" → ev-f-reqs / ev-f-reqs-input / ev-f-req-opt-1.1 / ev-f-req-chip-1.1)
+ * - R2-F12 `locked` (id → เหตุผล เช่น "อนุมัติแล้ว"): option เลือกไม่ได้ (aria-disabled) + ป้าย "ล็อกแล้ว" `{prefix}-opt-lock-{id}`
+ *   (N4 R2-F13: ชื่อข้อตัดได้ 2 บรรทัด · <480 ป้ายเหลือไอคอนกุญแจ ข้อความ "ล็อกแล้ว" เป็น sr-only)
+ *   + คำอธิบายใต้ช่อง `{prefix}s-locked-note` · คลิก/Enter ที่ข้อล็อก = ไม่เพิ่ม แต่เอาออกได้ถ้าอยู่ใน chip แล้ว (เช่นมาจาก ?req=)
  */
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { compareReqId, listCriteria, listRequirements, searchRequirements } from '@/lib/api';
 import Icon from '@/components/ui/Icon';
+import { Input } from '@/components/ui/primitives/input';
+import { cn } from '@/lib/ui/cn';
 
 export interface RequirementPickerProps {
   value: string[];
@@ -20,9 +26,11 @@ export interface RequirementPickerProps {
   label: string;
   help?: string;
   testIdPrefix?: string;
+  /** ข้อที่ล็อก (ส่งตรวจ/อนุมัติแล้ว) → เหตุผลสั้น ๆ; เลือกเพิ่มไม่ได้ */
+  locked?: ReadonlyMap<string, string>;
 }
 
-export default function RequirementPicker({ value, onChange, disabled, disabledHint, label, help, testIdPrefix = 'ev-f-req' }: RequirementPickerProps) {
+export default function RequirementPicker({ value, onChange, disabled, disabledHint, label, help, testIdPrefix = 'ev-f-req', locked }: RequirementPickerProps) {
   const uid = useId();
   const listId = `${uid}-list`;
   const [q, setQ] = useState('');
@@ -50,6 +58,7 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
   }, [active, open, uid]);
 
   function toggle(id: string) {
+    if (locked?.has(id) && !value.includes(id)) return; // ข้อล็อก: เอาออกได้ เพิ่มไม่ได้
     onChange(value.includes(id) ? value.filter(x => x !== id) : [...value, id].sort(compareReqId));
     setQ('');
     input.current?.focus();
@@ -65,25 +74,31 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
 
   let lastCrit = 0;
   return (
-    <div className="aq-picker" ref={box} data-testid={`${testIdPrefix}s`}>
-      <label htmlFor={`${uid}-input`} className="aq-label">{label}</label>
+    <div className="relative grid min-w-0 gap-1.5" ref={box} data-testid={`${testIdPrefix}s`}>
+      <label htmlFor={`${uid}-input`} className="text-base font-medium text-foreground">{label}</label>
       {help && !disabled && <p className="aq-help">{help}</p>}
       {value.length > 0 && (
-        <ul className="aq-chips" aria-label="ข้อที่เลือก">
+        <ul className="flex list-none flex-wrap gap-2" aria-label="ข้อที่เลือก">
           {value.map(id => (
-            <li key={id} className="aq-chip" data-testid={`${testIdPrefix}-chip-${id}`}>
+            <li
+              key={id} data-testid={`${testIdPrefix}-chip-${id}`}
+              className="inline-flex items-center gap-1 rounded-md bg-primary-muted pl-2.5 text-base font-medium tabular-nums text-primary"
+            >
               {id}
-              <button type="button" className="aq-chip__remove" aria-label={`เอาข้อ ${id} ออก`} disabled={disabled} onClick={() => toggle(id)}>
+              <button
+                type="button" aria-label={`เอาข้อ ${id} ออก`} disabled={disabled} onClick={() => toggle(id)}
+                className="aq-chip__remove inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent transition-colors duration-fast enabled:hover:bg-card disabled:cursor-not-allowed disabled:text-muted-foreground"
+              >
                 <Icon name="x" size={16} />
               </button>
             </li>
           ))}
         </ul>
       )}
-      <div className="aq-picker__control">
-        <Icon name="search" size={20} className="aq-picker__icon" />
-        <input
-          ref={input} id={`${uid}-input`} className="aq-input aq-picker__input" type="text" role="combobox"
+      <div className="relative min-w-0">
+        <Icon name="search" size={20} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          ref={input} id={`${uid}-input`} className="pl-10" type="text" role="combobox"
           aria-expanded={open} aria-controls={listId} aria-autocomplete="list"
           aria-activedescendant={open && options[active] ? `${uid}-opt-${active}` : undefined}
           aria-describedby={disabled && disabledHint ? `${uid}-hint` : `${uid}-sel`}
@@ -95,30 +110,51 @@ export default function RequirementPicker({ value, onChange, disabled, disabledH
         />
       </div>
       {open && !disabled && (
-        <ul id={listId} role="listbox" aria-multiselectable="true" aria-label={label} className="aq-picker__listbox" tabIndex={-1}>
-          {options.length === 0 && <li role="presentation" className="aq-picker__group">ไม่พบข้อที่ตรงกับคำค้น</li>}
+        <ul
+          id={listId} role="listbox" aria-multiselectable="true" aria-label={label} tabIndex={-1}
+          className="absolute inset-x-0 top-[calc(100%+0.25rem)] z-toast m-0 max-h-80 list-none overflow-y-auto rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg dark:shadow-none"
+        >
+          {options.length === 0 && <li role="presentation" className="px-3 py-2 text-muted-foreground">ไม่พบข้อที่ตรงกับคำค้น</li>}
           {options.map((r, i) => {
             const head = !q.trim() && r.criterionNo !== lastCrit;
             lastCrit = r.criterionNo;
             const sel = value.includes(r.id);
+            const lockWhy = locked?.get(r.id);
             return [
-              head ? <li key={`h${r.criterionNo}`} role="presentation" className="aq-picker__group aq-meta">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</li> : null,
+              head ? <li key={`h${r.criterionNo}`} role="presentation" className="aq-meta px-3 pb-1 pt-2 font-medium">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</li> : null,
               <li
-                key={r.id} id={`${uid}-opt-${i}`} role="option" aria-selected={sel}
-                className={`aq-picker__opt${i === active ? ' is-active' : ''}`}
+                key={r.id} id={`${uid}-opt-${i}`} role="option" aria-selected={sel} aria-disabled={lockWhy ? true : undefined}
+                className={cn(
+                  'grid min-h-11 cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 rounded-md px-3 py-1 text-base text-foreground aria-selected:bg-accent',
+                  i === active && 'bg-accent outline outline-2 -outline-offset-2 outline-ring',
+                  lockWhy && !sel && 'cursor-not-allowed text-muted-foreground',
+                )}
                 onMouseDown={e => e.preventDefault()} onClick={() => toggle(r.id)} onMouseEnter={() => setActive(i)}
                 data-testid={`${testIdPrefix}-opt-${r.id}`}
               >
-                <strong className="aq-tnum">{r.id}</strong>
-                <span className="aq-picker__opt-text">
-                  {r.textTh}
-                  {q.trim() && <span className="aq-meta aq-picker__crit">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</span>}
+                <strong className={cn('font-medium tabular-nums', lockWhy && 'text-muted-foreground')}>{r.id}</strong>
+                <span className="min-w-0 py-0.5 text-muted-foreground">
+                  <span className="line-clamp-2 break-words">{r.textTh}</span>
+                  {q.trim() && <span className="aq-meta block truncate">{`เกณฑ์ ${r.criterionNo}: ${criteria.get(r.criterionNo) ?? ''}`}</span>}
+                  {lockWhy && <span className="aq-meta block truncate">{lockWhy}</span>}
                 </span>
-                {sel ? <Icon name="check" size={20} /> : <span aria-hidden="true" />}
+                {lockWhy
+                  ? (
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-muted-foreground" data-testid={`${testIdPrefix}-opt-lock-${r.id}`}>
+                      <Icon name="lock" size={14} /><span className="max-sm:sr-only">ล็อกแล้ว</span>
+                    </span>
+                  )
+                  : sel ? <Icon name="check" size={20} className="text-primary" /> : <span aria-hidden="true" />}
               </li>,
             ];
           })}
         </ul>
+      )}
+      {!disabled && locked && locked.size > 0 && (
+        <p className="aq-help inline-flex items-start gap-1.5" data-testid={`${testIdPrefix}s-locked-note`}>
+          <Icon name="lock" size={16} className="mt-0.5 shrink-0" />
+          {`ข้อที่ส่งตรวจหรืออนุมัติแล้วในรอบนี้ (${locked.size} ข้อ) เลือกไม่ได้ ต้องให้ผู้ตรวจส่งกลับแก้ก่อน`}
+        </p>
       )}
       {disabled && disabledHint
         ? <p className="aq-help" id={`${uid}-hint`}>{disabledHint}</p>

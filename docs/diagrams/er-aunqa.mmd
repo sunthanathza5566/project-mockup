@@ -1,5 +1,5 @@
-%% source: eduflow-next/lib/types.ts:21-31 (University, Faculty, Programme, RoleAssignment, AppUser), 52-96 (AssessmentCycle, SarSection, SarSectionVersion); lib/api/db.ts:7-36 (KEYS) | task: TASK-0001 | updated: 2026-10-23
-%%{init: {"themeVariables": {"fontSize": "24px"}, "themeCSS": ".edgeLabel .label{font-size:22px}", "er": {"entityPadding": 6}}}%%
+%% source: eduflow-next/lib/types.ts:21-27 (University.emailDomain, Faculty, Programme, RoleAssignment), 29-44 (UserStatus, AccessRequestInfo, AppUser.status/accessRequest), 87-130 (AssessmentCycle, SarSection, SarSectionVersion); lib/api/db.ts:9 (aunqa_users) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeVariables": {"fontSize": "26px"}, "themeCSS": ".edgeLabel .label{font-size:25px}", "er": {"entityPadding": 6}}}%%
 erDiagram
   UNIVERSITY ||--o{ FACULTY : "มี"
   PROGRAMME }o--|| FACULTY : "สังกัดคณะ"
@@ -12,6 +12,7 @@ erDiagram
   SAR_SECTION_VERSION }o--|| SAR_SECTION : "เวอร์ชันของ"
   UNIVERSITY {
     string id PK
+    string emailDomain UK
     boolean aiEnabled
   }
   FACULTY {
@@ -27,6 +28,9 @@ erDiagram
     string id PK
     string universityId FK
     string username UK
+    string email UK
+    string status
+    json accessRequest
   }
   ROLE_ASSIGNMENT {
     string userId "PK, FK"

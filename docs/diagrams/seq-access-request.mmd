@@ -1,0 +1,44 @@
+%% source: eduflow-next/components/auth/RequestAccessForm.tsx:159-178 (submitAccessRequest allowlist); lib/api/onboarding.store.ts:220-271 (submitAccessRequest, N12), 280-296 (listAccessRequests), 309-327 (approveAccessRequest, N13), 333-348 (rejectAccessRequest), 85-94 (managedTarget); lib/api/notification.internal.ts:135-158 (purge/markAccessRequestNoticesRead); lib/api/auth.api.ts:295-327 (loginUser pending); components/aunqa/admin/RequestsTab.tsx:47,97,112 | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeCSS": ".actor-line{stroke-dasharray: 6 5 !important}", "sequence": {"mirrorActors": false, "actorMargin": 12, "width": 135, "boxMargin": 6, "messageMargin": 34, "messageFontSize": 22, "noteFontSize": 22, "actorFontSize": 21}}}%%
+sequenceDiagram
+  actor R as ผู้ขอใช้งาน
+  participant F as RequestAccess<br/>Form
+  participant O as onboarding<br/>.store
+  participant AU as auth.api
+  participant N as notification
+  participant T as RequestsTab
+  actor A as ผู้ดูแล
+  R->>F: กรอกข้อมูล<br/>+ รับทราบประกาศ
+  F->>O: submitAccessRequest()
+  alt ข้อมูลไม่ผ่าน
+    O-->>F: AunqaError
+    F-->>R: ข้อผิดพลาดรายช่อง
+  else ผ่าน
+    O->>AU: saveUsers()<br/>pending, roles [ ]
+    loop ผู้ดูแลที่ active
+      O->>N: notify(N12)
+    end
+    O-->>F: { username }
+    F-->>R: รออนุมัติ
+  end
+  A->>T: เปิดแท็บคำขอ
+  T->>O: listAccessRequests()
+  O-->>T: AccessRequestView[]
+  alt อนุมัติ
+    A->>T: เลือกบทบาท + ขอบเขต
+    T->>O: approveAccessRequest()
+    O->>AU: saveUsers() active
+    O->>N: markAccessRequest<br/>NoticesRead()
+    O->>N: notify(N13)
+    O-->>T: AppUser
+  else ปฏิเสธ
+    A->>T: ปฏิเสธ (หมายเหตุ)
+    T->>O: rejectAccessRequest()
+    O->>AU: saveUsers()<br/>ลบแถวผู้ใช้
+    O->>N: purgeAccessRequest<br/>Notices()
+    O-->>T: void
+  else ไม่มีสิทธิ์ / ไม่ใช่ pending / บทบาทไม่ตรงขอบเขต
+    T->>O: approve… / reject…
+    O-->>T: AunqaError
+  end
+  T-->>A: อัปเดตรายการ + ตัวนับ

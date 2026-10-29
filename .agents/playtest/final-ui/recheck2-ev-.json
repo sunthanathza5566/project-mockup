@@ -1,0 +1,295 @@
+{
+ "N2-light-1440": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-light-1440": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 1440,
+  "iw": 1440,
+  "chipAfterClick": 0
+ },
+ "N4-light-1440": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.5",
+   "lines": 1,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  }
+ ],
+ "N2-light-390": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-light-390": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 390,
+  "iw": 390,
+  "chipAfterClick": 0
+ },
+ "N4-light-390": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.5",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  }
+ ],
+ "N2-dark-1440": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-dark-1440": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 1440,
+  "iw": 1440,
+  "chipAfterClick": 0
+ },
+ "N4-dark-1440": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "1.5",
+   "lines": 1,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": false,
+   "lockLabel": [
+    "vis"
+   ],
+   "w": 796
+  }
+ ],
+ "N2-dark-390": [
+  {
+   "t": "คลังหลักฐาน",
+   "h": 45,
+   "ws": "nowrap"
+  }
+ ],
+ "P13-dark-390": {
+  "opt": true,
+  "ariaDisabled": "true",
+  "lock": true,
+  "lockText": "ล็อกแล้ว",
+  "nLocks": 50,
+  "sw": 390,
+  "iw": 390,
+  "chipAfterClick": 0
+ },
+ "N4-dark-390": [
+  {
+   "id": "1.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.2",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.3",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.4",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "1.5",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  },
+  {
+   "id": "2.1",
+   "lines": 2,
+   "clamped": true,
+   "lockLabel": [
+    "sr"
+   ],
+   "w": 306
+  }
+ ],
+ "errors": []
+}

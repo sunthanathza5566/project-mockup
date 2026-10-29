@@ -67,10 +67,56 @@ export function todoAction(t: TodoItem): TodoActionView {
   }
 }
 
-/** การ์ดบนหน้าหลัก: todo จริง 1 รายการ หรือการ์ดรวม write_section */
+/** การ์ดบนหน้าหลัก: todo จริง 1 รายการ · การ์ดรวม write_section · คำขอเข้าใช้งานรออนุมัติ (ผู้ดูแล — V1 m2) */
 export type HomeTodo =
   | { kind: 'item'; item: TodoItem; action: TodoActionView }
-  | { kind: 'write_section_group'; items: TodoItem[]; titleTh: string; action: TodoActionView };
+  | { kind: 'write_section_group'; items: TodoItem[]; titleTh: string; action: TodoActionView }
+  | { kind: 'access_requests'; count: number; titleTh: string; action: TodoActionView };
+
+/** ปลายทางของงาน "อนุมัติคำขอเข้าใช้งาน" (แท็บคำขอของหน้าผู้ดูแลระบบ — ตรงกับ notificationHref target admin/requests) */
+export const ACCESS_REQUESTS_HREF = '/app/admin?tab=requests';
+
+/**
+ * แทรกงาน "อนุมัติคำขอเข้าใช้งาน N รายการ" (n = countPendingAccessRequests ของผู้มี user.manage) ต่อจากงานเร่งด่วน
+ * ไม่ใช่ TodoKind ของ backend — เป็นงานฝั่งแสดงผลจากตัวนับคำขอ · n ≤ 0 = คืนรายการเดิม
+ */
+export function withAccessRequests(home: HomeTodo[], n: number): HomeTodo[] {
+  if (n <= 0) return home;
+  const req: HomeTodo = {
+    kind: 'access_requests', count: n,
+    titleTh: `อนุมัติคำขอเข้าใช้งาน ${n} รายการ`,
+    action: { icon: 'shield-user', label: 'ดูคำขอเข้าใช้งาน', href: ACCESS_REQUESTS_HREF },
+  };
+  const at = home.findIndex(h => !(h.kind === 'item' && h.item.urgent));
+  const i = at < 0 ? home.length : at;
+  return [...home.slice(0, i), req, ...home.slice(i)];
+}
+
+/** ตัวนับ "หน้าหลัก" + "(รวม N งาน)" = todoTotal + คำขอเข้าใช้งานรออนุมัติ (นิยามเดียว ทั้ง sidebar และหน้าหลัก) */
+export function homeTotal(items: Pick<TodoItem, 'count'>[], accessRequests: number): number {
+  return todoTotal(items) + Math.max(0, accessRequests);
+}
+
+/** วันที่ถือว่า "ใกล้กำหนดส่ง" สำหรับประโยคสรุปในการ์ดทักทาย (V1 m3) */
+export const SOON_DAYS = 7;
+
+/**
+ * ประโยคสรุปในการ์ดทักทาย — ต้องสอดคล้องกับรายการ "สิ่งที่ต้องทำ" เสมอ (V1 m3)
+ * 0 งาน → ไม่มีงานค้าง · มี urgent → N งานที่ควรทำก่อน · มีกำหนดส่ง ≤ 7 วัน → บอกจำนวนวัน · อื่น ๆ → มี N งาน ยังไม่เร่งด่วน
+ */
+export function greetingSummaryTh(items: Pick<TodoItem, 'count' | 'urgent' | 'daysLeft'>[], accessRequests = 0): string {
+  const total = homeTotal(items, accessRequests);
+  if (total === 0) return 'วันนี้ไม่มีงานค้าง';
+  const urgent = items.filter(t => t.urgent).length;
+  if (urgent > 0) return `วันนี้มี ${urgent} งานที่ควรทำก่อน`;
+  const soon = items
+    .map(t => t.daysLeft)
+    .filter((d): d is number => d !== undefined && d >= 0 && d <= SOON_DAYS)
+    .reduce<number | undefined>((a, d) => (a === undefined || d < a ? d : a), undefined);
+  if (soon === 0) return `มี ${total} งานรอท่าน · ครบกำหนดส่งวันนี้`;
+  if (soon !== undefined) return `มี ${total} งานรอท่าน · ใกล้กำหนดส่งที่สุดอีก ${soon} วัน`;
+  return `มี ${total} งานรอท่าน · ยังไม่มีงานเร่งด่วน`;
+}
 
 /** ถ้า write_section ที่ไม่ urgent มี > 3 รายการ → รวมเป็นการ์ดเดียวที่ตำแหน่งของรายการแรก (การแสดงผลเท่านั้น) */
 export function groupForHome(items: TodoItem[]): HomeTodo[] {

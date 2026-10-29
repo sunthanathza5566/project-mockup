@@ -10,7 +10,7 @@
  * U-3    dialog สองตัวเกิดพร้อมกัน (logout ที่ flush ไม่ผ่าน + conflict) → เข้าคิว แสดงทีละตัว ไม่ทับ
  */
 import { test, expect, type Page } from '@playwright/test';
-import { DEMO_CYCLE, loginAs, openSection, sectionUrl } from './helpers';
+import { DEMO_CYCLE, loginAs, logoutViaMenu, openSection, openUserMenu, sectionUrl } from './helpers';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -99,7 +99,7 @@ async function enterSessionLost(page: Page) {
   const b = await page.context().newPage();
   await b.goto('/app');
   await expect(b.getByTestId('nav-user')).toBeVisible();
-  await b.getByTestId('logout').click();
+  await logoutViaMenu(b);
   await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
   await b.close();
 
@@ -114,6 +114,7 @@ test('U-2 sessionLost: เมนูหาย ข้อความค้าง�
   await expect(page.getByTestId('nav-user')).toHaveCount(0);
   await expect(page.getByTestId('nav-home')).toHaveCount(0);
   await expect(page.getByTestId('logout')).toHaveCount(0);
+  await expect(page.getByTestId('user-menu')).toHaveCount(0);           // R2: logout อยู่ในเมนูผู้ใช้ — เมนูต้องหายด้วย
   await expect(page.getByTestId('narrative-th')).toHaveValue(text);
 
   // คลิกลิงก์ในเนื้อหา → dialog ถามก่อน · ยกเลิก = อยู่หน้าเดิม ข้อความครบ
@@ -271,15 +272,37 @@ test('AC-14 staff1: home-add-evidence → ฟอร์มเปิดทัน�
   await expect(page.getByTestId('ev-form')).toBeVisible();
   await act(() => page.getByTestId('ev-title').fill(title));
   await act(() => page.getByTestId('ev-file').setInputFiles({ name: 'meeting.txt', mimeType: 'text/plain', buffer: Buffer.from('รายงานการประชุมสมมติ ไม่มีข้อมูลส่วนบุคคล', 'utf8') }));
-  await act(() => page.getByTestId('ev-f-reqs-input').fill('1.1'));
-  await act(() => page.getByTestId('ev-f-req-opt-1.1').click());
-  await expect(page.getByTestId('ev-f-req-chip-1.1')).toBeVisible();
+  // R2-B4 (P1): ข้อ 1.1 ของ seed อนุมัติแล้ว = ล็อก → ใช้ข้อที่ยังเขียนได้ (3.6 drafting)
+  await act(() => page.getByTestId('ev-f-reqs-input').fill('3.6'));
+  await act(() => page.getByTestId('ev-f-req-opt-3.6').click());
+  await expect(page.getByTestId('ev-f-req-chip-3.6')).toBeVisible();
   await act(() => page.getByTestId('ev-submit').click());
 
   const row = page.getByTestId('ev-table').locator('tr', { hasText: title });
   await expect(row).toHaveCount(1);
-  await expect(row).toContainText('1.1');
+  await expect(row).toContainText('3.6');
   expect(actions).toBeLessThanOrEqual(6);
+});
+
+// R2-F12: เลือก 1.1 จาก picker ไม่ได้แล้ว (aria-disabled) → (ก) คลิกแล้วไม่เกิด chip (ข) deep link `?req=1.1` → ฟอร์มกันก่อนส่ง
+test('R2-B4 P1 staff1: หลักฐานใหม่ที่ผูกข้อที่อนุมัติแล้ว (1.1) → ข้อความล็อก · ไม่มีแถวใหม่ (ไม่มีหลักฐานกำพร้า)', async ({ page }) => {
+  await loginAs(page, 'staff1');
+  const title = `หลักฐานข้อล็อก ${Date.now() % 100_000}`;
+  await page.getByTestId('home-add-evidence').click();
+  await page.waitForURL(/\/app\/evidence\?new=1/);
+  await page.getByTestId('ev-f-reqs-input').fill('1.1');
+  await expect(page.getByTestId('ev-f-req-opt-1.1')).toHaveAttribute('aria-disabled', 'true');
+  await page.getByTestId('ev-f-req-opt-1.1').click({ force: true }); // aria-disabled → Playwright ไม่ถือว่า enabled
+  await expect(page.getByTestId('ev-f-req-chip-1.1')).toHaveCount(0);
+
+  await page.goto(`/app/evidence?new=1&cycle=${encodeURIComponent(DEMO_CYCLE)}&req=1.1`);
+  await expect(page.getByTestId('ev-f-req-chip-1.1')).toBeVisible();
+  await page.getByTestId('ev-title').fill(title);
+  await page.getByTestId('ev-file').setInputFiles({ name: 'lock.txt', mimeType: 'text/plain', buffer: Buffer.from('เอกสารสมมติ', 'utf8') });
+  await page.getByTestId('ev-submit').click();
+  await expect(page.getByTestId('ev-error-summary')).toContainText('1.1');
+  await expect(page.getByTestId('ev-form')).toBeVisible();
+  await expect(page.getByTestId('ev-table').locator('tr', { hasText: title })).toHaveCount(0);
 });
 
 test('AC-14 ผู้ไม่มีสิทธิ์เพิ่มหลักฐาน (assess1) ไม่เห็น home-add-evidence', async ({ page }) => {
@@ -301,8 +324,11 @@ test('U-3 dialog เกิดพร้อมกัน (logout flush ไม่ผ
   await expect.poll(() => storedNarrative(b, SID36)).toBe(textB);
   await b.close();
 
+  // R2 (Q2c): logout อยู่ในเมนูผู้ใช้ — การคลิกเปิดเมนูหลังพิมพ์ทำให้ textarea blur → autosave เจอ conflict ก่อนถึงปุ่ม logout
+  // (พฤติกรรมถูกต้อง: blur = บันทึกทันที) → เปิดเมนูก่อนพิมพ์ (fill ไม่ส่ง mousedown เมนูจึงยังเปิด) แล้วกด logout = กลไกเดียวกับปุ่มเดิมใน sidebar
+  await openUserMenu(page);
   await page.getByTestId('narrative-th').fill(`U-3 แท็บ A ${Date.now()}`);
-  await page.getByTestId('logout').click();   // ก่อน autosave → flush เจอ conflict → dialog logout + dialog conflict
+  await logoutViaMenu(page);   // ก่อน autosave → flush เจอ conflict → dialog logout + dialog conflict
 
   const seen: string[] = [];
   const dialogs = page.getByRole('dialog');
@@ -342,7 +368,7 @@ test('U2-1 dialog conflict เปิดอยู่ แล้วออกจา�
 
   // แท็บ B ออกจากระบบ ขณะ dialog conflict ของแท็บ A ยังเปิดอยู่
   await b.goto('/app');
-  await b.getByTestId('logout').click();
+  await logoutViaMenu(b);
   await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
   await b.close();
 

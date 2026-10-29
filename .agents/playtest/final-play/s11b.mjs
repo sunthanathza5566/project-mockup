@@ -1,0 +1,15 @@
+import {session,B,txt,log} from './lib.mjs';
+const {br,ctx,p,shot,save,errs,as}=await session({state:'st-s10.json'});
+const links=async(req)=>p.evaluate((req)=>{const ks=Object.keys(localStorage);const out={};for(const k of ks){if(/link/i.test(k)){try{const v=JSON.parse(localStorage.getItem(k));if(Array.isArray(v))out[k]=v.filter(x=>JSON.stringify(x).includes(req)).length;}catch{}}}return out;},req);
+await as('staff1');const url=B+'/app/sections/'+encodeURIComponent('cycle-demo-2569::1.1');await p.goto(url);await p.waitForTimeout(1500);
+log('keys',await p.evaluate(()=>Object.keys(localStorage)));
+log('1.1 links before',await links('::1.1'), 'UI items', await p.locator('#sidepanel-evidence button[aria-label^="เลิกผูก"]').count());
+await shot('35-approved-unlink-before');
+const x=p.locator('#sidepanel-evidence button[aria-label^="เลิกผูก"]').first();log('click',await x.getAttribute('aria-label'));
+await x.click();await p.waitForTimeout(900);
+const d=p.getByRole('dialog');log('dialog?',await d.count());
+log('toast',(await txt(p,9000)).split('\n').filter(l=>/เลิกผูก|แก้ไขไม่ได้|ไม่ได้/.test(l)).slice(-3));
+log('1.1 links after',await links('::1.1'),'UI items',await p.locator('#sidepanel-evidence button[aria-label^="เลิกผูก"]').count());
+await p.reload();await p.waitForTimeout(1500);log('after reload UI items',await p.locator('#sidepanel-evidence button[aria-label^="เลิกผูก"]').count());
+await shot('35-approved-unlink-after');
+log('errs',errs);await br.close();

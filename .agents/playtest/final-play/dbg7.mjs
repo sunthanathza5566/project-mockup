@@ -1,0 +1,14 @@
+import {session,B,txt,log} from './lib.mjs';
+const {br,p,as,shot}=await session({state:'st-inv1.json'});
+await as('uadmin');await p.goto(B+'/app/admin?tab=requests');await p.waitForTimeout(1200);
+await p.getByTestId('lang-en').click();await p.waitForTimeout(700);
+log('EN requests:',(await p.locator('main').innerText()).replace(/\s+/g,' ').slice(0,900));
+await p.getByTestId('nav-bell').click();await p.waitForTimeout(400);log('EN panel',(await p.getByTestId('noti-panel').innerText()).replace(/\s+/g,' ').slice(0,500));
+await shot('81-en-requests',false);
+await p.keyboard.press('Escape');
+const id=(await p.locator('li[data-testid^="req-"]').first().getAttribute('data-testid')).slice(4);
+await p.getByTestId('req-reject-'+id).click();await p.waitForTimeout(500);log('EN reject dlg',(await p.getByRole('dialog').innerText()).replace(/\s+/g,' '));
+await p.getByRole('dialog').getByRole('button').first().click();
+await p.getByRole('tab',{name:/Users/}).click().catch(()=>p.getByText('Users and roles').click());await p.waitForTimeout(800);
+await p.getByTestId('user-suspend-lect1').click();await p.waitForTimeout(400);log('EN suspend dlg',(await p.getByRole('dialog').innerText()).replace(/\s+/g,' '));
+await br.close();

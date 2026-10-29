@@ -13,6 +13,7 @@ import { compareReqId, listCriteria } from './framework';
 import { daysUntil } from './notification.store';
 import { programmeScope } from './org.store';
 import { can, isAssessorOf } from './rbac';
+import { isActiveUser } from './auth.api';
 import { cycleScope, listReviewEvents } from './workflow';
 
 /** ลำดับ kind สำหรับการเรียง (U1b) */
@@ -154,7 +155,7 @@ export function listMyTodos(user: AppUser, opts: { now?: number } = {}): TodoIte
     if (can(user, 'approve.final', scope) && c.status === 'faculty_approved')
       out.push(makeTodo({ ...base, kind: 'final_approve', urgent: false, titleTh: `พิจารณาอนุมัติสุดท้ายรอบ ${year}`, count: 1 }));
     if (can(user, 'assessor.assign', scope) && c.status === 'final_approved') {
-      const hasAssessor = load<AppUser>(KEYS.users).some(u => isAssessorOf(u, c.id));
+      const hasAssessor = load<AppUser>(KEYS.users).some(u => isActiveUser(u) && isAssessorOf(u, c.id));
       out.push(makeTodo({
         ...base, kind: 'start_assessment', urgent: false, titleTh: `เริ่มการประเมินรอบ ${year}`,
         detailTh: hasAssessor ? undefined : 'ยังไม่ได้มอบหมายกรรมการประเมิน', count: 1,

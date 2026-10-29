@@ -22,10 +22,25 @@ test('E2E-08 QA คณะส่งกลับแก้ → รอบเป็�
   await expect(page.getByTestId('cycles-table').locator('tr', { hasText: '2569' })).toContainText('ส่งกลับแก้ไข');
 
   await loginAs(page, 'staff1');
-  const list = page.getByTestId('noti-list');
+  // TASK-0002 Q2c (friendly-spec §F2.2/§F3): รายการแจ้งเตือนอยู่ใน panel ของกระดิ่ง — หน้า /app ไม่มี noti-list นอก panel
+  const bell = page.getByTestId('nav-bell');
+  await expect(bell).toHaveAttribute('aria-label', /ที่ยังไม่อ่าน [1-9]/);
+  await expect(page.getByTestId('noti-list')).toHaveCount(0);
+  const unreadBefore = Number((await bell.getAttribute('aria-label'))!.match(/(\d+) รายการ/)![1]);
+  await bell.click();
+  await expect(bell).toHaveAttribute('aria-expanded', 'true');
+  const panel = page.getByTestId('noti-panel');
+  await expect(panel).toBeVisible();
+  const list = panel.getByTestId('noti-list');
   await expect(list).toContainText('ถูกส่งกลับแก้');
   await expect(list).toContainText(note);
-  await expect(page.getByTestId('nav-bell')).toHaveAttribute('aria-label', /ที่ยังไม่อ่าน [1-9]/);
+  // deep link (§F3.3): revision_requested → target cycle → แดชบอร์ดรอบ · อ่านแล้ว (กระดิ่งลด 1) · panel ปิด
+  const item = panel.locator('[data-testid^="noti-item-"]', { hasText: note }).first();
+  await expect(item).toHaveAttribute('data-unread', 'true');
+  await item.click();
+  await page.waitForURL(new RegExp(`/app/cycles/${DEMO_CYCLE}$`));
+  await expect(page.getByTestId('noti-panel')).toHaveCount(0);
+  await expect(bell).toHaveAttribute('aria-label', `แจ้งเตือนที่ยังไม่อ่าน ${unreadBefore - 1} รายการ`);
 });
 
 test('E2E-09 คณบดีอนุมัติ → รอบ lock มี snapshot hash ตรวจผ่าน และแก้เนื้อหาไม่ได้', async ({ page }) => {

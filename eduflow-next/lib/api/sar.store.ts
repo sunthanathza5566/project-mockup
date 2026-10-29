@@ -12,6 +12,7 @@ import { AunqaError, KEYS, load, save } from './db';
 import { getRequirement } from './framework';
 import { notify } from './notification.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 import {
   assertCycleWritable, assertSectionEditable, cycleScope, getCycleRaw, transitionSection,
 } from './workflow';
@@ -53,6 +54,7 @@ export function saveSection(
   actor: AppUser, cycleId: string, requirementId: string, input: SaveSectionInput, reason: SaveReason = 'autosave',
   opts: { baseUpdatedAt?: number } = {},
 ): SarSection {
+  requireActiveActor(actor);
   const rows = load<SarSection>(KEYS.sections);
   const sec = rows.find(s => s.id === sectionIdOf(cycleId, requirementId));
   if (!sec) throw new AunqaError('not_found', 'ไม่พบข้อนี้');
@@ -121,6 +123,7 @@ export function saveSection(
  * สิทธิ์/lock เดียวกับ saveSection · บันทึก audit
  */
 export function confirmTranslationReviewed(actor: AppUser, cycleId: string, requirementId: string, lang: 'th' | 'en'): SarSection {
+  requireActiveActor(actor);
   if (lang !== 'th' && lang !== 'en') throw new AunqaError('invalid', 'ภาษาไม่ถูกต้อง');
   const rows = load<SarSection>(KEYS.sections);
   const sec = rows.find(s => s.id === sectionIdOf(cycleId, requirementId));
@@ -157,6 +160,7 @@ export function restoreVersion(actor: AppUser, versionId: string): SarSection {
 
 // ─── Status (ผ่าน state machine) ─────────────────────────────────────────
 export function submitSection(actor: AppUser, cycleId: string, requirementId: string): SarSection {
+  requireActiveActor(actor);
   const sec = getSectionRaw(sectionIdOf(cycleId, requirementId));
   // not_started → drafting → ready_for_review ต้องเดินทีละขั้นตามตาราง
   if (sec.status === 'not_started') {
@@ -196,6 +200,7 @@ function checkScore(score: number) {
 
 /** self-rating (rater_type self) — upsert ต่อข้อ · ไม่แตะคะแนนกรรมการ */
 export function setSelfRating(actor: AppUser, cycleId: string, requirementId: string, score: number, rationale = ''): Rating {
+  requireActiveActor(actor);
   checkScore(score);
   if (!getRequirement(requirementId)) throw new AunqaError('not_found', 'ไม่พบข้อ');
   if (rationale.length > 3000) throw new AunqaError('invalid', 'เหตุผลยาวเกินไป');
@@ -216,6 +221,7 @@ export function setSelfRating(actor: AppUser, cycleId: string, requirementId: st
 
 /** คะแนนกรรมการ — เฉพาะ assessor ที่ได้รับมอบหมาย และเมื่อรอบอยู่ในขั้น under_assessment (แยกแถวจาก self เสมอ) */
 export function setCommitteeRating(actor: AppUser, cycleId: string, requirementId: string, score: number, rationale = ''): Rating {
+  requireActiveActor(actor);
   checkScore(score);
   const cycle = getCycleRaw(cycleId);
   if (!can(actor, 'rating.committee', cycleScope(cycle))) throw new AunqaError('forbidden', 'เฉพาะกรรมการที่ได้รับมอบหมายเท่านั้น');
@@ -243,6 +249,7 @@ export function addComment(
   actor: AppUser, cycleId: string, requirementId: string, body: string,
   opts: { parentId?: string; anchor?: Comment['anchor'] } = {},
 ): Comment {
+  requireActiveActor(actor);
   const cycle = getCycleRaw(cycleId);
   const sec = getSectionRaw(sectionIdOf(cycleId, requirementId));
   const text = body.trim();
@@ -261,11 +268,16 @@ export function addComment(
   save(KEYS.comments, rows);
   appendAudit(actor, { action: 'comment.add', targetType: 'section', targetId: sec.id, programmeId: cycle.programmeId, after: { commentId: c.id } });
   if (sec.ownerUserId && sec.ownerUserId !== actor.id)
-    notify({ userId: sec.ownerUserId, kind: 'comment', cycleId, requirementId, messageTh: `มี comment ใหม่ที่ข้อ ${requirementId}` });
+    notify({
+      userId: sec.ownerUserId, kind: 'comment', cycleId, requirementId, messageTh: `มี comment ใหม่ที่ข้อ ${requirementId}`,
+      messageEn: `New comment on requirement ${requirementId}`,
+      target: { type: 'section', cycleId, requirementId, panel: 'comments' },
+    });
   return c;
 }
 
 export function resolveComment(actor: AppUser, commentId: string): Comment {
+  requireActiveActor(actor);
   const rows = load<Comment>(KEYS.comments);
   const c = rows.find(x => x.id === commentId);
   if (!c) throw new AunqaError('not_found', 'ไม่พบ comment');

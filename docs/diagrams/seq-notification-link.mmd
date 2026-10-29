@@ -1,0 +1,33 @@
+%% source: eduflow-next/components/aunqa/NotificationPanel.tsx:65-88 (นับใหม่: todos-changed + storage), 104-115 (listNotifications ตอนเปิด), 173-192 (readOne → markRead + notifyTodosChanged, samePageHash → pushState + hashchange), 281-285 (notificationHref → Link); lib/api/notification.store.ts:94-117 (listNotifications, unreadCount, markRead no-op ถ้าไม่ active); lib/ui/notification.ts:26-55 (notificationHref, samePageHash), 83-86 (notificationText); components/aunqa/SarWorkspace.tsx:411-423 (#comments); app/app/actions/page.tsx:78-113 (#action-); app/app/admin/page.tsx:39 (?tab=) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeCSS": ".actor-line{stroke-dasharray: 6 5 !important}", "sequence": {"mirrorActors": false, "actorMargin": 30, "width": 150, "boxMargin": 6, "messageMargin": 34, "messageFontSize": 22, "noteFontSize": 22, "actorFontSize": 21}}}%%
+sequenceDiagram
+  actor U as ผู้ใช้
+  participant B as Notification<br/>Bell
+  participant S as notification<br/>.store
+  participant L as lib/ui/<br/>notification
+  participant P as หน้าปลายทาง
+  loop เปลี่ยนหน้า / todos-changed / storage จากแท็บอื่น
+    B->>S: unreadCount(user)
+    S-->>B: จำนวนที่ยังไม่อ่าน
+  end
+  U->>B: กดกระดิ่ง
+  B->>S: listNotifications(user)
+  S-->>B: AppNotification[]
+  B->>L: notificationText(n, lang)<br/>notificationHref(n)
+  L-->>B: ข้อความ + path ภายใน /app
+  B-->>U: แผงแจ้งเตือน (จัดกลุ่มตามวัน)
+  U->>B: กดรายการ
+  opt ยังไม่อ่าน
+    B->>S: markRead(user, id)
+    B-)B: dispatch todos-changed
+  end
+  B->>L: samePageHash(href)
+  alt คนละหน้า
+    L-->>B: null
+    B->>P: Link → href
+  else หน้าเดิม ต่างแค่ hash
+    L-->>B: #35;hash
+    B->>P: pushState + hashchange
+  end
+  P->>P: อ่าน hash / ?tab=<br/>เปิดแท็บ เลื่อน ไฮไลต์
+  P-->>U: แสดงเป้าหมาย

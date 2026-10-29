@@ -8,9 +8,11 @@
  *   is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
  * ไม่ได้ติดตั้ง package (ข้อห้าม 12) · inbox-check / calendar-cycle วาดประกอบเอง
  *
+ * ADR-UI-002 §C16: base class มี inline-block shrink-0 align-[-0.125em] (กัน preflight ทำ svg เป็น block ใน S6)
  * ใช้: <Icon name="check-circle" size={20} label="…" /> — ไม่มี label = aria-hidden
  */
 import type { ReactNode } from 'react';
+import { cn } from '@/lib/ui/cn';
 
 const P: Record<string, ReactNode> = {
   home: <><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></>,
@@ -57,15 +59,28 @@ const P: Record<string, ReactNode> = {
   type: <><path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v16" /></>,
   'file-text': <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8M16 13H8M16 17H8" /></>,
   users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></>,
+  moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+  monitor: <><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></>,
+  loader: <path d="M21 12a9 9 0 1 1-6.219-8.56" />,
+  // ADR-UI-003 (TASK-0002 รอบ 2 R2-F0) — Lucide ISC
+  globe: <><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></>,
+  'user-plus': <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></>,
+  message: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+  calendar: <><path d="M8 2v4M16 2v4" /><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M3 10h18" /></>,
+  'shield-check': <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>,
+  inbox: <><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>,
 };
 
-/** ชื่อไอคอนทั้งหมด (ครบตาม C0 เท่านั้น) */
+/** ชื่อไอคอนทั้งหมด (C0 เดิม + sun/moon/monitor/loader ของ ADR-UI-002 §C16 + ชุด R2-F0 ของ ADR-UI-003) */
 export const ICON_NAMES = [
   'home', 'inbox-check', 'calendar-cycle', 'folder', 'book-open', 'chart-line', 'list-check', 'library', 'download',
   'shield-user', 'bell', 'user', 'log-out', 'menu', 'x', 'chevron-down', 'chevron-right', 'chevron-left', 'check',
   'check-circle', 'alert-triangle', 'x-circle', 'info', 'clock', 'lock', 'pencil', 'undo', 'upload', 'link', 'search',
   'filter', 'sparkle', 'languages', 'eye', 'eye-off', 'plus', 'trash', 'external', 'help-circle', 'circle-dashed',
-  'settings', 'type', 'file-text', 'users',
+  'settings', 'type', 'file-text', 'users', 'sun', 'moon', 'monitor', 'loader',
+  // R2-F0 (clock, undo, type มีแล้ว)
+  'globe', 'user-plus', 'message', 'calendar', 'shield-check', 'inbox',
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 
@@ -82,7 +97,7 @@ export default function Icon({ name, size = 20, label, className }: IconProps) {
   const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': true as const, focusable: 'false' as const };
   return (
     <svg
-      className={`aq-icon${className ? ` ${className}` : ''}`}
+      className={cn('inline-block shrink-0 align-[-0.125em]', className)}
       width={size} height={size} viewBox="0 0 24 24"
       fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"
       {...a11y}

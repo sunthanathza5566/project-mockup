@@ -1,0 +1,17 @@
+=== r07 U3 language + mobile
+  initial lang key: [ null, null ]
+  login EN: th=3 en=241 pressed=true key en
+  /request-access: th=3 en=1288 pressed=true Skip to main content AUN-QA Copilot ไทย English Display Request access Fill in your details. Your university administrat
+  /invite: th=3 en=372 pressed=true demo note: Demo system: data is stored in this browser only — open the invitation link in the same browser the administrator used to create it. On another device or browser the link will not work.
+  /app: th=191 en=465 pressed=true
+  EN panel: Notifications (11 unread) Mark all as read Today Unread: The action item for requirement 1.4 was verified New 1 min ago You were assigned an action item for requirement 1.4 — due 2020-01-01 2 min ago Unread: Cycle 2569 has entered the assessment stage New 2 min ago Unread: The dean gave final approval and locked cycle 2569 New 2 min ago Unread: Faculty QA approved cycle 2569 — awaiting the dean New 2 min ago Unread: Assessment cycle 2569 was sent to faculty QA New 2 min ago Unread: Requirement 3.6 was approved New 2 min ago Requirement 3.6 was returned for changes: QA ขอเพิ่มหลักฐาน 2 min ago 
+  new tab /app/evidence: th=714 en=984 pressed=true
+  new tab actions: th=780 en=583 pressed=true Improvement plan (Action plan) Track improvements from assessments and internal reviews Verified items automatically become Act-stage evidence in the next cycle. CS-B-69 — วิทยาศาสตรบัณฑิต สาขาวิชาวิทยาการคอมพิวเตอร์ (สมมติ) All statuses Not started In progress Done (awaiting check) Verified Req. De
+  tab1 after tab2->TH: th=646 en=36 pressed=false
+  TH panel: การแจ้งเตือน (ยังไม่อ่าน 11) อ่านทั้งหมด วันนี้ ยังไม่อ่าน: แผนปรับปรุงข้อ 1.4 ได้รับการยืนยันแล้ว ใหม่ 2 นาทีที่แล้ว คุณได้รับมอบหมายแผนปรับปรุงข้อ 1.4 กำหนดเสร็จ 1 ม.ค. 2563 2 นาทีที่แล้ว ยังไม่อ่าน: รอบ 2569 เข้าสู่ขั้นการประเมินโดยกรรมการแล้ว ใหม่ 2 นาทีที่แล้ว ยังไม่อ่าน: คณบดีอนุมัติสุดท้ายและล็อกรอบ 2569 แล้ว ใหม่ 2 นาทีที่แล้ว ยังไม่อ่าน: QA คณะอนุมัติรอบ 2569 แล้ว รอคณบดี ใหม่ 2 นาทีที่แล
+  cycle header: [ 'วิทยาศาสตรบัณฑิต สาขาวิชาวิทยาการคอมพิวเตอร์ (สมมติ) · ฉบับที่' ]
+  m390 users h-scroll: 0 page height 3752
+  m390 tabs tops: [ 208, 208, 208 ]
+  m390 panel h-scroll: 0
+  m390 panel text: ผู้ดูแลระบบ จัดการผู้ใช้และบทบาท ตรวจ audit log (บันทึกถาวร แก้ไม่ได้) ผู้ใช้และบทบาท คำขอเข้าใช้งาน Audit log เพิ่มผู้ใช้ ค้นหาผู้ใช้ ผู้ใช้ บทบาท สถานะ การจัดการ ผศ.ดร.ปรีชา ตัวอย่างดี chair1 chair.cs@sample-uni.example ประธานหลักสูตร ใช้งานอยู่ จัดการ บทบาทปัจจุบัน ประธานหลักสูตร (หลักสูตร CS-B-69) เพิ่มบทบาท บทบาท ผู้ดูแลมหาวิทยาลัย ประธานหลักสูตร อาจารย์/เจ้าหน้าที่หลักสูตร เจ้าหน้าที่ข้อมูล QA คณะ คณบดี กรรมการประเมิน ขอบเขต หลักสูตร CS-B-69 หลักสูตร DS-M-69 บทบาทนี้ใช้ขอบเขตระดับหลักสูตร 
+errs [] []

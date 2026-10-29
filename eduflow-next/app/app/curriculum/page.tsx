@@ -9,9 +9,17 @@ import type { AiRun, AppUser, Clo, Course, CurriculumData, MapLevel, Plo } from 
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { Async, AsyncButton, Badge, Empty, ModelBadge, PageHeader, useLoad } from '@/components/aunqa/common';
+import Icon from '@/components/ui/Icon';
 import Term from '@/components/ui/Term';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { NativeSelect } from '@/components/ui/primitives/native-select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/primitives/table';
+import { Textarea } from '@/components/ui/primitives/textarea';
 import { useScope } from '@/components/aunqa/useScope';
-import { BLOOM_TH, MAP_LEVEL_TH, errMsg, truncateTh } from '@/lib/ui/aunqa';
+import { cn } from '@/lib/ui/cn';
+import { MATRIX_LEVEL } from '@/lib/ui/tone';
+import { BLOOM_TH, MAP_LEVEL_TH, errMsg, gapTextTh, truncateTh } from '@/lib/ui/aunqa';
 
 type Tab = 'plo' | 'course' | 'matrix' | 'heat' | 'gaps' | 'prereq' | 'ai';
 const TABS: [Tab, string][] = [
@@ -19,9 +27,58 @@ const TABS: [Tab, string][] = [
   ['gaps', 'ช่องว่างหลักสูตร'], ['prereq', 'ผัง prerequisite'], ['ai', 'ตรวจคำกริยา Bloom (AI)'],
 ];
 
+/** §F13 การ์ด rounded-xl + ระยะใน p-5 md:p-6 */
+const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
+/** ตารางในหน้านี้: กรอบ rounded-xl + เงาเหมือนการ์ด */
+const TABLE_WRAP = 'rounded-xl shadow-sm dark:shadow-none';
+/** ตารางที่มีปุ่ม: wrapper เป็น CSS container ชื่อ `tbl` (inline-size) ให้ variant [@container_tbl_(…rem)] ใช้ได้ */
+const TABLE_WRAP_CQ = '[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none';
 /**
- * หลักสูตร (ADR-UI-001 pages.md P12): PLO / รายวิชา / CLO / matrix I-R-M / heatmap / gap / prerequisite / AI-7
- * แท็บเส้นใต้ (C5) + ตัวเลขช่องว่างในแท็บ · I/R/M ตาม T1.3 #15/#28/#36 + ตัวอักษรเสมอ · คง testid เดิมทั้งหมด
+ * §C5 ตาราง → การ์ด ตามความกว้างกรอบตารางจริง (R2-F14 — container query หน่วย rem ขยายตามขนาดตัวอักษรผู้ใช้)
+ * PLO ≤ 46rem (min-content ≈ 43.7rem) · รายวิชา ≤ 44rem (≈ 38.8rem + ฟอร์ม CLO) · ผลตรวจ AI-7 ≤ 54rem (≈ 51.3rem)
+ * class literal ให้ JIT สแกนเจอ
+ */
+const PLO_STACK = {
+  table: '[@container_tbl_(max-width:46rem)]:block',
+  head: '[@container_tbl_(max-width:46rem)]:sr-only',
+  body: '[@container_tbl_(max-width:46rem)]:block',
+  row: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:p-4',
+  cell: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:px-0 [@container_tbl_(max-width:46rem)]:py-1 [@container_tbl_(max-width:46rem)]:text-left [@container_tbl_(max-width:46rem)]:before:block [@container_tbl_(max-width:46rem)]:before:text-sm [@container_tbl_(max-width:46rem)]:before:font-medium [@container_tbl_(max-width:46rem)]:before:text-muted-foreground [@container_tbl_(max-width:46rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:46rem)]:block [@container_tbl_(max-width:46rem)]:px-0 [@container_tbl_(max-width:46rem)]:pb-0 [@container_tbl_(max-width:46rem)]:pt-3 [@container_tbl_(max-width:46rem)]:[&>div]:justify-start',
+  text: '[@container_tbl_(min-width:46.01rem)]:min-w-[18rem]',
+} as const;
+const COURSE_STACK = {
+  table: '[@container_tbl_(max-width:44rem)]:block',
+  head: '[@container_tbl_(max-width:44rem)]:sr-only',
+  body: '[@container_tbl_(max-width:44rem)]:block',
+  row: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:p-4',
+  cell: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:px-0 [@container_tbl_(max-width:44rem)]:py-1 [@container_tbl_(max-width:44rem)]:text-left [@container_tbl_(max-width:44rem)]:before:block [@container_tbl_(max-width:44rem)]:before:text-sm [@container_tbl_(max-width:44rem)]:before:font-medium [@container_tbl_(max-width:44rem)]:before:text-muted-foreground [@container_tbl_(max-width:44rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:44rem)]:block [@container_tbl_(max-width:44rem)]:px-0 [@container_tbl_(max-width:44rem)]:pb-0 [@container_tbl_(max-width:44rem)]:pt-3',
+  name: '[@container_tbl_(min-width:44.01rem)]:min-w-[14rem]',
+  form: '[@container_tbl_(min-width:44.01rem)]:grid-cols-[12rem_minmax(0,1fr)_12rem_auto]',
+} as const;
+const VERB_STACK = {
+  table: '[@container_tbl_(max-width:54rem)]:block',
+  head: '[@container_tbl_(max-width:54rem)]:sr-only',
+  body: '[@container_tbl_(max-width:54rem)]:block',
+  row: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:p-4',
+  cell: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:py-1 [@container_tbl_(max-width:54rem)]:text-left [@container_tbl_(max-width:54rem)]:before:block [@container_tbl_(max-width:54rem)]:before:text-sm [@container_tbl_(max-width:54rem)]:before:font-medium [@container_tbl_(max-width:54rem)]:before:text-muted-foreground [@container_tbl_(max-width:54rem)]:before:content-[attr(data-label)]',
+  actions: '[@container_tbl_(max-width:54rem)]:block [@container_tbl_(max-width:54rem)]:px-0 [@container_tbl_(max-width:54rem)]:pb-0 [@container_tbl_(max-width:54rem)]:pt-3',
+  text: '[@container_tbl_(min-width:54.01rem)]:min-w-[16rem]',
+} as const;
+/** saas-spec §C11 แท็บเส้นใต้ */
+const TAB_BTN =
+  '-mb-px inline-flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 text-base font-medium text-muted-foreground transition-colors duration-fast hover:text-foreground aria-selected:border-primary aria-selected:text-foreground';
+const FIELD = 'grid min-w-0 gap-1.5';
+const LABEL = 'font-medium text-foreground';
+const CHECK = 'flex min-h-11 cursor-pointer items-center gap-3 text-foreground';
+const CHECK_BOX = 'h-5 w-5 shrink-0 accent-primary';
+/** ช่องระดับ I/R/M (Badge MATRIX_LEVEL — ตัวอักษรเสมอ ไม่พึ่งสีอย่างเดียว) */
+const LEVEL_CHIP = 'inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 font-semibold';
+
+/**
+ * หลักสูตร (ADR-UI-001 pages.md P12 · saas-spec §P12 · friendly-spec §F13): PLO / รายวิชา / CLO / matrix I-R-M / heatmap / gap / prerequisite / AI-7
+ * แท็บเส้นใต้ (C11) + ตัวเลขช่องว่างในแท็บ · I/R/M = MATRIX_LEVEL + ตัวอักษรเสมอ · matrix อยู่ใน wrapper `aq-matrix` · คง testid เดิมทั้งหมด
  */
 export default function CurriculumPage() {
   const { user, programmes, programmeId, setProgrammeId } = useScope();
@@ -35,21 +92,21 @@ export default function CurriculumPage() {
   return (
     <>
       <PageHeader title="หลักสูตร (PLO · รายวิชา · CLO)" sub={<>ผูก <Term k="clo">CLO</Term> เข้ากับ <Term k="plo">PLO</Term> ระดับ <Term k="irm">I/R/M</Term> แล้วระบบตรวจช่องว่างให้อัตโนมัติ (ผลไปที่ข้อ 1.2, 2.4, 2.5, 4.1 ในแดชบอร์ดรอบประเมิน)</>} />
-      <div className="aq-toolbar">
-        <select className="aq-input" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="cur-programme">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <NativeSelect wrapperClassName="w-full sm:w-auto sm:min-w-[20rem]" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="cur-programme">
           {programmes.map(p => <option key={p.id} value={p.id}>{p.code} — {p.nameTh}</option>)}
-        </select>
+        </NativeSelect>
         {!canWrite && <Badge icon="eye">ดูอย่างเดียว</Badge>}
       </div>
-      <div className="aq-tabs" role="tablist" aria-label="ส่วนของหลักสูตร">
+      <div className="mb-6 flex flex-wrap gap-x-1 border-b" role="tablist" aria-label="ส่วนของหลักสูตร">
         {TABS.map(([k, l]) => (
-          <button key={k} type="button" role="tab" aria-selected={tab === k} aria-controls="cur-panel" onClick={() => setTab(k)} data-testid={`cur-tab-${k}`}>
-            {l}{k === 'gaps' && q.data ? <span className="aq-count aq-count--muted">{q.data.gaps.length}</span> : null}
+          <button key={k} type="button" role="tab" aria-selected={tab === k} aria-controls="cur-panel" onClick={() => setTab(k)} data-testid={`cur-tab-${k}`} className={TAB_BTN}>
+            {l}{k === 'gaps' && q.data ? <span className="aq-count bg-muted text-foreground">{q.data.gaps.length}</span> : null}
           </button>
         ))}
       </div>
       <Async q={q}>{d => !d ? <Empty icon="book-open" title="ยังไม่มีหลักสูตรที่เข้าถึงได้" /> : (
-        <div id="cur-panel" role="tabpanel" className="aq-tabpanel" data-testid={`cur-panel-${tab}`}>
+        <div id="cur-panel" role="tabpanel" className="space-y-6" data-testid={`cur-panel-${tab}`}>
           {tab === 'plo' && <PloTab user={user} programmeId={programmeId} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
           {tab === 'course' && <CourseTab user={user} programmeId={programmeId} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
           {tab === 'matrix' && <MatrixTab user={user} cur={d.cur} canWrite={canWrite} reload={q.reload} />}
@@ -71,6 +128,16 @@ function useAct(reload: Reload) {
   return (fn: () => void, ok: string) => {
     try { fn(); showToast(ok, 'success'); reload(); return true; } catch (e) { showToast(errMsg(e), 'error'); return false; }
   };
+}
+
+/** ปุ่มแก้/ลบในแถว (outline compact + ghost icon) */
+function RowActions({ onEdit, onDelete, delLabel }: { onEdit: () => void; onDelete: () => void; delLabel: string }) {
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Button variant="outline" size="compact" onClick={onEdit}><Icon name="pencil" size={20} />แก้</Button>
+      <Button variant="ghost" size="icon" onClick={onDelete} aria-label={delLabel} title="ลบ"><Icon name="trash" size={20} /></Button>
+    </div>
+  );
 }
 
 // ───────────── PLO ─────────────
@@ -99,45 +166,43 @@ function PloTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progr
   }
   return (
     <>
-      {canWrite && !edit && <div className="aq-card"><button className="aq-btn aq-btn-primary" onClick={() => open('new')} data-testid="plo-new">+ เพิ่ม PLO</button></div>}
+      {canWrite && !edit && <div className="flex flex-wrap gap-2"><Button onClick={() => open('new')} data-testid="plo-new"><Icon name="plus" size={20} />เพิ่ม PLO</Button></div>}
       {edit && (
-        <form className="aq-card aq-form" onSubmit={submit} data-testid="plo-form">
-          <h2 className="aq-h2">{edit === 'new' ? 'เพิ่ม PLO' : `แก้ ${edit.code}`}</h2>
-          <label>รหัส<input className="aq-input" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required data-testid="plo-code" /></label>
-          <label>ผลลัพธ์การเรียนรู้ (ไทย)<textarea className="aq-textarea" rows={2} value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="plo-th" /></label>
-          <label>English<textarea className="aq-textarea" rows={2} value={f.textEn} onChange={e => setF({ ...f, textEn: e.target.value })} lang="en" /></label>
-          <div className="aq-form-inline">
-            <label>ประเภท
-              <select className="aq-input" value={f.type} onChange={e => setF({ ...f, type: e.target.value as Plo['type'] })}>
+        <form className={cn(CARD, 'animate-fade-in space-y-5')} onSubmit={submit} data-testid="plo-form">
+          <h2 className="m-0 text-lg font-semibold text-foreground">{edit === 'new' ? 'เพิ่ม PLO' : `แก้ ${edit.code}`}</h2>
+          <label className={cn(FIELD, 'max-w-[16rem]')}><span className={LABEL}>รหัส</span><Input value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required data-testid="plo-code" /></label>
+          <label className={FIELD}><span className={LABEL}>ผลลัพธ์การเรียนรู้ (ไทย)</span><Textarea rows={2} value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="plo-th" /></label>
+          <label className={FIELD}><span className={LABEL}>English</span><Textarea rows={2} value={f.textEn} onChange={e => setF({ ...f, textEn: e.target.value })} lang="en" /></label>
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className={FIELD}><span className={LABEL}>ประเภท</span>
+              <NativeSelect value={f.type} onChange={e => setF({ ...f, type: e.target.value as Plo['type'] })}>
                 <option value="generic">ทั่วไป (generic)</option><option value="specific">เฉพาะสาขา (specific)</option>
-              </select>
+              </NativeSelect>
             </label>
-            <label>ระดับ Bloom
-              <select className="aq-input" value={f.bloom} onChange={e => setF({ ...f, bloom: e.target.value })}>
+            <label className={FIELD}><span className={LABEL}>ระดับ Bloom</span>
+              <NativeSelect value={f.bloom} onChange={e => setF({ ...f, bloom: e.target.value })}>
                 {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{BLOOM_TH[n]}</option>)}
-              </select>
+              </NativeSelect>
             </label>
           </div>
-          <div className="aq-actions"><button className="aq-btn aq-btn-primary" data-testid="plo-save">บันทึก</button><button type="button" className="aq-btn" onClick={() => setEdit(null)}>ยกเลิก</button></div>
+          <div className="flex flex-wrap gap-2"><Button type="submit" data-testid="plo-save">บันทึก</Button><Button variant="ghost" onClick={() => setEdit(null)}>ยกเลิก</Button></div>
         </form>
       )}
       {cur.plos.length === 0 ? <Empty icon="list-check" title="ยังไม่มี PLO" text="เพิ่ม PLO ข้อแรกเพื่อเริ่มผูกรายวิชา" /> : (
-        <div className="aq-card aq-table-wrap">
-          <table className="aq-table" data-testid="plo-table">
-            <thead><tr><th>รหัส</th><th>ข้อความ</th><th>ประเภท</th><th>Bloom</th>{canWrite && <th />}</tr></thead>
-            <tbody>
-              {cur.plos.map(p => (
-                <tr key={p.id} data-testid={`plo-${p.code}`}>
-                  <td><strong>{p.code}</strong></td>
-                  <td>{p.textTh}<div className="aq-muted" lang="en">{p.textEn}</div></td>
-                  <td>{p.type === 'generic' ? 'ทั่วไป' : 'เฉพาะสาขา'}</td>
-                  <td>{BLOOM_TH[p.bloomLevel]}</td>
-                  {canWrite && <td className="aq-cluster-cell"><button className="aq-btn aq-btn-compact" onClick={() => open(p)}>แก้</button> <button className="aq-btn aq-btn-compact" onClick={() => del(p)} aria-label={`ลบ ${p.code}`}>ลบ</button></td>}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table data-testid="plo-table" className={PLO_STACK.table} wrapperClassName={TABLE_WRAP_CQ}>
+          <TableHeader className={PLO_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>ประเภท</TableHead><TableHead>Bloom</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
+          <TableBody className={PLO_STACK.body}>
+            {cur.plos.map(p => (
+              <TableRow key={p.id} data-testid={`plo-${p.code}`} className={PLO_STACK.row}>
+                <TableCell data-label="รหัส" className={cn('whitespace-nowrap', PLO_STACK.cell)}><strong>{p.code}</strong></TableCell>
+                <TableCell data-label="ข้อความ" className={cn(PLO_STACK.text, PLO_STACK.cell)}><p className="m-0 text-foreground">{p.textTh}</p>{p.textEn && <p className="aq-meta m-0" lang="en">{p.textEn}</p>}</TableCell>
+                <TableCell data-label="ประเภท" className={cn('whitespace-nowrap', PLO_STACK.cell)}>{p.type === 'generic' ? 'ทั่วไป' : 'เฉพาะสาขา'}</TableCell>
+                <TableCell data-label="Bloom" className={cn('whitespace-nowrap', PLO_STACK.cell)}>{BLOOM_TH[p.bloomLevel]}</TableCell>
+                {canWrite && <TableCell className={PLO_STACK.actions}><RowActions onEdit={() => open(p)} onDelete={() => del(p)} delLabel={`ลบ ${p.code}`} /></TableCell>}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </>
   );
@@ -171,54 +236,65 @@ function CourseTab({ user, programmeId, cur, canWrite, reload }: TabProps & { pr
   const sorted = [...cur.courses].sort((a, b) => a.year - b.year || a.semester - b.semester || a.code.localeCompare(b.code));
   return (
     <>
-      {canWrite && !edit && <div className="aq-card"><button className="aq-btn aq-btn-primary" onClick={() => openForm('new')} data-testid="course-new">+ เพิ่มรายวิชา</button></div>}
+      {canWrite && !edit && <div className="flex flex-wrap gap-2"><Button onClick={() => openForm('new')} data-testid="course-new"><Icon name="plus" size={20} />เพิ่มรายวิชา</Button></div>}
       {edit && (
-        <form className="aq-card aq-form" onSubmit={submit} data-testid="course-form">
-          <h2 className="aq-h2">{edit === 'new' ? 'เพิ่มรายวิชา' : `แก้ ${edit.code}`}</h2>
-          <div className="aq-form-inline">
-            <label>รหัสวิชา<input className="aq-input" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required data-testid="course-code" /></label>
-            <label className="aq-flex-1">ชื่อวิชา<input className="aq-input" value={f.nameTh} onChange={e => setF({ ...f, nameTh: e.target.value })} required data-testid="course-name" /></label>
+        <form className={cn(CARD, 'animate-fade-in space-y-5')} onSubmit={submit} data-testid="course-form">
+          <h2 className="m-0 text-lg font-semibold text-foreground">{edit === 'new' ? 'เพิ่มรายวิชา' : `แก้ ${edit.code}`}</h2>
+          <div className="grid gap-5 md:grid-cols-[12rem_minmax(0,1fr)]">
+            <label className={FIELD}><span className={LABEL}>รหัสวิชา</span><Input value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required data-testid="course-code" /></label>
+            <label className={FIELD}><span className={LABEL}>ชื่อวิชา</span><Input value={f.nameTh} onChange={e => setF({ ...f, nameTh: e.target.value })} required data-testid="course-name" /></label>
           </div>
-          <div className="aq-form-inline">
-            <label>หน่วยกิต<input className="aq-input aq-input-sm" type="number" min={0} max={30} value={f.credits} onChange={e => setF({ ...f, credits: e.target.value })} /></label>
-            <label>ชั้นปี<input className="aq-input aq-input-sm" type="number" min={1} max={8} value={f.year} onChange={e => setF({ ...f, year: e.target.value })} /></label>
-            <label>ภาคเรียน<input className="aq-input aq-input-sm" type="number" min={1} max={3} value={f.semester} onChange={e => setF({ ...f, semester: e.target.value })} /></label>
-            <label>หมวดวิชา<input className="aq-input" value={f.category} onChange={e => setF({ ...f, category: e.target.value })} /></label>
-            <label className="aq-check"><input type="checkbox" checked={f.isElective} onChange={e => setF({ ...f, isElective: e.target.checked })} /> วิชาเลือก</label>
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+            <label className={FIELD}><span className={LABEL}>หน่วยกิต</span><Input type="number" min={0} max={30} value={f.credits} onChange={e => setF({ ...f, credits: e.target.value })} /></label>
+            <label className={FIELD}><span className={LABEL}>ชั้นปี</span><Input type="number" min={1} max={8} value={f.year} onChange={e => setF({ ...f, year: e.target.value })} /></label>
+            <label className={FIELD}><span className={LABEL}>ภาคเรียน</span><Input type="number" min={1} max={3} value={f.semester} onChange={e => setF({ ...f, semester: e.target.value })} /></label>
+            <label className={FIELD}><span className={LABEL}>หมวดวิชา</span><Input value={f.category} onChange={e => setF({ ...f, category: e.target.value })} /></label>
           </div>
-          <fieldset className="aq-pdca"><legend className="aq-h3">วิชาที่ต้องเรียนก่อน (prerequisite)</legend>
-            {cur.courses.filter(c => edit === 'new' || c.id !== edit.id).map(c => (
-              <label key={c.id} className="aq-check"><input type="checkbox" checked={f.pre.includes(c.id)} onChange={e => setF({ ...f, pre: e.target.checked ? [...f.pre, c.id] : f.pre.filter(x => x !== c.id) })} /> {c.code}</label>
-            ))}
+          <label className={CHECK}><input type="checkbox" className={CHECK_BOX} checked={f.isElective} onChange={e => setF({ ...f, isElective: e.target.checked })} /> วิชาเลือก</label>
+          <fieldset className="m-0 min-w-0 rounded-lg border p-4">
+            <legend className="px-1 font-medium text-foreground">วิชาที่ต้องเรียนก่อน (prerequisite)</legend>
+            <div className="flex flex-wrap gap-x-5">
+              {cur.courses.filter(c => edit === 'new' || c.id !== edit.id).map(c => (
+                <label key={c.id} className={CHECK}><input type="checkbox" className={CHECK_BOX} checked={f.pre.includes(c.id)} onChange={e => setF({ ...f, pre: e.target.checked ? [...f.pre, c.id] : f.pre.filter(x => x !== c.id) })} /> {c.code}</label>
+              ))}
+            </div>
           </fieldset>
-          <div className="aq-actions"><button className="aq-btn aq-btn-primary" data-testid="course-save">บันทึก</button><button type="button" className="aq-btn" onClick={() => setEdit(null)}>ยกเลิก</button></div>
+          <div className="flex flex-wrap gap-2"><Button type="submit" data-testid="course-save">บันทึก</Button><Button variant="ghost" onClick={() => setEdit(null)}>ยกเลิก</Button></div>
         </form>
       )}
       {sorted.length === 0 ? <Empty icon="book-open" title="ยังไม่มีรายวิชา" /> : (
-        <div className="aq-card aq-table-wrap">
-          <table className="aq-table" data-testid="course-table">
-            <thead><tr><th>รหัส</th><th>ชื่อวิชา</th><th>หน่วยกิต</th><th>ปี/ภาค</th><th>CLO</th><th /></tr></thead>
-            <tbody>
-              {sorted.map(c => {
-                const clos = cur.clos.filter(x => x.courseId === c.id);
-                return (
-                  <Fragment key={c.id}>
-                    <tr data-testid={`course-${c.code}`}>
-                      <td><strong>{c.code}</strong></td>
-                      <td>{c.nameTh}{c.isElective && <> <Badge>เลือก</Badge></>}</td>
-                      <td>{c.credits}</td><td>{c.year}/{c.semester}</td><td>{clos.length}</td>
-                      <td className="aq-cluster-cell">
-                        <button className="aq-btn aq-btn-compact" aria-expanded={open === c.id} onClick={() => setOpen(open === c.id ? null : c.id)} data-testid={`course-toggle-${c.code}`}>CLO</button>
-                        {canWrite && <> <button className="aq-btn aq-btn-compact" onClick={() => openForm(c)}>แก้</button> <button className="aq-btn aq-btn-compact" onClick={() => del(c)} aria-label={`ลบ ${c.code}`}>ลบ</button></>}
-                      </td>
-                    </tr>
-                    {open === c.id && <tr><td colSpan={6}><CloList user={user} course={c} clos={clos} canWrite={canWrite} reload={reload} /></td></tr>}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <Table data-testid="course-table" className={COURSE_STACK.table} wrapperClassName={TABLE_WRAP_CQ}>
+          <TableHeader className={COURSE_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ชื่อวิชา</TableHead><TableHead className="text-right">หน่วยกิต</TableHead><TableHead>ปี/ภาค</TableHead><TableHead className="text-right">CLO</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead></tr></TableHeader>
+          <TableBody className={COURSE_STACK.body}>
+            {sorted.map(c => {
+              const clos = cur.clos.filter(x => x.courseId === c.id);
+              const isOpen = open === c.id;
+              return (
+                <Fragment key={c.id}>
+                  <TableRow data-testid={`course-${c.code}`} className={cn(COURSE_STACK.row, isOpen && 'bg-muted/40')}>
+                    <TableCell data-label="รหัส" className={cn('whitespace-nowrap', COURSE_STACK.cell)}><strong>{c.code}</strong></TableCell>
+                    <TableCell data-label="ชื่อวิชา" className={cn(COURSE_STACK.name, COURSE_STACK.cell)}>{c.nameTh}{c.isElective && <> <Badge>เลือก</Badge></>}</TableCell>
+                    <TableCell data-label="หน่วยกิต" className={cn('text-right tabular-nums', COURSE_STACK.cell)}>{c.credits}</TableCell>
+                    <TableCell data-label="ปี/ภาค" className={cn('tabular-nums', COURSE_STACK.cell)}>{c.year}/{c.semester}</TableCell>
+                    <TableCell data-label="CLO" className={cn('text-right tabular-nums', COURSE_STACK.cell)}>{clos.length}</TableCell>
+                    <TableCell className={COURSE_STACK.actions}>
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <Button variant="outline" size="compact" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : c.id)} data-testid={`course-toggle-${c.code}`}>
+                          CLO<Icon name="chevron-down" size={16} className={cn('transition-transform duration-fast', isOpen && 'rotate-180')} />
+                        </Button>
+                        {canWrite && <>
+                          <Button variant="outline" size="compact" onClick={() => openForm(c)}><Icon name="pencil" size={20} />แก้</Button>
+                          <Button variant="ghost" size="icon" onClick={() => del(c)} aria-label={`ลบ ${c.code}`} title="ลบ"><Icon name="trash" size={20} /></Button>
+                        </>}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {isOpen && <tr className={cn('border-t', COURSE_STACK.table)}><td colSpan={6} className={cn('bg-muted/40 px-4 py-3', COURSE_STACK.table)}><CloList user={user} course={c} clos={clos} canWrite={canWrite} reload={reload} /></td></tr>}
+                </Fragment>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
     </>
   );
@@ -241,33 +317,32 @@ function CloList({ user, course, clos, canWrite, reload }: { user: AppUser; cour
     if (ok) setEditId(null);
   }
   return (
-    <div className="aq-clo-box" data-testid={`clo-list-${course.code}`}>
-      {clos.length === 0 ? <p className="aq-muted">วิชานี้ยังไม่มี CLO</p> : (
-        <ul className="aq-list">
+    <div className="space-y-3 rounded-lg border bg-card p-4" data-testid={`clo-list-${course.code}`}>
+      {clos.length === 0 ? <p className="m-0 text-muted-foreground">วิชานี้ยังไม่มี CLO</p> : (
+        <ul className="m-0 list-none divide-y p-0">
           {clos.map(c => (
-            <li key={c.id}>
-              <strong>{c.code}</strong>
-              <span className="aq-flex-1">{c.textTh} <Badge>{BLOOM_TH[c.bloomLevel]}</Badge></span>
-              {canWrite && <>
-                <button className="aq-btn aq-btn-compact" onClick={() => begin(c)}>แก้</button>
-                <button className="aq-btn aq-btn-compact" aria-label={`ลบ ${c.code}`} onClick={() => act(() => deleteClo(user, c.id), 'ลบ CLO แล้ว')}>ลบ</button>
-              </>}
+            <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2">
+              <strong className="whitespace-nowrap">{c.code}</strong>
+              <span className="min-w-0 flex-1 basis-60">{c.textTh} <Badge>{BLOOM_TH[c.bloomLevel]}</Badge></span>
+              {canWrite && <RowActions onEdit={() => begin(c)} onDelete={() => act(() => deleteClo(user, c.id), 'ลบ CLO แล้ว')} delLabel={`ลบ ${c.code}`} />}
             </li>
           ))}
         </ul>
       )}
-      {canWrite && !editId && <button className="aq-btn aq-btn-compact" onClick={() => begin(null)} data-testid={`clo-new-${course.code}`}>+ เพิ่ม CLO</button>}
+      {canWrite && !editId && <Button variant="outline" size="compact" onClick={() => begin(null)} data-testid={`clo-new-${course.code}`}><Icon name="plus" size={20} />เพิ่ม CLO</Button>}
       {editId && (
-        <form className="aq-form-inline" onSubmit={submit} data-testid="clo-form">
-          <label>รหัส<input className="aq-input aq-input-sm" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required /></label>
-          <label className="aq-flex-1">ข้อความ<input className="aq-input" value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="clo-text" /></label>
-          <label>Bloom
-            <select className="aq-input aq-input-sm" value={f.bloom} onChange={e => setF({ ...f, bloom: e.target.value })}>
+        <form className={cn('grid items-end gap-3', COURSE_STACK.form)} onSubmit={submit} data-testid="clo-form">
+          <label className={FIELD}><span className={LABEL}>รหัส</span><Input value={f.code} onChange={e => setF({ ...f, code: e.target.value })} required /></label>
+          <label className={FIELD}><span className={LABEL}>ข้อความ</span><Input value={f.textTh} onChange={e => setF({ ...f, textTh: e.target.value })} required data-testid="clo-text" /></label>
+          <label className={FIELD}><span className={LABEL}>Bloom</span>
+            <NativeSelect value={f.bloom} onChange={e => setF({ ...f, bloom: e.target.value })}>
               {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{BLOOM_TH[n]}</option>)}
-            </select>
+            </NativeSelect>
           </label>
-          <button className="aq-btn aq-btn-compact aq-btn-primary" data-testid="clo-save">บันทึก</button>
-          <button type="button" className="aq-btn aq-btn-compact" onClick={() => setEditId(null)}>ยกเลิก</button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" size="compact" data-testid="clo-save">บันทึก</Button>
+            <Button variant="ghost" size="compact" onClick={() => setEditId(null)}>ยกเลิก</Button>
+          </div>
         </form>
       )}
     </div>
@@ -281,41 +356,45 @@ function MatrixTab({ user, cur, canWrite, reload }: TabProps) {
   const level = (cloId: string, ploId: string) => cur.map.find(m => m.cloId === cloId && m.ploId === ploId)?.level ?? '';
   const courses = [...cur.courses].sort((a, b) => a.year - b.year || a.code.localeCompare(b.code));
   return (
-    <div className="aq-card aq-table-wrap">
-      <p className="aq-muted">I = แนะนำ · R = ฝึกซ้ำ · M = เชี่ยวชาญ {canWrite ? '— เลือกในช่องเพื่อบันทึกทันที' : ''}</p>
-      <table className="aq-table aq-matrix" data-testid="matrix-table">
-        <thead><tr><th>CLO</th>{cur.plos.map(p => <th key={p.id} title={p.textTh}>{p.code}</th>)}</tr></thead>
-        <tbody>
+    <>
+      <p className="aq-help m-0">I = แนะนำ · R = ฝึกซ้ำ · M = เชี่ยวชาญ {canWrite ? '— เลือกในช่องเพื่อบันทึกทันที' : ''}</p>
+      <Table data-testid="matrix-table" wrapperClassName={cn('aq-matrix', TABLE_WRAP)}>
+        <TableHeader><tr><TableHead>CLO</TableHead>{cur.plos.map(p => <TableHead key={p.id} title={p.textTh} className="text-center">{p.code}</TableHead>)}</tr></TableHeader>
+        <TableBody>
           {courses.map(c => {
             const clos = cur.clos.filter(x => x.courseId === c.id);
             if (!clos.length) return null;
             return (
               <Fragment key={c.id}>
-                <tr className="aq-matrix-group"><td colSpan={cur.plos.length + 1}><strong>{c.code}</strong> {c.nameTh}</td></tr>
+                <tr className="border-t bg-muted/60"><td colSpan={cur.plos.length + 1} className="px-4 py-2 text-foreground"><strong>{c.code}</strong> {c.nameTh}</td></tr>
                 {clos.map(clo => (
-                  <tr key={clo.id}>
-                    <td title={clo.textTh}>{clo.code}<div className="aq-clamp aq-muted">{clo.textTh}</div></td>
+                  <TableRow key={clo.id}>
+                    <TableCell title={clo.textTh} className="min-w-[14rem]">
+                      <span className="font-medium">{clo.code}</span>
+                      <p className="aq-meta m-0 line-clamp-2">{clo.textTh}</p>
+                    </TableCell>
                     {cur.plos.map(p => {
                       const v = level(clo.id, p.id);
                       return (
-                        <td key={p.id} className={v ? `aq-lv aq-lv-${v}` : ''}>
+                        <TableCell key={p.id} className="px-2 text-center align-middle">
                           {canWrite ? (
-                            <select className="aq-input aq-input-sm" value={v} aria-label={`${clo.code} → ${p.code}`} data-testid={`map-${clo.code}-${p.code}`}
+                            <NativeSelect wrapperClassName="mx-auto w-20" value={v} aria-label={`${clo.code} → ${p.code}`} data-testid={`map-${clo.code}-${p.code}`}
+                              className={cn('pl-3 pr-7 font-semibold lg:min-h-10', v && MATRIX_LEVEL[v as MapLevel])}
                               onChange={e => act(() => { setCloPloMap(user, clo.id, p.id, (e.target.value || null) as MapLevel | null); }, 'บันทึกการผูกแล้ว')}>
                               <option value="">—</option><option value="I">I</option><option value="R">R</option><option value="M">M</option>
-                            </select>
-                          ) : (v || '—')}
-                        </td>
+                            </NativeSelect>
+                          ) : v ? <span className={cn(LEVEL_CHIP, MATRIX_LEVEL[v as MapLevel])}>{v}</span> : <span className="text-muted-foreground">—</span>}
+                        </TableCell>
                       );
                     })}
-                  </tr>
+                  </TableRow>
                 ))}
               </Fragment>
             );
           })}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </>
   );
 }
 
@@ -323,37 +402,42 @@ function MatrixTab({ user, cur, canWrite, reload }: TabProps) {
 function HeatTab({ cur, matrix }: { cur: CurriculumData; matrix: ReturnType<typeof getCurriculumMatrix> }) {
   if (cur.plos.length === 0) return <Empty icon="list-check" title="ยังไม่มี PLO" />;
   const rows = [...matrix.rows].sort((a, b) => a.course.year - b.course.year || a.course.code.localeCompare(b.course.code));
+  const swatch = 'inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 font-semibold';
   return (
-    <div className="aq-card aq-table-wrap">
-      {/* U3-3: ใช้ list มีระยะห่าง + ตัวอักษรในช่องสีเหมือน cell จริง (แยกได้ในขาวดำ) */}
-      <ul className="aq-legend aq-legend__list" data-testid="heat-legend">
-        <li><i className="aq-heat aq-lv-I" aria-hidden="true">I</i>{MAP_LEVEL_TH.I}</li>
-        <li><i className="aq-heat aq-lv-R" aria-hidden="true">R</i>{MAP_LEVEL_TH.R}</li>
-        <li><i className="aq-heat aq-lv-M" aria-hidden="true">M</i>{MAP_LEVEL_TH.M}</li>
-        <li><i className="aq-heat aq-heat-empty" aria-hidden="true" />ไม่รับผิดชอบ</li>
+    <>
+      {/* U3-3: list มีระยะห่าง + ตัวอักษรในช่องสีเหมือน cell จริง (แยกได้ในขาวดำ) */}
+      <ul className="aq-legend m-0 flex list-none flex-wrap gap-x-5 gap-y-2 p-0" data-testid="heat-legend">
+        <li className="inline-flex items-center gap-2 text-foreground"><span className={cn(swatch, MATRIX_LEVEL.I)} aria-hidden="true">I</span>{MAP_LEVEL_TH.I}</li>
+        <li className="inline-flex items-center gap-2 text-foreground"><span className={cn(swatch, MATRIX_LEVEL.R)} aria-hidden="true">R</span>{MAP_LEVEL_TH.R}</li>
+        <li className="inline-flex items-center gap-2 text-foreground"><span className={cn(swatch, MATRIX_LEVEL.M)} aria-hidden="true">M</span>{MAP_LEVEL_TH.M}</li>
+        <li className="inline-flex items-center gap-2 text-foreground"><span className={cn(swatch, 'border border-dashed border-input bg-muted')} aria-hidden="true" />ไม่รับผิดชอบ</li>
       </ul>
-      <table className="aq-table aq-matrix" data-testid="curriculum-heatmap">
-        <thead><tr><th>วิชา</th>{matrix.plos.map(p => <th key={p.id} title={p.textTh}>{p.code}</th>)}</tr></thead>
-        <tbody>
+      <Table data-testid="curriculum-heatmap" wrapperClassName={cn('aq-matrix', TABLE_WRAP)}>
+        <TableHeader><tr><TableHead>วิชา</TableHead>{matrix.plos.map(p => <TableHead key={p.id} title={p.textTh} className="text-center">{p.code}</TableHead>)}</tr></TableHeader>
+        <TableBody>
           {rows.map(r => (
-            <tr key={r.course.id}>
-              <td><strong>{r.course.code}</strong> <span className="aq-muted">{r.course.nameTh}</span></td>
+            <TableRow key={r.course.id}>
+              <TableCell className="min-w-[14rem]"><strong>{r.course.code}</strong> <span className="text-muted-foreground">{r.course.nameTh}</span></TableCell>
               {matrix.plos.map(p => {
                 const v = r.cells[p.id];
-                return <td key={p.id} className={v ? `aq-lv aq-lv-${v}` : 'aq-lv-none'} data-level={v ?? ''} title={v ? MAP_LEVEL_TH[v] : 'ไม่รับผิดชอบ PLO นี้'}>{v ?? '·'}</td>;
+                return (
+                  <TableCell key={p.id} className="px-2 text-center align-middle" data-level={v ?? ''} title={v ? MAP_LEVEL_TH[v] : 'ไม่รับผิดชอบ PLO นี้'}>
+                    {v ? <span className={cn(LEVEL_CHIP, MATRIX_LEVEL[v])}>{v}</span> : <span className="text-muted-foreground">·</span>}
+                  </TableCell>
+                );
               })}
-            </tr>
+            </TableRow>
           ))}
-          <tr className="aq-matrix-total">
-            <td>จำนวนวิชาต่อ PLO</td>
+          <tr className="border-t-2 border-input bg-muted/60">
+            <td className="px-4 py-3 font-semibold text-foreground">จำนวนวิชาต่อ PLO</td>
             {matrix.plos.map(p => {
               const n = rows.filter(r => r.cells[p.id]).length;
-              return <td key={p.id}>{n === 0 ? <Badge tone="bad">0</Badge> : n}</td>;
+              return <td key={p.id} className="px-2 py-3 text-center font-semibold tabular-nums">{n === 0 ? <Badge tone="bad">0</Badge> : n}</td>;
             })}
           </tr>
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </>
   );
 }
 
@@ -364,12 +448,12 @@ const GAP_KIND_TH = {
 function GapTab({ gaps }: { gaps: ReturnType<typeof getCurriculumGaps> }) {
   if (gaps.length === 0) return <div data-testid="curriculum-gaps-none"><Empty icon="check-circle" title="ไม่พบช่องว่างของหลักสูตร" /></div>;
   return (
-    <div className="aq-card">
-      <ul className="aq-list" data-testid="curriculum-gaps">
+    <div className="overflow-hidden rounded-xl border bg-card shadow-sm dark:shadow-none">
+      <ul className="m-0 list-none divide-y p-0" data-testid="curriculum-gaps">
         {gaps.map((g, i) => (
-          <li key={`${g.kind}-${g.refId}-${i}`}>
+          <li key={`${g.kind}-${g.refId}-${i}`} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-4 md:px-6">
             <Badge tone={g.kind === 'prereq_cycle' ? 'bad' : 'warn'}>{GAP_KIND_TH[g.kind]}</Badge>
-            <span className="aq-flex-1">{g.messageTh}</span>
+            <span className="min-w-0 flex-1 basis-60 text-foreground">{gapTextTh(g.messageTh)}</span>
           </li>
         ))}
       </ul>
@@ -393,11 +477,12 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
   const height = PADY + maxRows * (CH + GY);
   const withPre = cur.courses.filter(c => c.prerequisiteIds.length > 0);
   return (
-    <div className="aq-card">
-      <div className="aq-table-wrap">
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="ผัง prerequisite ของรายวิชาเรียงตามชั้นปี" data-testid="prereq-svg">
-          <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" style={{ fill: 'var(--c-muted)' }} /></marker></defs>
-          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={20} fontSize="16" fontWeight="700" style={{ fill: 'var(--c-ink)' }}>ชั้นปี {yr}</text>)}
+    <div className={cn(CARD, 'space-y-5')}>
+      <div className="overflow-x-auto">
+        {/* เส้นลูกศรใช้ stroke-input (คู่ #16 ≥3:1) เพราะเป็นเส้นที่มีความหมาย (earth-tokens §E2) — ข้อความเทียบอยู่ใน prereq-list */}
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="ผัง prerequisite ของรายวิชาเรียงตามชั้นปี" data-testid="prereq-svg" className="block max-w-none">
+          <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" className="fill-input" /></marker></defs>
+          {years.map((yr, xi) => <text key={yr} x={PADX + xi * (CW + GX)} y={20} fontSize="16" fontWeight="600" className="fill-foreground">ชั้นปี {yr}</text>)}
           {cur.courses.flatMap(c => c.prerequisiteIds.map(pid => {
             const a = pos.get(pid), b = pos.get(c.id);
             if (!a || !b) return null;
@@ -406,29 +491,31 @@ function PrereqTab({ cur }: { cur: CurriculumData }) {
             const d = same
               ? `M${x1},${y1} C${x1 + 28},${y1} ${x1 + 28},${y2} ${x1},${y2}`
               : `M${x1},${y1} C${x1 + GX / 2},${y1} ${x2 - GX / 2},${y2} ${x2 - 2},${y2}`;
-            return <path key={`${pid}>${c.id}`} d={d} fill="none" strokeWidth="1.5" markerEnd="url(#arr)" style={{ stroke: 'var(--c-muted)' }} />;
+            return <path key={`${pid}>${c.id}`} d={d} fill="none" strokeWidth="1.5" markerEnd="url(#arr)" className="stroke-input" />;
           }))}
           {cur.courses.map(c => {
             const p = pos.get(c.id);
             if (!p) return null;
             return (
               <g key={c.id}>
-                <rect x={p.x} y={p.y} width={CW} height={CH} rx="8" style={{ fill: 'var(--c-surface)', stroke: 'var(--c-border-control)' }} />
-                <text x={p.x + 8} y={p.y + 23} fontSize="16" fontWeight="700" style={{ fill: 'var(--c-primary-strong)' }}>{c.code}</text>
-                <text x={p.x + 8} y={p.y + 48} fontSize="16" style={{ fill: 'var(--c-muted)' }}>{truncateTh(c.nameTh, 17)}</text>
+                <rect x={p.x} y={p.y} width={CW} height={CH} rx="10" className="fill-card stroke-input" />
+                <text x={p.x + 10} y={p.y + 23} fontSize="16" fontWeight="600" className="fill-foreground">{c.code}</text>
+                <text x={p.x + 10} y={p.y + 48} fontSize="16" className="fill-muted-foreground">{truncateTh(c.nameTh, 17)}</text>
               </g>
             );
           })}
         </svg>
       </div>
-      <h2 className="aq-h3 aq-mt-4">รายการลำดับวิชา (อ่านเป็นตัวอักษร)</h2>
-      {withPre.length === 0 ? <p className="aq-muted">ไม่มีวิชาที่กำหนด prerequisite</p> : (
-        <ul className="aq-list" data-testid="prereq-list">
-          {withPre.map(c => (
-            <li key={c.id}><strong>{c.code}</strong><span className="aq-flex-1">ต้องเรียนก่อน: {c.prerequisiteIds.map(id => cur.courses.find(x => x.id === id)?.code ?? id).join(', ')}</span></li>
-          ))}
-        </ul>
-      )}
+      <div className="space-y-2 border-t pt-4">
+        <h2 className="m-0 text-lg font-semibold text-foreground">รายการลำดับวิชา (อ่านเป็นตัวอักษร)</h2>
+        {withPre.length === 0 ? <p className="m-0 text-muted-foreground">ไม่มีวิชาที่กำหนด prerequisite</p> : (
+          <ul className="m-0 list-none divide-y p-0" data-testid="prereq-list">
+            {withPre.map(c => (
+              <li key={c.id} className="flex flex-wrap gap-x-4 py-2"><strong className="whitespace-nowrap">{c.code}</strong><span className="min-w-0 flex-1">ต้องเรียนก่อน: {c.prerequisiteIds.map(id => cur.courses.find(x => x.id === id)?.code ?? id).join(', ')}</span></li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -460,40 +547,45 @@ function AiTab({ user, programmeId, cur, canWrite, reload }: TabProps & { progra
   }
   const textOf = (r: VerbRes) => (r.kind === 'plo' ? cur.plos.find(p => p.id === r.id)?.textTh : cur.clos.find(c => c.id === r.id)?.textTh) ?? '';
   return (
-    <div className="aq-card" data-testid="ai-verb-panel">
-      <p className="aq-muted">AI-7 ตรวจว่าคำกริยาใน PLO/CLO วัดผลได้และตรงกับระดับ Bloom ที่ตั้งไว้หรือไม่ — เป็นข้อเสนอเท่านั้น คุณเป็นผู้ตัดสินและกดแก้เอง</p>
-      <AsyncButton className="aq-btn aq-btn-primary" testId="ai-verb-run" onClick={go} disabled={!canAi} title={!canAi ? 'ไม่มีสิทธิ์ใช้ AI' : undefined}>ตรวจคำกริยาทั้งหมด</AsyncButton>
+    <div className={cn(CARD, 'space-y-5')} data-testid="ai-verb-panel">
+      <div className="flex items-start gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground" aria-hidden="true"><Icon name="sparkle" size={24} /></span>
+        <p className="m-0 min-w-0 flex-1 text-muted-foreground">AI-7 ตรวจว่าคำกริยาใน PLO/CLO วัดผลได้และตรงกับระดับ Bloom ที่ตั้งไว้หรือไม่ — เป็นข้อเสนอเท่านั้น คุณเป็นผู้ตัดสินและกดแก้เอง</p>
+      </div>
+      <AsyncButton variant={run ? 'outline' : 'default'} testId="ai-verb-run" onClick={go} disabled={!canAi} title={!canAi ? 'ไม่มีสิทธิ์ใช้ AI' : undefined}>ตรวจคำกริยาทั้งหมด</AsyncButton>
       {run && (
-        <div className="aq-ai-result" data-testid="ai-verb-result">
-          <div className="aq-chips">
+        <div className="space-y-4 border-t pt-5" data-testid="ai-verb-result">
+          <div className="flex flex-wrap gap-2">
             <ModelBadge run={run} />
             <Badge title="จำนวนข้อมูลส่วนบุคคลที่ปกปิดก่อนส่ง">ปกปิด {run.redactionCount} จุด</Badge>
             <Badge tone={run.postCheck.ok ? 'ok' : 'warn'}>{run.postCheck.ok ? 'ผ่านการตรวจ' : 'พบข้อควรระวัง'}</Badge>
           </div>
-          <div className="aq-table-wrap">
-            <table className="aq-table">
-              <thead><tr><th>รหัส</th><th>ข้อความ</th><th>กริยาที่พบ</th><th>Bloom ตั้งไว้ / ตรวจพบ</th><th>ผล</th>{canWrite && <th />}</tr></thead>
-              <tbody>
-                {out.map(r => (
-                  <tr key={r.id}>
-                    <td><strong>{r.code}</strong><div className="aq-muted">{r.kind.toUpperCase()}</div></td>
-                    <td>
-                      <div className="aq-clamp">{textOf(r)}</div>
-                      {r.note && <div className="aq-muted">{r.note}</div>}
-                      {r.suggestions.length > 0 && <ul className="aq-warnlist">{r.suggestions.map((s, i) => <li key={i}>{s}</li>)}</ul>}
-                    </td>
-                    <td>{r.verbs.join(', ') || '—'}</td>
-                    <td>{r.declaredLevel} / {r.detectedLevels.join(', ') || '—'}</td>
-                    <td>{!r.measurable ? <Badge tone="bad">วัดผลยาก</Badge> : r.levelMatch === false ? <Badge tone="warn">ระดับไม่ตรง</Badge> : <Badge tone="ok">ปกติ</Badge>}</td>
-                    {canWrite && <td>{r.levelMatch === false && r.detectedLevels.length > 0 && <button className="aq-btn aq-btn-compact" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</button>}</td>}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="aq-actions">
-            <button className="aq-btn aq-btn-primary" onClick={accept} data-testid="ai-verb-accept">รับทราบผลตรวจ</button>
-            <button className="aq-btn" onClick={() => setRun(null)}>ทิ้ง</button>
+          <Table className={VERB_STACK.table} wrapperClassName="[container-type:inline-size] [container-name:tbl]">
+            <TableHeader className={VERB_STACK.head}><tr><TableHead>รหัส</TableHead><TableHead>ข้อความ</TableHead><TableHead>กริยาที่พบ</TableHead><TableHead>Bloom ตั้งไว้ / ตรวจพบ</TableHead><TableHead>ผล</TableHead>{canWrite && <TableHead><span className="sr-only">การกระทำ</span></TableHead>}</tr></TableHeader>
+            <TableBody className={VERB_STACK.body}>
+              {out.map(r => (
+                <TableRow key={r.id} className={VERB_STACK.row}>
+                  <TableCell data-label="รหัส" className={cn('whitespace-nowrap', VERB_STACK.cell)}><strong>{r.code}</strong><p className="aq-meta m-0">{r.kind.toUpperCase()}</p></TableCell>
+                  <TableCell data-label="ข้อความ" className={cn(VERB_STACK.text, VERB_STACK.cell)}>
+                    <p className="m-0 line-clamp-3">{textOf(r)}</p>
+                    {r.note && <p className="aq-meta m-0">{r.note}</p>}
+                    {r.suggestions.length > 0 && (
+                      <ul className="m-0 mt-1 list-none space-y-1 p-0">
+                        {r.suggestions.map((s, i) => <li key={i} className="flex gap-2"><Icon name="alert-triangle" size={16} className="mt-1 text-warning" /><span className="min-w-0">{s}</span></li>)}
+                      </ul>
+                    )}
+                  </TableCell>
+                  <TableCell data-label="กริยาที่พบ" className={VERB_STACK.cell}>{r.verbs.join(', ') || '—'}</TableCell>
+                  <TableCell data-label="Bloom ตั้งไว้ / ตรวจพบ" className={cn('tabular-nums', VERB_STACK.cell)}>{r.declaredLevel} / {r.detectedLevels.join(', ') || '—'}</TableCell>
+                  <TableCell data-label="ผล" className={VERB_STACK.cell}>{!r.measurable ? <Badge tone="bad">วัดผลยาก</Badge> : r.levelMatch === false ? <Badge tone="warn">ระดับไม่ตรง</Badge> : <Badge tone="ok">ปกติ</Badge>}</TableCell>
+                  {canWrite && <TableCell className={VERB_STACK.actions}>{r.levelMatch === false && r.detectedLevels.length > 0 && <Button variant="outline" size="compact" onClick={() => apply(r)} data-testid={`verb-apply-${r.code}`}>ใช้ระดับที่ตรวจพบ</Button>}</TableCell>}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={accept} data-testid="ai-verb-accept">รับทราบผลตรวจ</Button>
+            <Button variant="ghost" onClick={() => setRun(null)}>ทิ้ง</Button>
           </div>
         </div>
       )}

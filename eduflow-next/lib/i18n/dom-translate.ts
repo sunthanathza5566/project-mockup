@@ -40,8 +40,12 @@ function eachTextNode(root: Node, fn: (n: Text) => void) {
   nodes.forEach(fn);
 }
 
-/** attribute ที่ผู้ใช้เห็น/ได้ยิน (placeholder, aria-label, title) */
-const ATTRS = ['placeholder', 'aria-label', 'title'] as const;
+/**
+ * attribute ที่ผู้ใช้เห็น/ได้ยิน (placeholder, aria-label, title)
+ * + data-label (R2-F15): ป้ายคอลัมน์ของตารางโหมดการ์ด แสดงผ่าน CSS `content: attr(data-label)`
+ */
+const ATTRS = ['placeholder', 'aria-label', 'title', 'data-label'] as const;
+const ATTR_SELECTOR = ATTRS.map(a => `[${a}]`).join(',');
 /** ค่าต้นฉบับ (ไทย) ต่อ attribute */
 const attrOriginals = new WeakMap<Element, Partial<Record<string, string>>>();
 /** ค่าที่เราแปลใส่ไปแล้วต่อ attribute (ADR 6.3 ข้อ 1) */
@@ -75,7 +79,7 @@ export function translateTree(root: Node, lang: Lang) {
   if (root.nodeType === Node.ELEMENT_NODE) {
     const el = root as Element;
     translateAttrs(el, lang);
-    el.querySelectorAll('[placeholder],[aria-label],[title]').forEach(e => translateAttrs(e, lang));
+    el.querySelectorAll(ATTR_SELECTOR).forEach(e => translateAttrs(e, lang));
   }
   eachTextNode(root, node => {
     if (shouldSkip(node)) return;
@@ -118,7 +122,7 @@ export function syncPageLanguage(lang: Lang): () => void {
 
   // React วาดใหม่เมื่อไร ให้แปลส่วนที่เพิ่มมาทันที
   // ปิด observer ระหว่างที่เราแก้ข้อความเอง — กันไม่ให้ mutation ของเราปลุก callback ซ้ำ
-  // C-10: ฟัง attribute ที่ผู้ใช้เห็นด้วย (React เปลี่ยน title/aria-label/placeholder ตาม state)
+  // C-10: ฟัง attribute ที่ผู้ใช้เห็นด้วย (React เปลี่ยน title/aria-label/placeholder/data-label ตาม state)
   const OPTS: MutationObserverInit = {
     childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...ATTRS],
   };

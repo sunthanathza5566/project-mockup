@@ -1,10 +1,10 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  ACTION_TRANSITIONS, can, createActionItem, createActionsFromAfi, deleteActionItem, listActionItems, listRequirements,
+  ACTION_TRANSITIONS, can, createActionItem, createActionsFromAfi, deleteActionItem, isActiveUser, listActionItems, listRequirements,
   listUsers, programmeScope, setActionStatus, updateActionItem,
 } from '@/lib/api';
 import type { ActionItem, ActionStatus, AppUser } from '@/lib/types';
@@ -13,16 +13,41 @@ import { useDialog } from '@/context/DialogContext';
 import { Async, AsyncButton, Badge, Empty, InlineMessage, PageHeader, useLoad } from '@/components/aunqa/common';
 import Icon from '@/components/ui/Icon';
 import Term from '@/components/ui/Term';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { NativeSelect } from '@/components/ui/primitives/native-select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/primitives/table';
+import { Textarea } from '@/components/ui/primitives/textarea';
+import { cn } from '@/lib/ui/cn';
 import { ACTION_STATUS_VIEW } from '@/lib/ui/status';
+import { TONE_TEXT } from '@/lib/ui/tone';
 import { notifyTodosChanged } from '@/lib/ui/todo';
 import { useScope } from '@/components/aunqa/useScope';
 import { ACTION_BTN_TH, ACTION_STATUS_TH, errMsg, fmtDate } from '@/lib/ui/aunqa';
 
 const STATUSES: ActionStatus[] = ['open', 'in_progress', 'done', 'verified'];
 
+/** §F13 การ์ด (rounded-xl, p-5 md:p-6) */
+const CARD = 'rounded-xl border bg-card p-5 shadow-sm dark:shadow-none md:p-6';
+/** saas-spec §C5: กรอบตาราง (container `tbl`) ≤ 59rem แถวเป็นการ์ดย่อย + ป้ายคอลัมน์จาก data-label (container query หน่วย rem ขยายตามขนาดตัวอักษร — R2-F14; min-content ≈ 56.5rem) */
+const STACK_TD =
+  '[@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:px-0 [@container_tbl_(max-width:59rem)]:py-1 [@container_tbl_(max-width:59rem)]:before:block [@container_tbl_(max-width:59rem)]:before:text-sm [@container_tbl_(max-width:59rem)]:before:font-medium [@container_tbl_(max-width:59rem)]:before:text-muted-foreground [@container_tbl_(max-width:59rem)]:before:content-[attr(data-label)]';
+/** ปลายทางแจ้งเตือน (friendly-spec §F3.3): `/app/actions#action-{encodeURIComponent(id)}` */
+const HASH_PREFIX = 'action-';
+
+/** อ่าน id ของ action จาก hash ปัจจุบัน (ถอด percent-encoding) — ไม่ตรงรูปแบบ = null */
+function hashActionId(): string | null {
+  const raw = window.location.hash.slice(1);
+  if (!raw) return null;
+  let h = raw;
+  try { h = decodeURIComponent(raw); } catch { /* hash เสีย → ใช้ค่าดิบ */ }
+  return h.startsWith(HASH_PREFIX) && h.length > HASH_PREFIX.length ? h.slice(HASH_PREFIX.length) : null;
+}
+
 /**
- * แผนปรับปรุง (ADR-UI-001 pages.md P14): สร้าง/แก้/เปลี่ยนสถานะตามสิทธิ์ · สร้างจาก AFI · verified → หลักฐานขั้น A รอบถัดไป
- * สถานะเป็น pill (C11/P14) · ตัวกรองอ่าน ?status= · ปุ่ม 44 (compact 40 ในตาราง) · คง testid เดิม
+ * แผนปรับปรุง (ADR-UI-001 pages.md P14 · saas-spec §P14 · friendly-spec §F13): สร้าง/แก้/เปลี่ยนสถานะตามสิทธิ์ · สร้างจาก AFI ·
+ * verified → หลักฐานขั้น A รอบถัดไป · ตัวกรองอ่าน ?status= · คง testid เดิม
+ * deep link (§F3.3): แถว `id="action-{id}"` — hash ตรง → เลื่อนมาที่แถว + `animate-highlight` (ย้ายหลักสูตร/ล้างตัวกรองให้ถ้าแถวถูกซ่อน)
  */
 export default function ActionsPage() {
   return <Suspense fallback={null}><Inner /></Suspense>;
@@ -35,6 +60,9 @@ function Inner() {
   const qs = useSearchParams().get('status') as ActionStatus | null;
   const [statusF, setStatusF] = useState<ActionStatus | 'all'>(qs && STATUSES.includes(qs) ? qs : 'all');
   const [form, setForm] = useState<ActionItem | 'new' | null>(null);
+  /** action ที่ถูกชี้จาก hash (ไฮไลต์) + ตัวนับรอบ เพื่อเล่น animation ซ้ำเมื่อกดลิงก์เดิมอีกครั้ง */
+  const [hl, setHl] = useState<{ id: string; n: number } | null>(null);
+  const handled = useRef<string>('');
 
   const q = useLoad(() => {
     if (!programmeId) return null;
@@ -47,6 +75,59 @@ function Inner() {
   const canCreate = !!programmeId && can(user, 'action.write', programmeScope(programmeId));
   const released = cycles.filter(c => c.status === 'assessed' || c.status === 'closed');
 
+  // ─── deep link: ตรวจ hash ตอนโหลดเสร็จ, hashchange/popstate และหลังคลิกลิงก์ในหน้าเดียวกัน (router ไม่ยิง hashchange) ───
+  const items = q.data?.items;
+  // `handled` = hash ล่าสุดที่จัดการแล้ว (ไฮไลต์แล้ว หรือหาไม่เจอในทุกหลักสูตร) — hash เดิมไม่ทำซ้ำ (ยกเว้น hashchange ด้านล่าง)
+  const checkHash = useCallback(() => {
+    const key = window.location.hash;
+    if (key === handled.current) return;
+    const id = hashActionId();
+    if (!id) { handled.current = key; return; }
+    if (!items) return; // ยังโหลดไม่เสร็จ — effect เรียกใหม่เมื่อ items มา
+    const here = items.find(a => a.id === id);
+    if (!here) {
+      // อยู่หลักสูตรอื่นที่ผู้ใช้เข้าถึงได้ → สลับหลักสูตร (โหลดเสร็จแล้ว effect นี้ทำงานอีกรอบ)
+      const other = programmes.find(p => {
+        if (p.id === programmeId) return false;
+        try { return listActionItems(user, p.id).some(a => a.id === id); } catch { return false; }
+      });
+      if (other) setProgrammeId(other.id); else handled.current = key;
+      return;
+    }
+    handled.current = key;
+    setStatusF(s => (s !== 'all' && here.status !== s ? 'all' : s));
+    setHl(prev => ({ id, n: (prev?.n ?? 0) + 1 }));
+  }, [items, programmes, programmeId, user, setProgrammeId]);
+
+  useEffect(() => { checkHash(); }, [checkHash]);
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const later = () => { if (t) clearTimeout(t); t = setTimeout(checkHash, 80); };
+    // hashchange = มีคนชี้มาที่แถวนี้จริง (รวมแจ้งเตือนที่ยิงซ้ำด้วย hash เดิม — R2-F8 minor) → ล้าง `handled` ให้ไฮไลต์ซ้ำได้
+    const again = () => { handled.current = ''; later(); };
+    window.addEventListener('hashchange', again);
+    window.addEventListener('popstate', later);
+    document.addEventListener('click', later, true);
+    return () => {
+      if (t) clearTimeout(t);
+      window.removeEventListener('hashchange', again);
+      window.removeEventListener('popstate', later);
+      document.removeEventListener('click', later, true);
+    };
+  }, [checkHash]);
+
+  // เลื่อนไปแถวที่ไฮไลต์ + เล่น animation ใหม่ทุกครั้งที่ถูกชี้ (ลบ class → reflow → ใส่คืน)
+  useLayoutEffect(() => {
+    if (!hl) return;
+    const el = document.getElementById(`${HASH_PREFIX}${hl.id}`);
+    if (!el) return;
+    el.classList.remove('animate-highlight');
+    void el.offsetWidth;
+    el.classList.add('animate-highlight');
+    el.scrollIntoView({ block: 'center' });
+    el.focus({ preventScroll: true });
+  }, [hl]);
+
   async function fromAfi(cycleId: string) {
     try {
       const made = createActionsFromAfi(user, cycleId);
@@ -58,7 +139,7 @@ function Inner() {
   async function change(a: ActionItem, to: ActionStatus) {
     let note: string | undefined;
     if (to === 'verified') {
-      if (!(await confirm({ title: 'ตรวจรับ action', message: 'เมื่อตรวจรับแล้ว action นี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ', confirmText: 'ยืนยันตรวจรับ' }))) return;
+      if (!(await confirm({ title: 'ตรวจรับแผนปรับปรุง', message: 'เมื่อตรวจรับแล้ว แผนปรับปรุงนี้จะกลายเป็นหลักฐานขั้น A (Act) ในรอบประเมินถัดไปโดยอัตโนมัติ', confirmText: 'ยืนยันตรวจรับ' }))) return;
     } else if (to === 'done') {
       const r = await prompt({ title: 'ทำเสร็จแล้ว', message: 'สรุปผลที่ทำได้ (ไม่บังคับ)', placeholder: 'เช่น จัดอบรมแล้ว 2 ครั้ง', confirmText: 'ยืนยันทำเสร็จแล้ว' });
       if (r === null) return;
@@ -68,71 +149,101 @@ function Inner() {
     catch (e) { showToast(errMsg(e), 'error'); }
   }
   async function del(a: ActionItem) {
-    if (!(await confirm({ title: 'ลบ action', message: 'ลบรายการนี้?', variant: 'danger', confirmText: 'ยืนยันลบ' }))) return;
+    if (!(await confirm({ title: 'ลบแผนปรับปรุง', message: 'ลบรายการนี้?', variant: 'danger', confirmText: 'ยืนยันลบ' }))) return;
     try { deleteActionItem(user, a.id); showToast('ลบแล้ว', 'success'); q.reload(); } catch (e) { showToast(errMsg(e), 'error'); }
   }
 
   return (
     <>
       <PageHeader title="แผนปรับปรุง (Action plan)" sub="ติดตามสิ่งที่ต้องปรับปรุงจากผลประเมินและการตรวจภายใน"
-        actions={canCreate && !form ? <button type="button" className="aq-btn aq-btn-primary" onClick={() => setForm('new')} data-testid="act-new"><Icon name="plus" size={20} />เพิ่มรายการ</button> : undefined} />
-      <InlineMessage tone="info" icon="list-check">รายการที่ตรวจรับแล้ว จะกลายเป็นหลักฐานขั้น A ในรอบถัดไปโดยอัตโนมัติ <Term k="pdca" label="PDCA" /></InlineMessage>
-      <div className="aq-toolbar">
-        <select className="aq-input" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="act-programme">
+        actions={canCreate && !form ? <Button onClick={() => setForm('new')} data-testid="act-new"><Icon name="plus" size={20} />เพิ่มรายการ</Button> : undefined} />
+      <InlineMessage tone="info" icon="list-check" className="mb-6">รายการที่ตรวจรับแล้ว จะกลายเป็นหลักฐานขั้น A ในรอบถัดไปโดยอัตโนมัติ <Term k="pdca" label="PDCA" /></InlineMessage>
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <NativeSelect wrapperClassName="w-full sm:w-auto sm:min-w-[20rem]" value={programmeId} onChange={e => setProgrammeId(e.target.value)} aria-label="หลักสูตร" data-testid="act-programme">
           {programmes.map(p => <option key={p.id} value={p.id}>{p.code} — {p.nameTh}</option>)}
-        </select>
-        <select className="aq-input" value={statusF} onChange={e => setStatusF(e.target.value as ActionStatus | 'all')} aria-label="กรองสถานะ" data-testid="act-filter">
+        </NativeSelect>
+        <NativeSelect wrapperClassName="w-full sm:w-auto sm:min-w-[12rem]" value={statusF} onChange={e => setStatusF(e.target.value as ActionStatus | 'all')} aria-label="กรองสถานะ" data-testid="act-filter">
           <option value="all">ทุกสถานะ</option>
           {STATUSES.map(s => <option key={s} value={s}>{ACTION_STATUS_TH[s]}</option>)}
-        </select>
+        </NativeSelect>
       </div>
 
       {canCreate && released.length > 0 && (
-        <div className="aq-card aq-actions" data-testid="afi-box">
-          <strong>สร้างจากข้อเสนอแนะของกรรมการ (AFI):</strong>
-          {released.map(c => <AsyncButton key={c.id} className="aq-btn aq-btn-compact" testId={`afi-${c.id}`} onClick={() => fromAfi(c.id)}>รอบ {c.academicYear}</AsyncButton>)}
+        <div className={cn(CARD, 'mb-6 flex flex-wrap items-center gap-3')} data-testid="afi-box">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground" aria-hidden="true">
+            <Icon name="sparkle" size={20} />
+          </span>
+          <strong className="min-w-0 flex-1 basis-60 font-medium text-foreground">สร้างจากข้อเสนอแนะของกรรมการ (AFI):</strong>
+          <div className="flex flex-wrap gap-2">
+            {released.map(c => <AsyncButton key={c.id} variant="outline" size="compact" testId={`afi-${c.id}`} onClick={() => fromAfi(c.id)}>รอบ {c.academicYear}</AsyncButton>)}
+          </div>
         </div>
       )}
 
       <Async q={q}>{d => !d ? <Empty icon="book-open" title="ยังไม่มีหลักสูตรที่เข้าถึงได้" /> : (
         <>
-          {form && <ActionForm user={user} programmeId={programmeId} item={form === 'new' ? null : form} people={d.people.map(p => ({ id: p.id, name: p.fullName }))}
+          {form && <ActionForm user={user} programmeId={programmeId} item={form === 'new' ? null : form} people={d.people
+            // review minor #3: เลือกได้เฉพาะบัญชี active · คงผู้รับผิดชอบเดิมที่ถูกระงับไว้ตอนแก้ ไม่ให้ select ว่าง
+            // P8 (R2-F11): ผู้รับผิดชอบต้องทำรายการได้จริง (action.write ของตนในหลักสูตรนี้) — ไม่ใช่ผู้ดูแลระบบ/คณบดี
+            .filter(p => (isActiveUser(p) && can(p as AppUser, 'action.write', programmeScope(programmeId, { ownerUserId: p.id })))
+              || (form !== 'new' && p.id === form.ownerUserId))
+            .map(p => ({ id: p.id, name: p.fullName }))}
             cycles={cycles.map(c => ({ id: c.id, label: `รอบ ${c.academicYear}` }))} onClose={() => setForm(null)} onDone={() => { setForm(null); q.reload(); }} />}
           {(() => {
-            const items = d.items.filter(a => statusF === 'all' || a.status === statusF);
+            const shown = d.items.filter(a => statusF === 'all' || a.status === statusF);
             const name = (id?: string) => d.people.find(p => p.id === id)?.fullName ?? '—';
-            if (items.length === 0) return d.items.length
-              ? <Empty icon="filter" title="ไม่มีรายการในสถานะนี้" action={<button type="button" className="aq-btn" onClick={() => setStatusF('all')}>แสดงทุกสถานะ</button>} />
+            if (shown.length === 0) return d.items.length
+              ? <Empty icon="filter" title="ไม่มีรายการในสถานะนี้" action={<Button variant="outline" onClick={() => setStatusF('all')}>แสดงทุกสถานะ</Button>} />
               : <Empty icon="list-check" title="ยังไม่มีแผนปรับปรุง" text="สร้างจากข้อเสนอแนะของกรรมการ (AFI) หลังประเมิน หรือเพิ่มเอง"
-                  action={canCreate ? <button type="button" className="aq-btn aq-btn-primary" onClick={() => setForm('new')}><Icon name="plus" size={20} />เพิ่มรายการ</button> : undefined} />;
+                  action={canCreate ? <Button onClick={() => setForm('new')}><Icon name="plus" size={20} />เพิ่มรายการ</Button> : undefined} />;
             return (
-              <div className="aq-card"><div className="aq-table-wrap">
-                <table className="aq-table aq-table--stack" data-testid="action-table">
-                  <thead><tr><th>ข้อ</th><th>รายละเอียด</th><th>ผู้รับผิดชอบ</th><th>กำหนด</th><th>สถานะ</th><th /></tr></thead>
-                  <tbody>
-                    {items.map(a => {
-                      const scope = programmeScope(a.programmeId, { ownerUserId: a.ownerUserId });
-                      const nexts = ACTION_TRANSITIONS.filter(t => t.from === a.status && can(user, t.action, scope) && !(t.to === 'verified' && a.ownerUserId === user.id));
-                      const editable = (a.status === 'open' || a.status === 'in_progress') && can(user, 'action.write', scope);
-                      const overdue = a.due && a.status !== 'verified' && a.status !== 'done' && new Date(`${a.due}T23:59:59`).getTime() < Date.now();
-                      return (
-                        <tr key={a.id} data-testid={`action-${a.id}`}>
-                          <td data-label="ข้อ"><Link className="aq-link aq-code" href={`/app/requirements`}>{a.requirementId}</Link></td>
-                          <td data-label="รายละเอียด"><div>{a.description}{a.kpi && <div className="aq-meta">KPI: {a.kpi}</div>}{a.evidenceId && <div><Badge tone="ok">เป็นหลักฐานขั้น A แล้ว</Badge></div>}</div></td>
-                          <td data-label="ผู้รับผิดชอบ">{name(a.ownerUserId)}</td>
-                          <td data-label="กำหนด"><div>{fmtDate(a.due)}{overdue && <div><Badge tone="bad" icon="clock">เลยกำหนด</Badge></div>}</div></td>
-                          <td data-label="สถานะ"><Badge tone={ACTION_STATUS_VIEW[a.status].tone} icon={ACTION_STATUS_VIEW[a.status].icon} testId="action-status">{ACTION_STATUS_TH[a.status]}</Badge></td>
-                          <td><div className="aq-cluster">
-                            {nexts.map(t => <button type="button" key={t.to} className="aq-btn aq-btn-compact aq-btn-primary" onClick={() => change(a, t.to)} data-testid={`action-to-${t.to}`}>{ACTION_BTN_TH[t.to]}</button>)}
-                            {editable && <button type="button" className="aq-btn aq-btn-compact" onClick={() => setForm(a)}><Icon name="pencil" size={20} />แก้</button>}
-                            {a.status === 'open' && can(user, 'action.write', scope) && <button type="button" className="aq-btn aq-btn-ghost aq-btn-icon aq-btn-compact" onClick={() => del(a)} aria-label="ลบ" title="ลบ"><Icon name="trash" size={20} /></button>}
-                          </div></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div></div>
+              <Table data-testid="action-table" className="[@container_tbl_(max-width:59rem)]:block" wrapperClassName="[container-type:inline-size] [container-name:tbl] rounded-xl shadow-sm dark:shadow-none">
+                <TableHeader className="[@container_tbl_(max-width:59rem)]:sr-only">
+                  <tr><TableHead>ข้อ</TableHead><TableHead>รายละเอียด</TableHead><TableHead>ผู้รับผิดชอบ</TableHead><TableHead>กำหนด</TableHead><TableHead>สถานะ</TableHead><TableHead><span className="sr-only">การกระทำ</span></TableHead></tr>
+                </TableHeader>
+                <TableBody className="[@container_tbl_(max-width:59rem)]:block">
+                  {shown.map(a => {
+                    const scope = programmeScope(a.programmeId, { ownerUserId: a.ownerUserId });
+                    const nexts = ACTION_TRANSITIONS.filter(t => t.from === a.status && can(user, t.action, scope) && !(t.to === 'verified' && a.ownerUserId === user.id));
+                    const editable = (a.status === 'open' || a.status === 'in_progress') && can(user, 'action.write', scope);
+                    const overdue = a.due && a.status !== 'verified' && a.status !== 'done' && new Date(`${a.due}T23:59:59`).getTime() < Date.now();
+                    const isHl = hl?.id === a.id;
+                    return (
+                      <TableRow key={a.id} id={`${HASH_PREFIX}${a.id}`} data-testid={`action-${a.id}`}
+                        tabIndex={isHl ? -1 : undefined} data-highlight={isHl || undefined}
+                        className={cn('scroll-mt-24 [@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:p-4', isHl && 'animate-highlight')}>
+                        <TableCell data-label="ข้อ" className={cn('whitespace-nowrap', STACK_TD)}>
+                          <Link className="inline-flex min-h-11 items-center font-semibold tabular-nums text-primary underline-offset-4 hover:underline [@container_tbl_(max-width:59rem)]:min-h-0" href="/app/requirements">{a.requirementId}</Link>
+                        </TableCell>
+                        <TableCell data-label="รายละเอียด" className={cn('[@container_tbl_(min-width:59.01rem)]:min-w-[16rem]', STACK_TD)}>
+                          <div className="space-y-1">
+                            <p className="m-0 text-foreground">{a.description}</p>
+                            {a.kpi && <p className="aq-meta m-0">KPI: {a.kpi}</p>}
+                            {a.evidenceId && <div><Badge tone="ok">เป็นหลักฐานขั้น A แล้ว</Badge></div>}
+                          </div>
+                        </TableCell>
+                        <TableCell data-label="ผู้รับผิดชอบ" className={STACK_TD}>{name(a.ownerUserId)}</TableCell>
+                        <TableCell data-label="กำหนด" className={STACK_TD}>
+                          <div className="whitespace-nowrap">{fmtDate(a.due)}</div>
+                          {overdue && <div className="mt-1"><Badge tone="bad" icon="clock">เลยกำหนด</Badge></div>}
+                        </TableCell>
+                        <TableCell data-label="สถานะ" className={STACK_TD}>
+                          <Badge tone={ACTION_STATUS_VIEW[a.status].tone} icon={ACTION_STATUS_VIEW[a.status].icon} testId="action-status">{ACTION_STATUS_TH[a.status]}</Badge>
+                        </TableCell>
+                        <TableCell className="[@container_tbl_(max-width:59rem)]:block [@container_tbl_(max-width:59rem)]:px-0 [@container_tbl_(max-width:59rem)]:pb-0 [@container_tbl_(max-width:59rem)]:pt-3">
+                          <div className="flex flex-wrap items-center gap-2 [@container_tbl_(min-width:59.01rem)]:justify-end">
+                            {nexts.map(t => <Button key={t.to} size="compact" className="whitespace-nowrap" onClick={() => change(a, t.to)} data-testid={`action-to-${t.to}`}>{t.to === 'in_progress' ? (a.status === 'done' ? 'กลับไปทำต่อ' : 'เริ่มทำ') : ACTION_BTN_TH[t.to]}</Button>)}
+                            {editable && <Button variant="outline" size="compact" onClick={() => setForm(a)}><Icon name="pencil" size={20} />แก้</Button>}
+                            {a.status === 'open' && can(user, 'action.write', scope) && (
+                              <Button variant="ghost" size="icon" onClick={() => del(a)} aria-label="ลบ" title="ลบ"><Icon name="trash" size={20} /></Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             );
           })()}
         </>
@@ -140,6 +251,9 @@ function Inner() {
     </>
   );
 }
+
+const FIELD = 'grid min-w-0 gap-1.5';
+const LABEL = 'font-medium text-foreground';
 
 function ActionForm({ user, programmeId, item, people, cycles, onClose, onDone }: {
   user: AppUser; programmeId: string; item: ActionItem | null; people: { id: string; name: string }[];
@@ -151,6 +265,10 @@ function ActionForm({ user, programmeId, item, people, cycles, onClose, onDone }
     req: item?.requirementId ?? reqs[0]?.id ?? '', desc: item?.description ?? '', owner: item?.ownerUserId ?? '',
     due: item?.due ?? '', kpi: item?.kpi ?? '', origin: item?.originCycleId ?? '',
   });
+  // P8 (R2-F11): เตือน (ไม่บล็อก) เมื่อเลือกวันกำหนดในอดีต — เทียบวันท้องถิ่น
+  const today = new Date();
+  const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const pastDue = !!f.due && f.due < todayIso && f.due !== (item?.due ?? '');
   function submit(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -160,33 +278,43 @@ function ActionForm({ user, programmeId, item, people, cycles, onClose, onDone }
     } catch (err) { showToast(errMsg(err), 'error'); }
   }
   return (
-    <form className="aq-card aq-form" onSubmit={submit} data-testid="action-form">
-      <h2 className="aq-h2">{item ? 'แก้ action' : 'เพิ่ม action'}</h2>
-      <label>ข้อที่เกี่ยวข้อง
-        <select className="aq-input" value={f.req} disabled={!!item} onChange={e => setF({ ...f, req: e.target.value })} data-testid="act-req">
+    <form className={cn(CARD, 'mb-6 space-y-5 animate-fade-in')} onSubmit={submit} data-testid="action-form">
+      <h2 className="m-0 text-lg font-semibold text-foreground">{item ? 'แก้ action' : 'เพิ่ม action'}</h2>
+      <label className={FIELD}><span className={LABEL}>ข้อที่เกี่ยวข้อง</span>
+        <NativeSelect value={f.req} disabled={!!item} onChange={e => setF({ ...f, req: e.target.value })} data-testid="act-req">
           {reqs.map(r => <option key={r.id} value={r.id}>{r.id} — {r.textTh.slice(0, 60)}</option>)}
-        </select>
+        </NativeSelect>
       </label>
-      <label>รายละเอียดสิ่งที่จะทำ<textarea className="aq-textarea" rows={3} required value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} data-testid="act-desc" /></label>
-      <div className="aq-form-inline">
-        <label>ผู้รับผิดชอบ
-          <select className="aq-input" value={f.owner} onChange={e => setF({ ...f, owner: e.target.value })} data-testid="act-owner">
+      <label className={FIELD}><span className={LABEL}>รายละเอียดสิ่งที่จะทำ</span><Textarea rows={3} required value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} data-testid="act-desc" /></label>
+      <div className="grid gap-5 md:grid-cols-3">
+        <label className={FIELD}><span className={LABEL}>ผู้รับผิดชอบ</span>
+          <NativeSelect value={f.owner} onChange={e => setF({ ...f, owner: e.target.value })} data-testid="act-owner">
             <option value="">— ยังไม่ระบุ —</option>
             {people.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          </NativeSelect>
         </label>
-        <label>กำหนดเสร็จ<input className="aq-input" type="date" value={f.due} onChange={e => setF({ ...f, due: e.target.value })} data-testid="act-due" /></label>
+        <div className={FIELD}>
+          <label className={FIELD}><span className={LABEL}>กำหนดเสร็จ</span><Input type="date" value={f.due} onChange={e => setF({ ...f, due: e.target.value })} data-testid="act-due" aria-describedby={pastDue ? 'act-due-past' : undefined} /></label>
+          {pastDue && (
+            <p id="act-due-past" className="aq-help m-0 flex items-start gap-1" data-testid="act-due-past">
+              <Icon name="alert-triangle" size={16} className={cn('mt-1 shrink-0', TONE_TEXT.warn)} />วันที่นี้ผ่านมาแล้ว รายการจะขึ้นว่า “เลยกำหนด” ทันทีหลังบันทึก
+            </p>
+          )}
+        </div>
         {!item && cycles.length > 0 && (
-          <label>มาจากรอบ
-            <select className="aq-input" value={f.origin} onChange={e => setF({ ...f, origin: e.target.value })}>
+          <label className={FIELD}><span className={LABEL}>มาจากรอบ</span>
+            <NativeSelect value={f.origin} onChange={e => setF({ ...f, origin: e.target.value })}>
               <option value="">— ไม่ระบุ —</option>
               {cycles.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
+            </NativeSelect>
           </label>
         )}
       </div>
-      <label>ตัวชี้วัดความสำเร็จ (KPI)<input className="aq-input" value={f.kpi} onChange={e => setF({ ...f, kpi: e.target.value })} data-testid="act-kpi" /></label>
-      <div className="aq-actions"><button className="aq-btn aq-btn-primary" data-testid="act-save">บันทึก</button><button type="button" className="aq-btn aq-btn-ghost" onClick={onClose}>ยกเลิก</button></div>
+      <label className={FIELD}><span className={LABEL}>ตัวชี้วัดความสำเร็จ (KPI)</span><Input value={f.kpi} onChange={e => setF({ ...f, kpi: e.target.value })} data-testid="act-kpi" /></label>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" data-testid="act-save">บันทึก</Button>
+        <Button variant="ghost" onClick={onClose}>ยกเลิก</Button>
+      </div>
     </form>
   );
 }

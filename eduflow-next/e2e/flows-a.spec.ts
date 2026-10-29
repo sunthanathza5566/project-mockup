@@ -12,6 +12,10 @@ test.describe('E2E-01 uni_admin เชิญประธานหลักสู
     await page.getByTestId('user-new').click();
     const form = page.getByTestId('user-form');
     await page.getByTestId('nu-username').fill('chair9');
+    // TASK-0002 R2-F6: ฟอร์มมี 2 โหมด (ค่าเริ่ม = ลิงก์เชิญ) — ช่องรหัสผ่านแสดงเมื่อเลือก "ตั้งรหัสผ่านให้เลย"
+    await expect(page.getByTestId('nu-mode-invite')).toBeChecked();
+    await expect(page.getByTestId('nu-password')).toHaveCount(0);
+    await page.getByTestId('nu-mode-password').check();
     await page.getByTestId('nu-password').fill('Chair999');
     await page.getByTestId('nu-name').fill('ผศ.ทดสอบ ประธานใหม่');
     await page.getByTestId('nu-email').fill('chair9@sample-uni.example');

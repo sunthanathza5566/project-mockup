@@ -11,6 +11,7 @@ import { appendAudit } from './audit.store';
 import { AunqaError, KEYS, load, save } from './db';
 import { getRequirement, listCriteria } from './framework';
 import { can, isAssessorOf } from './rbac';
+import { requireActiveActor } from './auth.api';
 import { cycleScope, getCycleRaw } from './workflow';
 
 export const RATING_SCALE: { score: number; nameEn: string; nameTh: string }[] = [
@@ -38,6 +39,7 @@ export function canSeeAssessment(user: AppUser, c: AssessmentCycle): boolean {
   return isAssessorOf(user, c.id) || isAssessmentReleased(c);
 }
 function assertAssessorWrite(actor: AppUser, cycleId: string, action: 'finding.write' | 'rating.committee'): AssessmentCycle {
+  requireActiveActor(actor);
   const c = getCycleRaw(cycleId);
   if (!can(actor, action, cycleScope(c))) throw new AunqaError('forbidden', 'เฉพาะกรรมการที่ได้รับมอบหมายเท่านั้น');
   if (c.status !== 'under_assessment') throw new AunqaError('invalid', 'บันทึกได้เฉพาะรอบที่อยู่ในขั้นการประเมิน (under_assessment)');

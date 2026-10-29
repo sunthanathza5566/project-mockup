@@ -1,0 +1,10818 @@
+{
+ "issues": [],
+ "all": [
+  {
+   "key": "review dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 536,
+     "cw": 536,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1148,
+     "cw": 1148,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1920 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1198,
+     "cw": 1198,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 484,
+     "cw": 484,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1440 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 447,
+     "cw": 447,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 969,
+     "cw": 969,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1365 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1019,
+     "cw": 1019,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 934,
+     "cw": 934,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 414,
+     "cw": 404,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 884,
+     "cw": 884,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1280 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 934,
+     "cw": 934,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 628,
+     "cw": 628,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1024 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 668,
+     "cw": 668,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 718,
+     "cw": 718,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 668,
+     "cw": 668,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 768 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 718,
+     "cw": 718,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 414,
+     "cw": 314,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 390 1 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 517,
+     "cw": 511,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1116,
+     "cw": 1116,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1920 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1178,
+     "cw": 1178,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 517,
+     "cw": 426,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 946,
+     "cw": 946,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 946,
+     "cw": 946,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1440 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1008,
+     "cw": 1008,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 517,
+     "cw": 389,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 871,
+     "cw": 871,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 933,
+     "cw": 933,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 933,
+     "cw": 933,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 871,
+     "cw": 871,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1365 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 933,
+     "cw": 933,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 517,
+     "cw": 346,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 786,
+     "cw": 786,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1280 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 848,
+     "cw": 848,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 530,
+     "cw": 530,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 530,
+     "cw": 530,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 1024 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 592,
+     "cw": 592,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 644,
+     "cw": 644,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 644,
+     "cw": 644,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 768 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 706,
+     "cw": 706,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รอบ\"",
+       "\"ส่งโดย\"",
+       "\"สรุป\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "actions dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ข้อ\"",
+       "\"รายละเอียด\"",
+       "\"ผู้รับผิดชอบ\"",
+       "\"กำหนด\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cycles dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 5,
+      "ex": [
+       "\"ปี\"",
+       "\"หลักสูตร\"",
+       "\"สถานะ\"",
+       "\"ความคืบหน้า\"",
+       "\"ขั้นถัดไปโดย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "dashboard dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 517,
+     "cw": 296,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "assign dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 28,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 32,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 24,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 36,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 20,
+      "ex": [
+       "\"ข้อ\"",
+       "\"สถานะ\"",
+       "\"เจ้าของ\"",
+       "\"กำหนดส่ง\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 96,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อ\"",
+       "\"ประเภท\"",
+       "\"ปี\"",
+       "\"ข้อที่ผูก\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "evidence-detail dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 4,
+      "ex": [
+       "\"เวอร์ชัน\"",
+       "\"ไฟล์\"",
+       "\"ขนาด\"",
+       "\"อัปโหลด\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-plo dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 18,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"ประเภท\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-course dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 48,
+      "ex": [
+       "\"รหัส\"",
+       "\"ชื่อวิชา\"",
+       "\"หน่วยกิต\"",
+       "\"ปี/ภาค\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "cur-ai7 dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 296,
+     "cw": 296,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 145,
+      "ex": [
+       "\"รหัส\"",
+       "\"ข้อความ\"",
+       "\"กริยาที่พบ\"",
+       "\"Bloom ตั้งไว้ / ตรว",
+       "\"ผล\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "metrics-edit dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 308,
+      "ex": [
+       "\"ปี\"",
+       "\"ค่า\"",
+       "\"เป้าหมาย\"",
+       "\"แหล่ง benchmark\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-users dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 30,
+      "ex": [
+       "\"ผู้ใช้\"",
+       "\"บทบาท\"",
+       "\"สถานะ\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "admin-audit dark 390 1.25 th",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 348,
+     "cw": 348,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 172,
+      "ex": [
+       "\"เวลา\"",
+       "\"ผู้ทำ\"",
+       "\"การกระทำ\"",
+       "\"เป้าหมาย\""
+      ],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "17.5px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "th"
+  },
+  {
+   "key": "review dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "actions dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cycles dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "dashboard dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 484,
+     "cw": 484,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "assign dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence-detail dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-plo dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-course dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-ai7 dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1044,
+     "cw": 1044,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics-edit dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-users dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-audit dark 1440 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 1094,
+     "cw": 1094,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "review dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "actions dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cycles dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "dashboard dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 628,
+     "cw": 628,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "assign dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence-detail dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-plo dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-course dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-ai7 dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 628,
+     "cw": 628,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics-edit dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-users dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-audit dark 1024 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 678,
+     "cw": 678,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "review dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "review-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 20,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "actions dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "action-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cycles dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "cycles-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 1,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "dashboard dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "pending-table",
+     "matrix": false,
+     "mode": "table",
+     "sw": 446,
+     "cw": 314,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 0,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": []
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "assign dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 21,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 28,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 24,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 32,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 18,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 27,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 36,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    },
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 15,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 20,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "ev-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 16,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 112,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "evidence-detail dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 5,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-plo dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "plo-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 12,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 24,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-course dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "course-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 41,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 60,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "cur-ai7 dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 314,
+     "cw": 314,
+     "n": 4,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 145,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 154,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "metrics-edit dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "metric-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 158,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 385,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-users dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "users-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 8,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 30,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  },
+  {
+   "key": "admin-audit dark 390 1 en",
+   "page": "",
+   "tables": [
+    {
+     "id": "audit-table",
+     "matrix": false,
+     "mode": "cards",
+     "sw": 356,
+     "cw": 356,
+     "n": 0,
+     "hid": 0,
+     "part": 0,
+     "names": [],
+     "lbl": {
+      "n": 172,
+      "empty": 0,
+      "thai": 0,
+      "ex": [],
+      "blank": 0,
+      "blankEx": [],
+      "over": 0,
+      "overEx": [],
+      "lblSize": [
+       "14px/500"
+      ]
+     }
+    }
+   ],
+   "htmlLang": "en"
+  }
+ ]
+}

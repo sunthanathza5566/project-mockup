@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Term — คำศัพท์ + ปุ่ม (?) อธิบาย (ADR-UI-001 components.md C17, ลูกเล่น L14 popover)
+ * Term — คำศัพท์ + ปุ่ม (?) อธิบาย (ADR-UI-001 components.md C17 · หน้าตา ADR-UI-002 saas-spec §C14)
  * <Term k="pdca">PDCA</Term>
  * - ปุ่ม `.aq-term__btn` help-circle 20 · พื้นที่กด 32×32 (ยกเว้นจาก 44 ใน AC-05 เพราะเป็น inline)
  * - กด / Enter / Space เปิด (ไม่ใช่ hover-only) · hover เปิดได้หลัง 300ms บนอุปกรณ์ที่มีเมาส์ · Esc / คลิกนอก = ปิด
@@ -64,10 +64,11 @@ export default function Term({ k, children, label }: { k: string; children?: Rea
   const canHover = () => typeof window !== 'undefined' && window.matchMedia?.('(hover: hover) and (pointer: fine)').matches;
 
   return (
-    <span className="aq-term">
+    <span className="inline">
       {children}
       <button
-        ref={btn} type="button" className="aq-term__btn"
+        ref={btn} type="button"
+        className="aq-term__btn -my-1.5 ml-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent align-middle text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-foreground"
         aria-label={`ความหมายของ ${name}`} aria-expanded={open} aria-describedby={open ? id : undefined}
         onClick={() => (open ? hide() : show())}
         onMouseEnter={() => { if (canHover()) hoverT.current = setTimeout(show, 300); }}
@@ -77,11 +78,12 @@ export default function Term({ k, children, label }: { k: string; children?: Rea
       </button>
       {open && pos && (
         <span
-          ref={pop} id={id} role="tooltip" className="aq-term__pop"
+          ref={pop} id={id} role="tooltip"
+          className="fixed z-toast flex max-w-[20rem] flex-col gap-1 rounded-lg border bg-popover p-4 text-left text-base font-normal text-popover-foreground shadow-lg animate-pop-in dark:shadow-none"
           style={{ left: pos.left, top: pos.top, width: pos.width }}
           data-no-i18n={lang === 'en' ? '' : undefined}
         >
-          <span className="aq-term__title">{lang === 'en' ? t(entry.titleTh) : entry.titleTh}</span>
+          <span className="font-medium text-foreground">{lang === 'en' ? t(entry.titleTh) : entry.titleTh}</span>
           <span className="aq-term__body">{lang === 'en' ? entry.bodyEn : entry.bodyTh}</span>
         </span>
       )}

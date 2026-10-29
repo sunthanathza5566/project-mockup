@@ -10,6 +10,7 @@ import type {
 import { newId } from '../utils/hash';
 import { scanPii } from '../utils/pii';
 import { appendAudit } from './audit.store';
+import { isActiveUser, requireActiveActor } from './auth.api';
 import { AunqaError, KEYS, load, save } from './db';
 import { nextEvidenceCode } from './evidence.store';
 import { getRequirement } from './framework';
@@ -46,10 +47,12 @@ function checkDue(d: string | undefined): string | undefined {
   if (!ISO_DATE.test(d)) throw new AunqaError('invalid', 'กำหนดเสร็จต้องเป็นรูปแบบ YYYY-MM-DD');
   return d;
 }
-function checkOwner(ownerUserId: string | undefined, programmeId: string, universityId: string): void {
+/** requireActive: ผู้รับผิดชอบใหม่ต้องเป็นบัญชี active (ADR-AUTH-001 A5) — ผู้รับผิดชอบเดิมที่ถูกระงับภายหลังไม่ทำให้แก้รายการไม่ได้ */
+function checkOwner(ownerUserId: string | undefined, programmeId: string, universityId: string, requireActive = true): void {
   if (!ownerUserId) return;
   const u = getUserById(ownerUserId);
-  if (!u || u.universityId !== universityId || !can(u, 'read', programmeScope(programmeId))) throw new AunqaError('invalid', 'ผู้รับผิดชอบไม่ถูกต้อง');
+  if (!u || (requireActive && !isActiveUser(u)) || u.universityId !== universityId || !can(u, 'read', programmeScope(programmeId)))
+    throw new AunqaError('invalid', 'ผู้รับผิดชอบไม่ถูกต้อง');
 }
 
 // ─── Read ────────────────────────────────────────────────────────────────
@@ -73,6 +76,7 @@ export interface ActionItemInput {
 }
 
 export function createActionItem(actor: AppUser, input: ActionItemInput): ActionItem {
+  requireActiveActor(actor);
   const prog = getProgramme(input.programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
   if (!can(actor, 'action.write', programmeScope(prog.id, { ownerUserId: input.ownerUserId })))
@@ -91,13 +95,19 @@ export function createActionItem(actor: AppUser, input: ActionItemInput): Action
   save(KEYS.actionItems, [...load<ActionItem>(KEYS.actionItems), item]);
   appendAudit(actor, { action: 'action.create', targetType: 'action_item', targetId: item.id, programmeId: prog.id, after: { requirementId: item.requirementId, ownerUserId: item.ownerUserId, due: item.due } });
   if (item.ownerUserId && item.ownerUserId !== actor.id)
-    notify({ userId: item.ownerUserId, kind: 'assigned', requirementId: item.requirementId, messageTh: `คุณได้รับมอบหมาย action item ข้อ ${item.requirementId}${item.due ? ` กำหนดเสร็จ ${item.due}` : ''}` });
+    notify({
+      userId: item.ownerUserId, kind: 'assigned', requirementId: item.requirementId,
+      messageTh: `คุณได้รับมอบหมาย action item ข้อ ${item.requirementId}${item.due ? ` กำหนดเสร็จ ${item.due}` : ''}`,
+      messageEn: `You were assigned an action item for requirement ${item.requirementId}${item.due ? ` — due ${item.due}` : ''}`,
+      target: { type: 'action', actionId: item.id },
+    });
   return item;
 }
 
 export function updateActionItem(
   actor: AppUser, id: string, patch: Partial<Pick<ActionItemInput, 'description' | 'ownerUserId' | 'due' | 'kpi'>>,
 ): ActionItem {
+  requireActiveActor(actor);
   const rows = load<ActionItem>(KEYS.actionItems);
   const cur = rows.find(a => a.id === id);
   if (!cur) throw new AunqaError('not_found', 'ไม่พบ action item');
@@ -108,7 +118,7 @@ export function updateActionItem(
   if (patch.ownerUserId !== undefined && patch.ownerUserId !== cur.ownerUserId
     && !can(actor, 'action.write', programmeScope(cur.programmeId, { ownerUserId: patch.ownerUserId })))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์เปลี่ยนผู้รับผิดชอบ');
-  checkOwner(patch.ownerUserId, cur.programmeId, cur.universityId);
+  checkOwner(patch.ownerUserId, cur.programmeId, cur.universityId, patch.ownerUserId !== cur.ownerUserId);
   const next: ActionItem = {
     ...cur,
     description: patch.description !== undefined ? str(patch.description, 'รายละเอียด', true)! : cur.description,
@@ -123,6 +133,7 @@ export function updateActionItem(
 }
 
 export function deleteActionItem(actor: AppUser, id: string): void {
+  requireActiveActor(actor);
   const cur = getRaw(id);
   if (!can(actor, 'action.write', programmeScope(cur.programmeId, { ownerUserId: cur.ownerUserId })))
     throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ลบ action item นี้');
@@ -133,6 +144,7 @@ export function deleteActionItem(actor: AppUser, id: string): void {
 
 // ─── Status ──────────────────────────────────────────────────────────────
 export function setActionStatus(actor: AppUser, id: string, to: ActionStatus, note?: string): ActionItem {
+  requireActiveActor(actor);
   const rows = load<ActionItem>(KEYS.actionItems);
   const cur = rows.find(a => a.id === id);
   if (!cur) throw new AunqaError('not_found', 'ไม่พบ action item');
@@ -153,13 +165,19 @@ export function setActionStatus(actor: AppUser, id: string, to: ActionStatus, no
   save(KEYS.actionItems, rows.map(a => (a.id === id ? next : a)));
   appendAudit(actor, { action: `action.${to}`, targetType: 'action_item', targetId: id, programmeId: cur.programmeId, before: { status: cur.status }, after: { status: to, note } });
   if (to === 'verified' && cur.ownerUserId)
-    notify({ userId: cur.ownerUserId, kind: 'approved', requirementId: cur.requirementId, messageTh: `action item ข้อ ${cur.requirementId} ได้รับการยืนยันแล้ว` });
+    notify({
+      userId: cur.ownerUserId, kind: 'approved', requirementId: cur.requirementId,
+      messageTh: `action item ข้อ ${cur.requirementId} ได้รับการยืนยันแล้ว`,
+      messageEn: `The action item for requirement ${cur.requirementId} was verified`,
+      target: { type: 'action', actionId: cur.id },
+    });
   return next;
 }
 
 // ─── จาก AFI ของกรรมการ ───────────────────────────────────────────────────
 /** สร้าง action item จาก AFI ในรายงานกรรมการ (รอบ assessed/closed) — ข้ามรายการที่เคยสร้างแล้ว คืนรายการใหม่ */
 export function createActionsFromAfi(actor: AppUser, cycleId: string): ActionItem[] {
+  requireActiveActor(actor);
   const cycle = getCycleRaw(cycleId);
   if (cycle.status !== 'assessed' && cycle.status !== 'closed') throw new AunqaError('invalid', 'สร้างจาก AFI ได้เมื่อรอบประเมินเสร็จสิ้นแล้ว');
   if (!can(actor, 'action.write', programmeScope(cycle.programmeId))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์สร้าง action item');

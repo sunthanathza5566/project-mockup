@@ -9,6 +9,7 @@ import { AunqaError, KEYS, load, save } from './db';
 import { listMetricDefinitions } from './framework';
 import { getProgramme, programmeScope } from './org.store';
 import { can } from './rbac';
+import { requireActiveActor } from './auth.api';
 
 export function getMetricDefinition(code: string): MetricDefinition | undefined {
   return listMetricDefinitions().find(d => d.code === code);
@@ -39,6 +40,7 @@ export interface MetricInput {
 
 /** เพิ่ม/แก้ค่า metric (unique ต่อ programme+code+period → upsert) */
 export function upsertMetric(actor: AppUser, input: MetricInput): MetricValue {
+  requireActiveActor(actor);
   const prog = getProgramme(input.programmeId);
   if (!prog) throw new AunqaError('not_found', 'ไม่พบหลักสูตร');
   if (!can(actor, 'metric.write', programmeScope(prog.id))) throw new AunqaError('forbidden', 'ไม่มีสิทธิ์กรอกข้อมูล metric');
@@ -64,6 +66,7 @@ export function upsertMetric(actor: AppUser, input: MetricInput): MetricValue {
 }
 
 export function deleteMetric(actor: AppUser, id: string): void {
+  requireActiveActor(actor);
   const rows = load<MetricValue>(KEYS.metrics);
   const m = rows.find(x => x.id === id);
   if (!m) return;

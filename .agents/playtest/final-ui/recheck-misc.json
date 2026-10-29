@@ -1,0 +1,99 @@
+{
+ "sticky/request-access": {
+  "top": 0,
+  "h": 900,
+  "docH": 2112,
+  "scrollY": 813
+ },
+ "sticky/login": {
+  "top": 0,
+  "h": 900,
+  "docH": 900,
+  "scrollY": 0
+ },
+ "sidetabs": [
+  [
+   "sidetab-evidence",
+   44
+  ],
+  [
+   "sidetab-comments",
+   44
+  ],
+  [
+   "sidetab-history",
+   44
+  ]
+ ],
+ "reviewRows": [
+  114,
+  114,
+  114,
+  114,
+  113
+ ],
+ "langOtherTab": {
+  "h1": "Improvement plan (Action plan)",
+  "htmlLang": "th"
+ },
+ "langOtherTabAfterTh": "แผนปรับปรุง (Action plan)",
+ "admin390": {
+  "pageH": 3453,
+  "sw": 390,
+  "btn": [
+   [
+    "user-manage-chair1",
+    99,
+    44
+   ],
+   [
+    "user-manage-staff1",
+    99,
+    44
+   ],
+   [
+    "user-manage-lect1",
+    99,
+    44
+   ],
+   [
+    "user-manage-lect2",
+    99,
+    44
+   ],
+   [
+    "user-manage-data1",
+    99,
+    44
+   ],
+   [
+    "user-manage-fqa1",
+    99,
+    44
+   ],
+   [
+    "user-manage-dean1",
+    99,
+    44
+   ],
+   [
+    "user-manage-assess1",
+    99,
+    44
+   ]
+  ],
+  "tabTops": [
+   208,
+   208,
+   208
+  ],
+  "tl": [
+   374,
+   358
+  ]
+ },
+ "panel390": {
+  "sw": 390,
+  "small": []
+ }
+}

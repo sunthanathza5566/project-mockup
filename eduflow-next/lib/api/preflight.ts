@@ -12,6 +12,7 @@ import { KEYS, load } from './db';
 import { compareReqId, listCriteria } from './framework';
 import { getGaps } from './dashboard';
 import { can, isAssessorOf } from './rbac';
+import { isActiveUser } from './auth.api';
 import { CYCLE_TRANSITIONS, cycleScope } from './workflow';
 
 const GAP_WARNING_TARGETS: CycleStatus[] = ['under_review', 'faculty_approved', 'final_approved'];
@@ -34,7 +35,7 @@ export function getTransitionPreflight(user: AppUser, cycleId: string, to: Cycle
   }
   if (to === 'assessed') {
     const criteriaNos = listCriteria().map(c => c.no);
-    const assessors = load<AppUser>(KEYS.users).filter(u => isAssessorOf(u, cycleId));
+    const assessors = load<AppUser>(KEYS.users).filter(u => isActiveUser(u) && isAssessorOf(u, cycleId));
     const committee = load<Rating>(KEYS.ratings).filter(r => r.cycleId === cycleId && r.raterType === 'committee');
     const waiting = assessors
       .map(u => ({ name: u.fullName, missing: criteriaNos.filter(n => !committee.some(r => r.raterUserId === u.id && r.criterionNo === n)) }))
@@ -66,7 +67,7 @@ export function getTransitionPreflight(user: AppUser, cycleId: string, to: Cycle
     const noSelf = sections.filter(s => !selfRated.has(s.requirementId)).map(s => s.requirementId);
     push('missing_self_rating', noSelf.length, `ยังไม่ได้ประเมินตนเอง ${noSelf.length} ข้อ`, noSelf);
   }
-  if (to === 'under_assessment' && !load<AppUser>(KEYS.users).some(u => isAssessorOf(u, cycleId))) {
+  if (to === 'under_assessment' && !load<AppUser>(KEYS.users).some(u => isActiveUser(u) && isAssessorOf(u, cycleId))) {
     push('no_assessor', 1, 'ยังไม่ได้มอบหมายกรรมการประเมิน', []);
   }
 

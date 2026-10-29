@@ -6,3 +6,5 @@ __pycache__/
 .agents/playtest/*.log
 eduflow-next/e2e/artifacts/
 scripts/agents/__pycache__/
+.agents/playtest/**/*.log
+.agents/playtest/**/st-*.json

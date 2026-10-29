@@ -1,4 +1,4 @@
-%% source: eduflow-next/lib/api/workflow.ts:27-48 (CYCLE/SECTION_TRANSITIONS), 181-229 (transitionCycle: ทุกข้ออนุมัติ, lock + snapshotHash), 318-365 (transitionSection); sar.store.ts:159-184 (submit/approve/return); cycle.store.ts:33,130 (createCycle, assignSections) | task: TASK-0001 | updated: 2026-10-22
+%% source: eduflow-next/lib/api/workflow.ts:27-50 (CYCLE/SECTION_TRANSITIONS), 78-99 (assertSectionEditable/assertSectionsEditable: ข้อที่ส่งตรวจ/อนุมัติแล้วล็อก narrative คะแนน การผูกหลักฐาน), 181-229 (transitionCycle: ทุกข้ออนุมัติ, lock + snapshotHash), 318-365 (transitionSection); sar.store.ts:159-184; evidence.store.ts:163,272,299; cycle.store.ts:33,130 | task: TASK-0002 | updated: 2026-10-27
 %%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 15, "rankSpacing": 18, "padding": 4}}}%%
 swimlane-beta TB
   subgraph Chair["ประธานหลักสูตร"]
@@ -12,8 +12,8 @@ swimlane-beta TB
   end
   subgraph Lecturer["อาจารย์"]
     L1[เขียน/แก้ SAR แนบหลักฐาน]
-    L2[ส่งข้อให้ตรวจ]
-    L3[แก้ตามข้อเสนอแนะ]
+    L2["ส่งข้อให้ตรวจ<br/>(ล็อกข้อ)"]
+    L3["แก้ตามข้อเสนอแนะ<br/>(ข้อปลดล็อก)"]
   end
   subgraph QA["QA คณะ"]
     Q1[ตรวจรอบ]

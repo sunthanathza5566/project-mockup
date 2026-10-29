@@ -1,0 +1,23 @@
+import {session,B,txt,log} from './lib.mjs';
+const {br,ctx,p,shot,save,errs,as}=await session({state:'st-inv1.json'});
+await as('uadmin');await p.goto(B+'/app/admin');await p.waitForTimeout(1000);
+await p.getByTestId('user-suspend-lect1').click();await p.waitForTimeout(400);
+log('suspend dialog:',await p.locator('[role=alertdialog],[role=dialog]').last().innerText());
+await shot('24-suspend-dialog');
+await p.locator('[role=alertdialog],[role=dialog]').last().getByRole('button').last().click();await p.waitForTimeout(900);
+log('lect1 row:',(await p.getByTestId('user-lect1').innerText()).replace(/\s*\n\s*/g,' | '));
+await p.getByTestId('user-lect1').scrollIntoViewIfNeeded();await shot('25-suspended-row');
+log('self suspend btn:',await p.getByTestId('user-suspend-uadmin').count(),'sadmin suspend btn:',await p.getByTestId('user-suspend-sadmin').count(),'delete buttons:',await p.locator('[data-testid^="user-delete-"]').count());
+// is lect1 still assignable? check section assign dropdown of chair later; check notification by commenting? skip
+await p.goto(B+'/login');await p.evaluate(()=>sessionStorage.clear());await p.goto(B+'/login');
+await p.getByTestId('login-username').fill('lect1');await p.getByTestId('login-password').fill('wrongpass');await p.getByTestId('login-submit').click();await p.waitForTimeout(800);
+log('suspended wrong pw:',(await txt(p,700)).split('\n').filter(x=>/ระงับ|ไม่ถูกต้อง/.test(x)));
+await p.getByTestId('login-password').fill('demo1234');await p.getByTestId('login-submit').click();await p.waitForTimeout(800);
+log('suspended right pw:',(await txt(p,700)).split('\n').filter(x=>/ระงับ|ติดต่อ|ไม่ถูกต้อง/.test(x)));
+await shot('26-suspended-login');
+await as('uadmin');await p.goto(B+'/app/admin');await p.waitForTimeout(900);
+await p.getByTestId('user-reactivate-lect1').click();await p.waitForTimeout(900);
+log('after reactivate row:',(await p.getByTestId('user-lect1').innerText()).replace(/\s*\n\s*/g,' | '));
+log('toast lines:',(await txt(p,6000)).split('\n').filter(x=>/เปิดใช้/.test(x)));
+await as('lect1');log('lect1 in ok',p.url());
+log('errs',errs);await br.close();

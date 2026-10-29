@@ -1,0 +1,51 @@
+%% source: eduflow-next/components/aunqa/admin/NewUserForm.tsx:89 (inviteUser), UsersTab.tsx:101,116 (reissueInvitation, cancelInvitation); components/auth/InviteAcceptForm.tsx:39-46 (takeHashToken + replaceState), 82-90 (peekInvitation), 113-138 (acceptInvitation → router.replace /app); lib/api/onboarding.store.ts:64-66 (token 256 bit, sha256), 113-125 (findValidInvitation), 129-153 (inviteUser), 156-177 (reissue/cancel), 180-189 (peekInvitation), 192-213 (acceptInvitation, N14, loginUser) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeCSS": ".actor-line{stroke-dasharray: 6 5 !important}", "sequence": {"mirrorActors": false, "actorMargin": 12, "width": 135, "boxMargin": 6, "messageMargin": 34, "messageFontSize": 22, "noteFontSize": 22, "actorFontSize": 21}}}%%
+sequenceDiagram
+  actor A as ผู้ดูแล
+  participant U as NewUserForm<br/>/ UsersTab
+  participant O as onboarding<br/>.store
+  participant AU as auth.api
+  participant N as notification
+  participant I as InviteAccept<br/>Form
+  actor V as ผู้ได้รับเชิญ
+  A->>U: ชื่อ อีเมล บทบาท
+  U->>O: inviteUser()
+  alt ไม่มีสิทธิ์ / ข้อมูลไม่ผ่าน
+    O-->>U: AunqaError
+  else สำเร็จ
+    O->>AU: saveUsers()<br/>invited, password ''
+    Note over O,AU: เก็บเฉพาะ tokenHash<br/>หมดอายุ 7 วัน
+    O-->>U: { user, token,<br/>expiresAt }
+    U-->>A: ลิงก์ /invite#35;t=…<br/>(แสดงครั้งเดียว)
+  end
+  A-)V: ส่งลิงก์เอง (นอกระบบ)
+  opt ก่อนลิงก์ถูกใช้
+    alt ออกลิงก์ใหม่
+      U->>O: reissueInvitation()
+      O-->>U: token ใหม่<br/>(ลิงก์เดิม revoked)
+    else ยกเลิก
+      U->>O: cancelInvitation()
+      O->>AU: saveUsers() ลบแถว
+    end
+  end
+  V->>I: เปิด /invite#35;t=token
+  I->>I: takeHashToken()<br/>+ replaceState
+  I->>O: peekInvitation(token)
+  alt ใช้ไม่ได้
+    O-->>I: null
+    I-->>V: INVITE_INVALID_MESSAGE
+  else ใช้ได้
+    O-->>I: InvitePreview
+    V->>I: ตั้งรหัสผ่าน ≥ 8 ตัว
+    I->>O: acceptInvitation()
+    alt ตรวจซ้ำแล้วใช้ไม่ได้
+      O-->>I: AunqaError
+    else สำเร็จ
+      O->>AU: saveUsers() active<br/>+ usedAt
+      O->>N: notify(N14 → ผู้เชิญ)
+      O->>AU: loginUser()
+      AU-->>O: LoginResult
+      O-->>I: LoginResult
+      I-->>V: router.replace('/app')
+    end
+  end

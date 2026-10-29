@@ -1,6 +1,7 @@
 /**
- * จุดเด่น (#about) — ADR-UI-001 pages.md P1 · ไอคอน Icon.tsx แทน emoji · JSX แทน dangerouslySetInnerHTML
- * · กฎตรวจช่องว่าง R1–R11 (C-8 UI)
+ * จุดเด่น (#about) — ADR-UI-001 pages.md P1 · TASK-0002 saas-spec §P1: h2 กลาง + grid การ์ด (ไอคอนในกล่อง border bg-muted)
+ * ไอคอน Icon.tsx แทน emoji · JSX แทน dangerouslySetInnerHTML · กฎตรวจช่องว่าง R1–R11 (C-8 UI)
+ * grid: sm 2 คอลัมน์ · xl 4 คอลัมน์ (มี 4 ข้อ — lg:3 ตาม spec จะเหลือการ์ดเดี่ยว 1 ใบ จึงใช้ 4 ที่ ≥1280)
  */
 import type { ReactNode } from 'react';
 import Icon, { type IconName } from '@/components/ui/Icon';
@@ -18,16 +19,20 @@ const ITEMS: { icon: IconName; title: string; body: ReactNode }[] = [
 
 export default function AboutSection() {
   return (
-    <section className="aq-lsection" id="about" aria-labelledby="about-h">
-      <div className="aq-lsection__inner">
-        <h2 className="aq-lsection__title" id="about-h">จุดเด่น</h2>
-        <p className="aq-lsection__lead">ออกแบบจากงานจริงของหลักสูตร — ไม่ให้คะแนนแทนกรรมการ ไม่แต่งหลักฐานขึ้นเอง</p>
-        <ul className="aq-features">
+    <section className="scroll-mt-16 px-4 py-16 md:px-6 md:py-24" id="about" aria-labelledby="about-h">
+      <div className="mx-auto max-w-screen-xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-semibold text-foreground" id="about-h">จุดเด่น</h2>
+          <p className="mt-3 text-lg text-muted-foreground">ออกแบบจากงานจริงของหลักสูตร — ไม่ให้คะแนนแทนกรรมการ ไม่แต่งหลักฐานขึ้นเอง</p>
+        </div>
+        <ul className="m-0 mt-12 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-4">
           {ITEMS.map(m => (
-            <li key={m.title} className="aq-card aq-feature">
-              <span className="aq-feature__icon" aria-hidden="true"><Icon name={m.icon} size={24} /></span>
-              <h3 className="aq-feature__title">{m.title}</h3>
-              <p className="aq-muted">{m.body}</p>
+            <li key={m.title} className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm dark:shadow-none">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-foreground" aria-hidden="true">
+                <Icon name={m.icon} size={20} />
+              </span>
+              <h3 className="mt-4 text-lg font-semibold">{m.title}</h3>
+              <p className="mt-2 text-muted-foreground">{m.body}</p>
             </li>
           ))}
         </ul>

@@ -1,0 +1,19 @@
+%% source: eduflow-next/lib/types.ts:29,41 (UserStatus; ไม่มี field = active); lib/api/onboarding.store.ts:129-153 (inviteUser), 172-177 (cancelInvitation), 192-213 (acceptInvitation), 220-271 (submitAccessRequest), 309-327 (approveAccessRequest), 333-348 (rejectAccessRequest); lib/api/auth.api.ts:275-283 (getCurrentUser ตัด session), 295-327 (loginUser), 338-368 (createUser), 393-410 (deleteUser เฉพาะ invited/pending), 416-438 (setUserStatus active↔suspended) | task: TASK-0002 | updated: 2026-10-27
+%%{init: {"themeVariables": {"fontSize": "20px"}}}%%
+stateDiagram-v2
+  direction TB
+  state "pending<br/>รออนุมัติ" as pending
+  state "invited<br/>รอรับคำเชิญ" as invited
+  state "active<br/>ใช้งาน" as active
+  state "suspended<br/>ระงับ" as suspended
+  state origin <<choice>>
+  [*] --> origin : สร้างบัญชี
+  origin --> pending : [ขอเข้าใช้งานเอง]<br/>/ submitAccessRequest
+  origin --> invited : [ผู้ดูแลเชิญ]<br/>/ inviteUser
+  origin --> active : [ผู้ดูแลตั้งรหัสให้]<br/>/ createUser
+  pending --> active : approveAccessRequest<br/>[บทบาท ≥ 1]
+  pending --> [*] : rejectAccessRequest<br/>หรือ deleteUser
+  invited --> active : acceptInvitation<br/>[ลิงก์ยังใช้ได้]
+  invited --> [*] : cancelInvitation<br/>หรือ deleteUser
+  active --> suspended : setUserStatus(suspended)
+  suspended --> active : setUserStatus(active)

@@ -5,7 +5,7 @@
  * M3 (ก) logout ขณะบันทึกไม่ได้ → ไม่ออก + ข้อความไม่หาย (ข) logout จากอีกแท็บ → แท็บที่พิมพ์ค้าง flush ก่อนแล้วไป /login?reason=other-tab
  */
 import { test, expect, type Page } from '@playwright/test';
-import { DEMO_CYCLE, createCycleUi, dialogOk, driveToLocked, loginAs, openSection, transitionAs } from './helpers';
+import { DEMO_CYCLE, createCycleUi, dialogOk, driveToLocked, loginAs, logoutViaMenu, openSection, transitionAs } from './helpers';
 
 test.use({ viewport: { width: 1440, height: 900 } }); // sidebar ถาวร (badge + ปุ่ม logout มองเห็น)
 
@@ -105,7 +105,7 @@ test.describe('M3 ออกจากระบบโดยงานไม่ห�
     const url = page.url();
     const text = `ทดสอบ M3 อ้างหลักฐานที่ไม่มี [E-9.9-99] ${Date.now()}`;
     await page.getByTestId('narrative-th').fill(text);
-    await page.getByTestId('logout').click();
+    await logoutViaMenu(page);
     const dlg = page.getByRole('dialog');
     await expect(dlg).toContainText('ยังบันทึกงานไม่ได้');
     await expect(dlg).toContainText('ข้อ 3.6');
@@ -118,7 +118,7 @@ test.describe('M3 ออกจากระบบโดยงานไม่ห�
     expect(await page.evaluate(() => localStorage.getItem('aunqa_session'))).not.toBeNull();
 
     // ยืนยันออก → ออกจริง (session ถูกล้าง)
-    await page.getByTestId('logout').click();
+    await logoutViaMenu(page);
     await page.getByRole('dialog').getByRole('button', { name: 'ยืนยันออกโดยไม่บันทึก' }).click();
     await expect.poll(() => page.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
     await expect(page).not.toHaveURL(/\/app\/sections\//);
@@ -134,7 +134,7 @@ test.describe('M3 ออกจากระบบโดยงานไม่ห�
     await expect(b.getByTestId('nav-user')).toBeVisible(); // session เดียวกัน (localStorage)
 
     await page.getByTestId('narrative-th').fill(text);   // ไม่รอ autosave (debounce 1.5s) — ให้ flush เป็นคนบันทึก
-    await b.getByTestId('logout').click();
+    await logoutViaMenu(b);
     await expect.poll(() => b.evaluate(() => localStorage.getItem('aunqa_session'))).toBeNull();
 
     await page.waitForURL(/\/login\?reason=other-tab/, { timeout: 20_000 });
