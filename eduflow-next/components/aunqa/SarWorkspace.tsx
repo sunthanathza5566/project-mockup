@@ -8,7 +8,8 @@
  * - Autosave (P3): debounce 1.5s + บันทึกทันทีเมื่อ blur / visibilitychange→hidden / beforeunload / เปลี่ยนภาษา /
  *   flushAll() (registerFlush — ADR 6.4) · onChange เรียก touchSession() (M3)
  * - session หายแต่บันทึกไม่ได้ (useAuth().sessionLost) → อ่านอย่างเดียว
- * - checklist ก่อนส่งตรวจ (P2) · toast "ไปข้อถัดไปของฉัน" (UX-6) · P6 คะแนนตนเอง · C-8 ยืนยันคำแปล + จำกัด 8,000 ตัวอักษร
+ * - checklist ก่อนส่งตรวจ (P2) · TASK-0003 F1/F2: dialog/toast บอกจำนวนประธานที่ได้รับแจ้งตามจริง (0 → เตือน + ทางไปมอบหมายงาน)
+ * - toast "ไปข้อถัดไปของฉัน" (UX-6) · P6 คะแนนตนเอง · C-8 ยืนยันคำแปล + จำกัด 8,000 ตัวอักษร
  * - คง testid ตาม ADR 7.3 · ปุ่มที่ทำไม่ได้ไม่ render
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -17,7 +18,8 @@ import { useRouter } from 'next/navigation';
 import {
   RATING_SCALE, TRANSLATE_MAX_CHARS, acceptAiRun, addComment, approveSection, can, citableCodes, confirmTranslationReviewed,
   cycleScope, getGaps, linkEvidence, listMyTodos, programmeScope, resolveComment, restoreVersion, returnSection,
-  isSectionEditable, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSection, touchSession, unlinkEvidence,
+  isSectionEditable, previewSubmitRecipients, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSectionWithNotice,
+  touchSession, unlinkEvidence,
   validateCitations, AunqaError, listSections,
 } from '@/lib/api';
 import type {
@@ -107,7 +109,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
 }) {
   const { cycle, section, req, linked, linkable, versions, ratings, comments, names, aiEnabled } = data;
   const { showToast } = useToast();
-  const { confirm, choose, prompt } = useDialog();
+  const { confirm, choose, prompt, dismissAll } = useDialog();
   const reviewEvents = data.reviewEvents ?? [];
   const lastReturn = [...reviewEvents].reverse().find(e => e.toStatus === 'changes_requested');
   const { sessionLost } = useAuth();
@@ -117,6 +119,8 @@ export default function SarWorkspace({ data, user, reload, remount }: {
   const cycleWritable = !cycle.lockedAt && WRITABLE_CYCLE.includes(cycle.status);
   const sectionEditable = EDITABLE_SECTION.includes(section.status);
   const canWrite = can(user, 'sar.write', scope);
+  /** F1/F2 (TASK-0003): แสดงทางไปหน้ามอบหมายงานเฉพาะผู้ที่มอบหมายข้อได้ */
+  const canAssignWork = can(user, 'cycle.assign', cycleScope(cycle));
   const editable = canWrite && cycleWritable && sectionEditable && !sessionLost;
   /**
    * P1 (R2-F11): ข้อที่ส่งตรวจแล้ว/อนุมัติแล้ว เปลี่ยนหลักฐานที่ผูกไม่ได้ (คู่กับ guard ฝั่ง API R2-B4)
@@ -282,24 +286,52 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     gaps.filter(x => !['R4', 'R9', 'R11'].includes(x.ruleId) && (x.severity === 'critical' || x.severity === 'high'))
       .forEach(x => items.push({ ok: false, text: x.messageTh }));
     const warn = items.filter(i => !i.ok).length;
+    // F2 (TASK-0003): บอกก่อนกดว่ามีประธานกี่คนจะได้รับแจ้ง — นับด้วยฟังก์ชันเดียวกับตอนแจ้งจริง (previewSubmitRecipients)
+    let recipients: number | null = null;
+    try { recipients = previewSubmitRecipients(cycle.id, req.id, user); } catch { /* อ่านไม่ได้ → ไม่อ้างจำนวน */ }
+    const noRecipient = recipients === 0;
+    // ผู้กดมีสิทธิ์อนุมัติข้อนี้ (= ประธาน) — ไม่ได้รู้ว่าเป็นผู้เขียนล่าสุดหรือไม่ จึงใช้ "ถ้า…" ในข้อความ
+    const submitterIsChair = can(user, 'sar.approve', scope);
     const ok = await confirm({
-      title: `ส่งข้อ ${req.id} ให้ประธานหลักสูตรตรวจ`,
+      title: recipients && recipients > 0 ? `ส่งข้อ ${req.id} ให้ประธานหลักสูตรตรวจ` : `ส่งตรวจข้อ ${req.id}`,
       message: 'หลังส่งแล้วจะแก้ไขไม่ได้จนกว่าจะถูกส่งกลับ',
       details: (
-        <ul className="m-0 list-none space-y-2 p-0">{items.map((i, n) => (
-          <li key={n} className="flex items-start gap-2 text-base text-foreground">
-            <Icon name={i.ok ? 'check-circle' : 'alert-triangle'} size={20} className={cn('mt-0.5', i.ok ? 'text-success' : 'text-warning')} />{i.text}
-          </li>
-        ))}</ul>
+        <div className="space-y-3">
+          {noRecipient && (
+            <InlineMessage tone="warn" testId="submit-no-recipient-warning" title="ส่งแล้วจะไม่มีใครได้รับแจ้งเตือน"
+              actions={canAssignWork ? (
+                <Button asChild variant="outline">
+                  <Link href={`/app/cycles/${cycle.id}/assign`} data-testid="submit-go-assign" onClick={() => dismissAll()}>
+                    <Icon name="users" size={20} />ไปหน้ามอบหมายงาน
+                  </Link>
+                </Button>
+              ) : undefined}>
+              {submitterIsChair ? (<>
+                <p className="m-0">ไม่มีประธานหลักสูตรคนอื่นในหลักสูตรนี้ที่จะได้รับแจ้งเตือน และถ้าคุณเป็นผู้เขียนล่าสุดของข้อนี้ คุณจะอนุมัติข้อนี้เองไม่ได้</p>
+                <p className="m-0 mt-1">แนะนำให้มอบหมายข้อนี้ให้อาจารย์เป็นผู้เขียนและกดส่งตรวจแทน</p>
+              </>) : (
+                <p className="m-0">ตอนนี้ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ ข้อนี้จะรออยู่ในคิวตรวจจนกว่าจะมีประธานหลักสูตร</p>
+              )}
+            </InlineMessage>
+          )}
+          {recipients !== null && recipients > 0 && (
+            <p className="m-0 text-base text-muted-foreground" data-testid="submit-recipient-count">{`ประธานหลักสูตร ${recipients} คนจะได้รับแจ้งเตือน`}</p>
+          )}
+          <ul className="m-0 list-none space-y-2 p-0">{items.map((i, n) => (
+            <li key={n} className="flex items-start gap-2 text-base text-foreground">
+              <Icon name={i.ok ? 'check-circle' : 'alert-triangle'} size={20} className={cn('mt-0.5', i.ok ? 'text-success' : 'text-warning')} />{i.text}
+            </li>
+          ))}</ul>
+        </div>
       ),
-      variant: warn ? 'warning' : 'primary',
+      variant: warn || noRecipient ? 'warning' : 'primary',
       confirmText: warn ? `ยืนยันส่งตรวจ (ยังมี ${warn} จุดที่ควรเติม)` : 'ยืนยันส่งตรวจ',
       cancelText: 'กลับไปเติมก่อน',
       initialFocus: warn ? 'cancel' : 'confirm',
     });
     if (!ok) return;
     try {
-      submitSection(user, cycle.id, req.id);
+      const { notifiedCount, selfReview } = submitSectionWithNotice(user, cycle.id, req.id);
       notifyTodosChanged();
       let next: string | null = null;
       try {
@@ -307,8 +339,20 @@ export default function SarWorkspace({ data, user, reload, remount }: {
           && x.cycleId && x.requirementIds?.[0] && !(x.cycleId === cycle.id && x.requirementIds[0] === req.id));
         if (t) next = sectionHref(t.cycleId!, t.requirementIds![0]);
       } catch { /* ไม่มีงานถัดไป */ }
-      showToast(`ส่งตรวจข้อ ${req.id} แล้ว — ประธานหลักสูตรได้รับแจ้งเตือน`, 'success',
-        next ? { action: { label: 'ไปข้อถัดไปของฉัน →', onClick: () => router.push(next!) } } : undefined);
+      // F1 (TASK-0003): ข้อความยึดจำนวนแจ้งเตือนที่สร้างจริง ไม่อ้างว่าประธานได้รับแจ้งถ้าไม่มีผู้รับ
+      const nextAction = next ? { label: 'ไปข้อถัดไปของฉัน →', onClick: () => router.push(next!) } : undefined;
+      if (notifiedCount > 0) {
+        showToast(`ส่งตรวจข้อ ${req.id} แล้ว — แจ้งประธานหลักสูตร ${notifiedCount} คน`, 'success',
+          nextAction ? { action: nextAction } : undefined);
+      } else {
+        const assignAction = selfReview && canAssignWork
+          ? { label: 'ไปหน้ามอบหมายงาน', onClick: () => router.push(`/app/cycles/${cycle.id}/assign`) } : undefined;
+        const action = assignAction ?? nextAction;
+        showToast(selfReview
+          ? `ส่งตรวจข้อ ${req.id} แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน — แนะนำมอบหมายข้อให้อาจารย์เป็นผู้เขียนและส่งตรวจ`
+          : `ส่งตรวจข้อ ${req.id} แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน`,
+        'info', action ? { action, durationMs: 12000 } : { durationMs: 12000 });
+      }
       remount();
     } catch (e) { showToast(errMsg(e), 'error'); }
   }
