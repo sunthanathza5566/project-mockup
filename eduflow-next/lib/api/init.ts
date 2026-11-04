@@ -10,6 +10,7 @@ import {
   DEMO_ACTION_ITEMS, DEMO_CLOS, DEMO_CLO_PLO_MAP, DEMO_COURSES, DEMO_COURSE_METHODS, DEMO_EVIDENCE, DEMO_FACULTY,
   DEMO_METRICS, DEMO_NARRATIVES, DEMO_PLOS, DEMO_PROGRAMMES, DEMO_UNIVERSITY, DEMO_UNIVERSITY_2, DEMO_USERS,
 } from '../mock-data/aunqa';
+import { applyStandardSeedExtras } from '../mock-data/aunqa/standard-extras';
 import { countWords } from '../utils/text';
 import { appendAudit } from './audit.store';
 import { hashPassword, requireActiveActor } from './auth.api';
@@ -75,6 +76,8 @@ async function seed(): Promise<void> {
   }
   save(KEYS.sections, secRows);
   save(KEYS.ratings, ratingRows);
+  // TASK-0003 F4: มอบ 3.6 ให้ staff1 + แจ้งเตือนประธานคู่ข้อ ready_for_review (ต้องอยู่หลังเขียนสถานะ narrative)
+  applyStandardSeedExtras(chair, cycle.id);
 
   // curriculum เดโม่ (M4)
   save<Plo>(KEYS.plos, DEMO_PLOS.map(p => ({ ...p })));

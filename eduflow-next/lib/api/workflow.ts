@@ -371,8 +371,28 @@ export function openRevision(actor: AppUser, cycleId: string, note: string): Ass
   return next;
 }
 
-/** เปลี่ยนสถานะ section ตามตาราง (sar.store เรียกซ้ำ) */
+/**
+ * TASK-0003 F3: ผู้รับแจ้งเตือน "ส่งตรวจ" ของข้อ = ประธานหลักสูตร (active, tenant เดียวกัน) − actor
+ * ใช้ทั้งตอนแจ้งจริง (transitionSectionCounted) และตอน preview ก่อนกด (previewSubmitRecipients) ให้นับตรงกัน
+ * ภายใน lib/api เท่านั้น — ไม่อยู่ใน allow-list ของ facade (คืนรายชื่อผู้ใช้ดิบ)
+ */
+export function submitRecipientsOf(cycle: Pick<AssessmentCycle, 'universityId' | 'programmeId'>, actorId: string): AppUser[] {
+  return chairsOf(cycle).filter(u => u.id !== actorId);
+}
+
+/** เปลี่ยนสถานะ section ตามตาราง (sar.store เรียกซ้ำ) — API เดิม คืน section อย่างเดียว */
 export function transitionSection(actor: AppUser, sectionId: string, to: SectionStatus, note?: string): SarSection {
+  return transitionSectionCounted(actor, sectionId, to, note).section;
+}
+
+/**
+ * TASK-0003 F3: ตัวจริงของ transitionSection — guard/ลำดับ error เหมือนเดิมทุกอย่าง
+ * เพิ่ม `notified` = จำนวนแจ้งเตือนที่สร้างจริง (notify คืน non-null) เพื่อให้ UI แสดงข้อความตามจริง
+ * ภายใน lib/api เท่านั้น (facade ใช้ allow-list ไม่ export ตัวนี้; ภายนอกใช้ submitSectionWithNotice)
+ */
+export function transitionSectionCounted(
+  actor: AppUser, sectionId: string, to: SectionStatus, note?: string,
+): { section: SarSection; notified: number } {
   requireActiveActor(actor);
   const rows = load<SarSection>(KEYS.sections);
   const sec = rows.find(s => s.id === sectionId);
@@ -407,22 +427,25 @@ export function transitionSection(actor: AppUser, sectionId: string, to: Section
   });
 
   const toSection: NotificationTarget = { type: 'section', cycleId: sec.cycleId, requirementId: sec.requirementId };
+  let notified = 0;
   if ((to === 'changes_requested' || to === 'approved') && sec.ownerUserId && sec.ownerUserId !== actor.id) {
-    notify({
+    if (notify({
       userId: sec.ownerUserId, kind: to === 'approved' ? 'approved' : 'changes_requested',
       messageTh: to === 'approved' ? `ข้อ ${sec.requirementId} ได้รับการอนุมัติแล้ว` : `ข้อ ${sec.requirementId} ถูกส่งกลับแก้: ${note ?? ''}`,
       messageEn: to === 'approved' ? `Requirement ${sec.requirementId} was approved` : `Requirement ${sec.requirementId} was returned for changes: ${note ?? ''}`,
       target: toSection,
       cycleId: sec.cycleId, requirementId: sec.requirementId,
-    });
+    })) notified++;
   }
   if (to === 'ready_for_review') {
-    chairsOf(cycle).filter(u => u.id !== actor.id).forEach(u => notify({
-      userId: u.id, kind: 'cycle_status', messageTh: `ข้อ ${sec.requirementId} ส่งตรวจแล้ว รอประธานอนุมัติ`,
-      messageEn: `Requirement ${sec.requirementId} was submitted for review — awaiting chair approval`,
-      target: toSection,
-      cycleId: sec.cycleId, requirementId: sec.requirementId,
-    }));
+    for (const u of submitRecipientsOf(cycle, actor.id)) {
+      if (notify({
+        userId: u.id, kind: 'cycle_status', messageTh: `ข้อ ${sec.requirementId} ส่งตรวจแล้ว รอประธานอนุมัติ`,
+        messageEn: `Requirement ${sec.requirementId} was submitted for review — awaiting chair approval`,
+        target: toSection,
+        cycleId: sec.cycleId, requirementId: sec.requirementId,
+      })) notified++;
+    }
   }
-  return sec;
+  return { section: sec, notified };
 }

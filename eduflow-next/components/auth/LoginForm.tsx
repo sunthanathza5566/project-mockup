@@ -11,6 +11,7 @@
  * - TASK-0002 R2-F2 (friendly-spec §F5): ฟอร์มอยู่ในการ์ด rounded-xl max-w-md · เส้นคั่น "หรือ" + ปุ่ม `login-request-access`
  *   (/request-access) และ `login-have-invite` (/invite) · LoginResult.error `pending` = info / `suspended` = danger
  *   (testid `login-error` เดียวกัน — backend บอกสถานะเฉพาะเมื่อรหัสผ่านถูก จึงไม่เปิดเผยว่ามีบัญชีอยู่)
+ * - TASK-0003 S3d: panel `login-scenario-summary` (ScenarioSummaryPanel) หลังโหลดชุดข้อมูลทดสอบจากแท็บเดโม่ — กดบัญชีแล้วเติมฟอร์มแบบเดียวกับบัญชีทดสอบ
  */
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -23,6 +24,7 @@ import Icon from '@/components/ui/Icon';
 import AppLoader from '@/components/ui/AppLoader';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from '@/components/ui/primitives/input';
+import ScenarioSummaryPanel from './ScenarioSummaryPanel';
 
 /** บัญชีเดโม่ (ข้อมูลสมมติ) — กดเพื่อเติมในฟอร์ม */
 const DEMO_ACCOUNTS: { username: string; label: string }[] = [
@@ -116,6 +118,12 @@ export default function LoginForm() {
     }
   }
 
+  /** เติมบัญชีทดสอบในฟอร์ม (รหัสผ่านเดโม่ demo1234) แล้ว focus ปุ่มเข้าสู่ระบบ */
+  function fillDemo(name: string) {
+    setUsername(name); setPassword('demo1234'); setError(''); setStatus(null); setHint('');
+    submitRef.current?.focus();
+  }
+
   if (loadingName) return <AppLoader mode="login" name={loadingName} />;
 
   const invalid = !!error;
@@ -198,6 +206,8 @@ export default function LoginForm() {
         </Link>
       </div>
 
+      <ScenarioSummaryPanel onPick={fillDemo} />
+
       <details
         className="group w-full max-w-md rounded-lg border bg-card text-card-foreground" open={prefs.demoOpen}
         onToggle={e => { const o = (e.currentTarget as HTMLDetailsElement).open; if (o !== prefs.demoOpen) setPrefs({ demoOpen: o }); }}
@@ -213,10 +223,7 @@ export default function LoginForm() {
               key={a.username} variant="outline"
               className="w-full flex-col items-start justify-start gap-0 px-3 py-2 text-left"
               data-testid={`demo-${a.username}`}
-              onClick={() => {
-                setUsername(a.username); setPassword('demo1234'); setError(''); setStatus(null); setHint('');
-                submitRef.current?.focus();
-              }}
+              onClick={() => fillDemo(a.username)}
             >
               <code className="font-semibold text-primary">{a.username}</code><span className="aq-meta font-normal">{a.label}</span>
             </Button>

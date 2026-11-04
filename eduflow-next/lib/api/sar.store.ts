@@ -14,7 +14,8 @@ import { notify } from './notification.store';
 import { can } from './rbac';
 import { requireActiveActor } from './auth.api';
 import {
-  assertCycleWritable, assertSectionEditable, cycleScope, getCycleRaw, transitionSection,
+  assertCycleWritable, assertSectionEditable, cycleScope, getCycleRaw, submitRecipientsOf, transitionSection,
+  transitionSectionCounted,
 } from './workflow';
 
 const MAX_NARRATIVE = 30_000;
@@ -160,6 +161,40 @@ export function restoreVersion(actor: AppUser, versionId: string): SarSection {
 
 // ─── Status (ผ่าน state machine) ─────────────────────────────────────────
 export function submitSection(actor: AppUser, cycleId: string, requirementId: string): SarSection {
+  return submitSectionCore(actor, cycleId, requirementId).section;
+}
+
+/** ผลการส่งตรวจรายข้อ สำหรับให้ UI แสดงข้อความตามจริง (TASK-0003 F3) */
+export interface SubmitSectionNotice {
+  section: SarSection;
+  /** จำนวนแจ้งเตือนที่สร้างจริง (notify คืน non-null) — 0 เมื่อไม่มีประธานคนอื่นรับ */
+  notifiedCount: number;
+  /** actor มีสิทธิ์อนุมัติข้อนี้เอง (ประธานหลักสูตร) — ส่งเองแล้วอนุมัติเองไม่ได้ตามกฎ segregation */
+  selfReview: boolean;
+}
+
+/** submitSection + จำนวนผู้รับแจ้งเตือนจริง + ธง selfReview (guard/ลำดับ error เดียวกับ submitSection) */
+export function submitSectionWithNotice(actor: AppUser, cycleId: string, requirementId: string): SubmitSectionNotice {
+  const { section, notified } = submitSectionCore(actor, cycleId, requirementId);
+  const cycle = getCycleRaw(section.cycleId);
+  const selfReview = can(actor, 'sar.approve', cycleScope(cycle, { ownerUserId: section.ownerUserId }));
+  return { section, notifiedCount: notified, selfReview };
+}
+
+/**
+ * จำนวนประธานที่จะได้รับแจ้งเตือนถ้า actor กดส่งตรวจข้อนี้ (ไม่รวม actor) — ให้ dialog ยืนยันแสดงก่อนกด
+ * อ่านอย่างเดียว · ต้องเป็นบัญชี active และอ่านรอบนี้ได้ · คืนแค่จำนวน ไม่คืนรายชื่อ
+ */
+export function previewSubmitRecipients(cycleId: string, requirementId: string, actor: AppUser): number {
+  requireActiveActor(actor);
+  const sec = getSectionRaw(sectionIdOf(cycleId, requirementId));
+  const cycle = getCycleRaw(sec.cycleId);
+  if (!can(actor, 'read', cycleScope(cycle, { ownerUserId: sec.ownerUserId })))
+    throw new AunqaError('forbidden', 'ไม่มีสิทธิ์ดูข้อนี้');
+  return submitRecipientsOf(cycle, actor.id).length;
+}
+
+function submitSectionCore(actor: AppUser, cycleId: string, requirementId: string): { section: SarSection; notified: number } {
   requireActiveActor(actor);
   const sec = getSectionRaw(sectionIdOf(cycleId, requirementId));
   // not_started → drafting → ready_for_review ต้องเดินทีละขั้นตามตาราง
@@ -175,7 +210,7 @@ export function submitSection(actor: AppUser, cycleId: string, requirementId: st
     }
     transitionSection(actor, sec.id, 'drafting');
   }
-  return transitionSection(actor, sec.id, 'ready_for_review');
+  return transitionSectionCounted(actor, sec.id, 'ready_for_review');
 }
 export function approveSection(actor: AppUser, cycleId: string, requirementId: string): SarSection {
   return transitionSection(actor, sectionIdOf(cycleId, requirementId), 'approved');
