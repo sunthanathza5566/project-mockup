@@ -6,7 +6,7 @@
  *   (2) ข้อ ready_for_review 5 ข้อถูกเขียนสถานะตรงลง store → กระดิ่งประธานว่าง ไม่ตรงกับงาน "ตรวจ 5 ข้อ"
  * สิ่งที่ทำ:
  *   (1) มอบหมายข้อ 3.6 (drafting มี narrative แล้ว) ให้ staff1 ผ่าน assignSections จริง (staff1 ได้แจ้งเตือน N1 "คุณได้รับมอบหมายข้อ 3.6")
- *   (2) สร้างแจ้งเตือน N3 "ข้อ X ส่งตรวจแล้ว รอประธานอนุมัติ" ให้ผู้มีสิทธิ์อนุมัติ (ประธาน) คู่กับทุกข้อที่ seed เป็น ready_for_review
+ *   (2) สร้างแจ้งเตือน N3 "ข้อ X ส่งตรวจแล้ว รอประธานอนุมัติ" ให้ประธาน (submitRecipientsOf เดียวกับ workflow) คู่กับทุกข้อที่ seed เป็น ready_for_review
  *       ข้อความ/kind/target เหมือน workflow.transitionSectionCounted ทุกตัวอักษร · ข้ามผู้เขียนล่าสุด (ตรง segregation)
  *       dedupeKey `seed-ready:<cycle>:<req>` → เรียกซ้ำไม่เกิดแถวซ้ำ
  *
@@ -18,10 +18,7 @@ import type { AppUser, AssessmentCycle, SarSection } from '../../types';
 import { assignSections } from '../../api/cycle.store';
 import { KEYS, load } from '../../api/db';
 import { notify } from '../../api/notification.store';
-import { getAllUsers } from '../../api/org.store';
-import { can } from '../../api/rbac';
-import { isActiveUser } from '../../api/auth.api';
-import { cycleScope } from '../../api/workflow';
+import { submitRecipientsOf } from '../../api/workflow';
 
 /** ข้อที่ให้ staff1 เป็นเจ้าของใน seed มาตรฐาน (drafting + มี narrative → กด "ส่งตรวจ" ได้ทันที) */
 export const STANDARD_PLAY_SECTION = '3.6';
@@ -48,13 +45,11 @@ export function applyStandardSeedExtras(chair: AppUser, cycleId: string): number
 
   const cycle = load<AssessmentCycle>(KEYS.cycles).find(c => c.id === cycleId);
   if (!cycle) return 0;
-  const scope = cycleScope(cycle);
-  // ผู้รับ = ผู้มีสิทธิ์ sar.approve ของหลักสูตรนี้ที่ active และอยู่ uni เดียวกัน (= ประธาน; super_admin ไม่มี sar.approve)
-  const approvers = getAllUsers().filter(u => isActiveUser(u) && u.universityId === cycle.universityId && can(u, 'sar.approve', scope));
+  // ผู้รับ = submitRecipientsOf ตัวเดียวกับ workflow.transitionSectionCounted / previewSubmitRecipients (review nit #5)
+  //   = ประธานหลักสูตร active, uni เดียวกัน − ผู้เขียนล่าสุด (ตรง segregation) → นิยามเดียว ไม่แยกสองที่
   let added = 0;
   for (const s of sections.filter(x => x.status === 'ready_for_review')) {
-    for (const u of approvers) {
-      if (u.id === s.lastAuthorId) continue;
+    for (const u of submitRecipientsOf(cycle, s.lastAuthorId ?? '')) {
       if (notify({
         userId: u.id, kind: 'cycle_status', messageTh: `ข้อ ${s.requirementId} ส่งตรวจแล้ว รอประธานอนุมัติ`,
         messageEn: `Requirement ${s.requirementId} was submitted for review — awaiting chair approval`,

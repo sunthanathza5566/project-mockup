@@ -438,7 +438,8 @@ export const EN_PHASE_U: Record<string, string> = {
   // TASK-0003 F1/F2 — ส่งตรวจแล้วไม่มีผู้รับแจ้งเตือน
   'ส่งแล้วจะไม่มีใครได้รับแจ้งเตือน': 'No one will be notified after you submit',
   'ไม่มีประธานหลักสูตรคนอื่นในหลักสูตรนี้ที่จะได้รับแจ้งเตือน และถ้าคุณเป็นผู้เขียนล่าสุดของข้อนี้ คุณจะอนุมัติข้อนี้เองไม่ได้': 'There is no other programme chair in this programme to notify, and if you are the latest author of this item you cannot approve it yourself.',
-  'แนะนำให้มอบหมายข้อนี้ให้อาจารย์เป็นผู้เขียนและกดส่งตรวจแทน': 'We recommend assigning this item to a lecturer to write and submit instead.',
+  'แนะนำให้ยังไม่ส่ง แล้วมอบหมายข้อนี้ให้อาจารย์เป็นผู้เขียนและกดส่งตรวจแทน (ถ้าส่งไปแล้ว ต้องส่งกลับแก้ไขก่อน อาจารย์จึงจะแก้และส่งตรวจใหม่ได้)': 'We recommend not submitting yet, and assigning this item to a lecturer to write and submit instead. (Once submitted, the item must be returned for revision before a lecturer can edit and resubmit it.)',
+  'ส่งกลับแก้ไขข้อนี้': 'Return this item for revision',
   'ตอนนี้ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ ข้อนี้จะรออยู่ในคิวตรวจจนกว่าจะมีประธานหลักสูตร': 'There is no active programme chair right now. This item will wait in the review queue until there is one.',
   'ไปหน้ามอบหมายงาน': 'Go to Assign work',
   // TASK-0003 S3d — ชุดข้อมูลทดสอบ (แท็บเดโม่) + สรุปบนหน้า login · ข้อความของเคส (titleTh/roleTh/expectTh) เป็นข้อมูล seed ไม่แปล
@@ -459,6 +460,7 @@ export const EN_PHASE_U: Record<string, string> = {
   'ยืนยันล้างและโหลดทุกเคส': 'Confirm wipe and load all cases',
   'ยืนยันล้างและโหลดเคสนี้': 'Confirm wipe and load this case',
   'กำลังรีเซ็ตเป็นข้อมูลมาตรฐาน…': 'Resetting to standard data…',
+  'กำลังรีเซ็ตข้อมูลเดโม่…': 'Resetting demo data…',
   'กำลังโหลดทุกเคส… ใช้เวลาประมาณ 5 วินาที อย่าปิดหน้านี้': 'Loading all cases… this takes about 5 seconds. Please keep this page open.',
   'กำลังโหลดเคสที่เลือก… อย่าปิดหน้านี้': 'Loading the selected case… Please keep this page open.',
   'โหลดชุดข้อมูลทดสอบไม่สำเร็จ': 'Could not load the test data',
@@ -863,8 +865,10 @@ export const PATTERNS_PHASE_U: [RegExp, (m: RegExpExecArray, tr: Tr) => string][
   [/^ส่งตรวจข้อ (\S+) แล้ว — ประธานหลักสูตรได้รับแจ้งเตือน$/, m => `Item ${m[1]} submitted — the programme chair has been notified`],
   // TASK-0003 F1/F2 — จำนวนผู้รับแจ้งเตือนตามจริง
   [/^ส่งตรวจข้อ (\S+) แล้ว — แจ้งประธานหลักสูตร (\d+) คน$/, m => `Item ${m[1]} submitted — ${m[2]} programme chair(s) notified`],
-  [/^ส่งตรวจข้อ (\S+) แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน — แนะนำมอบหมายข้อให้อาจารย์เป็นผู้เขียนและส่งตรวจ$/, m => `Item ${m[1]} submitted, but no other programme chair was notified — we recommend assigning the item to a lecturer to write and submit`],
-  [/^ส่งตรวจข้อ (\S+) แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน$/, m => `Item ${m[1]} submitted, but no other programme chair was notified`],
+  [/^ส่งตรวจข้อ (\S+) แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน — ถ้าคุณเป็นผู้เขียนล่าสุด ให้ส่งกลับแก้ไขข้อนี้ แล้วมอบหมายให้อาจารย์เขียนและส่งตรวจใหม่$/,
+    m => `Item ${m[1]} submitted, but no other programme chair was notified — if you are the latest author, return this item for revision, then assign a lecturer to write and resubmit it`],
+  [/^ส่งตรวจข้อ (\S+) แล้ว แต่ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ได้รับแจ้งเตือน$/, m => `Item ${m[1]} submitted, but there is no active programme chair to notify yet`],
+  [/^ส่งข้อ (\S+) กลับแก้ไขแล้ว — มอบหมายให้อาจารย์เขียนต่อได้ที่หน้ามอบหมายงาน$/, m => `Item ${m[1]} returned for revision — assign a lecturer to continue writing on the assignment page`],
   [/^ส่งตรวจข้อ (\S+)$/, m => `Submit item ${m[1]} for review`],
   [/^ประธานหลักสูตร (\d+) คนจะได้รับแจ้งเตือน$/, m => `${m[1]} programme chair(s) will be notified`],
   // TASK-0003 S3d — ชุดข้อมูลทดสอบ

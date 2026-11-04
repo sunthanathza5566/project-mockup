@@ -8,10 +8,13 @@
 import { listScenarios, loadScenarioPack, resetToStandardSeed } from '@/lib/mock-data/aunqa/scenarios';
 
 listScenarios();                    // รายการเคส: id, titleTh, descriptionTh, accounts, paths, expectTh
-await loadScenarioPack();           // รีเซ็ตเป็น seed มาตรฐาน แล้วโหลด "ทุกเคส" (= loadScenarioPack('all'))
-await loadScenarioPack('deadlines'); // รีเซ็ต แล้วโหลดเคสเดียว
-await resetToStandardSeed();        // กลับเป็น seed มาตรฐาน (รวมส่วนเสริม F4)
+// actor = ผู้ใช้ที่กดจริง (เช่น user จาก session) ต้องเป็น super_admin ที่ active
+await loadScenarioPack(actor);              // รีเซ็ตเป็น seed มาตรฐาน แล้วโหลด "ทุกเคส" (= loadScenarioPack(actor, 'all'))
+await loadScenarioPack(actor, 'deadlines'); // รีเซ็ต แล้วโหลดเคสเดียว
+await resetToStandardSeed(actor);           // กลับเป็น seed มาตรฐาน (รวมส่วนเสริม F4)
 ```
+
+- **สิทธิ์ (ADR-AUTH-001 A8.3, security S-1):** ทั้งสองฟังก์ชันล้างข้อมูลทุก tenant จึงตรวจ `actor` ก่อนแตะข้อมูลใด ๆ — ต้องมี role `super_admin` และยัง active (`requireActiveActor`) เงื่อนไขและข้อความเดียวกับ `resetDemo` · ไม่ผ่าน → `AunqaError('forbidden', 'เฉพาะผู้ดูแลระบบสูงสุดเท่านั้นที่รีเซ็ตข้อมูลเดโม่ได้')` (หรือ `'ไม่มีสิทธิ์'` ถ้าถูกระงับ) และข้อมูลไม่ถูกเปลี่ยน · guard ใน UI เป็นแค่ชั้นเสริม
 
 - ใช้ได้เฉพาะในเบราว์เซอร์ (ข้อมูลอยู่ใน `localStorage` ของเบราว์เซอร์นั้น) — เปิดอีกเบราว์เซอร์/หน้าต่างไม่ระบุตัวตน จะไม่เห็นข้อมูลนี้
 - ทุกครั้งที่โหลด/รีเซ็ต **ข้อมูลเดิมทั้งหมดถูกล้าง** และ **session ถูกล้าง** → ต้องล็อกอินใหม่
@@ -104,7 +107,7 @@ await resetToStandardSeed();        // กลับเป็น seed มาต�
 
 ## ตรวจด้วยมือ (smoke) — สำหรับ qa-tester
 
-1. vitest (environment node + `tests/setup.ts` เหมือนเทสต์เดิม): `await loadScenarioPack()` → `loaded.length === listScenarios().length` และ `links` มีลิงก์เชิญ 2 รายการ (invite1 ใช้ได้ `peekInvitation` ≠ null, invite2 = null)
-2. โหลดทีละ id ทุกตัว (`for (const s of listScenarios()) await loadScenarioPack(s.id)`) ต้องไม่ throw · id ไม่รู้จัก → throw "ไม่รู้จัก scenario"
+1. vitest (environment node + `tests/setup.ts` เหมือนเทสต์เดิม): `await loadScenarioPack(sadmin)` → `loaded.length === listScenarios().length` และ `links` มีลิงก์เชิญ 2 รายการ (invite1 ใช้ได้ `peekInvitation` ≠ null, invite2 = null)
+2. โหลดทีละ id ทุกตัว (`for (const s of listScenarios()) await loadScenarioPack(sadmin, s.id)`) ต้องไม่ throw · id ไม่รู้จัก → throw "ไม่รู้จัก scenario" · actor ไม่ใช่ super_admin (เช่น lect1) หรือ super_admin ที่ถูกระงับ → `forbidden` และ localStorage ไม่เปลี่ยน
 3. ตรวจผลตามคอลัมน์ "ผลที่คาด" (ตัวอย่างที่ตรวจแล้ว: assess1 ปิดการประเมินรอบ 2562 ไม่ได้ "ขาด 5 เกณฑ์", ds-2568 ข้อ 1.1 รอตรวจแต่ไม่มีแจ้งเตือน, chairu2 ได้แจ้งเตือน 1.1 แต่ `listCycles(chair1)` ไม่มีรอบ uni 2, `verifySnapshot` รอบ 2560/2564 ok, newreq1 ล็อกอิน = `pending`, exstaff = `suspended`, lect1 ได้ deadline 4 bucket)
 4. ในเบราว์เซอร์: รอปุ่ม/route จาก frontend (HANDOFF ใน TASK-0003) แล้วเดินตามตารางด้านบนทีละเคส

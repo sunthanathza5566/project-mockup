@@ -85,6 +85,10 @@ export async function tick(): Promise<number> {
 /**
  * รันฟังก์ชันโดยให้ Date.now() ย้อนหลัง `days` วัน (ใช้สร้างลิงก์เชิญที่หมดอายุแล้วผ่าน inviteUser จริง)
  * คืนค่าเดิมเสมอ (finally) — ใช้กับข้อมูลเดโม่เท่านั้น
+ * ข้อจำกัด (review nit #4 / security S-4): แทน Date.now ทั้ง global ระหว่าง await → โค้ดอื่นในแท็บที่รันช่วงนั้น
+ *   (touchSession, deadline notice, toast timer) เห็นเวลาย้อน และ audit/invitation ที่เกิดช่วงนั้นถูกลงเวลาย้อนหลัง
+ * ห้ามใช้นอก scenario loader และ **ห้ามพาไป backend** — ฝั่ง server ให้ inject clock/now เข้า inviteUser ใน seed script แทน
+ *   (ห้าม monkey-patch เวลาใน process server)
  */
 export async function withClockShift<T>(days: number, fn: () => Promise<T>): Promise<T> {
   const real = Date.now;

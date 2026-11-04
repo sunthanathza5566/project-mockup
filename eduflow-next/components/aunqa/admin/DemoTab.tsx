@@ -5,7 +5,7 @@
  * (`resetDemo` ของ non-super = forbidden อยู่แล้ว) · logic/testid `reset-demo` เดิม
  *
  * TASK-0003 S3d — ส่วน "ชุดข้อมูลทดสอบ" (scenario seed ของ db-engineer · `lib/mock-data/aunqa/scenarios/README.md`)
- * - loader ไม่ตรวจสิทธิ์เอง → คอมโพเนนต์นี้ไม่ render และ handler ไม่ทำงานถ้าไม่ใช่ super_admin (กันซ้ำกับ guard ของหน้า)
+ * - loader ตรวจสิทธิ์ผู้เรียก (actor = user ปัจจุบัน · security S-1) · คอมโพเนนต์นี้ไม่ render และ handler ไม่ทำงานถ้าไม่ใช่ super_admin (กันซ้ำ)
  * - รายการจาก `listScenarios()` จัดกลุ่มตาม `group` · ปุ่ม "โหลดเคสนี้" / "โหลดทุกเคส" / "รีเซ็ตเป็นข้อมูลมาตรฐาน"
  *   ทุกปุ่มยืนยันด้วย confirm (danger) ก่อน เพราะล้างข้อมูลทั้งหมด · ระหว่างโหลดปิดทุกปุ่ม + แถบสถานะ (โหลดทุกเคส ~5 วินาที)
  * - สำเร็จ: session ถูกล้างโดย loader → เก็บสรุป (เคส/บัญชี/ลิงก์เชิญ) ใน sessionStorage (`lib/ui/scenario-summary`)
@@ -59,7 +59,8 @@ export default function DemoTab({ user }: { user: AppUser }) {
     return GROUPS.map(g => ({ ...g, items: list.items.filter(s => s.group === g.k) })).filter(g => g.items.length);
   }, [list.items]);
 
-  const [busy, setBusy] = useState<Job['kind'] | null>(null);
+  // 'legacy' = ปุ่ม reset-demo เดิม — ใช้ busy ร่วมกันเพื่อล็อกปุ่ม scenario ระหว่างรีเซ็ต (review nit #8)
+  const [busy, setBusy] = useState<Job['kind'] | 'legacy' | null>(null);
   const [busyLabel, setBusyLabel] = useState('');
 
   if (!allowed) return null;
@@ -91,10 +92,10 @@ export default function DemoTab({ user }: { user: AppUser }) {
       let summary: ScenarioSummary;
       if (job.kind === 'reset') {
         const started = Date.now();
-        await resetToStandardSeed();
+        await resetToStandardSeed(user);
         summary = { kind: 'reset', cases: [], links: [], ms: Date.now() - started, at: Date.now() };
       } else {
-        const res: ScenarioLoadResult = await loadScenarioPack(job.kind === 'all' ? ALL_SCENARIOS_ID : job.info.id);
+        const res: ScenarioLoadResult = await loadScenarioPack(user, job.kind === 'all' ? ALL_SCENARIOS_ID : job.info.id);
         const byId = new Map(list.items.map(s => [s.id, s]));
         summary = {
           kind: job.kind,
@@ -131,13 +132,18 @@ export default function DemoTab({ user }: { user: AppUser }) {
               title: 'รีเซ็ตข้อมูลเดโม่?', message: 'ข้อมูลที่แก้ไขทั้งหมดจะหาย และย้อนกลับไม่ได้', variant: 'danger',
               confirmText: 'ยืนยันล้างและสร้างข้อมูลเดโม่ใหม่',
             });
-            if (!ok) return;
+            if (!ok || busy) return;
+            setBusy('legacy');
+            setBusyLabel('กำลังรีเซ็ตข้อมูลเดโม่…');
             try {
               await resetDemo(user);
               await notify({ title: 'รีเซ็ตเรียบร้อย', message: 'กรุณาเข้าสู่ระบบใหม่' });
               refresh();
               router.push('/login');
-            } catch (e) { await notify({ title: 'รีเซ็ตไม่สำเร็จ', message: errMsg(e), variant: 'danger' }); }
+            } catch (e) {
+              setBusy(null);
+              await notify({ title: 'รีเซ็ตไม่สำเร็จ', message: errMsg(e), variant: 'danger' });
+            }
           }}><Icon name="trash" size={20} />รีเซ็ตข้อมูลเดโม่</AsyncButton>
         </div>
       </section>

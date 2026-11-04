@@ -308,7 +308,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
               ) : undefined}>
               {submitterIsChair ? (<>
                 <p className="m-0">ไม่มีประธานหลักสูตรคนอื่นในหลักสูตรนี้ที่จะได้รับแจ้งเตือน และถ้าคุณเป็นผู้เขียนล่าสุดของข้อนี้ คุณจะอนุมัติข้อนี้เองไม่ได้</p>
-                <p className="m-0 mt-1">แนะนำให้มอบหมายข้อนี้ให้อาจารย์เป็นผู้เขียนและกดส่งตรวจแทน</p>
+                <p className="m-0 mt-1">แนะนำให้ยังไม่ส่ง แล้วมอบหมายข้อนี้ให้อาจารย์เป็นผู้เขียนและกดส่งตรวจแทน (ถ้าส่งไปแล้ว ต้องส่งกลับแก้ไขก่อน อาจารย์จึงจะแก้และส่งตรวจใหม่ได้)</p>
               </>) : (
                 <p className="m-0">ตอนนี้ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ ข้อนี้จะรออยู่ในคิวตรวจจนกว่าจะมีประธานหลักสูตร</p>
               )}
@@ -345,12 +345,14 @@ export default function SarWorkspace({ data, user, reload, remount }: {
         showToast(`ส่งตรวจข้อ ${req.id} แล้ว — แจ้งประธานหลักสูตร ${notifiedCount} คน`, 'success',
           nextAction ? { action: nextAction } : undefined);
       } else {
-        const assignAction = selfReview && canAssignWork
-          ? { label: 'ไปหน้ามอบหมายงาน', onClick: () => router.push(`/app/cycles/${cycle.id}/assign`) } : undefined;
-        const action = assignAction ?? nextAction;
+        // review #1: ตอนนี้ข้ออยู่ ready_for_review แล้ว — อาจารย์แก้/ส่งซ้ำไม่ได้ ถ้าไม่ส่งกลับแก้ไขก่อน
+        // จึงไม่พาไปหน้ามอบหมายตรง ๆ แต่ให้ปุ่มส่งกลับแก้ไข (prompt ยกเลิกได้) แล้วค่อยชี้ไปหน้ามอบหมาย
+        const returnAction = selfReview && can(user, 'sar.return', scope)
+          ? { label: 'ส่งกลับแก้ไขข้อนี้', onClick: () => { void doReturn({ thenAssign: true }); } } : undefined;
+        const action = returnAction ?? nextAction;
         showToast(selfReview
-          ? `ส่งตรวจข้อ ${req.id} แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน — แนะนำมอบหมายข้อให้อาจารย์เป็นผู้เขียนและส่งตรวจ`
-          : `ส่งตรวจข้อ ${req.id} แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน`,
+          ? `ส่งตรวจข้อ ${req.id} แล้ว แต่ไม่มีประธานหลักสูตรคนอื่นได้รับแจ้งเตือน — ถ้าคุณเป็นผู้เขียนล่าสุด ให้ส่งกลับแก้ไขข้อนี้ แล้วมอบหมายให้อาจารย์เขียนและส่งตรวจใหม่`
+          : `ส่งตรวจข้อ ${req.id} แล้ว แต่ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ได้รับแจ้งเตือน`,
         'info', action ? { action, durationMs: 12000 } : { durationMs: 12000 });
       }
       remount();
@@ -374,13 +376,20 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     try { approveSection(user, cycle.id, req.id); toastWithNext(`อนุมัติข้อ ${req.id} แล้ว`); notifyTodosChanged(); remount(); }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
-  async function doReturn() {
+  async function doReturn(opts?: { thenAssign?: boolean }) {
     const note = await prompt({
       title: `ส่งข้อ ${req.id} กลับแก้ไข`, message: 'ระบุสิ่งที่ต้องแก้ (เจ้าของข้อจะได้รับแจ้งเตือน)', required: true,
       variant: 'warning', confirmText: 'ยืนยันส่งกลับแก้ไข',
     });
     if (note === null) return;
-    try { returnSection(user, cycle.id, req.id, note); toastWithNext(`ส่งข้อ ${req.id} กลับแก้ไขแล้ว`); notifyTodosChanged(); remount(); }
+    try {
+      returnSection(user, cycle.id, req.id, note);
+      if (opts?.thenAssign && canAssignWork) {
+        showToast(`ส่งข้อ ${req.id} กลับแก้ไขแล้ว — มอบหมายให้อาจารย์เขียนต่อได้ที่หน้ามอบหมายงาน`, 'success',
+          { action: { label: 'ไปหน้ามอบหมายงาน', onClick: () => router.push(`/app/cycles/${cycle.id}/assign`) }, durationMs: 12000 });
+      } else toastWithNext(`ส่งข้อ ${req.id} กลับแก้ไขแล้ว`);
+      notifyTodosChanged(); remount();
+    }
     catch (e) { showToast(errMsg(e), 'error'); }
   }
   async function doRestore(v: SarSectionVersion) {
@@ -667,7 +676,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
                   {canApprove && <AsyncButton testId="section-approve" busyText="กำลังอนุมัติ…" onClick={doApprove}><Icon name="check" size={20} />อนุมัติข้อนี้</AsyncButton>}
                   {canReturn && (
                     <span className="sm:order-first sm:mr-4">
-                      <AsyncButton variant="destructiveOutline" testId="section-return" onClick={doReturn}><Icon name="undo" size={20} />ส่งกลับแก้ไข</AsyncButton>
+                      <AsyncButton variant="destructiveOutline" testId="section-return" onClick={() => doReturn()}><Icon name="undo" size={20} />ส่งกลับแก้ไข</AsyncButton>
                     </span>
                   )}
                   {!canSubmit && !canApprove && !canReturn && !editable && <span className="aq-meta">ไม่มีการดำเนินการที่ทำได้ในสถานะนี้</span>}
