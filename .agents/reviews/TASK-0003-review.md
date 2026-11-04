@@ -33,3 +33,51 @@ Verdict: **CHANGES_REQUESTED** (major 1 ข้อ — แก้ไม่ยา�
 ## ต้องตรวจซ้ำรอบถัดไป
 - ข้อ 1 (บังคับ) + ข้อ 6 ถ้าแก้พร้อมกัน: diff `SarWorkspace.tsx` + `dict-phase-u.ts`, รัน tsc + vitest, ตรวจ EN ของข้อความใหม่ด้วย `lookupEn`
 - ข้อ 2 ตรวจใน S6 (qa) — ถ้าไม่มีเทสต์ scenario/F4 ใน `tests/` ก่อน S8 ให้ถือเป็น major ในรอบตรวจสุดท้าย
+
+---
+
+# รอบ 2 (S5) — ตรวจ fix commit 4bd032a
+
+- ขอบเขต: `git show 4bd032a -- eduflow-next` (8 ไฟล์ใน eduflow-next) เทียบ review รอบ 1 (#1, #4, #5, #6, #8) + security S-1/S-2/S-3 (ตรวจแทน security-auditor — **ตรวจแล้วจริงด้วย probe** ผลอยู่ด้านล่าง)
+- รันเอง: `npx tsc --noEmit -p .` → 0 error · `npx vitest run` → 31 files / 850 passed · probe ของ reviewer (scratchpad ไม่ commit: `scratchpad/rev0003/probe.test.ts` + `vitest.probe.config.ts`) → **7/7 ผ่าน**
+- Ownership: `lib/mock-data/aunqa/**` = db-engineer · `components/**`, `lib/ui/**`, `lib/i18n/**` = frontend-dev ตรงตาม Log ทั้งสอง ไม่มีไฟล์นอกโซน · ไม่มีของเกินที่ไม่ได้ขอ
+
+Verdict: **APPROVE**
+
+| # | severity | file:line | ปัญหา | ข้อเสนอแก้ |
+|---|----------|-----------|-------|------------|
+| R2-1 | minor | `eduflow-next/components/aunqa/SarWorkspace.tsx:409` (canSubmit) + `lib/api/workflow.ts:415` | ทางตันย่อยที่ยังเหลือ (ไม่ใช่ regression): หลังประธานส่งกลับ→มอบหมาย ถ้าอาจารย์กด "ส่งตรวจ" **โดยไม่แก้เนื้อหา** `lastAuthorId` ยังเป็นประธาน → ประธานได้แจ้งเตือน (toast ของอาจารย์บอก "แจ้งประธาน 1 คน") แต่อนุมัติไม่ได้ (probe R1b ยืนยัน) · กู้ได้: ประธานเห็น `segregation-note` และส่งกลับซ้ำได้ จึงไม่ใช่ทางตันจริง | dialog ส่งตรวจของผู้ที่ไม่ใช่ประธาน เตือนเมื่อ `section.lastAuthorId && section.lastAuthorId !== user.id` เช่น "เนื้อหาข้อนี้ยังเป็นของผู้เขียนคนก่อน ถ้าผู้เขียนคนก่อนเป็นประธาน ประธานจะอนุมัติไม่ได้ — แก้หรือเพิ่มเนื้อหาก่อนส่ง" — frontend-dev · qa-tester ใส่เคสนี้ใน S6 |
+| R2-2 | nit | `eduflow-next/components/aunqa/SarWorkspace.tsx:547` (ของเดิม ไม่อยู่ใน diff) | `segregation-note` ตอนข้อเป็น `ready_for_review` แนะนำ "ให้มอบหมายข้อนี้ให้ผู้อื่นปรับหรือส่งตรวจ" — อาการเดียวกับ #1 (ผู้ถูกมอบหมายแก้ไม่ได้จนกว่าจะส่งกลับ) แต่ประโยคเดียวกันมี "หรือกด ส่งกลับแก้ไข" จึงไม่ตัน | ปรับเป็น "กด ส่งกลับแก้ไข แล้วมอบหมายให้ผู้อื่นปรับและส่งตรวจ จากนั้นคุณจึงอนุมัติได้" ให้ตรงกับ toast ใหม่ — frontend-dev (ทำพร้อม R2-1 ได้) |
+| R2-3 | nit | `eduflow-next/lib/mock-data/aunqa/scenarios/index.ts` (`assertResetActor`) | เช็ก role จาก object ที่ส่งเข้ามา และ `requireActiveActor` เช็กสถานะจาก store — actor ปลอมที่ id ไม่มีใน store ผ่านได้ (เหมือน `resetDemo` เดิม และ `tests/helpers.ts` ใช้ TEST_ADMIN แบบนี้) · ในชั้น localStorage ยอมรับได้ | ไม่ต้องแก้ตอนนี้ · บน backend actor ต้องมาจาก session ฝั่ง server เท่านั้น (อยู่ใน (ก)-1 ของ security แล้ว) |
+
+## ผลตรวจรายข้อจากรอบ 1
+
+| รอบ 1 | สถานะ | หลักฐาน |
+|-------|-------|---------|
+| **#1 major** toast ทางตัน | **แก้แล้ว** | toast มีเงื่อนไข "ถ้าคุณเป็นผู้เขียนล่าสุด…" + ขั้นครบ (ส่งกลับ→มอบหมาย→อาจารย์เขียนและส่งใหม่) · ปุ่ม action เป็น "ส่งกลับแก้ไขข้อนี้" (แสดงเมื่อ `can(sar.return)`) → prompt บังคับ note ยกเลิกได้ → สำเร็จแล้ว toast + ปุ่ม "ไปหน้ามอบหมายงาน" (เมื่อ `canAssignWork`) · ไล่ state machine: `ready_for_review→changes_requested` ด้วย `sar.return` ไม่มี segregation · `assignSections` ไม่จำกัดสถานะข้อ · `changes_requested` อยู่ใน `SECTION_EDITABLE`/`EDITABLE_SECTION` · `saveSection` ตั้ง `lastAuthorId` = อาจารย์ · submit แจ้ง `submitRecipientsOf(cycle, lect)` = ประธาน · approve ผ่าน segregation · **probe R1 เดินครบทั้งเส้นทางผ่าน API จริง: chair เขียน → preview 0 → submit (notified 0, selfReview true) → approve ถูกปฏิเสธ → return → assign lect1 → แก้ได้ → lect บันทึก → preview 1 → submit (notified 1) → แจ้งเตือนประธาน +1 → approve = approved** · closure ของปุ่มใน toast หลัง `remount()` ใช้ `prompt`/`router` จาก context และ `remount` จาก parent จึงยังทำงานได้; ถ้าสถานะข้อเปลี่ยนก่อนกด `returnSection` จะ throw แล้วแสดง error toast (ไม่เงียบ) · dialog ก่อนส่งแนะนำ "ยังไม่ส่ง…(ถ้าส่งไปแล้ว ต้องส่งกลับแก้ไขก่อน)" ถูกต้อง |
+| #4 nit `withClockShift` | แก้แล้ว (comment ข้อจำกัด + ห้ามพาไป backend) | `scenarios/helpers.ts` doc comment |
+| #5 nit นิยามผู้รับ N3 | แก้แล้ว | `standard-extras.ts` ใช้ `submitRecipientsOf(cycle, s.lastAuthorId ?? '')` · ลบ import ที่ไม่ใช้ · probe: chair1 N3 = 5 = ข้อ ready ทั้งหมด, `applyStandardSeedExtras` ครั้งที่ 2 คืน 0 |
+| #6 nit "คนอื่น" | แก้แล้ว | กรณี `!selfReview` = "แต่ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ได้รับแจ้งเตือน" |
+| #7 nit EN error loader | ไม่แก้ (ยอมรับเป็นข้อจำกัดภายในเดโม่ — frontend-dev จดไว้) | ยอมรับ |
+| #8 nit ปุ่ม reset-demo ไม่ล็อก | แก้แล้ว | `busy='legacy'` + แถบสถานะ · ล้มแล้ว `setBusy(null)` · สำเร็จแล้วไป /login (ไม่ต้องคืน busy) |
+| #2 minor เทสต์ scenario/F4 | ยังค้าง → ด่าน S6 (ตามเดิม) | ถ้าไม่มีใน `tests/` ก่อน S8 = major |
+| #3 minor คู่มือ | ยังค้าง → docs-writer S7 (เพิ่ม: ข้อความ toast ใหม่ทั้ง 3 แบบ) | — |
+| EN | ผ่าน | pattern 3 ตัว + key 3 ตัวตรงตัวอักษรกับโค้ด (เทียบทีละตัว) · ลบ key/pattern เก่าครบ · ไม่ซ้ำ |
+
+## Re-check security (แทน security-auditor — ตรวจแล้ว)
+
+| ID | สถานะ | หลักฐาน (probe ของ reviewer) |
+|----|-------|-------------------------------|
+| **S-1** Medium | **ปิด** | `loadScenarioPack(actor, id?)` / `resetToStandardSeed(actor)` → `assertResetActor` เช็ก role super_admin จาก object **ก่อนแตะ storage ใด ๆ** (ก่อน `initAunqa`) แล้วจึง `requireActiveActor` · `resetDemo(actor)` เช็กซ้ำอีกชั้น · ไม่ใช้ `maybeUser('sadmin')` แล้ว · ผู้เรียกมีที่เดียว (`DemoTab.tsx:95,98` ส่ง `user`) · probe S1: lect1/chair1/uadmin × (load id, load all, reset) + id ผิดโดย lect1 + `null` → `forbidden` ทุกกรณี และ **snapshot localStorage ทั้งก้อนก่อน = หลัง** · probe S1-empty: non-super บน storage ว่าง → forbidden และ `localStorage.length === 0` (ไม่ seed) · probe S1b: sadmin ถูกระงับ → forbidden, storage ไม่เปลี่ยน · sadmin active + id ผิด → "ไม่รู้จัก scenario" storage ไม่เปลี่ยน · sadmin active โหลด `user-pending` สำเร็จ + session ถูกล้าง |
+| **S-2** Low | **ปิด** | `isSafeLink` กรอง `labelTh` string + href ตรง `^/invite#t=[A-Za-z0-9_-]{43}$` · probe: `javascript:`, token 44 ตัว, `//evil.example/invite#t=…`, labelTh ไม่ใช่ string → ถูกกรองหมด เหลือลิงก์ถูกรูปตัวเดียว · panel ได้เฉพาะค่าหลังกรอง |
+| **S-3** Low | **ปิด** | TTL 10 นาที (ขอบเขตรวม) · เกิน → `removeItem` ทั้งก้อนคืน null · `at` อนาคต → null · take ครั้งแรกลบลิงก์ออกจาก storage · ครั้งที่ 2 links = [] · comment ระบุข้อยกเว้นเดโม่ต่อ ADR R5 แล้ว |
+| S-4 Low | รับทราบ (comment แล้ว) | ดู #4 |
+
+## ข้อดีที่ควรเก็บเป็นบทเรียน
+- db-engineer: guard ทำลายข้อมูลตรวจส่วนที่ไม่ต้องอ่าน store (role) **ก่อน** `initAunqa` ทำให้ non-super บน storage ว่างไม่ทำให้เกิด seed เลย — และทดสอบด้วย snapshot storage ทั้งก้อน ไม่ใช่แค่ดูว่า throw
+- frontend-dev: แก้ทางตันด้วยการให้ปุ่มใน toast เป็น "ขั้นที่ทำได้จริงในสถานะใหม่" (ส่งกลับ) แล้วค่อยชี้ขั้นถัดไปหลังขั้นนั้นสำเร็จ · `take(now = Date.now())` ทำให้เทสต์ TTL ได้โดยไม่ต้อง mock นาฬิกา
+- reviewer (บทเรียนตัวเอง): ตรวจทางตันต้องเดินเส้นทางที่ผู้ใช้อาจเบี่ยงด้วย (อาจารย์ส่งโดยไม่แก้ = R2-1) ไม่ใช่แค่เส้นทางที่ข้อความแนะนำ
+
+## ส่งต่อ
+- S6 qa-tester: ทำ probe R1 (เส้นทางเต็ม), R1b, S1/S1-empty/S1b (snapshot ก่อน/หลัง), S2/S3 (`take(now)`) ให้เป็นเทสต์ถาวร + #2 รอบ 1
+- R2-1/R2-2 (minor/nit) ไม่ block — orchestrator ตัดสินว่าจะแก้ใน TASK นี้ก่อน S7 หรือยกไป follow-up
