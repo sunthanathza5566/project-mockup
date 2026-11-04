@@ -442,6 +442,11 @@ export const EN_PHASE_U: Record<string, string> = {
   'ส่งกลับแก้ไขข้อนี้': 'Return this item for revision',
   'ตอนนี้ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ ข้อนี้จะรออยู่ในคิวตรวจจนกว่าจะมีประธานหลักสูตร': 'There is no active programme chair right now. This item will wait in the review queue until there is one.',
   'ไปหน้ามอบหมายงาน': 'Go to Assign work',
+  // TASK-0003 R2-1/R2-2 — ผู้เขียนล่าสุดเป็นประธาน (segregation ตัดสินจาก lastAuthorId)
+  'เนื้อหาล่าสุดของข้อนี้เขียนโดยประธานหลักสูตร': 'The latest content of this item was written by a programme chair',
+  'ถ้าส่งตรวจโดยไม่แก้ไข ประธานหลักสูตรที่เขียนเนื้อหาล่าสุดจะอนุมัติข้อนี้เองไม่ได้': 'If you submit without editing, the programme chair who wrote the latest content cannot approve this item themselves.',
+  'แนะนำให้กด “กลับไปเติมก่อน” แล้วแก้ไขหรือเพิ่มเนื้อหาของคุณ จากนั้นจึงส่งตรวจ': 'We recommend clicking “Go back and add more”, editing or adding your own content, and then submitting.',
+  'กด “ส่งกลับแก้ไข” ก่อน แล้วจึงมอบหมายให้ผู้อื่นปรับและส่งตรวจ จากนั้นคุณจึงอนุมัติได้': 'Click “Return for revision” first, then assign someone else to revise and submit it — after that you can approve it.',
   // TASK-0003 S3d — ชุดข้อมูลทดสอบ (แท็บเดโม่) + สรุปบนหน้า login · ข้อความของเคส (titleTh/roleTh/expectTh) เป็นข้อมูล seed ไม่แปล
   'ชุดข้อมูลทดสอบ': 'Test data sets',
   'โหลดข้อมูลสมมติของสถานการณ์ที่ต้องการทดสอบ แล้วเข้าสู่ระบบด้วยบัญชีที่แนะนำของเคสนั้น ทุกบัญชีใช้รหัสผ่าน demo1234':
@@ -869,6 +874,8 @@ export const PATTERNS_PHASE_U: [RegExp, (m: RegExpExecArray, tr: Tr) => string][
     m => `Item ${m[1]} submitted, but no other programme chair was notified — if you are the latest author, return this item for revision, then assign a lecturer to write and resubmit it`],
   [/^ส่งตรวจข้อ (\S+) แล้ว แต่ยังไม่มีประธานหลักสูตรที่ใช้งานอยู่ได้รับแจ้งเตือน$/, m => `Item ${m[1]} submitted, but there is no active programme chair to notify yet`],
   [/^ส่งข้อ (\S+) กลับแก้ไขแล้ว — มอบหมายให้อาจารย์เขียนต่อได้ที่หน้ามอบหมายงาน$/, m => `Item ${m[1]} returned for revision — assign a lecturer to continue writing on the assignment page`],
+  [/^ผู้เขียนเนื้อหาล่าสุดคือ (.+) — ถ้าส่งตรวจโดยไม่แก้ไข ผู้เขียนคนนี้จะอนุมัติข้อนี้เองไม่ได้$/,
+    m => `The latest content was written by ${m[1]} — if you submit without editing, they cannot approve this item themselves`],
   [/^ส่งตรวจข้อ (\S+)$/, m => `Submit item ${m[1]} for review`],
   [/^ประธานหลักสูตร (\d+) คนจะได้รับแจ้งเตือน$/, m => `${m[1]} programme chair(s) will be notified`],
   // TASK-0003 S3d — ชุดข้อมูลทดสอบ

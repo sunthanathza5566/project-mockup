@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import {
   RATING_SCALE, TRANSLATE_MAX_CHARS, acceptAiRun, addComment, approveSection, can, citableCodes, confirmTranslationReviewed,
   cycleScope, getGaps, linkEvidence, listMyTodos, programmeScope, resolveComment, restoreVersion, returnSection,
-  isSectionEditable, previewSubmitRecipients, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSectionWithNotice,
+  getUserById, isSectionEditable, previewSubmitRecipients, runSarDrafter, runSarReviewer, runTranslate, saveSection, setSelfRating, submitSectionWithNotice,
   touchSession, unlinkEvidence,
   validateCitations, AunqaError, listSections,
 } from '@/lib/api';
@@ -292,6 +292,21 @@ export default function SarWorkspace({ data, user, reload, remount }: {
     const noRecipient = recipients === 0;
     // ผู้กดมีสิทธิ์อนุมัติข้อนี้ (= ประธาน) — ไม่ได้รู้ว่าเป็นผู้เขียนล่าสุดหรือไม่ จึงใช้ "ถ้า…" ในข้อความ
     const submitterIsChair = can(user, 'sar.approve', scope);
+    // R2-1 (TASK-0003): segregation ใน workflow.ts ตัดสินจาก lastAuthorId ไม่ใช่ผู้กดส่ง — ถ้าส่งโดยไม่แก้
+    // และผู้เขียนล่าสุดเป็นผู้มีสิทธิ์อนุมัติ (ประธาน) คนนั้นจะอนุมัติข้อนี้เองไม่ได้ → เตือนให้แก้/เพิ่มเนื้อหาก่อน
+    // อ่านข้อใหม่หลัง save (save ที่ไม่มีอะไรเปลี่ยนจะไม่ตั้ง lastAuthorId — sar.store saveSection)
+    let staleChairAuthor: { name: string } | null = null;
+    let lastAuthorId = section.lastAuthorId;
+    try {
+      const fresh = listSections(user, cycle.id).find(x => x.requirementId === req.id);
+      if (fresh) lastAuthorId = fresh.lastAuthorId;
+    } catch { /* อ่านไม่ได้ → ใช้ค่าที่โหลดไว้ */ }
+    if (lastAuthorId && lastAuthorId !== user.id) {
+      try {
+        const author = getUserById(lastAuthorId);
+        if (author && can(author, 'sar.approve', scope)) staleChairAuthor = { name: names[author.id] || author.fullName || '' };
+      } catch { /* อ่านผู้ใช้ไม่ได้ → ไม่เตือน */ }
+    }
     const ok = await confirm({
       title: recipients && recipients > 0 ? `ส่งข้อ ${req.id} ให้ประธานหลักสูตรตรวจ` : `ส่งตรวจข้อ ${req.id}`,
       message: 'หลังส่งแล้วจะแก้ไขไม่ได้จนกว่าจะถูกส่งกลับ',
@@ -314,6 +329,14 @@ export default function SarWorkspace({ data, user, reload, remount }: {
               )}
             </InlineMessage>
           )}
+          {staleChairAuthor && (
+            <InlineMessage tone="warn" testId="submit-stale-author-warning" title="เนื้อหาล่าสุดของข้อนี้เขียนโดยประธานหลักสูตร">
+              <p className="m-0">{staleChairAuthor.name
+                ? `ผู้เขียนเนื้อหาล่าสุดคือ ${staleChairAuthor.name} — ถ้าส่งตรวจโดยไม่แก้ไข ผู้เขียนคนนี้จะอนุมัติข้อนี้เองไม่ได้`
+                : 'ถ้าส่งตรวจโดยไม่แก้ไข ประธานหลักสูตรที่เขียนเนื้อหาล่าสุดจะอนุมัติข้อนี้เองไม่ได้'}</p>
+              <p className="m-0 mt-1">แนะนำให้กด “กลับไปเติมก่อน” แล้วแก้ไขหรือเพิ่มเนื้อหาของคุณ จากนั้นจึงส่งตรวจ</p>
+            </InlineMessage>
+          )}
           {recipients !== null && recipients > 0 && (
             <p className="m-0 text-base text-muted-foreground" data-testid="submit-recipient-count">{`ประธานหลักสูตร ${recipients} คนจะได้รับแจ้งเตือน`}</p>
           )}
@@ -324,7 +347,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
           ))}</ul>
         </div>
       ),
-      variant: warn || noRecipient ? 'warning' : 'primary',
+      variant: warn || noRecipient || staleChairAuthor ? 'warning' : 'primary',
       confirmText: warn ? `ยืนยันส่งตรวจ (ยังมี ${warn} จุดที่ควรเติม)` : 'ยืนยันส่งตรวจ',
       cancelText: 'กลับไปเติมก่อน',
       initialFocus: warn ? 'cancel' : 'confirm',
@@ -544,7 +567,7 @@ export default function SarWorkspace({ data, user, reload, remount }: {
       {!editable && <InlineMessage tone="info" icon={cycle.lockedAt ? 'lock' : 'info'} testId="readonly-reason">{readonlyText}</InlineMessage>}
       {selfAuthored && (
         <InlineMessage tone="warn" testId="segregation-note" title={<>คุณเป็นผู้เขียนเนื้อหาล่าสุดของข้อนี้ จึงอนุมัติเองไม่ได้ <Term k="segregation" label="การแยกหน้าที่" /></>}>
-          ให้มอบหมายข้อนี้ให้ผู้อื่นปรับหรือส่งตรวจ แล้วคุณค่อยอนุมัติ หรือกด “ส่งกลับแก้ไข” หากต้องการให้แก้เพิ่ม
+          กด “ส่งกลับแก้ไข” ก่อน แล้วจึงมอบหมายให้ผู้อื่นปรับและส่งตรวจ จากนั้นคุณจึงอนุมัติได้
         </InlineMessage>
       )}
 
