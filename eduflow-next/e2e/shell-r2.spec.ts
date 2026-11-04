@@ -146,7 +146,8 @@ test.describe('AC-22 ปุ่มภาษา', () => {
     await expect(page.locator('h1').first()).not.toHaveText(THAI);
 
     await page.getByTestId('lang-th').click();
-    await expect(page.getByTestId('nav-bell')).toHaveText('แจ้งเตือน');
+    // TASK-0003 F4: seed ให้ chair1 มีแจ้งเตือนยังไม่อ่าน 5 รายการ → ข้อความปุ่ม = ป้าย + ตัวนับ (เช่น "แจ้งเตือน5")
+    await expect(page.getByTestId('nav-bell')).toHaveText(/^แจ้งเตือน\d*$/);
     expect(await page.evaluate(() => localStorage.getItem('aunqa_lang'))).toBe('th');
     await logoutViaMenu(page);
     await page.waitForURL(u => new URL(u).pathname === '/');

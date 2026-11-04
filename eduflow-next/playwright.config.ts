@@ -10,6 +10,8 @@ const PORT = Number(process.env.E2E_PORT || 3917);
 export default defineConfig({
   testDir: './e2e',
   testMatch: /.*\.spec\.ts/,
+  // TASK-0003 S6b: วิดีโอ walkthrough รันแยกด้วย playwright.walkthrough.config.ts เท่านั้น
+  testIgnore: '**/walkthrough/**',
   outputDir: './e2e/artifacts/results',
   timeout: 120_000,
   expect: { timeout: 10_000 },
