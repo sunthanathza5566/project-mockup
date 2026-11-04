@@ -1,4 +1,6 @@
-# SYSTEM MAP  (อัปเดต: 2026-10-26, ถึง commit b0fa21a — รอบ 2 ของ TASK-0002: โซน lib/ (โมดูล, Data Model, Flow, บทบาท, External, จุดเสี่ยง) อ่านใหม่ตรง HEAD; Routes & Pages + Frontend ยังเป็นฉบับ 732d06e)
+# SYSTEM MAP  (อัปเดต: 2026-11-04, ถึง commit c63b43a — TASK-0003 S1: อ่านใหม่เฉพาะ F-C ผู้ใช้/onboarding, F-E/F-F แจ้งเตือน, F-G workflow, บทบาท×เมนู, จุดเสี่ยง 13–15; หัวข้ออื่นยังเป็นฉบับ b0fa21a/732d06e)
+
+> **TASK-0003 (2026-11-04):** รายละเอียดเต็ม (ตาราง role, แจ้งเตือน N1–N14, workflow, root cause ประธานไม่ได้แจ้งเตือน, เคส seed) อยู่ที่ `.agents/research/TASK-0003-roles.md` — หัวข้อ F-C/F-E/F-F ด้านล่างสรุปตรง HEAD c63b43a แล้ว
 
 > ที่มา: อ่านโค้ดจริงโดย code-reader. path อ้างอิงจาก `eduflow-next/` ยกเว้นระบุอย่างอื่น. ไม่ได้อ่านไฟล์ `.env`.
 > **สถานะความสด:** หัวข้อ โมดูล / Data Model / Flow / บทบาท / External / จุดเสี่ยง = **ตรง HEAD b0fa21a** (อ่านใหม่ 2026-10-26, เนื้อหา EduFlow เดิมถูกแทนทั้งหมด). หัวข้อ "Routes & Pages" และ "Frontend (UI layer)" = ฉบับ 732d06e — โครง route ยังถูก แต่ S0–S2 ของ TASK-0002 เปลี่ยน markup/CSS ไปแล้ว (Tailwind + shadcn primitives ใน `components/ui/primitives/*`, `AppTopbar.tsx` ใหม่) ให้ถือส่วน F1–F5 เป็นประวัติ.
@@ -42,6 +44,8 @@ Root layout `app/layout.tsx`: `<html lang="th">`, `viewport.colorScheme:'light'`
 |---|---|---|---|
 | `/` | `app/page.tsx` → LandingNav/Hero/About/Flow/Trust/Cta/Footer (`components/landing/*`) | (Hero) | public |
 | `/login` | `app/login/page.tsx` → `AuthLayout` + `LoginForm` (Suspense) | ใน LoginForm | public; `?reason=` แสดง `login-reason` |
+| `/request-access` | `app/request-access/page.tsx` → `components/auth/RequestAccessForm.tsx` | — | public (เพิ่มใน TASK-0002 R2; ตรวจ 2026-11-04) → `submitAccessRequest` |
+| `/invite#t=<token>` | `app/invite/page.tsx` → `components/auth/InviteAcceptForm.tsx` | — | public → `peekInvitation` / `acceptInvitation` |
 | `*` (404) | `app/not-found.tsx` → `components/ui/NotFoundView.tsx` | — | public |
 | `/app/*` layout | `app/app/layout.tsx` → `components/aunqa/AppShell.tsx` | — | ต้องล็อกอิน; assessor-only เห็น `readonly-banner` (`AppShell.tsx:145-149`) |
 | `/app` | `app/app/page.tsx` (to-do, งานของฉัน, แจ้งเตือน `#notifications`) | หน้าหลัก (`:109-110`) | ทุก role |
@@ -165,7 +169,7 @@ Root layout `app/layout.tsx`: `<html lang="th">`, `viewport.colorScheme:'light'`
 | `University` `:21` | `aunqa_universities` | `id, nameTh/En, emailDomain, aiEnabled` — `emailDomain` **ไม่ถูกใช้ที่ไหนเลย**; `aiEnabled` ใช้ใน `ai.service.ts:42,457` |
 | `Faculty` `:22` | `aunqa_faculties` | `universityId` |
 | `Programme` `:23-26` | `aunqa_programmes` | `universityId, facultyId, code, degreeLevel, curriculumYear` |
-| `AppUser` `:28-31` | `aunqa_users` | `id ('u-<username>'), username, password ('sha256:…' หรือ plaintext seed), universityId, email, fullName, roles: RoleAssignment[]` — **ไม่มี** status/active/invitedAt/createdAt/lastLogin/locale |
+| `AppUser` `:28-31` | `aunqa_users` | `id ('u-<username>'), username, password ('sha256:…' หรือ plaintext seed), universityId, email, fullName, roles: RoleAssignment[], status?: active\|invited\|pending\|suspended, accessRequest? (เฉพาะ pending)` (อัปเดต 2026-11-04: `lib/types.ts:30-45`; ตารางใหม่ `aunqa_invitations`) |
 | `RoleAssignment` `:27` | (ฝังใน user) | `{ role: RoleCode, scopeType: 'university'\|'faculty'\|'programme'\|'cycle', scopeId }` — 1 user มีหลาย role/หลาย scope ได้; super_admin ใช้ `scopeId:'*'` |
 | `Session` `:230-237` | `aunqa_session` (localStorage) | `userId, username, fullName, universityId, roles (สำเนา ณ login), loginAt, lastActiveAt, expiresAt` |
 | lockout | `aunqa_attempts` | `{ [usernameLower]: {count, lockUntil} }` (`auth.api.ts:39-46`) |
@@ -205,45 +209,47 @@ Root layout `app/layout.tsx`: `<html lang="th">`, `viewport.colorScheme:'light'`
 4. ระหว่างใช้: `getCurrentUser()` อ่าน user ใหม่จาก store ทุกครั้ง (role ที่แก้มีผลทันที `:151-156`) + `touchSession` throttle 60 วิ; หมดอายุ idle 4 ชม./absolute 12 ชม. (`:63-64`); แท็บอื่นออก → `subscribeSession` (`:140-148`) → AuthContext ไป `/login?reason=other-tab|expired`
 5. Logout → audit `auth.logout` → `clearSession` (`:194-198`)
 
-### F-C. วงจรชีวิตผู้ใช้ (ปัจจุบัน)
-1. **ที่มา:** (ก) seed `DEMO_USERS` (`lib/mock-data/aunqa/org.ts:57-114`, รหัส `demo1234`) หรือ (ข) admin กด "เพิ่มผู้ใช้" ที่ `/app/admin` แท็บผู้ใช้ (`app/app/admin/page.tsx:112-140`) → `createUser(actor, {username,password,email,fullName,roles:[1 role]})` (`auth.api.ts:203-226`)
-2. `createUser` ต้องมี `user.manage` ที่ university ของ actor (`:204-205`); username `^[A-Za-z0-9._-]{3,32}$`; password ≥6 (store `:208`) แต่ UI บังคับ ≥8 (`admin/page.tsx:125-126`); email ซ้ำ/username ซ้ำ = `duplicate`; uni_admin สร้าง super_admin ไม่ได้ (`:215-217`); `universityId` = ของ actor เสมอ (`:220`) → audit `user.create`
-3. ผู้ใช้ได้รหัสผ่านจาก admin (นอกระบบ) แล้ว login ได้ทันที — **ไม่มี** หน้าสมัคร (register), ไม่มี invite/token, ไม่มีขั้นอนุมัติ, ไม่มี verify email, ไม่มีเปลี่ยน/รีเซ็ตรหัสผ่าน, ไม่มีปิดบัญชีชั่วคราว (มีแค่ลบถาวร)
-4. **แก้ role:** `setUserRoles` (`auth.api.ts:228-242`) — ผู้มี `user.manage` (super_admin ทุก uni, uni_admin เฉพาะ uni ตน); non-super: ให้/แก้ super_admin ไม่ได้, แก้ role ตัวเองไม่ได้ → audit `user.set_roles` (before/after). UI: chip ลบ role + เพิ่ม role ทีละ 1 คู่ (role, scope) (`admin/page.tsx:152-175`); scope ให้เลือก university/faculty/programme/cycle จากข้อมูลจริง (`:81-89`)
-5. **ช่องทางที่สองที่เพิ่ม role:** `assignAssessor` (`cycle.store.ts:183-195`) ผู้มี `assessor.assign` (uni_admin, faculty_qa) ต่อ role `assessor` scope `cycle` ให้ user ใน uni เดียวกัน + notify `assigned`
-6. **ลบ:** `deleteUser` (`auth.api.ts:244-254`) hard delete; ลบตัวเองไม่ได้; ไม่ล้าง `ownerUserId`/notification/ActionItem ที่อ้างถึง → audit `user.delete`
-7. ประธานหลักสูตร (chair) **เพิ่มคนเข้าหลักสูตรตัวเองไม่ได้** (ไม่มี `user.manage`) — ต้องขอ uni_admin
+### F-C. วงจรชีวิตผู้ใช้ (ตรง HEAD c63b43a)
+`AppUser.status` = active (ค่าเริ่มเมื่อไม่มี field) / invited / pending / suspended (`lib/types.ts:41`, `auth.api.ts:37-38`)
+1. **ที่มา 4 ทาง:** (ก) seed `DEMO_USERS` 11 คน active ทั้งหมด (`lib/mock-data/aunqa/org.ts:57-114`, รหัส `demo1234`) (ข) `createUser` (`auth.api.ts:338`) ผ่าน `components/aunqa/admin/NewUserForm.tsx` → active ทันที (ค) **เชิญ** `inviteUser` (`onboarding.store.ts:129-153`) → status invited + token → ลิงก์ `/invite#t=<token>` (token ใน fragment, `app/invite/page.tsx:5`) ผู้ดูแลคัดลอกส่งเอง (`admin/InviteResult.tsx`) → `acceptInvitation` (`:192-213`) ตั้งรหัส → active + login + แจ้งผู้เชิญ (N14); ออกใหม่ `reissueInvitation` / ยกเลิก `cancelInvitation` (ง) **ขอเข้าใช้งาน** `/request-access` → `submitAccessRequest` (`:220-277`) อีเมลต้องตรงโดเมน uni, roles [] status pending, consent → แจ้งผู้มี `user.manage` (N12, dedupe `access_request:<id>`) → `/app/admin?tab=requests` อนุมัติ (`approveAccessRequest :309-327` กำหนด role → active, N13) / ปฏิเสธ (`rejectAccessRequest :333-347` ลบแถว + ลบ N12 ทุกคน)
+2. **login:** invited = นับเหมือนรหัสผิด; pending/suspended + รหัสถูก → error บอกสถานะ ไม่สร้าง session (`auth.api.ts:295-327`); `getCurrentUser` เคลียร์ session ถ้าไม่ active (`:275-283`)
+3. **แก้ role:** `setUserRoles` (`auth.api.ts:370`); ขอบเขตต้องเข้ากับ role ตาม `ROLE_SCOPE_TYPES` (`:75-84`: chair/staff=programme, data_staff/fqa/dean=faculty, assessor=cycle, admin=university) และอยู่ใน uni เดียวกัน (`validateRoleScopes :103-131`)
+4. **ระงับ/เปิดใช้:** `setUserStatus` (`:416-438`) active↔suspended เท่านั้น, ห้ามตัวเอง; ผู้ถูกระงับไม่ได้รับแจ้งเตือน/มอบหมายไม่ได้
+5. **ลบ:** `deleteUser` (`:393-410`) ได้เฉพาะ invited/pending — เคยใช้งานแล้วต้องระงับ
+6. `assignAssessor` (`cycle.store.ts:190-207`) ต่อ role assessor scope cycle (uni_admin, faculty_qa) + N2
+7. chair เพิ่มคนเข้าหลักสูตรเองไม่ได้ (ไม่มี `user.manage`)
 
 ### F-D. Org (มหาวิทยาลัย/คณะ/หลักสูตร)
 - มีแค่ getter (`org.store.ts:6-30`); เขียนได้ที่ `init.ts:38-40` เท่านั้น — ไม่มี API/หน้าสร้าง university/faculty/programme แม้ POLICY มี `university.manage` (`rbac.ts:31`, ไม่มีผู้ใช้ action นี้)
 - `programmeScope(programmeId)` เติม universityId/facultyId ให้ scope (`org.store.ts:26-30`); `listUsers(universityId)` ตัด password (`:21-23`)
 
-### F-E. สร้าง notification (`notify()` — `notification.store.ts:17-30`)
-`notify` ไม่ตรวจ rbac (เป็นผลข้างเคียงของ action ที่ตรวจแล้ว), ข้ามถ้าไม่พบผู้รับ, dedupe เฉพาะถ้ามี `dedupeKey`; ทุกจุดข้ามตัว actor เอง
+### F-E. สร้าง notification (`notify()` — `notification.store.ts:35-49`) — ตรง HEAD c63b43a
+`notify` ไม่ตรวจ rbac, ข้ามเงียบถ้าผู้รับไม่มี/ไม่ active, dedupe เฉพาะเมื่อมี `dedupeKey`; ทุกแถวมี `messageEn` + `target` (`lib/types.ts:209-223`) → href ที่ `lib/ui/notification.ts:30-36`. ตารางเต็ม N1–N14 อยู่ที่ `.agents/research/TASK-0003-roles.md` หัวข้อ (2)
 
-| จุดเรียก | trigger | ผู้รับ | kind | cycleId | requirementId | deep link ที่ทำได้ตอนนี้ |
-|---|---|---|---|---|---|---|
-| `cycle.store.ts:166-172` assignSections/assignCriterion | มอบหมายข้อ | owner ใหม่ | assigned | ✓ | ข้อแรกของชุด | section ข้อแรก (ข้ออื่นหาย) |
-| `cycle.store.ts:194` assignAssessor | เพิ่มกรรมการ | กรรมการ | assigned | ✓ | – | `/app/cycles/{id}` (ควรเป็น `/assess`) |
-| `workflow.ts:351-357` transitionSection → changes_requested/approved | ส่งกลับ/อนุมัติข้อ | เจ้าของข้อ | changes_requested / approved | ✓ | ✓ | section |
-| `workflow.ts:358-362` transitionSection → ready_for_review | ส่งตรวจข้อ | ประธานหลักสูตร | cycle_status | ✓ | ✓ | section |
-| `workflow.ts:231-284` notifyCycleChange (เรียก `:227`) | เปลี่ยนสถานะรอบ | under_review→ผู้มี approve.faculty; faculty_approved→approve.final; final_approved→assessor.assign; under_assessment→เจ้าของข้อ+ประธาน+กรรมการ; assessed→ประธาน+approve.faculty+cycle.close; + ข้อความเดิมถึงเจ้าของข้อ+ประธาน (in_progress/under_review/revision_requested/faculty_approved/final_approved) | cycle_status / changes_requested / approved | ✓ | – | `/app/cycles/{id}` (ไม่แยก `/app/review` หรือ `/assess`) |
-| `sar.store.ts:263-264` addComment | comment ใหม่ | เจ้าของข้อ | comment | ✓ | ✓ | section (ไม่มี commentId → เลื่อนไป thread ไม่ได้) |
-| `action.store.ts:93-94` createActionItem | มอบหมาย action | owner | assigned | – | ✓ | **ไม่มีลิงก์** (UI ต้องมี cycleId) |
-| `action.store.ts:155-156` setActionStatus→verified | ยืนยัน action | owner | approved | – | ✓ | **ไม่มีลิงก์** |
-| `notification.store.ts:47-67` syncDeadlineNotifications | ถูกเรียกทุกครั้งที่ `listNotifications`/`unreadCount` (เขียนตอนอ่าน) | เจ้าของ section ที่ยังไม่ approved, due ≤7/≤3/≤1/เลยกำหนด | deadline | ✓ | ข้อแรก (ข้อความรวมหลายข้อ) | section ข้อแรก; dedupeKey `deadline:${cycle}:${due}:${bucket}` |
+| จุดเรียก | trigger | ผู้รับ | kind | target |
+|---|---|---|---|---|
+| `cycle.store.ts:170-179` | มอบหมายข้อ | owner ใหม่ ≠ actor | assigned | 1 ข้อ section / หลายข้อ my_work |
+| `cycle.store.ts:202-206` | มอบหมายกรรมการ | กรรมการ | assigned | assess |
+| `workflow.ts:410-418` | ข้อ approved / changes_requested | เจ้าของข้อ ≠ actor | approved / changes_requested | section |
+| `workflow.ts:419-426` | ข้อ → ready_for_review | `chairsOf(cycle)` ≠ actor (`:198-203`) — **ถ้าประธานส่งเอง = 0 ผู้รับ** | cycle_status | section |
+| `workflow.ts:261-339` notifyCycleChange | รอบเปลี่ยนสถานะ | under_review→approve.faculty; faculty_approved→approve.final; final_approved→assessor.assign; under_assessment→เจ้าของ+ประธาน (+กรรมการ ข้อความแยก); assessed→ประธาน+approve.faculty+cycle.close; ข้อความเดิมถึงเจ้าของ+ประธาน (in_progress/under_review/revision_requested/faculty_approved/final_approved) | cycle_status / changes_requested / approved | cycle / assess |
+| `sar.store.ts:270-275` | comment ใหม่ | เจ้าของข้อ ≠ actor | comment | section `#comments` |
+| `action.store.ts:97-104`, `:167-174` | สร้าง action / verified | owner | assigned / approved | `/app/actions#action-{id}` |
+| `notification.store.ts:66-92` | อ่าน/นับ (sync deadline) | เจ้าของข้อที่ไม่ approved | deadline | section / my_work |
+| `onboarding.store.ts:263-270` | คำขอเข้าใช้งาน | ผู้มี user.manage ของ uni | access_request | admin?tab=requests |
+| `onboarding.store.ts:320-325` | อนุมัติคำขอ | ผู้ขอ | account | home |
+| `onboarding.store.ts:206-211` | รับเชิญ | ผู้เชิญ | account | admin?tab=users |
 
-ไม่มี notification สำหรับ: evidence (verify/PII), metric, user/role ถูกสร้าง/เปลี่ยน, action ถูกส่งกลับ, กรรมการส่ง finding, รอบปิด (closed)
+ไม่มีแจ้งเตือน: บันทึก/autosave, openRevision (`workflow.ts:355-372`), รอบ → closed, สร้างรอบ, evidence verify/PII, metric, เปลี่ยน role/ระงับ, ปฏิเสธคำขอ (ผู้ขอไม่รู้), finding/คะแนนกรรมการ
 
-### F-F. อ่าน notification (UI ปัจจุบัน)
-1. **กระดิ่ง** `components/aunqa/AppTopbar.tsx:84-90` = `<Link href="/app#notifications">` (ไม่มี panel/dropdown) + badge จาก `unreadCount(user)` (`:51-61`) คำนวณใหม่เมื่อ `pathname` เปลี่ยน หรือ event `aunqa:todos-changed` (`lib/ui/todo.ts:12-14`, same-tab เท่านั้น — ไม่ฟัง `storage` event ข้ามแท็บ, ไม่มี polling)
-2. **รายการ** อยู่ในหน้าหลัก `app/app/page.tsx:205-240` section `#notifications`: `listNotifications(user)` (`:100`) แสดง 30 รายการแรก, ปุ่ม "อ่านทั้งหมด" `markRead(user)` (`:103`), ต่อรายการ "ทำเครื่องหมายว่าอ่านแล้ว" `markRead(user,id)` (`:104`); ลิงก์ "เปิดข้อ" ถ้ามี cycleId+requirementId → `sectionHref` (`lib/ui/aunqa.ts:108`), "เปิดรอบ" ถ้ามีแค่ cycleId; **กดลิงก์ไม่ mark read**
-3. ไม่มี: ลบ/ซ่อน, กรองตาม kind, แบ่งหน้า, เก็บ/หมดอายุ (โตไม่จำกัด), ไอคอนต่อ kind, ชื่อผู้กระทำ
-4. เทสต์ที่พึ่ง: `tests/phase-u.test.ts`, `e2e/flows-b.spec.ts` (+ aria-label กระดิ่ง `แจ้งเตือนที่ยังไม่อ่าน N รายการ` — E2E-08, `.aq-count` ใน regress-u1b)
+### F-F. อ่าน notification (UI ตรง HEAD c63b43a)
+1. **กระดิ่ง** `NotificationBell` (`components/aunqa/NotificationPanel.tsx:46-`, วางใน `AppTopbar.tsx:58`) = ปุ่ม `nav-bell` เปิด popover (≥768) / sheet (<768); badge `unreadCount(user)` นับใหม่เมื่อ pathname / `user` เปลี่ยน, event `aunqa:todos-changed`, `storage` ของ `aunqa_notifications` (แท็บอื่น) (`:66-89`); ไม่มี polling
+2. รายการโหลดตอนเปิด 30 รายการ (`:104-113`); กดรายการ = markRead + todos-changed + ปิด → ไปปลายทาง (`notificationHref`)
+3. เทสต์ที่พึ่ง: `tests/phase-u.test.ts`, `tests/notification-target.test.ts`, `e2e/flows-b.spec.ts` (aria-label `แจ้งเตือนที่ยังไม่อ่าน N รายการ`), `.aq-count`
 
-### F-G. Workflow รอบ (`workflow.ts:27-38` CYCLE_TRANSITIONS, `transitionCycle :181`)
-draft→in_progress (cycle.create) → under_review (cycle.submit) → faculty_approved (approve.faculty) / revision_requested (approve.faculty + note) → final_approved (approve.final, lock + snapshotHash) / revision_requested (approve.final + note) → under_assessment (assessor.assign) → assessed (rating.committee) → closed (cycle.close). `openRevision` final_approved→in_progress (cycle.reopen = dean). ทุกขั้น: ReviewEvent + audit + notifyCycleChange
-Section: not_started→drafting→ready_for_review→approved / changes_requested (`:40-47`); ผู้เขียนล่าสุดอนุมัติข้อตัวเองไม่ได้ (segregation)
+### F-G. Workflow (`workflow.ts:29-50`, `transitionCycle :210`, `transitionSection :375`, `openRevision :355`)
+draft→in_progress (cycle.create) → under_review (cycle.submit; ทุกข้อต้อง approved `:217-220`) → faculty_approved (approve.faculty) / revision_requested (approve.faculty + note) → final_approved (approve.final, lock + snapshotHash) / revision_requested (approve.final + note) → under_assessment (assessor.assign) → assessed (rating.committee; กรรมการ active ทุกคนให้คะแนนครบทุกเกณฑ์ + มี verdict `:222-239`) → closed (cycle.close). revision_requested→in_progress (cycle.submit). `openRevision` final_approved→in_progress revision+1 (cycle.reopen = dean, ไม่แจ้งเตือน)
+Section: not_started→drafting (auto เมื่อบันทึกแรก `sar.store.ts:94`)→ready_for_review (sar.write, ต้องมี narrative)→approved (sar.approve = **ประธานเท่านั้น**, ห้ามผู้เขียนล่าสุด `:395`) / changes_requested (sar.return = chair/fqa/dean + note; ใช้ได้ถึงรอบ under_review `:386-388`); approved→changes_requested ได้
 
 ### F-H. Audit (`audit.store.ts`)
 - `appendAudit(actor|null, input, universityId?)` (`:19-35`) — actor null = `system`; `ip:'local'` (`:28`); ไม่มีฟังก์ชันแก้/ลบ (แต่ `resetDemo` → `clearAllAunqa` ล้าง key `aunqa_audit` ด้วย)
@@ -278,7 +284,7 @@ Section: not_started→drafting→ready_for_review→approved / changes_requeste
 ## จุดเสี่ยง & หนี้ทางเทคนิค (โซน lib)
 1. **Auth ทั้งหมดอยู่ใน browser** — ผู้ใช้แก้ localStorage (`aunqa_users`, `aunqa_session`) ยกระดับ role ได้; hash SHA-256 salt ค่าคงที่ (`auth.api.ts:23-25`); session ไม่ใช่ httpOnly cookie (`:61-62`). ระบบเดโม่เท่านั้น
 2. **register/invite ที่จะเพิ่มก็จะอยู่ใน localStorage เครื่องเดียว** — "ผู้ใช้สมัครเอง แล้ว admin อนุมัติ" ทำงานได้เฉพาะในเบราว์เซอร์เดียวกัน (ไม่มี server กลาง) ต้องออกแบบให้เดโม่ได้และระบุข้อจำกัดในเล่ม
-3. `AppUser` ไม่มี `status` — `loginUser` ไม่เช็กสถานะบัญชี; จะเพิ่ม pending/invited/disabled ต้องแก้ `loginUser` (`:167-192`), `getCurrentUser`, และทุกที่ที่ list user (`listUsers`, `listAssignableUsers`, `usersWhoCan` `workflow.ts`, ผู้รับ notification) ให้กรองบัญชีที่ไม่ active
+3. ~~`AppUser` ไม่มี `status`~~ — **แก้แล้วใน TASK-0002 R2** (ดู F-C); ข้อความเดิม: จะเพิ่ม pending/invited/disabled ต้องแก้ `loginUser` (`:167-192`), `getCurrentUser`, และทุกที่ที่ list user (`listUsers`, `listAssignableUsers`, `usersWhoCan` `workflow.ts`, ผู้รับ notification) ให้กรองบัญชีที่ไม่ active
 4. `createUser` ผูก `universityId` = ของ actor (`:220`) และ admin UI list เฉพาะ uni ตน → super_admin จัดการ uni อื่นไม่ได้จาก UI
 5. password ขั้นต่ำไม่ตรงกัน: store 6 (`auth.api.ts:208`) vs UI 8 (`admin/page.tsx:125-126`)
 6. `deleteUser` hard delete ไม่ cascade → `ownerUserId` ลอย, todo/notification ชี้ไปคนที่ไม่มี; `notify` ข้ามเงียบถ้าไม่พบผู้รับ
@@ -288,3 +294,6 @@ Section: not_started→drafting→ready_for_review→approved / changes_requeste
 10. ไม่มีการเปลี่ยน/รีเซ็ตรหัสผ่าน และไม่มีหน้าโปรไฟล์
 11. Session เก็บ `roles` สำเนา ณ login แต่สิทธิ์จริงอ่านจาก store ผ่าน `getCurrentUser` — ปัจจุบันไม่มี UI ใช้ `session.roles` (AuthContext ใช้ `getSession()` แค่เช็กหมดอายุ `:80,180`); ถ้าเพิ่ม flow ปิดบัญชี ต้องเช็กสถานะใน `getCurrentUser` ด้วย ไม่ใช่แค่ตอน login
 12. ชื่อตกค้าง EduFlow: `context/LangContext.tsx:19` key `eduflow_lang_pages`
+13. **(TASK-0003) ประธานส่งตรวจข้อเอง = ไม่มีผู้รับแจ้งเตือน แต่ UI บอกว่ามี** — `workflow.ts:420` กรอง actor ออก, หลักสูตรมีประธานคนเดียว → 0 แถว; toast `SarWorkspace.tsx:310` "ประธานหลักสูตรได้รับแจ้งเตือน" เป็นเท็จ; ประธานอนุมัติเองไม่ได้ (`:395`) และไม่มี role อื่นมี sar.approve → ข้อค้าง. repro `.agents/playtest/TASK-0003/chair-notify.repro.test.ts`
+14. **(TASK-0003) seed ไม่มีข้อที่อาจารย์ส่งตรวจได้ทันที** — drafting 3 ข้อ (3.6/5.1/7.9) ไม่มีเจ้าของ; staff1 เป็นเจ้าของ C1 ที่อนุมัติ/รอตรวจหมด; seed เขียน status ตรง (`init.ts:61-77`) จึงไม่มีแจ้งเตือน/review event คู่กับ 5 ข้อ ready_for_review; prog-demo-ds ไม่มีประธาน
+15. **(TASK-0003) ช่องว่างแจ้งเตือน** — `openRevision` และ → closed ไม่แจ้งใคร; ปฏิเสธคำขอไม่แจ้งผู้ขอ; กระดิ่งไม่มี polling (แท็บเดียวกันที่ไม่ dispatch event ไม่อัปเดตจนเปลี่ยนหน้า)
