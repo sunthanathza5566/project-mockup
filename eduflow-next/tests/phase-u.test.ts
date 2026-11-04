@@ -329,11 +329,11 @@ describe('B2 listMyTodos — ทุก kind', () => {
     for (const n of ['staff1', 'fqa1', 'dean1', 'assess1', 'uadmin']) expect(todosOf(user(n), 'review_sections')).toEqual([]);
   });
 
-  it('assign_sections (chair1, seed) = ข้อไม่มีเจ้าของและยังไม่ approved (= 7 ในเดโม่)', () => {
+  it('assign_sections (chair1, seed) = ข้อไม่มีเจ้าของและยังไม่ approved (= 6 ในเดโม่)', () => {
     const exp = sectionsRaw().filter(s => s.cycleId === CYCLE && !s.ownerUserId && s.status !== 'approved');
     const t = todosOf(user('chair1'), 'assign_sections')[0];
-    expect(exp.length).toBe(7);
-    expect(t).toMatchObject({ count: 7, titleTh: 'มอบหมายผู้เขียน 7 ข้อที่ยังไม่มีเจ้าของ (รอบ 2569)' });
+    expect(exp.length).toBe(6);
+    expect(t).toMatchObject({ count: 6, titleTh: 'มอบหมายผู้เขียน 6 ข้อที่ยังไม่มีเจ้าของ (รอบ 2569)' });
     expect(t.requirementIds).toEqual(exp.map(s => s.requirementId).sort(api.compareReqId));
     expect(todosOf(user('staff1'), 'assign_sections')).toEqual([]);
   });

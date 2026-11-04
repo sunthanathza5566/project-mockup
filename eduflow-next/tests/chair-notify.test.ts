@@ -144,8 +144,9 @@ describe('F3 กรณีอื่น', () => {
 
   it('guard เหมือน submitSection: staff ที่ไม่ใช่เจ้าของส่งไม่ได้ และไม่มีแจ้งเตือนเกิด', () => {
     const before = allNotes().length;
-    expect(() => api.submitSectionWithNotice(user('staff1'), CYCLE, '3.6')).toThrow(/ไม่มีสิทธิ์/);
-    expect(sec('3.6').status).not.toBe('ready_for_review');
+    // 5.1 ไม่มีเจ้าของใน seed มาตรฐาน (3.6 มอบให้ staff1 แล้วตั้งแต่ F4 ของ TASK-0003)
+    expect(() => api.submitSectionWithNotice(user('staff1'), CYCLE, '5.1')).toThrow(/ไม่มีสิทธิ์/);
+    expect(sec('5.1').status).not.toBe('ready_for_review');
     expect(allNotes().length).toBe(before);
   });
 
