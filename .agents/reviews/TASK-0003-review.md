@@ -81,3 +81,73 @@ Verdict: **APPROVE**
 ## ส่งต่อ
 - S6 qa-tester: ทำ probe R1 (เส้นทางเต็ม), R1b, S1/S1-empty/S1b (snapshot ก่อน/หลัง), S2/S3 (`take(now)`) ให้เป็นเทสต์ถาวร + #2 รอบ 1
 - R2-1/R2-2 (minor/nit) ไม่ block — orchestrator ตัดสินว่าจะแก้ใน TASK นี้ก่อน S7 หรือยกไป follow-up
+
+---
+
+# รอบ 3 (final, S8) — ตรวจทั้ง branch ก่อน merge master
+
+- ขอบเขต: `git diff master..HEAD` (HEAD c97c9ff, 69 ไฟล์ +5309/−107) — เน้น commit หลังรอบ 2: c0059bd (โค้ด stale-author ที่ยังไม่มีใครรีวิว), b378d52 (vitest ถาวร), 39bcc11/c97c9ff (ROLE_GUIDE .md/.docx + คู่มือเดิม), feeb43f (วิดีโอ + e2e stale-author + shell-r2 + playwright config)
+- รันเอง (ใน `eduflow-next`): `npx tsc --noEmit -p .` → exit 0 · `npx vitest run` → **34 files / 888 passed** (23.4s) · ไม่รัน e2e (qa-tester รันขนาน) · lint: ยังไม่มี ESLint config (สภาพเดิม)
+- Merge: `git merge-base master HEAD` = `git rev-parse master` = 7867278 → master ไม่ขยับตั้งแต่แตก branch = **fast-forward ได้ ไม่มี conflict**
+
+Verdict: **APPROVE** (ไม่มี blocker/major · minor 1 · nit 5)
+
+| # | severity | file:line | ปัญหา | ข้อเสนอแก้ |
+|---|----------|-----------|-------|------------|
+| R3-1 | minor | `docs/walkthrough/videos/*.webm` (12 ไฟล์ ~33 MB, ใหญ่สุด V10 7.1 MB) | ไบนารีเข้า git ตรง ๆ (ไม่มี LFS) — push แล้วอยู่ในประวัติถาวร ลบทีหลังต้อง rewrite history (ย้อนกลับไม่ได้ตามกฎ) · ทุกไฟล์ < 100 MB จึง push GitHub ได้ ไม่ใช่ blocker · ตรวจหัวไฟล์แล้วเป็น EBML/WebM จริงทั้ง 12 | orchestrator ตัดสินก่อน push: เก็บใน repo ตามที่เจ้าของขอ (ยอมรับได้) หรือย้ายไป GitHub Release/LFS แล้วให้ INDEX ชี้ลิงก์ — ถ้าไม่แน่ใจให้ถามเจ้าของ 1 คำถาม |
+| R3-2 | nit | `eduflow-next/components/aunqa/SarWorkspace.tsx:306` | ใช้ `getUserById` (ได้ `AppUser` ดิบ รวม password hash, ไม่ผ่าน scope) ใน UI เพื่อเช็ก role ผู้เขียนล่าสุด · facade export ตัวนี้มาก่อน TASK นี้ และใน MVP localStorage ไม่ใช่ช่องโหว่ใหม่ (ใช้แค่ชื่อ/role ไม่ render ค่าอื่น) | ตอนย้ายขึ้น backend ให้มี API เช่น `lastAuthorIsApprover(cycle, req)` คืน boolean + ชื่อ แทน — frontend-dev/backend-dev (follow-up) |
+| R3-3 | nit | `eduflow-next/tests/chair-flow.test.ts` (helper R2-1) ↔ `SarWorkspace.tsx:296-309` | เงื่อนไขคำเตือนถูกลอกสำเนาไว้ในเทสต์ — component เปลี่ยนแล้ว vitest ไม่รู้ (มี e2e `stale-author.spec.ts` 3 เคสคลุมการแสดงผลแล้ว จึงไม่ใช่ช่องโหว่ของชุดเทสต์รวม) | แยกเป็น pure function ใน `lib/ui/` แล้วให้ทั้ง component และเทสต์เรียกตัวเดียว — frontend-dev (follow-up) |
+| R3-4 | nit | `docs/walkthrough/videos/.compressed.json` | ไฟล์สถานะของสคริปต์ `compress-videos.mjs` อยู่ในโฟลเดอร์เอกสาร (14 บรรทัด ไม่มีข้อมูลลับ) | คงไว้ได้ (ทำให้บีบซ้ำแบบ idempotent) หรือย้ายไป `eduflow-next/e2e/artifacts/` — qa-tester |
+| R3-5 | nit | `docs/walkthrough/videos/INDEX.md` | ไม่ลิงก์กลับไป `ROLE_GUIDE.md` (ROLE_GUIDE ลิงก์มาที่ INDEX แล้ว) — docs-writer จดไว้เอง | เพิ่ม 1 บรรทัด — docs-writer |
+| R3-6 | nit | `SarWorkspace.tsx:347-353` | dialog ที่เตือนเฉพาะ stale-author (warn = 0) เป็น variant warning แต่ `initialFocus` ยังเป็น `confirm` → กด Enter ส่งทันที (เหมือนเคส noRecipient เดิม — สอดคล้องกัน และเจตนาไม่บล็อก) | ถ้าต้องการให้ผู้ใช้หยุดอ่าน ให้ focus ปุ่มยกเลิกเมื่อมี `staleChairAuthor` — frontend-dev (ไม่บังคับ) |
+
+## (1) AC1–AC5 — เปิดไฟล์จริงแล้ว
+
+| AC | สถานะ | หลักฐาน |
+|----|-------|---------|
+| AC1 สาเหตุ + แก้ + เทสต์ | ครบ | `.agents/research/TASK-0003-roles.md` (189 บรรทัด) + repro `.agents/playtest/TASK-0003/chair-notify.repro.test.ts` · แก้ F1–F4 + R2-1/R2-2 · เทสต์ `tests/chair-notify.test.ts`, `tests/chair-flow.test.ts`, `e2e/stale-author.spec.ts` · ROLE_GUIDE §5 อธิบาย 6 สาเหตุ |
+| AC2 scenario seed | ครบ | `lib/mock-data/aunqa/scenarios/**` 27 เคส 4 กลุ่ม (README) · โหลด/รีเซ็ตจาก DemoTab (super_admin เท่านั้น) · `tests/scenario-pack.test.ts` 16 เคส (โหลดทีละ id ครบ, up→down→up, guard S-1 + snapshot, F4) → **#2 รอบ 1 ปิด** |
+| AC3 วิดีโอ | ครบ | 12 ไฟล์ WebM จริง: ผู้ใช้ใหม่ V00 · uni_admin V01 · super_admin V02 · chair V03/V09 · staff V04 · data_staff V05 · faculty_qa V06 · dean V07 · assessor V08 · end-to-end V10 · ข้าม tenant V11 · คำบรรยายไทยบนจอผ่าน `e2e/walkthrough/narrate.ts` (`caption`/`setRole`) · ทุก spec มี expect จริง |
+| AC4 .docx + .md | ครบ | `docs/walkthrough/ROLE_GUIDE.md` 8 หัวข้อ + `ROLE_GUIDE.docx` (python-docx: Heading 25, ตาราง 12, รูป 0 ตรงที่ docs-writer คาด; มี `demo1234` และแถว V11) |
+| AC5 Figma | ครบ | `.agents/decisions/FIGMA-INTAKE.md` (189 บรรทัด: สิ่งที่ต้องการจากเจ้าของ, mapping token/component, ขั้นตอนนำเข้า; ระบุ token Figma = secret เก็บใน `.env` เท่านั้น) |
+
+AC6 = tsc/vitest ผ่าน (ตรวจเอง) · e2e รอผล qa-tester ที่รันขนาน · checkbox AC ใน TASK file ยังไม่ติ๊ก (orchestrator)
+
+## (2) commit หลังรอบ 2
+
+- **c0059bd (stale-author)** — ถูกต้อง: อ่าน `listSections` **หลัง** `save('manual')` (ไม่อนุมานจาก `touched`) · เตือนเมื่อ `lastAuthorId` ≠ ผู้กด และผู้เขียนมี `sar.approve` ใน scope รอบ = ตรงกับ guard segregation `workflow.ts:415` · ทุกการอ่านอยู่ใน try/catch แล้ว fallback เป็น "ไม่เตือน" (ไม่ทำให้ส่งไม่ได้) · ไม่บล็อกการส่ง ตามที่ review รอบ 2 ขอ · ข้อความเป็น JSX text (ไม่มี XSS) · ประธานหลายคน: ผู้เขียนเป็นประธานอีกคน → เตือนถูกต้อง (คนนั้นอนุมัติไม่ได้ แต่ประธานคนอื่นได้) · segregation-note ใหม่ (R2-2) ตรงลำดับ ส่งกลับ → มอบหมาย → อนุมัติ · i18n EN 4 key + 1 pattern มีครบ
+- **b378d52** — 3 ไฟล์ 38 เคส มี negative control (snapshot เปลี่ยนเมื่อสำเร็จ) ตาม RULE qa · ไม่แตะ production
+- **feeb43f** — `playwright.config.ts` เพิ่มแค่ `testIgnore: '**/walkthrough/**'` (วิดีโอไม่ปนชุด regression ถูกต้อง) · config walkthrough แยก outputDir `e2e/artifacts/walkthrough` ซึ่งอยู่ใน `.gitignore` (`e2e/artifacts/`) · **`shell-r2.spec.ts:149`** `/^แจ้งเตือน\d*$/` ยังเข้มพอ (ล็อกว่าเป็นป้ายไทยหลังสลับภาษา ตามด้วยตัวเลขเท่านั้น) และเป็นผลตั้งใจของ F4 (chair1 unread 5) ไม่ได้กลบ regression · `stale-author.spec.ts` 3 เคสมี negative control ในเคส (2) (เห็นคำเตือนก่อนแก้)
+- **39bcc11 / c97c9ff** — คู่มือเดิมแก้ครบ #3 รอบ 1 · ROLE_GUIDE ตารางวิดีโอตรงชื่อไฟล์จริง 12 ไฟล์
+
+## (3) สุ่มตรวจ ROLE_GUIDE กับโค้ด — 14 จุด ตรงทั้งหมด
+
+1. รหัส `demo1234` + 11 บัญชี (sadmin…uadmin2) — `lib/mock-data/aunqa/org.ts:59-110`
+2. `data1` ระดับคณะ — `org.ts:91` scopeType faculty
+3. `sar.approve` มีแค่ประธาน; QA คณะ/คณบดีมี `sar.return` — `lib/api/rbac.ts:39,51,55`
+4. เมนู "รอตรวจ" แสดงเมื่อมี approve/return/approve.faculty/final; assessor ซ่อนหลักสูตร/ตัวชี้วัด/แผน; "ผู้ดูแลระบบ" = user.manage/audit.view (ประธาน/QA/คณบดีเห็นเพราะ audit.view, data_staff ไม่เห็น) — `AppSidebar.tsx:99-123`
+5. N3 "ข้อ X ส่งตรวจแล้ว รอประธานอนุมัติ" — `workflow.ts:443`
+6. N4/N5 "ได้รับการอนุมัติแล้ว" / "ถูกส่งกลับแก้: …" — `workflow.ts:434`
+7. N13 "บัญชีของคุณได้รับอนุมัติแล้ว เริ่มใช้งานได้เลย" — `onboarding.store.ts:322`
+8. toast 3 แบบ + ปุ่ม "ส่งกลับแก้ไขข้อนี้" + "ไปข้อถัดไปของฉัน →" — `SarWorkspace.tsx:366-379`
+9. toast ค้าง 12 วินาที — `SarWorkspace.tsx:379,412` `durationMs: 12000`
+10. หลังส่งกลับ "ส่งข้อ X กลับแก้ไขแล้ว — มอบหมายให้อาจารย์เขียนต่อ…" + "ไปหน้ามอบหมายงาน" — `SarWorkspace.tsx:411-412`
+11. dialog ไม่มีผู้รับ "ส่งแล้วจะไม่มีใครได้รับแจ้งเตือน" + ปุ่ม "ไปหน้ามอบหมายงาน" — `SarWorkspace.tsx:316-320`
+12. "ยืนยันส่งกลับแก้ไข" — `SarWorkspace.tsx:405`
+13. คิวรอตรวจ "อนุมัติข้อ X ทั้งที่ยังมีช่องว่างวิกฤต" / "ยืนยันอนุมัติ" / "กลับไปเปิดอ่านก่อน" — `app/app/review/page.tsx:105-107`
+14. DemoTab "โหลดทุกเคส (27)" (`list.items.length`) / "รีเซ็ตเป็นข้อมูลมาตรฐาน" — `DemoTab.tsx:73,165` · กระดิ่ง 30 รายการล่าสุด — `NotificationPanel.tsx:29,313`
+
+## (4) secret / ข้อมูลจริง / ไฟล์ขยะ
+
+- grep diff (ยกเว้นไบนารี) หา api key/secret/token/private key/อีเมลจริง/เบอร์โทร → ไม่พบของจริง (เจอแค่ข้อความอธิบายใน FIGMA-INTAKE/security และ `secret-pass-8` ซึ่งเป็นรหัส fixture ในเทสต์) · รหัสใน scenario ใช้ `PW` = demo1234 ทั้งหมด · อีเมลโดเมน `.example`
+- ไม่มี `.next`, log, storage state, `e2e/artifacts` ใน diff · ไฟล์ใหญ่มีแค่วิดีโอ 12 ไฟล์ (ตั้งใจ — ดู R3-1) + docx 30 KB · `package.json`/lock ไม่เปลี่ยน
+
+## ข้อดีที่ควรเก็บเป็นบทเรียน
+- frontend-dev: เงื่อนไขที่ขึ้นกับผลของ save อ่านสถานะจริงหลัง save และทุกการอ่านเสริมใน dialog fallback เป็น "ไม่เตือน" แทนที่จะทำให้ส่งไม่ได้
+- qa-tester: แยก config วิดีโอออกจากชุด regression ด้วย `testIgnore` + config คู่ และใส่ negative control ในเคส e2e เดียวกัน (เห็นคำเตือนก่อนแก้ → ไม่เห็นหลังแก้)
+- docs-writer: ทุกข้อเท็จจริงในคู่มือมี file อ้างอิง ทำให้สุ่มตรวจ 14 จุดได้เร็วและตรงทั้งหมด
+- reviewer (บทเรียนตัวเอง): ก่อน merge ตรวจ `merge-base == master` (fast-forward) + หัวไฟล์ไบนารี (magic bytes) + ขนาดไฟล์ใหญ่ที่จะเข้าประวัติถาวร แยกจากการรีวิวโค้ด
+
+## ส่งต่อ
+- orchestrator: ตัดสิน R3-1 (เก็บวิดีโอใน git หรือย้าย) ก่อน push · ติ๊ก AC1–AC5 · รอผล e2e จาก qa-tester แล้ว merge (fast-forward) + push ไม่ force
+- nit R3-2..R3-6 ยกเป็น follow-up ได้ ไม่ block merge
