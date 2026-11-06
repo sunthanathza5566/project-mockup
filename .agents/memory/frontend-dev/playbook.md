@@ -1,24 +1,25 @@
 # Playbook — frontend-dev
 
 ## RULES
-- [incident: TASK-0002 AC-10 x3 + BUG-0002-Q1-1] ก่อน commit grep diff ของตัวเองหาอักขระ U+2600–27BF/emoji และคำที่เทสต์ grep (`outline-none` ฯลฯ) **รวมในคอมเมนต์** — grep ไม่แยกคอมเมนต์ (☰ ใน AppTopbar R2-F1, ☰ ใน LandingNav R2-F7, ✓ ใน assess R2-F3 หลุดถึง e2e แล้ว orchestrator ต้องแก้). หลัง R2-F10 สแกนทุกรอบแล้วไม่หลุดอีก
+- [incident: TASK-0002 AC-10 x3 + BUG-0002-Q1-1] ก่อน commit grep diff ของตัวเองหาอักขระ U+2600–27BF/emoji และคำที่เทสต์ grep (`outline-none` ฯลฯ) **รวมในคอมเมนต์** — grep ไม่แยกคอมเมนต์ (☰ ใน AppTopbar R2-F1, ☰ ใน LandingNav R2-F7, ✓ ใน assess R2-F3 หลุดถึง e2e แล้ว orchestrator ต้องแก้). หลัง R2-F10 สแกนทุกรอบแล้วไม่หลุดอีก (TASK-0003 สแกนทุกรอบ ไม่หลุด)
 - [TASK-0001 U2-F1 → ใช้ซ้ำ S1, R2-F1, R2-F3] popover/tooltip ที่ห้ามทำให้เกิด h-scroll ใช้ `position: fixed` + คำนวณตำแหน่ง (right จาก getBoundingClientRect ใน useLayoutEffect) แล้วบีบใน `clientWidth`. ใช้ซ้ำแล้ว 3 ครั้ง
 - [TASK-0001 U3 fix → ใช้ซ้ำ R2-F3, R2-F13, R2-F14] สลับ layout ด้วย early-return คนละโครง JSX ทำให้ children remount และข้อความที่พิมพ์ค้างหาย → คงโครง DOM/testid เดิมแล้วซ่อนบางส่วน. ใช้ซ้ำแล้ว 3 ครั้ง
-- [incident: TASK-0002 N1 → N7] ตารางที่มีคอลัมน์ปุ่ม: ผลรวม min-content ต้อง < กรอบที่แคบสุดของโหมดตาราง ถ้าไม่ได้ให้สลับเป็นการ์ดเร็วขึ้น (ห้ามแก้ด้วย `whitespace-nowrap` อย่างเดียว) และจุดสลับใช้ **container query หน่วย rem** บนกรอบจริง ไม่ใช่ media query px (ไม่ขยายตาม fontScale 125%). ใช้ซ้ำแล้ว 1 ครั้ง (R2-F14)
+- [incident: TASK-0002 N1 → N7] ตารางที่มีคอลัมน์ปุ่ม: ผลรวม min-content ต้อง < กรอบที่แคบสุดของโหมดตาราง ถ้าไม่ได้ให้สลับเป็นการ์ดเร็วขึ้น (ห้ามแก้ด้วย `whitespace-nowrap` อย่างเดียว) และจุดสลับใช้ **container query หน่วย rem** บนกรอบจริง ไม่ใช่ media query px (ไม่ขยายตาม fontScale 125%). ใช้ซ้ำแล้ว 2 ครั้ง (R2-F14, TASK-0003 S3d DemoTab 48rem)
+- [TASK-0001 U2-F5 → เลื่อนจาก LESSONS ใน TASK-0003] วัดความครบ EN ด้วยสคริปต์ ไม่ไล่อ่าน — Playwright harvest หรือ esbuild bundle dict แล้วเรียก `lookupEn` กับข้อความที่ดึงจากไฟล์ (แทน `${}` ด้วย "1"); ผลต้อง "ไม่มีอักษรไทย" ไม่ใช่แค่ "มีผล" (pattern ท้ายสุดแปลได้ครึ่งเดียว — R2-F2b). ใช้ซ้ำแล้ว 4 ครั้ง (R2-F2b, R2-F9, R2-F15, TASK-0003 S3b/S3d/fix รอบ 1)
+- [incident: TASK-0003 toast "ประธานหลักสูตรได้รับแจ้งเตือน" ทั้งที่ไม่มีผู้รับ → เจ้าของเข้าใจผิดว่าบั๊ก + review #1 major คำแนะนำพาไปทางตัน] ข้อความยืนยัน/ผลลัพธ์ที่อ้างว่า "ใครได้รับอะไร" ต้องมาจากค่าที่ API คืน (preview ก่อนกด, count หลังกด) ห้ามเขียนตายตัว · ธงจาก API หยาบกว่าความจริง (selfReview ไม่ดูผู้เขียน) ใช้ประโยค "ถ้า…" · ปุ่ม/คำแนะนำใน toast ต้องเป็นขั้นที่ทำได้จริงใน **สถานะใหม่หลัง action** (ส่งกลับแก้ไข → แล้วค่อยชี้ไปมอบหมาย) ไม่ใช่สถานะก่อนกด. ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## LESSONS
 - [TASK-0001 U2-F1] เขียน CSS ใหม่ทั้งไฟล์: inventory `className` + `var(--…)` inline ก่อน แล้วให้ของเก่าอยู่ร่วม (alias/legacy.css) จนถึงขั้น cutover. ใช้ซ้ำแล้ว 1 ครั้ง (S0)
 - [TASK-0001 U2-F2] control ที่อยู่คนละที่ตาม breakpoint แต่ testid เดียว: element เดียว + CSS ย้ายตำแหน่ง ไม่ render สองชุด. ใช้ซ้ำแล้ว 1 ครั้ง (S2)
 - [TASK-0001 U2-F2] dialog ที่ "ยกเลิก" มีผลจริง ต้อง `dismissible:false`; dismiss แยกจาก cancel. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0001 U2-F4] handler ที่ถูกเรียกจากภายนอก (flush/beforeunload/hash listener) อ่านค่าผ่าน ref "live". ใช้ซ้ำแล้ว 1 ครั้ง (actions hash — reviewer ยืนยัน)
-- [TASK-0001 U2-F4 + TASK-0002 R2-F7] ตัวเลข/ประโยคสรุปบนจอที่คู่กับรายการหรือกฎ backend ต้องคำนวณจากฟังก์ชันเดียวกัน (`countWords`, `homeTotal`). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0001 U2-F4 + TASK-0002 R2-F7] ตัวเลข/ประโยคสรุปบนจอที่คู่กับรายการหรือกฎ backend ต้องคำนวณจากฟังก์ชันเดียวกัน (`countWords`, `homeTotal`). ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0003 F1/F2 dialog `previewSubmitRecipients` = toast `notifiedCount`)
 - [TASK-0001 U2-F5] pattern regex ของ dict แปลต้องแคบเท่ารูปแบบจริง วาง pattern ทั่วไปท้ายสุด; เพิ่ม pattern ของตัวเองด้วย `PATTERNS.unshift(…)` ใต้หัวหมวดตัวเอง. ใช้ซ้ำแล้ว 1 ครั้ง (R2-F8)
-- [TASK-0001 U2-F5] วัดความครบ EN ด้วยสคริปต์ ไม่ไล่อ่าน — Playwright harvest หรือ esbuild bundle dict แล้วเรียก `lookupEn` กับข้อความที่ดึงจากไฟล์ (แทน `${}` ด้วย "1"); ผลต้อง "ไม่มีอักษรไทย" ไม่ใช่แค่ "มีผล" (pattern ท้ายสุดแปลได้ครึ่งเดียว — R2-F2b). ใช้ซ้ำแล้ว 3 ครั้ง (R2-F2b, R2-F9, R2-F15)
 - [TASK-0002 S2] ช่วงที่ CSS เก่ายังโหลด utility ชนะได้เฉพาะ specificity เท่ากันและมาทีหลัง — ไล่กฎเก่าของ hook class (`:first-child`, `[aria-*]`, `::before`, `:visited`) แล้วใช้ variant ก่อน `!`. ใช้ซ้ำแล้ว 1 ครั้ง (S1.5)
 - [TASK-0002 S0] shadcn CLI รุ่นเก่าใส่ dependency แบบ `^` → `npm install --save-exact <pkg>@<ver>` ซ้ำ; ก่อนรัน CLI ที่อาจทับ config ให้สำรองไว้ใน scratchpad แล้ว `diff -q` หลังรัน. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0002 S1.5] ก่อนสรุปว่า e2e ล้มเพราะงานตัวเอง stash ไฟล์ตัวเองแล้วรันเคสนั้นเดี่ยวบน HEAD · class ที่เทสต์อ้างด้วย regex (`toHaveClass(/is-open/)`) ห้ามโผล่ใน arbitrary variant ของ Tailwind. ใช้ซ้ำแล้ว 0 ครั้ง
-- [TASK-0002 R2-F0] ก่อนเพิ่ม key ใน dict แปล สคริปต์ตรวจ key ซ้ำทุกไฟล์ dict — ซ้ำข้ามไฟล์ = override เงียบ (เช่น "อนุมัติ" ปุ่ม vs สถานะ). ใช้ซ้ำแล้ว 0 ครั้ง
-- [TASK-0002 R2-F2] token ใน URL fragment: อ่านครั้งเดียวเก็บใน ref แล้ว `history.replaceState` ลบ (strict mode รัน effect ซ้ำ) · label ที่มี "*" แยก `<span aria-hidden> *</span>` เพื่อใช้ key dict เดิม. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0002 R2-F0] ก่อนเพิ่ม key ใน dict แปล สคริปต์ตรวจ key ซ้ำทุกไฟล์ dict — ซ้ำข้ามไฟล์ = override เงียบ (เช่น "อนุมัติ" ปุ่ม vs สถานะ). ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0003 S3b/fix รอบ 1)
+- [TASK-0002 R2-F2] token ใน URL fragment: อ่านครั้งเดียวเก็บใน ref แล้ว `history.replaceState` ลบ (strict mode รัน effect ซ้ำ) · label ที่มี "*" แยก `<span aria-hidden> *</span>` เพื่อใช้ key dict เดิม · ส่งข้อมูลข้ามหน้าตอน session ถูกล้าง: sessionStorage + ผู้อ่าน "take" ตัด token ออกทันทีใน effect ที่มี ref (TASK-0003 S3d). ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0003 S3d)
 - [TASK-0002 R2-F1] `backdrop-filter`/`filter`/`transform` บน ancestor ทำให้ลูก `position: fixed` อิง ancestor → วางพื้นเบลอบนชั้นลูก absolute `-z-10`. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0002 R2-F4/F8] Next 14 app router เปลี่ยนแค่ hash ไม่ยิง `hashchange` → ปลายทางอ่าน hash ใน effect หลัง mount; `<Link>` ไป hash หน้าเดิมให้ดัก onClick แล้ว `pushState` + dispatch `HashChangeEvent` เอง. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0002 R2-F5] ปลายทาง deep link ที่อาจถูกตัวกรอง/ขอบเขตซ่อน ต้องปลดตัวกรองหรือสลับขอบเขตให้เอง. ใช้ซ้ำแล้ว 0 ครั้ง
@@ -30,6 +31,8 @@
 - [TASK-0002 R2-F10] ตารางที่มีหลาย action ต่อแถว: แถวแสดงข้อมูล + ปุ่ม "จัดการ" เปิดแผงใต้แถว (testid เดิมอยู่ใน container เดิม) · ตัวเลือกที่ให้สิทธิ์ถ้าเดาไม่ได้ตรงระดับ ให้ "ยังไม่เลือก" แล้วบังคับเลือก. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0002 R2-F12] ค่าที่ "ห้ามเลือก" ตามสถานะ ส่งเป็น prop map เหตุผล (aria-disabled + ป้าย) ไม่ซ่อน — หน้าที่ไม่ส่ง prop ไม่เปลี่ยน. ใช้ซ้ำแล้ว 1 ครั้ง (R2-F13 P13)
 - [TASK-0002 R2-F15] ข้อความที่แสดงผ่าน CSS `content: attr(x)` คือข้อความที่ผู้ใช้เห็น → ต้องเพิ่ม attribute นั้นใน `ATTRS` ของ dom-translate. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0003 F2] ลิงก์นำทางใน confirm dialog ต้องปิด dialog เอง (`dismissAll()` ใน onClick) และห้ามตั้งชื่อปุ่มขึ้นต้น "ยืนยัน" (ชน selector `dialogOk` ของ E2E). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0003 fix R2-1] เงื่อนไขที่ขึ้นกับผลของ save (เช่น `lastAuthorId`) อ่านสถานะจริงหลัง save ไม่อนุมานจาก flag `touched` — save ที่แก้แล้วแก้กลับเป็น no-op · อ่านเสริมใน dialog ล้ม = fallback "ไม่เตือน" ไม่ใช่บล็อก. ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## PROJECT KNOWLEDGE
 - ทุก call ผ่าน `@/lib/api`; ต้อง `await initAunqa()` ก่อนใช้ (client เท่านั้น)
@@ -48,3 +51,5 @@
 - ทำขนานกับ agent อื่นใน tree เดียว: ห้าม `next build`/e2e (rebuild `.next` ทำให้ `next start` ที่รันอยู่ชี้ CSS เก่า และ kill ไม่ได้) → พิสูจน์ diff ตัวเองด้วย `git worktree` ชั่วคราว + junction node_modules (ลบ junction ด้วย `(Get-Item).Delete()` ก่อน `worktree remove`) แล้ว commit ด้วย `git commit -- <paths>`
 - session: AppShell ฟัง pointerdown/keydown/input ทั้งแอป → `touchSession()`; ระหว่าง `sessionLost` ซ่อน sidebar/topbar
 - testid ห้ามขึ้นต้น `heat-`/`mywork-` ใหม่; testid รอบ 2: `user-menu`, `display-menu`, `theme-segment-*`, `nav-menu`, `landing-menu-btn`, `ra-*` (ขอเข้าใช้งาน), `invite-result`
+- (TASK-0003) ToastContext มีแค่ success/error/info (ไม่มี warning) · testid ส่งตรวจ: `submit-recipient-count`, `submit-no-recipient-warning`, `submit-go-assign`, `submit-stale-author-warning`, `section-return` · scenario UI: `scenario-*`, `login-scenario-*` (DemoTab super_admin เท่านั้น, loader รับ `user` เป็นอาร์กิวเมนต์แรก)
+- (TASK-0003, incident) `npx tsc --noEmit -p eduflow-next` จาก root repo ให้ผลเขียวปลอม (root ไม่มี typescript → npx ขึ้น "not the tsc command" แต่ exit 0) — รัน `cd eduflow-next && npx tsc --noEmit -p .` เสมอ (frontend-dev S3b เคยรายงาน "ไม่มี error" ด้วยรูปแบบนี้)

@@ -11,9 +11,12 @@
 - [TASK-0002 D2] ก่อนย้าย control เข้าเมนู grep testid ใน E2E นับจุดที่ต้องเปิดเมนูก่อน แล้วระบุ helper ที่ qa ต้องสร้าง (`openUserMenu`) ในแผน. ใช้ซ้ำแล้ว 0 ครั้ง
 - [TASK-0002 review, reviewer] AC ที่วัดด้วย "⊆ ไฟล์ในแผน" ต้องอัปเดตแผนทุกครั้งที่มี follow-up subtask (R2-B2 ไม่มีแถวในแผน) ไม่งั้น AC ตกตามตัวอักษรทั้งที่งานถูก. ใช้ซ้ำแล้ว 0 ครั้ง
 - [incident: TASK-0002 BUG-0002-Q2C-1] สเปก responsive ต้องระบุตำแหน่งของ control ที่ AC บังคับ "มองเห็นทุกจอ" ในทุก breakpoint (LangSwitch ใน hamburger ไม่ได้ระบุ). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0003 S2] รับดีไซน์ภายนอก (Figma) ให้คง "ชื่อ" token/class/testid แล้วเปลี่ยนแค่ "ค่า" — เขียนเป็นกติกาในตาราง mapping ตั้งแต่ต้น (ต่อยอดบท role class ของ D1). ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0003 S2] เทียบหน้าจริงกับ Figma ใช้ตาคน + overlay/side-by-side ไม่ใช้ pixel diff เป็นเกณฑ์ผ่าน; `toHaveScreenshot` ใช้กับ baseline หน้าจริงหลังเจ้าของอนุมัติเท่านั้น. ใช้ซ้ำแล้ว 0 ครั้ง
 
 ## PROJECT KNOWLEDGE
 - UI spec: `.agents/decisions/ADR-UI-001-redesign.md` + `ui/{tokens,components,pages}.md` (บังคับเท่ากัน) — Warm Academic: sand #FBF8F3 / indigo #3B4FA0 / amber #E9A23B ≤10%, Sarabun 400/600/700 อย่างเดียว, ไม่มี dark mode
 - U1b: spec ตกรอบตรวจ 1 รอบเพราะ breakpoint ขัดกัน, ขนาดคงที่, ไม่มี variant บนพื้นเข้ม, todo ไม่ครบทุกขั้นของรอบ → ก่อนส่ง spec ให้ไล่ทุก role ครบวงจร (เริ่ม→ปิดรอบ) และใช้ min-width/max-width แบบเดียวทั้ง spec
 - C20 เลขในวงแหวนใหญ่ = fs-xl (แก้ใน U3); line-height ปุ่ม 1.5 ตาม T2.2 ไม่มีข้อยกเว้น
 - (TASK-0002 แทน ADR-UI-001) UI spec ปัจจุบัน: `ADR-UI-002-saas-tailwind.md` (stack/cutover) + `ADR-UI-003-friendly-earth.md` + `ui/earth-tokens.md` + `ui/friendly-spec.md` (+ `ui/saas-spec.md`/`saas-tokens.md` ส่วนที่ไม่ถูกแทน) · onboarding: `ADR-AUTH-001-onboarding.md` (O1 admin เชิญ/อนุมัติคำขอ, ไม่มีหน้าสมัครเปิด)
+- (TASK-0003) แผนรับงาน Figma: `.agents/decisions/FIGMA-INTAKE.md` (checklist ขอของ §1, inventory 20 route, mapping token, ข้อจำกัด L1–L13, ขั้น F0–F8, ทางเลือก Figma MCP/REST — ยังไม่ติดตั้ง, เพิ่ม MCP ต้องเจ้าของอนุมัติ) · ขั้น F1 ให้ code-reader อัปเดต SYSTEM_MAP Frontend ก่อน (ยังเป็นสภาพก่อน TASK-0002)

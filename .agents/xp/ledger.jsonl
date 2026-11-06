@@ -390,3 +390,79 @@
 {"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 3, "reason": "T2 บทเรียนรับ: เลขรูปเปลี่ยนทั้งชุด renumber ด้วยสคริปต์ map ก่อนเขียนเนื้อหา", "task": "TASK-0002"}
 {"ts": "2026-10-27T10:07:36+00:00", "agent": "thesis-writer", "points": 3, "reason": "T2 บทเรียนรับ: APA ผู้แต่งคนแรกเดียวกันปีเดียวกันชุดต่างกัน เขียนชื่อคนที่สอง", "task": "TASK-0002"}
 {"ts": "2026-10-27T10:11:21+00:00", "agent": "frontend-dev", "points": 5, "reason": "T2 บทเรียน R2-F12 prop map เหตุผลห้ามเลือก ถูกใช้ใน R2-F13 (P13 picker ผูกเพิ่ม)", "task": "TASK-0002"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "code-reader", "points": 20, "reason": "T3 1 Read (M): root cause ประธานไม่ได้แจ้งเตือน + repro vitest 10 เคส + SYSTEM_MAP (reviewer S8 ยืนยัน AC1)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "code-reader", "points": 5, "reason": "T3 บทเรียน R2 ตาราง notify x field x ปลายทาง ถูกใช้ใน S1 (ตาราง N1-N14 + จุดไม่มีแจ้งเตือน)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "code-reader", "points": 3, "reason": "T3 บทเรียนรับ: บั๊กไม่ได้แจ้งเตือน ไล่ ผู้รับ = ใคร - actor แล้วเช็กว่า seed บังคับ actor = ผู้รับไหม", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "code-reader", "points": 3, "reason": "T3 บทเรียนรับ (incident): seed ที่เขียน status ตรงไม่มีแจ้งเตือน/review event คู่ เคสสาธิตต้องผ่าน API", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "architect", "points": 20, "reason": "T3 S2 Design (M): FIGMA-INTAKE 6 หัวข้อ checklist/mapping token/ข้อจำกัด L1-L13/ขั้น F0-F8", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "architect", "points": 10, "reason": "T3 ผ่าน review รอบแรก: reviewer S8 เปิด FIGMA-INTAKE ตรวจ AC5 ครบ ไม่มี finding", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "architect", "points": 3, "reason": "T3 บทเรียนรับ: รับดีไซน์ภายนอก คงชื่อ token/class/testid เปลี่ยนแค่ค่า ระบุในตาราง mapping", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "architect", "points": 3, "reason": "T3 บทเรียนรับ: เทียบกับ Figma ใช้ตาคน+overlay ไม่ใช้ pixel diff เป็นเกณฑ์ผ่าน", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 20, "reason": "T3 S3a F3 (M): transitionSectionCounted + submitSectionWithNotice/previewSubmitRecipients + เทสต์ 13 เคส", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 10, "reason": "T3 S3c wire F4 (S): init.ts + ตามแก้เทสต์ 7->6, 3.6->5.1 ตรง file:line ที่ db-engineer ชี้", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 10, "reason": "T3 ผ่าน review รอบแรก: ไม่มี finding ในไฟล์ backend (reviewer ยืนยัน guard/ข้อความ/allow-list)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 5, "reason": "T3 Study security-auth.md V8 แล้ว preview ตรวจ read+tenant คืนแค่จำนวน (security S-5 ยืนยัน)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 5, "reason": "T3 บทเรียน B2 seed เปลี่ยนสถานะทำเทสต์เดิมพัง ถูกใช้ใน S3c (ไล่ทั้งชุด 850 ผ่าน)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "backend-dev", "points": 3, "reason": "T3 บทเรียนรับ: ต้องการข้อมูลเพิ่มจาก write เดิม แยก *Counted/*Core ให้ตัวเดิมเป็น wrapper", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 20, "reason": "T3 S3b F1/F2 (M): dialog preview ผู้รับ + toast ตาม notifiedCount จริง + i18n 5 key", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 20, "reason": "T3 S3d UI โหลด scenario (M): DemoTab + ScenarioSummaryPanel + guard super_admin + i18n 30 key", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": -3, "reason": "T3 ต้องแก้หลัง review รอบ 1 (#1 major toast แนะนำทางตัน) = fix รอบ 1", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 Study ui-ux.md แล้ว UI loader ผ่านจุดเน้น 5 ของ reviewer (target 44, aria-live, container query)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 บทเรียน ตัวเลขบนจอคำนวณจากฟังก์ชันเดียวกับ backend ถูกใช้ (dialog preview = toast notifiedCount)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 บทเรียน วัดความครบ EN ด้วยสคริปต์ ถูกใช้ S3b/S3d/fix รอบ 1 (ไม่มีอักษรไทยเหลือ)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 บทเรียน ตรวจ key ซ้ำทุกไฟล์ dict ถูกใช้ S3b/fix รอบ 1", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 บทเรียน token อ่านครั้งเดียวเก็บ ref (strict mode) ถูกใช้ใน S3d take summary", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 RULE สแกน emoji ใน diff ถูกใช้ทุกรอบ ไม่หลุดอีก (reviewer สแกนยืนยัน)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 5, "reason": "T3 RULE container query หน่วย rem ถูกใช้ใน S3d grid 48rem (ครั้งที่ 2)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 3, "reason": "T3 บทเรียนรับ (incident toast เท็จ): ข้อความว่าใครได้รับอะไรต้องมาจากค่าที่ API คืน + ประโยคเงื่อนไข", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 3, "reason": "T3 บทเรียนรับ: ลิงก์ใน confirm dialog ต้อง dismissAll เอง และห้ามชื่อขึ้นต้น ยืนยัน", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "frontend-dev", "points": 3, "reason": "T3 บทเรียนรับ: เงื่อนไขที่ขึ้นกับผล save อ่านสถานะจริงหลัง save ไม่อนุมานจาก touched", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 40, "reason": "T3 S4 F4 + scenario seed (L): 27 เคสผ่าน API จริง + README + จำลองผลกับเทสต์ทั้งชุด", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": -3, "reason": "T3 ต้องแก้หลัง security S-1 Medium (loader รีเซ็ตด้วย sadmin ไม่รับ actor) = fix รอบ 1", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 5, "reason": "T3 Study security-auth.md PDPA แล้วข้อมูลสมมติทั้งหมด (security P5: อีเมล .example 25, เบอร์ 0)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 3, "reason": "T3 บทเรียนรับ (incident): seed/fixture ที่มีผลข้างเคียงเดินผ่าน API หรือสร้างคู่ด้วยข้อความเดียวกัน + dedupeKey", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 3, "reason": "T3 บทเรียนรับ: จำลองผล seed ใหม่กับเทสต์ทั้งชุดด้วย vite transform ชั่วคราว ระบุ file:line ที่ต้องแก้", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 3, "reason": "T3 บทเรียนรับ: ข้อมูลขึ้นกับวันที่ตรวจกับสูตรจริง (daysUntil นับถึง 23:59) ไม่เดา offset", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 3, "reason": "T3 บทเรียนรับ (incident S-1): seed/reset ที่ทำลายข้อมูลรับ actor คนกดจริง ห้ามยืมบัญชี admin", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "db-engineer", "points": 3, "reason": "T3 บทเรียนรับ: เทสต์ปฏิเสธโดยไม่แตะข้อมูล เทียบ snapshot localStorage ทั้งก้อนก่อน/หลัง", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 20, "reason": "T3 5 Review รอบ 1 (M): diff 21 ไฟล์ major 1 minor 2 nit 5", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 8, "reason": "T3 พบ major #1: toast หลังส่งแนะนำมอบหมายทั้งที่ข้อ ready_for_review = ทางตัน (อาการเดียวกับเจ้าของ)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 10, "reason": "T3 5 Review รอบ 2 (S): probe 7/7 เส้นทางเต็ม + re-check security S-1..S-3 แทน auditor", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 20, "reason": "T3 S8 Review final (M): ทั้ง branch, AC1-AC5 เปิดไฟล์จริง, สุ่ม ROLE_GUIDE 14 จุด, merge-base/magic bytes", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 5, "reason": "T3 บทเรียน grep ผู้เรียกทั้ง repo ถูกใช้ในรอบ 1 (ครั้งที่ 2 -> RULE)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 5, "reason": "T3 บทเรียน สแกน writer + เช็ก export * ของ facade ถูกใช้ในรอบ 1 (helper F3 ไม่หลุด facade)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 5, "reason": "T3 RULE B7 (ผู้เขียน) ถูกใช้โดย backend-dev S3a และ reviewer ยืนยัน", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 5, "reason": "T3 RULE C2-1 ทำตาม contract (ผู้เขียน) ถูกใช้โดย backend-dev S3a selfReview ตาม contract + จดความเสี่ยง", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 5, "reason": "T3 ความรู้ ตามรอย fix ถึง output จริง ถูกใช้ในรอบ 2 (probe R1 เดินครบ 6 ขั้น)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 3, "reason": "T3 บทเรียนรับ (incident major #1): คำแนะนำขั้นต่อไปต้องเดิน state machine ในสถานะหลัง action", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 3, "reason": "T3 บทเรียนรับ: ตรวจทางตันเดินเส้นทางที่ผู้ใช้อาจเบี่ยงด้วย เทียบ guard segregation (พบ R2-1)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "reviewer", "points": 3, "reason": "T3 บทเรียนรับ: ก่อน merge ตรวจ merge-base == master + magic bytes/ขนาดไบนารีที่เข้าประวัติถาวร", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 20, "reason": "T3 5 Review security (M): 5 หัวข้อ + probe 6 ตัว, critical 0 high 0 medium 1 low 3", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 8, "reason": "T3 พบ S-1 Medium (แก้ก่อนส่ง): loader รีเซ็ตทุก tenant ด้วย sadmin ไม่ตรวจผู้เรียก ถูกแก้จริง", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 5, "reason": "T3 Study security-auth.md C1-C3/R5/P1-P3 แล้วรายงานสอดคล้อง (reviewer re-check ปิด S-1..S-3)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 5, "reason": "T3 RULE บันทึก probe ทุกตัวลงรายงาน + re-check เปลี่ยน assert ถูกใช้ (P1-P6)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 3, "reason": "T3 บทเรียนรับ: ฟังก์ชันที่ทำงานแทนบัญชีระบบต้องรับ actor ตรวจสิทธิ์ guard UI ไม่นับ", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "security-auditor", "points": 3, "reason": "T3 บทเรียนรับ: ค่าจาก storage ที่ใส่ href ต้อง validate รูปแบบ (React 18 ไม่บล็อก javascript:)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 20, "reason": "T3 S6a probe -> เทสต์ถาวร (M): 3 ไฟล์ 38 เคส ปิด review #2 + S-1..S-3, vitest 888", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 40, "reason": "T3 S6b walkthrough (L): วิดีโอ V00-V11 คำบรรยายไทย + expect จริง 12/12 + stale-author e2e, e2e 179/2/0", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 10, "reason": "T3 S8 Test final (S): build สำเนา HEAD + e2e 179 + walkthrough 12/12 + vitest 888 + tsc 0", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 5, "reason": "T3 RULE ตัวตรวจต้องพิสูจน์ว่าวัดจริง ถูกใช้ S6a negative control + S6b stale-author ก่อน/หลังแก้", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 5, "reason": "T3 บทเรียน Q2b ไม่มีความลับใน storage รวมทุก key ถูกใช้ใน scenario-summary (ไม่มี /invite#t=)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ (incident tsc เขียวปลอม): npx tsc ต้องรันในโฟลเดอร์ที่ติดตั้ง typescript", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ: not.toContain บน storage ใช้ส่วนที่เป็นความลับเฉพาะ ไม่ใช้คำทั่วไปที่อยู่ใน id", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ: วิดีโอที่มี toast จำกัดเวลา บรรยายรวบก่อนกดปุ่มใน toast", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ: ffmpeg ของ Playwright ไม่มี h264 บีบ VP9 crf 40 ลด ~5 เท่า", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ: build แยกด้วย git archive HEAD + junction node_modules ใน scratchpad ไม่ชน next dev", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "qa-tester", "points": 3, "reason": "T3 บทเรียนรับ: junction บน Git Bash ใช้ PowerShell New-Item (mklink ใส่ quote path เพี้ยน)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 20, "reason": "T3 S7 Docs (M): ROLE_GUIDE 8 หัวข้อ + แก้คู่มือเดิม review #3 ครบ + จุดแนะนำผิดเพิ่ม 4 จุด", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 10, "reason": "T3 S7b Docs (S): ตารางวิดีโอตรงไฟล์จริง 12 ไฟล์ + FAQ 3 ข้อจากผล qa", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 10, "reason": "T3 ผ่าน review รอบแรก: reviewer S8 สุ่ม ROLE_GUIDE 14 จุดตรงโค้ดทั้งหมด (R3-5 nit เท่านั้น)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 5, "reason": "T3 บทเรียน ไล่สิทธิ์จาก rbac คู่ปุ่มจริง ถูกใช้ใน S7 (sar.approve มีแค่ประธาน) ครั้งที่ 2 -> RULE", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 5, "reason": "T3 บทเรียน ตรวจ Log Build/Test หลังสุดก่อนเขียน ถูกใช้ S7 + S7b (ครั้งที่ 2 -> RULE)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 3, "reason": "T3 บทเรียนรับ: คำแนะนำให้คนอื่นทำแทน ต้องเช็ก POLICY ว่ามี role อื่นทำ action นั้นได้จริง", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 3, "reason": "T3 บทเรียนรับ: เอกสารที่จะแปลง docx ใช้ตาราง/ข้อความลูกศรแทน code block และ mermaid", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "docs-writer", "points": 3, "reason": "T3 บทเรียนรับ: อธิบายทางสำรองของปุ่มใน toast เทียบ flow ทั้งสองทางและบอกส่วนต่าง", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "researcher", "points": 3, "reason": "T3 security-auth.md ถูกอ้างใน Study ของ backend-dev แล้วผ่านด่าน (security S-5)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "researcher", "points": 3, "reason": "T3 security-auth.md ถูกอ้างใน Study ของ db-engineer แล้วผ่านด่าน (security P5 PII สมมติ)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "researcher", "points": 3, "reason": "T3 security-auth.md ถูกอ้างใน Study ของ security-auditor (C1-C3/R5/P1-P3)", "task": "TASK-0003"}
+{"ts": "2026-11-04T08:41:53+00:00", "agent": "researcher", "points": 3, "reason": "T3 ui-ux.md ถูกอ้างใน Study ของ frontend-dev แล้ว reviewer ยืนยัน target/สถานะ UI loader", "task": "TASK-0003"}

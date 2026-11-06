@@ -1,10 +1,10 @@
 # Playbook — xp-keeper
 
 ## RULES
-- [TASK-0001 + TASK-0002] ห้ามเรียก `python`/`python3` ใน PATH (alias Store) — ใช้ `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe -X utf8` + สคริปต์ award ใน scratchpad ที่เรียก `xp.cmd_award` ตรง ๆ (argv ไทยจาก Git Bash เพี้ยน). ใช้ซ้ำแล้ว 2 ครั้ง
+- [TASK-0001 + TASK-0002] ห้ามเรียก `python`/`python3` ใน PATH (alias Store) — ใช้ `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe -X utf8` + สคริปต์ award ใน scratchpad ที่เรียก `xp.cmd_award` ตรง ๆ (argv ไทยจาก Git Bash เพี้ยน). ใช้ซ้ำแล้ว 3 ครั้ง (TASK-0003)
 
 ## LESSONS
-- [TASK-0002] TASK file ใหญ่ (500KB, บรรทัดยาว) อ่านด้วย Read ไม่ได้ → awk ดึงหัว `### ` + บรรทัด Study/LESSON CANDIDATE/ผล ลง scratchpad แล้วอ่านทีละส่วน; รายงาน reviews ใช้ grep `major|Verdict` นับ finding. ใช้ซ้ำแล้ว 0 ครั้ง
+- [TASK-0002] TASK file ใหญ่ (500KB, บรรทัดยาว) อ่านด้วย Read ไม่ได้ → awk ดึงหัว `### ` + บรรทัด Study/LESSON CANDIDATE/ผล ลง scratchpad แล้วอ่านทีละส่วน; รายงาน reviews ใช้ grep `major|Verdict` นับ finding · Read ใช้ offset/limit ทีละ ~110 บรรทัดได้ถ้าไฟล์ ~400 บรรทัด. ใช้ซ้ำแล้ว 1 ครั้ง (TASK-0003)
 
 ## PROJECT KNOWLEDGE
 - บน Windows: python3/python ใน PATH เป็น alias ของ Store → ใช้ `/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe`
@@ -51,4 +51,12 @@
   - (T2) emoji หลุด 3 ครั้งแต่ orchestrator แก้ → ไม่หัก (ตาม C6) แต่บันทึกเป็น RULE จาก incident ใน frontend playbook
   - (T2) LESSON CANDIDATE ที่หลายข้อซ้อนกันในบล็อกเดียว รับเป็นรายข้อ (+3 ต่อข้อที่รับ) แต่รวมบรรทัดใน playbook ได้; บทเรียนใน TASK เดียวกันที่ subtask ถัดไปอ้างใช้ → +5 ได้ (เช่น S2 → S1.5)
   - (T2) diagram/docs ไม่มี reviewer ตรวจ → ไม่ให้ +5 diagram ตรงโค้ด/Study และไม่ให้ researcher +3 จาก uml.md/ui-ux.md ที่ docs อ้าง; thesis ใช้ build.py เป็นด่าน (ให้ +3 thesis-th/security-auth)
+- TASK-0003 (2026-11-04): ledger 392 → 468 (76 แถว, prefix reason "T3 ") — ตรวจซ้ำด้วยการหา task TASK-0003 ก่อน award ครั้งถัดไป · TASK-0003 ปิดแล้ว
+  - (T3) Study +5 ให้เฉพาะเมื่อ Study อ้างไฟล์ใน `standards/` และด่าน (review/security) ตรวจส่วนที่เกี่ยวกับมาตรฐานนั้นจริง; อ่านแค่ playbook หรือด่านไม่ได้ตรวจส่วนนั้น → ไม่ให้ (researcher +3 ใช้เกณฑ์เดียวกัน)
+  - (T3) RULE/LESSON ที่ถูกใช้ → +5 ให้ "ผู้เขียน" ตาม ledger ที่รับบทเข้า (B7, C2-1 = reviewer) ไม่ใช่เจ้าของ playbook
+  - (T3) BLOCKED เพราะไม่มีเครื่องมือ (docs-writer ไม่มี shell แปลง docx) ไม่ใช่ "ถามแทนเดา" → ไม่ให้ +5 แต่ไม่หัก
+  - (T3) code-reader เจอบั๊ก major จริงใน Read ไม่อยู่ในรายชื่อ +8 (reviewer/qa/security/ui/playtester) → ไม่ให้ +8; บันทึกใน Debrief แทน
+  - (T3) security Medium ในโค้ดของ agent ที่ agent จดความเสี่ยงไว้เองแต่เสนอแก้ไม่พอ (UI gate) → ยังหัก -3 ตามเกณฑ์ T2
+  - (T3) LESSON CANDIDATE ที่ซ้ำ RULE/LESSON เดิม → รวมเข้าบทเดิม + counter ไม่ให้ +3 (backend preview ใช้ฟังก์ชันเดียว, frontend take token, frontend href regex, qa negative control)
+  - (T3) ตัวนับ "ใช้ซ้ำ" ภายในงานเดียวกันแต่ต่างเฟส (docs S7 + S7b) นับ 2 ครั้ง → เลื่อนเป็น RULE ได้
 
